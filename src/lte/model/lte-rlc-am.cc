@@ -113,13 +113,14 @@ LteRlcAm::BufferSizeTrace()
 {
   NS_LOG_LOGIC("BufferSizeTrace " << Simulator::Now().GetSeconds() << " " << m_rnti << " " << m_lcid << " " << m_txonBufferSize);
   // write to file
-  /*if(!m_bufferSizeFile.is_open())
-  {
-    m_bufferSizeFile.open(GetBufferSizeFilename().c_str(), std::ofstream::app);
-    NS_LOG_LOGIC("File opened");
-  }
-  m_bufferSizeFile << Simulator::Now().GetSeconds() << " " << m_rnti << " " << (uint16_t) m_lcid << " " << m_txonBufferSize << std::endl;
-  */
+  if (!m_bufferSizeFile.is_open ())
+    {
+      m_bufferSizeFile.open (GetBufferSizeFilename ().c_str (), std::ofstream::app);
+      NS_LOG_LOGIC ("File opened");
+    }
+  m_bufferSizeFile << Simulator::Now ().GetSeconds () << " " << m_imsi << " " << m_rnti << " "
+                   << (uint16_t) m_lcid << " " << m_txonBufferSize << std::endl;
+
   m_traceBufferSizeEvent = Simulator::Schedule(MilliSeconds(10), &LteRlcAm::BufferSizeTrace, this);
 }
 
@@ -241,6 +242,9 @@ LteRlcAm::DoTransmitPdcpPdu (Ptr<Packet> p)
 {
   NS_LOG_FUNCTION (this << m_rnti << (uint32_t) m_lcid << p->GetSize ());
 
+  ++m_txPacketsInReportingPeriod;
+  m_txBytesInReportingPeriod += p->GetSize();
+
   if(m_enableAqm == false)
   {
     if (m_txonBufferSize + p->GetSize () <= m_maxTxBufferSize)
@@ -322,8 +326,8 @@ LteRlcAm::DoNotifyTxOpportunity (LteMacSapUser::TxOpportunityParameters txOpPara
       // Stingy MAC: In general, we need more bytes.
       // There are a more restrictive test for each particular case
       NS_LOG_LOGIC ("TxOpportunity (size = " << txOpParams.bytes << ") too small");
-      NS_ASSERT_MSG (false, "TxOpportunity (size = " << txOpParams.bytes << ") too small.\n"
-                         << "Your MAC scheduler is assigned too few resource blocks.");
+      // NS_ASSERT_MSG (false, "TxOpportunity (size = " << txOpParams.bytes << ") too small.\n"
+      //                    << "Your MAC scheduler is assigned too few resource blocks.");
       return;
     }
 
@@ -333,8 +337,8 @@ LteRlcAm::DoNotifyTxOpportunity (LteMacSapUser::TxOpportunityParameters txOpPara
         {
           // Stingy MAC: We need more bytes for the STATUS PDU
           NS_LOG_LOGIC ("TxOpportunity (size = " << txOpParams.bytes << ") too small for the STATUS PDU (size = " << m_statusPduBufferSize << ")");
-          NS_ASSERT_MSG (false, "TxOpportunity (size = " << txOpParams.bytes << ") too small for the STATUS PDU (size = " << m_statusPduBufferSize << ")\n"
-                             << "Your MAC scheduler is assigned too few resource blocks.");
+          // NS_ASSERT_MSG (false, "TxOpportunity (size = " << txOpParams.bytes << ") too small for the STATUS PDU (size = " << m_statusPduBufferSize << ")\n"
+          //                    << "Your MAC scheduler is assigned too few resource blocks.");
           return;
         }
 
@@ -679,8 +683,8 @@ LteRlcAm::DoNotifyTxOpportunity (LteMacSapUser::TxOpportunityParameters txOpPara
       {
         // Stingy MAC: We need more bytes for new DATA PDUs.
         NS_LOG_LOGIC ("TxOpportunity (size = " << txOpParams.bytes << ") too small for DATA PDU");
-        NS_ASSERT_MSG (false, "TxOpportunity (size = " << txOpParams.bytes << ") too small for DATA PDU\n"
-                           << "Your MAC scheduler is assigned too few resource blocks.");
+        // NS_ASSERT_MSG (false, "TxOpportunity (size = " << txOpParams.bytes << ") too small for DATA PDU\n"
+        //                    << "Your MAC scheduler is assigned too few resource blocks.");
         return;
       }
 
@@ -1124,7 +1128,7 @@ LteRlcAm::GetTxBuffer()
   }
   return toBeReturned;
 }
-uint32_t LteRlcAm::GetTxBufferSize()
+uint32_t LteRlcAm::GetTxBufferSize() const
 {
   return m_txonBufferSize + m_txonQueue->GetNBytes();
 }
@@ -1137,7 +1141,7 @@ LteRlcAm::GetTxedBuffer()
   return m_txedBuffer;
 }
 uint32_t
-LteRlcAm::GetTxedBufferSize()
+LteRlcAm::GetTxedBufferSize() const
 {
   return m_txedBufferSize;
 }
@@ -1151,7 +1155,7 @@ LteRlcAm::GetRetxBuffer()
 }
 
 uint32_t
-LteRlcAm::GetRetxBufferSize()
+LteRlcAm::GetRetxBufferSize() const
 {
   return m_retxBufferSize;
 }
@@ -1163,7 +1167,7 @@ LteRlcAm::GetTransmittingRlcSduBuffer()
   // TODO check if it must be emptied
 }
 uint32_t
-LteRlcAm::GetTransmittingRlcSduBufferSize()
+LteRlcAm::GetTransmittingRlcSduBufferSize() const
 {
   return m_transmittingRlcSduBufferSize;
 }

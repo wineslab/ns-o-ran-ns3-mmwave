@@ -245,7 +245,7 @@ MmWaveNetDevice::Receive (Ptr<Packet> p)
     }
   else
     {
-      NS_ABORT_MSG ("MmWaveNetDevice::Receive - Unknown IP type...");
+      NS_LOG_UNCOND ("MmWaveNetDevice::Receive - Unknown IP type...");
     }
 }
 

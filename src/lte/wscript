@@ -2,7 +2,7 @@
 
 def build(bld):
 
-    lte_module_dependencies = ['core', 'network', 'spectrum', 'stats', 'buildings', 'virtual-net-device','point-to-point','applications','internet','csma']
+    lte_module_dependencies = ['core', 'network', 'spectrum', 'stats', 'buildings', 'virtual-net-device','point-to-point','applications','internet','csma','oran-interface']
     if (bld.env['ENABLE_EMU']):
         lte_module_dependencies.append('fd-net-device')
     module = bld.create_ns3_module('lte', lte_module_dependencies)
@@ -139,6 +139,7 @@ def build(bld):
         'model/mc-enb-pdcp.cc',
         'model/mc-ue-pdcp.cc',
         'helper/retx-stats-calculator.cc',
+        'helper/mmwave-bearer-stats-calculator.cc',
         'helper/mac-tx-stats-calculator.cc'
         ]
 
@@ -338,7 +339,8 @@ def build(bld):
         'helper/cc-helper.h',
         'model/component-carrier.h',
         'model/component-carrier-ue.h',
-        'model/component-carrier-enb.h'
+        'model/component-carrier-enb.h',
+        'helper/mmwave-bearer-stats-calculator.h'
         ]
 
     if (bld.env['ENABLE_EMU']):

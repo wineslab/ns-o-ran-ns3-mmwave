@@ -51,12 +51,12 @@ PhyTxStatsCalculator::GetTypeId (void)
     .SetParent<LteStatsCalculator> ()
     .SetGroupName("Lte")
     .AddConstructor<PhyTxStatsCalculator> ()
-    .AddAttribute ("DlTxOutputFilename",
+    .AddAttribute ("LteDlTxOutputFilename",
                    "Name of the file where the downlink results will be saved.",
                    StringValue ("DlTxPhyStats.txt"),
                    MakeStringAccessor (&PhyTxStatsCalculator::SetDlTxOutputFilename),
                    MakeStringChecker ())
-    .AddAttribute ("UlTxOutputFilename",
+    .AddAttribute ("LteUlTxOutputFilename",
                    "Name of the file where the uplink results will be saved.",
                    StringValue ("UlTxPhyStats.txt"),
                    MakeStringAccessor (&PhyTxStatsCalculator::SetUlTxOutputFilename),
@@ -184,21 +184,24 @@ PhyTxStatsCalculator::DlPhyTransmissionCallback (Ptr<PhyTxStatsCalculator> phyTx
                       std::string path, PhyTransmissionStatParameters params)
 {
   NS_LOG_FUNCTION (phyTxStats << path);
-  uint64_t imsi = 0;
-  std::ostringstream pathAndRnti;
-  std::string pathEnb  = path.substr (0, path.find ("/ComponentCarrierMap"));
-  pathAndRnti << pathEnb << "/LteEnbRrc/UeMap/" << params.m_rnti;
-  if (phyTxStats->ExistsImsiPath (pathAndRnti.str ()) == true)
-    {
-      imsi = phyTxStats->GetImsiPath (pathAndRnti.str ());
-    }
-  else
-    {
-      imsi = FindImsiFromEnbRlcPath (pathAndRnti.str ());
-      phyTxStats->SetImsiPath (pathAndRnti.str (), imsi);
-    }
+  // uint64_t imsi = 0;
+  // std::ostringstream pathAndRnti;
+  // std::string pathEnb  = path.substr (0, path.find ("/ComponentCarrierMap"));
+  // pathAndRnti << pathEnb << "/LteEnbRrc/UeMap/" << params.m_rnti;
 
-  params.m_imsi = imsi;
+  // std::cout << phyTxStats << std::endl;
+
+  // if (phyTxStats->ExistsImsiPath (pathAndRnti.str ()) == true)
+  //   {
+  //     imsi = phyTxStats->GetImsiPath (pathAndRnti.str ());
+  //   }
+  // else
+  //   {
+  //     imsi = FindImsiFromEnbRlcPath (pathAndRnti.str ());
+  //     phyTxStats->SetImsiPath (pathAndRnti.str (), imsi);
+  //   }
+
+  // params.m_imsi = imsi;
   phyTxStats->DlPhyTransmission (params);
 }
 
@@ -207,21 +210,21 @@ PhyTxStatsCalculator::UlPhyTransmissionCallback (Ptr<PhyTxStatsCalculator> phyTx
                       std::string path, PhyTransmissionStatParameters params)
 {
   NS_LOG_FUNCTION (phyTxStats << path);
-  uint64_t imsi = 0;
-  std::ostringstream pathAndRnti;
-  pathAndRnti << path << "/" << params.m_rnti;
-  std::string pathUePhy  = path.substr (0, path.find ("/ComponentCarrierMapUe"));
-  if (phyTxStats->ExistsImsiPath (pathAndRnti.str ()) == true)
-    {
-      imsi = phyTxStats->GetImsiPath (pathAndRnti.str ());
-    }
-  else
-    {
-      imsi = FindImsiFromLteNetDevice (pathUePhy);
-      phyTxStats->SetImsiPath (pathAndRnti.str (), imsi);
-    }
+  // uint64_t imsi = 0;
+  // std::ostringstream pathAndRnti;
+  // pathAndRnti << path << "/" << params.m_rnti;
+  // std::string pathUePhy  = path.substr (0, path.find ("/ComponentCarrierMapUe"));
+  // if (phyTxStats->ExistsImsiPath (pathAndRnti.str ()) == true)
+  //   {
+  //     imsi = phyTxStats->GetImsiPath (pathAndRnti.str ());
+  //   }
+  // else
+  //   {
+  //     imsi = FindImsiFromLteNetDevice (pathUePhy);
+  //     phyTxStats->SetImsiPath (pathAndRnti.str (), imsi);
+  //   }
 
-  params.m_imsi = imsi;
+  // params.m_imsi = imsi;
   phyTxStats->UlPhyTransmission (params);
 }
 
