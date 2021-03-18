@@ -33,6 +33,8 @@
 #include <ns3/random-variable-stream.h>
 #include <ns3/lte-ue-net-device.h>
 
+#include "ns3/netanim-module.h"
+
 #include <iostream>
 #include <ctime>
 #include <stdlib.h>
@@ -247,9 +249,9 @@ GenerateBuildingBounds (double xArea, double yArea, double maxBuildSize,
       ++attempt;
   } while (OverlapWithAnyPrevious (box, m_previousBlocks));
 
-  NS_LOG_UNCOND ("Building in coordinates (" << box.xMin << " , " << box.yMin << ") and ("
-                                             << box.xMax << " , " << box.yMax << ") accepted after "
-                                             << attempt << " attempts");
+  // NS_LOG_UNCOND ("Building in coordinates (" << box.xMin << " , " << box.yMin << ") and ("
+  //                                            << box.xMax << " , " << box.yMax << ") accepted after "
+  //                                            << attempt << " attempts");
   m_previousBlocks.push_back (box);
   std::pair<Box, std::list<Box>> pairReturn = std::make_pair (box, m_previousBlocks);
   return pairReturn;
@@ -505,7 +507,10 @@ main (int argc, char *argv[])
   Ptr<MmWavePointToPointEpcHelper> epcHelper = CreateObject<MmWavePointToPointEpcHelper> ();
   mmwaveHelper->SetEpcHelper (epcHelper);
   mmwaveHelper->SetHarqEnabled (harqEnabled);
-  //mmwaveHelper->SetCcPhyParams();
+  ///home/thecave3/mmwave-workspace/ns3-mmwave-oran/src/mmwave/model/mmwave-phy-mac-common.cc
+  // mmwaveHelper->GetCcPhyParams ().at (0).GetConfigurationParameters ()->SetAttribute (
+  //     "SymbolsPerSlot", uintegerValue (30));
+
   mmwaveHelper->Initialize ();
 
   ConfigStore inputConfig;
@@ -719,15 +724,24 @@ main (int argc, char *argv[])
 
   mmwaveHelper->EnableTraces ();
 
+  //Since nodes are randomly allocated during each run we always nned to print their positions
+
+  PrintGnuplottableBuildingListToFile ("buildings.txt");
+  PrintGnuplottableUeListToFile ("ues.txt");
+  PrintGnuplottableEnbListToFile ("enbs.txt");
+
+  //WIP
+  // AnimationInterface anim ("anim_name.xml");
+  // anim.UpdateNodeDescription (wifiNodes.Get (0), "SRV-0");
+  // anim.UpdateNodeColor (wifiNodes.Get (0), 0, 0, 255);
+  // anim.EnablePacketMetadata ();
+  // //  anim.EnableIpv4RouteTracking ("routingtable-wireless.xml", Seconds (0), Seconds (5), Seconds (0.25));
+  // anim.EnableWifiMacCounters (Seconds (0), Seconds (10)); //Optional
+  // anim.EnableWifiPhyCounters (Seconds (0), Seconds (10)); //Optional
+
   // set to true if you want to print the map of buildings, ues and enbs
-  bool print = true;
-  if (print)
-    {
-      PrintGnuplottableBuildingListToFile ("buildings.txt");
-      PrintGnuplottableUeListToFile ("ues.txt");
-      PrintGnuplottableEnbListToFile ("enbs.txt");
-    }
-  else
+  bool run = true;
+  if (run)
     {
       Simulator::Stop (Seconds (simTime));
       Simulator::Run ();
