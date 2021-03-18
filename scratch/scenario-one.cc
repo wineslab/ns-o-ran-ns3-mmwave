@@ -317,10 +317,6 @@ main (int argc, char *argv[])
 
   std::list<Box> m_previousBlocks;
 
-  // Command line arguments
-  CommandLine cmd;
-  cmd.Parse (argc, argv);
-
   UintegerValue uintegerValue;
   BooleanValue booleanValue;
   StringValue stringValue;
@@ -515,7 +511,16 @@ main (int argc, char *argv[])
   ConfigStore inputConfig;
   inputConfig.ConfigureDefaults ();
 
-  // parse again so you can override default values from the command line
+  uint8_t nMmWaveEnbNodes = 5;
+  uint8_t nLteEnbNodes = 1;
+  uint8_t nUeNodes = 30;
+
+  // Command line arguments
+  CommandLine cmd;
+
+  cmd.AddValue ("nMmWaveEnbNodes", "Numbers of mmWave Enb nodes", nMmWaveEnbNodes);
+  cmd.AddValue ("nLteEnbNodes", "Numbers of LTE Enb nodes", nLteEnbNodes);
+  cmd.AddValue ("nUeNodes", "Numbers of Ue nodes", nUeNodes);
   cmd.Parse (argc, argv);
 
   // Get SGW/PGW and create a single RemoteHost
@@ -547,9 +552,9 @@ main (int argc, char *argv[])
   NodeContainer mmWaveEnbNodes;
   NodeContainer lteEnbNodes;
   NodeContainer allEnbNodes;
-  mmWaveEnbNodes.Create (5);
-  lteEnbNodes.Create (1);
-  ueNodes.Create (30);
+  mmWaveEnbNodes.Create (nMmWaveEnbNodes);
+  lteEnbNodes.Create (nLteEnbNodes);
+  ueNodes.Create (nUeNodes);
   allEnbNodes.Add (lteEnbNodes);
   allEnbNodes.Add (mmWaveEnbNodes);
 
@@ -591,7 +596,7 @@ main (int argc, char *argv[])
   Ptr<ListPositionAllocator> enbPositionAlloc = CreateObject<ListPositionAllocator> ();
   //enbPositionAlloc->Add (Vector ((double)mmWaveDist/2 + streetWidth, mmw1Dist + 2*streetWidth, mmWaveZ));
 
-  enbPositionAlloc->Add (mmw1Position); // LTE BS, out of area where buildings are deployed
+  enbPositionAlloc->Add (mmw1Position);
   enbPositionAlloc->Add (mmw1Position);
   enbPositionAlloc->Add (mmw2Position);
   enbPositionAlloc->Add (mmw3Position);
@@ -610,15 +615,12 @@ main (int argc, char *argv[])
 
   Ptr<UniformRandomVariable> randomUePositionX = CreateObject<UniformRandomVariable> ();
   Ptr<UniformRandomVariable> randomUePositionY = CreateObject<UniformRandomVariable> ();
-  //Ptr<UniformRandomVariable> randomUePositionZ= CreateObject<UniformRandomVariable> ();
+
   randomUePositionX->SetAttribute ("Min", DoubleValue (0));
   randomUePositionX->SetAttribute ("Max", DoubleValue (maxXAxis));
 
   randomUePositionY->SetAttribute ("Min", DoubleValue (0));
   randomUePositionY->SetAttribute ("Max", DoubleValue (maxYAxis));
-
-  //randomUePositionZ->SetAttribute ("Min",DoubleValue (0));
-  //randomUePositionZ->SetAttribute ("Max",DoubleValue (50));
 
   Ptr<OutdoorPositionAllocator> uePositionAlloc = CreateObject<OutdoorPositionAllocator> ();
   uePositionAlloc->SetAttribute ("X", PointerValue (randomUePositionX));
@@ -629,9 +631,6 @@ main (int argc, char *argv[])
   uemobility.SetPositionAllocator (uePositionAlloc);
   uemobility.Install (ueNodes);
 
-  //uemobility.SetMobilityModel ("ns3::ConstantVelocityMobilityModel");
-  //uemobility.SetPositionAllocator (uePositionAlloc);
-  //uemobility.Install (ueNodes);
   BuildingsHelper::Install (ueNodes);
 
   //ueNodes.Get (0)->GetObject<MobilityModel> ()->SetPosition (Vector (ueInitialPosition, -5, 0));
