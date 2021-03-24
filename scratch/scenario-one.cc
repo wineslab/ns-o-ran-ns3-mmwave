@@ -44,11 +44,11 @@ using namespace ns3;
 using namespace mmwave;
 
 /**
- * Sample simulation script for MC device. It instantiates a LTE and two MmWave eNodeB,
- * attaches one MC UE to both and starts a flow for the UE to and from a remote host.
+ * Scenario One
+ * 
  */
 
-NS_LOG_COMPONENT_DEFINE ("McTwoEnbs");
+NS_LOG_COMPONENT_DEFINE ("ScenarioOne");
 
 void
 PrintGnuplottableBuildingListToFile (std::string filename)
@@ -181,15 +181,6 @@ PrintPosition (Ptr<Node> node)
                                                              << Simulator::Now ().GetSeconds ());
 }
 
-void
-PrintLostUdpPackets (Ptr<UdpServer> app, std::string fileName)
-{
-  std::ofstream logFile (fileName.c_str (), std::ofstream::app);
-  logFile << Simulator::Now ().GetSeconds () << " " << app->GetLost () << std::endl;
-  logFile.close ();
-  Simulator::Schedule (MilliSeconds (20), &PrintLostUdpPackets, app, fileName);
-}
-
 bool
 AreOverlapping (Box a, Box b)
 {
@@ -218,13 +209,15 @@ GenerateBuildingBounds (double xArea, double yArea, double maxBuildSize,
   xMinBuilding->SetAttribute ("Min", DoubleValue (30));
   xMinBuilding->SetAttribute ("Max", DoubleValue (xArea));
 
-  NS_LOG_UNCOND ("min " << 0 << " max " << xArea);
+  // TODO: is it useful to be shown now?
+  // NS_LOG_UNCOND ("min " << 0 << " max " << xArea);
 
   Ptr<UniformRandomVariable> yMinBuilding = CreateObject<UniformRandomVariable> ();
   yMinBuilding->SetAttribute ("Min", DoubleValue (0));
   yMinBuilding->SetAttribute ("Max", DoubleValue (yArea));
 
-  NS_LOG_UNCOND ("min " << 0 << " max " << yArea);
+  // TODO: is it useful to be shown now?
+  // NS_LOG_UNCOND ("min " << 0 << " max " << yArea);
 
   Box box;
   uint32_t attempt = 0;
@@ -314,6 +307,9 @@ static ns3::GlobalValue g_lteUplink ("lteUplink", "If true, always use LTE for u
 int
 main (int argc, char *argv[])
 {
+  LogComponentEnable ("TcpL4Protocol", LOG_LEVEL_INFO);
+  LogComponentEnable ("PacketSink", LOG_LEVEL_INFO);
+
   bool harqEnabled = true;
   bool fixedTti = false;
 
@@ -529,28 +525,28 @@ main (int argc, char *argv[])
   cmd.Parse (argc, argv);
 
   // Get SGW/PGW and create a single RemoteHost
-  Ptr<Node> pgw = epcHelper->GetPgwNode ();
-  NodeContainer remoteHostContainer;
-  remoteHostContainer.Create (1);
-  Ptr<Node> remoteHost = remoteHostContainer.Get (0);
-  InternetStackHelper internet;
-  internet.Install (remoteHostContainer);
+  // Ptr<Node> pgw = epcHelper->GetPgwNode ();
+  // NodeContainer remoteHostContainer;
+  // remoteHostContainer.Create (1);
+  // Ptr<Node> remoteHost = remoteHostContainer.Get (0);
+  // InternetStackHelper internet;
+  // internet.Install (remoteHostContainer);
 
   // Create the Internet by connecting remoteHost to pgw. Setup routing too
-  PointToPointHelper p2ph;
-  p2ph.SetDeviceAttribute ("DataRate", DataRateValue (DataRate ("100Gb/s")));
-  p2ph.SetDeviceAttribute ("Mtu", UintegerValue (2500));
-  p2ph.SetChannelAttribute ("Delay", TimeValue (Seconds (0.010)));
-  NetDeviceContainer internetDevices = p2ph.Install (pgw, remoteHost);
-  Ipv4AddressHelper ipv4h;
-  ipv4h.SetBase ("1.0.0.0", "255.0.0.0");
-  Ipv4InterfaceContainer internetIpIfaces = ipv4h.Assign (internetDevices);
-  // interface 0 is localhost, 1 is the p2p device
-  Ipv4Address remoteHostAddr = internetIpIfaces.GetAddress (1);
-  Ipv4StaticRoutingHelper ipv4RoutingHelper;
-  Ptr<Ipv4StaticRouting> remoteHostStaticRouting =
-      ipv4RoutingHelper.GetStaticRouting (remoteHost->GetObject<Ipv4> ());
-  remoteHostStaticRouting->AddNetworkRouteTo (Ipv4Address ("7.0.0.0"), Ipv4Mask ("255.0.0.0"), 1);
+  // PointToPointHelper p2ph;
+  // p2ph.SetDeviceAttribute ("DataRate", DataRateValue (DataRate ("100Gb/s")));
+  // p2ph.SetDeviceAttribute ("Mtu", UintegerValue (2500));
+  // p2ph.SetChannelAttribute ("Delay", TimeValue (Seconds (0.010)));
+  // NetDeviceContainer internetDevices = p2ph.Install (pgw, remoteHost);
+  // Ipv4AddressHelper ipv4h;
+  // ipv4h.SetBase ("1.0.0.0", "255.0.0.0");
+  // Ipv4InterfaceContainer internetIpIfaces = ipv4h.Assign (internetDevices);
+  // // interface 0 is localhost, 1 is the p2p device
+  // Ipv4Address remoteHostAddr = internetIpIfaces.GetAddress (1);
+  // Ipv4StaticRoutingHelper ipv4RoutingHelper;
+  // Ptr<Ipv4StaticRouting> remoteHostStaticRouting =
+  //     ipv4RoutingHelper.GetStaticRouting (remoteHost->GetObject<Ipv4> ());
+  // remoteHostStaticRouting->AddNetworkRouteTo (Ipv4Address ("7.0.0.0"), Ipv4Mask ("255.0.0.0"), 1);
 
   // create LTE, mmWave eNB nodes and UE node
   NodeContainer ueNodes;
@@ -573,7 +569,7 @@ main (int argc, char *argv[])
   std::vector<Ptr<Building>> buildingVector;
 
   double maxBuildingSize = 50;
-
+  NS_LOG_UNCOND ("Start of the generation of Bulding Bounds");
   for (uint32_t buildingIndex = 0; buildingIndex < numBlocks; buildingIndex++)
     {
       Ptr<Building> building;
@@ -596,6 +592,8 @@ main (int argc, char *argv[])
       building->SetBoundaries (Box (box.xMin, box.xMax, box.yMin, box.yMax, 0.0, buildingHeight));
       buildingVector.push_back (building);
     }
+
+  NS_LOG_UNCOND ("End of the generation of Bulding Bounds");
 
   // Install Mobility Model
   Ptr<ListPositionAllocator> enbPositionAlloc = CreateObject<ListPositionAllocator> ();
@@ -649,7 +647,9 @@ main (int argc, char *argv[])
   mcUeDevs = mmwaveHelper->InstallMcUeDevice (ueNodes);
 
   // Install the IP stack on the UEs
+  InternetStackHelper internet;
   internet.Install (ueNodes);
+  Ipv4StaticRoutingHelper ipv4RoutingHelper;
   Ipv4InterfaceContainer ueIpIface;
   ueIpIface = epcHelper->AssignUeIpv4Address (NetDeviceContainer (mcUeDevs));
   // Assign IP address to UEs, and install applications
@@ -668,48 +668,34 @@ main (int argc, char *argv[])
   // Manual attachment
   mmwaveHelper->AttachToClosestEnb (mcUeDevs, mmWaveEnbDevs, lteEnbDevs);
 
-  // Install and start applications on UEs and remote host
-  uint16_t dlPort = 1234;
-  uint16_t ulPort = 2000;
-  ApplicationContainer clientApps;
-  ApplicationContainer serverApps;
-  bool dl = 1;
-  bool ul = 0;
+  // Install and start applications on UEs
 
-  for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
+  // On the first UE is placed a TCP server
+  uint16_t port = 5000;
+  Ptr<Node> serverNode = ueNodes.Get (0);
+  Address sinkLocalAddress (InetSocketAddress (Ipv4Address::GetAny (), port));
+  PacketSinkHelper sinkHelper ("ns3::TcpSocketFactory", sinkLocalAddress);
+  ApplicationContainer sinkApp = sinkHelper.Install (serverNode);
+
+  // On the rest of the UEs there are TCP clients
+  OnOffHelper clientHelper ("ns3::TcpSocketFactory", sinkLocalAddress);
+  clientHelper.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1]"));
+  clientHelper.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
+  clientHelper.SetAttribute ("DataRate", StringValue ("2Mbps"));
+  clientHelper.SetAttribute ("PacketSize", UintegerValue (1280));
+  ApplicationContainer clientApp;
+  for (uint32_t u = 1; u < ueNodes.GetN (); ++u)
     {
-      if (dl)
-        {
-          UdpServerHelper dlPacketSinkHelper (dlPort);
-          dlPacketSinkHelper.SetAttribute ("PacketWindowSize", UintegerValue (256));
-          serverApps.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
-
-          // Simulator::Schedule(MilliSeconds(20), &PrintLostUdpPackets, DynamicCast<UdpServer>(serverApps.Get(serverApps.GetN()-1)), lostFilename);
-
-          UdpClientHelper dlClient (ueIpIface.GetAddress (u), dlPort);
-          dlClient.SetAttribute ("Interval", TimeValue (MicroSeconds (interPacketInterval)));
-          dlClient.SetAttribute ("MaxPackets", UintegerValue (0xFFFFFFFF));
-          clientApps.Add (dlClient.Install (remoteHost));
-        }
-      if (ul)
-        {
-          ++ulPort;
-          PacketSinkHelper ulPacketSinkHelper ("ns3::UdpSocketFactory",
-                                               InetSocketAddress (Ipv4Address::GetAny (), ulPort));
-          ulPacketSinkHelper.SetAttribute ("PacketWindowSize", UintegerValue (256));
-          serverApps.Add (ulPacketSinkHelper.Install (remoteHost));
-          UdpClientHelper ulClient (remoteHostAddr, ulPort);
-          ulClient.SetAttribute ("Interval", TimeValue (MicroSeconds (interPacketInterval)));
-          ulClient.SetAttribute ("MaxPackets", UintegerValue (0xFFFFFFFF));
-          clientApps.Add (ulClient.Install (ueNodes.Get (u)));
-        }
+      clientApp.Add (clientHelper.Install (ueNodes.Get (u)));
     }
 
   // Start applications
   NS_LOG_UNCOND ("transientDuration " << transientDuration << " simTime " << simTime);
-  serverApps.Start (Seconds (transientDuration));
-  clientApps.Start (Seconds (transientDuration));
-  clientApps.Stop (Seconds (simTime - 1));
+  sinkApp.Start (Seconds (transientDuration));
+  sinkApp.Stop (Seconds (simTime - 1));
+
+  clientApp.Start (Seconds (transientDuration));
+  clientApp.Stop (Seconds (simTime - 1));
 
   Simulator::Schedule (Seconds (transientDuration), &ChangeSpeed, ueNodes.Get (0),
                        Vector (ueSpeed, 0, 0)); // start UE movement after Seconds(0.5)
@@ -724,25 +710,62 @@ main (int argc, char *argv[])
 
   mmwaveHelper->EnableTraces ();
 
-  //Since nodes are randomly allocated during each run we always nned to print their positions
+  //Since nodes are randomly allocated during each run we always need to print their positions
 
   PrintGnuplottableBuildingListToFile ("buildings.txt");
   PrintGnuplottableUeListToFile ("ues.txt");
   PrintGnuplottableEnbListToFile ("enbs.txt");
 
-  //WIP
+  //WIP : Animation of the movement of the node
   // AnimationInterface anim ("anim_name.xml");
-  // anim.UpdateNodeDescription (wifiNodes.Get (0), "SRV-0");
-  // anim.UpdateNodeColor (wifiNodes.Get (0), 0, 0, 255);
-  // anim.EnablePacketMetadata ();
-  // //  anim.EnableIpv4RouteTracking ("routingtable-wireless.xml", Seconds (0), Seconds (5), Seconds (0.25));
-  // anim.EnableWifiMacCounters (Seconds (0), Seconds (10)); //Optional
-  // anim.EnableWifiPhyCounters (Seconds (0), Seconds (10)); //Optional
 
-  // set to true if you want to print the map of buildings, ues and enbs
+  // Set the constant position on all ENB nodes
+  // Ptr<ConstantPositionMobilityModel> enb1 =
+  //     allEnbNodes.Get (0)->GetObject<ConstantPositionMobilityModel> ();
+
+  // Ptr<ConstantPositionMobilityModel> enb2 =
+  //     allEnbNodes.Get (1)->GetObject<ConstantPositionMobilityModel> ();
+
+  // Ptr<ConstantPositionMobilityModel> enb3 =
+  //     allEnbNodes.Get (2)->GetObject<ConstantPositionMobilityModel> ();
+  // Ptr<ConstantPositionMobilityModel> enb4 =
+  //     allEnbNodes.Get (3)->GetObject<ConstantPositionMobilityModel> ();
+  // Ptr<ConstantPositionMobilityModel> enb5 =
+  //     allEnbNodes.Get (4)->GetObject<ConstantPositionMobilityModel> ();
+  // Ptr<ConstantPositionMobilityModel> enb6 =
+  //     allEnbNodes.Get (5)->GetObject<ConstantPositionMobilityModel> ();
+
+  // enb1->SetPosition (mmw1Position);
+  // enb2->SetPosition (mmw1Position);
+  // enb3->SetPosition (mmw2Position);
+  // enb4->SetPosition (mmw3Position);
+  // enb5->SetPosition (mmw4Position);
+  // enb6->SetPosition (mmw5Position);
+
+  // for (uint32_t i = 0; i < ueNodes.GetN (); ++i)
+  //   {
+  //     anim.UpdateNodeDescription (ueNodes.Get (i), "UE");
+  //     anim.UpdateNodeColor (ueNodes.Get (i), 0, 0, 255);
+  //   }
+
+  // for (uint32_t i = 0; i < lteEnbNodes.GetN (); ++i)
+  //   {
+  //     anim.UpdateNodeDescription (lteEnbNodes.Get (i), "LTE");
+  //     anim.UpdateNodeColor (lteEnbNodes.Get (i), 255, 0, 0);
+  //   }
+
+  // for (uint32_t i = 0; i < mmWaveEnbNodes.GetN (); ++i)
+  //   {
+  //     anim.UpdateNodeDescription (mmWaveEnbNodes.Get (i), "NR");
+  //     anim.UpdateNodeColor (mmWaveEnbNodes.Get (i), 0, 255, 0);
+  //   }
+
+  // anim.EnablePacketMetadata ();
+
   bool run = true;
   if (run)
     {
+      NS_LOG_UNCOND ("Simlation time is " << simTime << " seconds ");
       Simulator::Stop (Seconds (simTime));
       Simulator::Run ();
     }
