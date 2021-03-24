@@ -309,6 +309,7 @@ main (int argc, char *argv[])
 {
   LogComponentEnable ("TcpL4Protocol", LOG_LEVEL_INFO);
   LogComponentEnable ("PacketSink", LOG_LEVEL_INFO);
+  LogComponentEnable ("ScenarioOne", LOG_LEVEL_ALL);
 
   bool harqEnabled = true;
   bool fixedTti = false;
@@ -525,28 +526,28 @@ main (int argc, char *argv[])
   cmd.Parse (argc, argv);
 
   // Get SGW/PGW and create a single RemoteHost
-  // Ptr<Node> pgw = epcHelper->GetPgwNode ();
-  // NodeContainer remoteHostContainer;
-  // remoteHostContainer.Create (1);
-  // Ptr<Node> remoteHost = remoteHostContainer.Get (0);
-  // InternetStackHelper internet;
-  // internet.Install (remoteHostContainer);
+  Ptr<Node> pgw = epcHelper->GetPgwNode ();
+  NodeContainer remoteHostContainer;
+  remoteHostContainer.Create (1);
+  Ptr<Node> remoteHost = remoteHostContainer.Get (0);
+  InternetStackHelper internet;
+  internet.Install (remoteHostContainer);
 
   // Create the Internet by connecting remoteHost to pgw. Setup routing too
-  // PointToPointHelper p2ph;
-  // p2ph.SetDeviceAttribute ("DataRate", DataRateValue (DataRate ("100Gb/s")));
-  // p2ph.SetDeviceAttribute ("Mtu", UintegerValue (2500));
-  // p2ph.SetChannelAttribute ("Delay", TimeValue (Seconds (0.010)));
-  // NetDeviceContainer internetDevices = p2ph.Install (pgw, remoteHost);
-  // Ipv4AddressHelper ipv4h;
-  // ipv4h.SetBase ("1.0.0.0", "255.0.0.0");
-  // Ipv4InterfaceContainer internetIpIfaces = ipv4h.Assign (internetDevices);
-  // // interface 0 is localhost, 1 is the p2p device
-  // Ipv4Address remoteHostAddr = internetIpIfaces.GetAddress (1);
-  // Ipv4StaticRoutingHelper ipv4RoutingHelper;
-  // Ptr<Ipv4StaticRouting> remoteHostStaticRouting =
-  //     ipv4RoutingHelper.GetStaticRouting (remoteHost->GetObject<Ipv4> ());
-  // remoteHostStaticRouting->AddNetworkRouteTo (Ipv4Address ("7.0.0.0"), Ipv4Mask ("255.0.0.0"), 1);
+  PointToPointHelper p2ph;
+  p2ph.SetDeviceAttribute ("DataRate", DataRateValue (DataRate ("100Gb/s")));
+  p2ph.SetDeviceAttribute ("Mtu", UintegerValue (2500));
+  p2ph.SetChannelAttribute ("Delay", TimeValue (Seconds (0.010)));
+  NetDeviceContainer internetDevices = p2ph.Install (pgw, remoteHost);
+  Ipv4AddressHelper ipv4h;
+  ipv4h.SetBase ("1.0.0.0", "255.0.0.0");
+  Ipv4InterfaceContainer internetIpIfaces = ipv4h.Assign (internetDevices);
+  // interface 0 is localhost, 1 is the p2p device
+  Ipv4Address remoteHostAddr = internetIpIfaces.GetAddress (1);
+  Ipv4StaticRoutingHelper ipv4RoutingHelper;
+  Ptr<Ipv4StaticRouting> remoteHostStaticRouting =
+      ipv4RoutingHelper.GetStaticRouting (remoteHost->GetObject<Ipv4> ());
+  remoteHostStaticRouting->AddNetworkRouteTo (Ipv4Address ("7.0.0.0"), Ipv4Mask ("255.0.0.0"), 1);
 
   // create LTE, mmWave eNB nodes and UE node
   NodeContainer ueNodes;
@@ -569,7 +570,7 @@ main (int argc, char *argv[])
   std::vector<Ptr<Building>> buildingVector;
 
   double maxBuildingSize = 50;
-  NS_LOG_UNCOND ("Start of the generation of Bulding Bounds");
+  // NS_LOG_UNCOND ("Start of the generation of Building Bounds");
   for (uint32_t buildingIndex = 0; buildingIndex < numBlocks; buildingIndex++)
     {
       Ptr<Building> building;
@@ -593,7 +594,7 @@ main (int argc, char *argv[])
       buildingVector.push_back (building);
     }
 
-  NS_LOG_UNCOND ("End of the generation of Bulding Bounds");
+  // NS_LOG_UNCOND ("End of the generation of Bulding Bounds");
 
   // Install Mobility Model
   Ptr<ListPositionAllocator> enbPositionAlloc = CreateObject<ListPositionAllocator> ();
@@ -647,9 +648,7 @@ main (int argc, char *argv[])
   mcUeDevs = mmwaveHelper->InstallMcUeDevice (ueNodes);
 
   // Install the IP stack on the UEs
-  InternetStackHelper internet;
   internet.Install (ueNodes);
-  Ipv4StaticRoutingHelper ipv4RoutingHelper;
   Ipv4InterfaceContainer ueIpIface;
   ueIpIface = epcHelper->AssignUeIpv4Address (NetDeviceContainer (mcUeDevs));
   // Assign IP address to UEs, and install applications
@@ -670,21 +669,20 @@ main (int argc, char *argv[])
 
   // Install and start applications on UEs
 
-  // On the first UE is placed a TCP server
+  // On the remoteHost is placed a TCP server
   uint16_t port = 5000;
-  Ptr<Node> serverNode = ueNodes.Get (0);
   Address sinkLocalAddress (InetSocketAddress (Ipv4Address::GetAny (), port));
   PacketSinkHelper sinkHelper ("ns3::TcpSocketFactory", sinkLocalAddress);
-  ApplicationContainer sinkApp = sinkHelper.Install (serverNode);
+  ApplicationContainer sinkApp = sinkHelper.Install (remoteHost);
 
-  // On the rest of the UEs there are TCP clients
-  OnOffHelper clientHelper ("ns3::TcpSocketFactory", sinkLocalAddress);
+  // On the UEs there are TCP clients
+  OnOffHelper clientHelper ("ns3::TcpSocketFactory", remoteHostAddr);
   clientHelper.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1]"));
   clientHelper.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
   clientHelper.SetAttribute ("DataRate", StringValue ("2Mbps"));
   clientHelper.SetAttribute ("PacketSize", UintegerValue (1280));
   ApplicationContainer clientApp;
-  for (uint32_t u = 1; u < ueNodes.GetN (); ++u)
+  for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
     {
       clientApp.Add (clientHelper.Install (ueNodes.Get (u)));
     }
@@ -697,15 +695,13 @@ main (int argc, char *argv[])
   clientApp.Start (Seconds (transientDuration));
   clientApp.Stop (Seconds (simTime - 1));
 
-  Simulator::Schedule (Seconds (transientDuration), &ChangeSpeed, ueNodes.Get (0),
-                       Vector (ueSpeed, 0, 0)); // start UE movement after Seconds(0.5)
-  Simulator::Schedule (Seconds (simTime - 1), &ChangeSpeed, ueNodes.Get (0),
-                       Vector (0, 0, 0)); // start UE movement after Seconds(0.5)
-
-  double numPrints = 0;
-  for (int i = 0; i < numPrints; i++)
+  // start UE movement after Seconds(0.5)
+  for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
     {
-      Simulator::Schedule (Seconds (i * simTime / numPrints), &PrintPosition, ueNodes.Get (0));
+      clientApp.Add (clientHelper.Install (ueNodes.Get (u)));
+      Simulator::Schedule (Seconds (transientDuration), &ChangeSpeed, ueNodes.Get (u),
+                           Vector (ueSpeed, 0, 0));
+      Simulator::Schedule (Seconds (simTime - 1), &ChangeSpeed, ueNodes.Get (u), Vector (0, 0, 0));
     }
 
   mmwaveHelper->EnableTraces ();
@@ -717,7 +713,7 @@ main (int argc, char *argv[])
   PrintGnuplottableEnbListToFile ("enbs.txt");
 
   //WIP : Animation of the movement of the node
-  // AnimationInterface anim ("anim_name.xml");
+  // AnimationInterface anim ("anim_scenario_one.xml");
 
   // Set the constant position on all ENB nodes
   // Ptr<ConstantPositionMobilityModel> enb1 =
@@ -765,7 +761,7 @@ main (int argc, char *argv[])
   bool run = true;
   if (run)
     {
-      NS_LOG_UNCOND ("Simlation time is " << simTime << " seconds ");
+      // NS_LOG_UNCOND ("Simlation time is " << simTime << " seconds ");
       Simulator::Stop (Seconds (simTime));
       Simulator::Run ();
     }
