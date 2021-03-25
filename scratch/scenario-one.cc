@@ -28,6 +28,7 @@
 #include "ns3/config-store.h"
 #include "ns3/mmwave-point-to-point-epc-helper.h"
 //#include "ns3/gtk-config-store.h"
+#include <ns3/math.h>
 #include <ns3/buildings-helper.h>
 #include <ns3/buildings-module.h>
 #include <ns3/random-variable-stream.h>
@@ -513,7 +514,7 @@ main (int argc, char *argv[])
   ConfigStore inputConfig;
   inputConfig.ConfigureDefaults ();
 
-  uint8_t nMmWaveEnbNodes = 5;
+  uint8_t nMmWaveEnbNodes = 7;
   uint8_t nLteEnbNodes = 1;
   uint8_t nUeNodes = 30;
 
@@ -561,11 +562,7 @@ main (int argc, char *argv[])
   allEnbNodes.Add (mmWaveEnbNodes);
 
   // Positions
-  Vector mmw1Position = Vector (maxXAxis / 2, maxYAxis / 2, 3);
-  Vector mmw2Position = Vector (300, 300, 3);
-  Vector mmw3Position = Vector (100, 160, 3);
-  Vector mmw4Position = Vector (530, 200, 3);
-  Vector mmw5Position = Vector (300, 50, 3);
+  Vector centerPosition = Vector (maxXAxis / 2, maxYAxis / 2, 3);
 
   std::vector<Ptr<Building>> buildingVector;
 
@@ -598,14 +595,22 @@ main (int argc, char *argv[])
 
   // Install Mobility Model
   Ptr<ListPositionAllocator> enbPositionAlloc = CreateObject<ListPositionAllocator> ();
-  //enbPositionAlloc->Add (Vector ((double)mmWaveDist/2 + streetWidth, mmw1Dist + 2*streetWidth, mmWaveZ));
 
-  enbPositionAlloc->Add (mmw1Position);
-  enbPositionAlloc->Add (mmw1Position);
-  enbPositionAlloc->Add (mmw2Position);
-  enbPositionAlloc->Add (mmw3Position);
-  enbPositionAlloc->Add (mmw4Position);
-  enbPositionAlloc->Add (mmw5Position);
+  enbPositionAlloc->Add (centerPosition);
+  enbPositionAlloc->Add (centerPosition);
+
+  double distanceFromCenter = 100;
+  double x;
+  double y;
+  double nConstellation = nMmWaveEnbNodes - 1;
+
+  // This guarantee that each BS is placed at the same distance from the two co-located in the center
+  for (int8_t i = 0; i < nConstellation; ++i)
+    {
+      x = distanceFromCenter * cos ((2 * M_PI * i) / (nConstellation));
+      y = distanceFromCenter * sin ((2 * M_PI * i) / (nConstellation));
+      enbPositionAlloc->Add (Vector (centerPosition.x + x, centerPosition.y + y, 3));
+    }
 
   MobilityHelper enbmobility;
   enbmobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
@@ -674,9 +679,11 @@ main (int argc, char *argv[])
   Address sinkLocalAddress (InetSocketAddress (Ipv4Address::GetAny (), port));
   PacketSinkHelper sinkHelper ("ns3::TcpSocketFactory", sinkLocalAddress);
   ApplicationContainer sinkApp = sinkHelper.Install (remoteHost);
+  AddressValue serverAddress (InetSocketAddress (remoteHostAddr, port));
 
   // On the UEs there are TCP clients
-  OnOffHelper clientHelper ("ns3::TcpSocketFactory", remoteHostAddr);
+  OnOffHelper clientHelper ("ns3::TcpSocketFactory", Address ());
+  clientHelper.SetAttribute ("Remote", serverAddress);
   clientHelper.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1]"));
   clientHelper.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
   clientHelper.SetAttribute ("DataRate", StringValue ("2Mbps"));
