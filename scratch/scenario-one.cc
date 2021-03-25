@@ -158,23 +158,6 @@ PrintGnuplottableEnbListToFile (std::string filename)
 }
 
 void
-ChangePosition (Ptr<Node> node, Vector vector)
-{
-  Ptr<MobilityModel> model = node->GetObject<MobilityModel> ();
-  model->SetPosition (vector);
-  NS_LOG_UNCOND ("************************--------------------Change "
-                 "Position-------------------------------*****************");
-}
-
-void
-ChangeSpeed (Ptr<Node> n, Vector speed)
-{
-  n->GetObject<ConstantVelocityMobilityModel> ()->SetVelocity (speed);
-  NS_LOG_UNCOND ("************************--------------------Change "
-                 "Speed-------------------------------*****************");
-}
-
-void
 PrintPosition (Ptr<Node> node)
 {
   Ptr<MobilityModel> model = node->GetObject<MobilityModel> ();
@@ -308,8 +291,8 @@ static ns3::GlobalValue g_lteUplink ("lteUplink", "If true, always use LTE for u
 int
 main (int argc, char *argv[])
 {
-  LogComponentEnable ("TcpL4Protocol", LOG_LEVEL_ALL);
-  LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
+  // LogComponentEnable ("TcpL4Protocol", LOG_LEVEL_ALL);
+  // LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
   LogComponentEnable ("ScenarioOne", LOG_LEVEL_ALL);
 
   bool harqEnabled = true;
@@ -516,7 +499,7 @@ main (int argc, char *argv[])
 
   uint8_t nMmWaveEnbNodes = 7;
   uint8_t nLteEnbNodes = 1;
-  uint8_t nUeNodes = 30;
+  uint8_t nUeNodes = 5 * nMmWaveEnbNodes;
 
   // Command line arguments
   CommandLine cmd;
@@ -702,13 +685,13 @@ main (int argc, char *argv[])
   clientApp.Start (Seconds (transientDuration));
   clientApp.Stop (Seconds (simTime - 1));
 
-  // start UE movement after Seconds(0.5)
-  for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
+  int numPrints = 5;
+  for (int i = 0; i < numPrints; i++)
     {
-      clientApp.Add (clientHelper.Install (ueNodes.Get (u)));
-      Simulator::Schedule (Seconds (transientDuration), &ChangeSpeed, ueNodes.Get (u),
-                           Vector (ueSpeed, 0, 0));
-      Simulator::Schedule (Seconds (simTime - 1), &ChangeSpeed, ueNodes.Get (u), Vector (0, 0, 0));
+      for (uint32_t j = 0; j < ueNodes.GetN (); j++)
+        {
+          Simulator::Schedule (Seconds (i * simTime / numPrints), &PrintPosition, ueNodes.Get (j));
+        }
     }
 
   mmwaveHelper->EnableTraces ();
