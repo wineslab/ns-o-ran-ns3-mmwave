@@ -308,8 +308,8 @@ static ns3::GlobalValue g_lteUplink ("lteUplink", "If true, always use LTE for u
 int
 main (int argc, char *argv[])
 {
-  LogComponentEnable ("TcpL4Protocol", LOG_LEVEL_INFO);
-  LogComponentEnable ("PacketSink", LOG_LEVEL_INFO);
+  LogComponentEnable ("TcpL4Protocol", LOG_LEVEL_ALL);
+  LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
   LogComponentEnable ("ScenarioOne", LOG_LEVEL_ALL);
 
   bool harqEnabled = true;
