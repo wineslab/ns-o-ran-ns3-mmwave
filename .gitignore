@@ -40,6 +40,6 @@ build-dir/
 build/
 /.cproject
 /.project
-.vscode/settings.json
+.vscode/*
 
 docs/
