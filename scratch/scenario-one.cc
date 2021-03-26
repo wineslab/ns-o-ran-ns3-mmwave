@@ -498,16 +498,16 @@ main (int argc, char *argv[])
   inputConfig.ConfigureDefaults ();
 
   uint8_t nMmWaveEnbNodes = 7;
-  uint8_t nLteEnbNodes = 1;
-  uint8_t nUeNodes = 5 * nMmWaveEnbNodes;
 
   // Command line arguments
   CommandLine cmd;
 
   cmd.AddValue ("nMmWaveEnbNodes", "Numbers of mmWave Enb nodes", nMmWaveEnbNodes);
-  cmd.AddValue ("nLteEnbNodes", "Numbers of LTE Enb nodes", nLteEnbNodes);
-  cmd.AddValue ("nUeNodes", "Numbers of Ue nodes", nUeNodes);
+  //cmd.AddValue ("nLteEnbNodes", "Numbers of LTE Enb nodes", nLteEnbNodes);
+  //cmd.AddValue ("nUeNodes", "Numbers of Ue nodes", nUeNodes);
   cmd.Parse (argc, argv);
+  uint8_t nLteEnbNodes = 1;
+  uint8_t nUeNodes = 5 * nMmWaveEnbNodes;
 
   // Get SGW/PGW and create a single RemoteHost
   Ptr<Node> pgw = epcHelper->GetPgwNode ();
