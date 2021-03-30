@@ -493,7 +493,7 @@ main (int argc, char *argv[])
   uint8_t nUeNodes = 5 * nMmWaveEnbNodes;
 
   std::cout << "Lte uplink " << lteUplink << " Bandwidth " << bandwidth << " centerFrequency "
-            << centerFrequency << " nMmWaveEnbNodes" << nMmWaveEnbNodes << "\n";
+            << centerFrequency << " nMmWaveEnbNodes " << unsigned (nMmWaveEnbNodes) << "\n";
 
   // Get SGW/PGW and create a single RemoteHost
   Ptr<Node> pgw = epcHelper->GetPgwNode ();
