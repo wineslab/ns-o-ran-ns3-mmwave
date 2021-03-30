@@ -234,25 +234,9 @@ GenerateBuildingBounds (double xArea, double yArea, double maxBuildSize,
   return pairReturn;
 }
 
-static ns3::GlobalValue
-    g_mmw1DistFromMainStreet ("mmw1Dist", "Distance from the main street of the first MmWaveEnb",
-                              ns3::UintegerValue (50), ns3::MakeUintegerChecker<uint32_t> ());
-static ns3::GlobalValue
-    g_mmw2DistFromMainStreet ("mmw2Dist", "Distance from the main street of the second MmWaveEnb",
-                              ns3::UintegerValue (50), ns3::MakeUintegerChecker<uint32_t> ());
-static ns3::GlobalValue
-    g_mmw3DistFromMainStreet ("mmw3Dist", "Distance from the main street of the third MmWaveEnb",
-                              ns3::UintegerValue (110), ns3::MakeUintegerChecker<uint32_t> ());
-static ns3::GlobalValue g_mmWaveDistance ("mmWaveDist", "Distance between MmWave eNB 1 and 2",
-                                          ns3::UintegerValue (200),
-                                          ns3::MakeUintegerChecker<uint32_t> ());
-static ns3::GlobalValue
-    g_numBuildingsBetweenMmWaveEnb ("numBlocks", "Number of buildings between MmWave eNB 1 and 2",
-                                    ns3::UintegerValue (20), ns3::MakeUintegerChecker<uint32_t> ());
-static ns3::GlobalValue g_interPckInterval ("interPckInterval",
-                                            "Interarrival time of UDP packets (us)",
-                                            ns3::UintegerValue (20),
-                                            ns3::MakeUintegerChecker<uint32_t> ());
+static ns3::GlobalValue g_numBuildingsBetweenMmWaveEnb ("numBlocks", "Number of buildings",
+                                                        ns3::UintegerValue (20),
+                                                        ns3::MakeUintegerChecker<uint32_t> ());
 static ns3::GlobalValue g_bufferSize ("bufferSize", "RLC tx buffer size (MB)",
                                       ns3::UintegerValue (20),
                                       ns3::MakeUintegerChecker<uint32_t> ());
@@ -260,8 +244,6 @@ static ns3::GlobalValue g_x2Latency ("x2Latency", "Latency on X2 interface (us)"
                                      ns3::DoubleValue (500), ns3::MakeDoubleChecker<double> ());
 static ns3::GlobalValue g_mmeLatency ("mmeLatency", "Latency on MME interface (us)",
                                       ns3::DoubleValue (10000), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue g_mobileUeSpeed ("mobileSpeed", "The speed of the UE (m/s)",
-                                         ns3::DoubleValue (2), ns3::MakeDoubleChecker<double> ());
 static ns3::GlobalValue g_rlcAmEnabled ("rlcAmEnabled", "If true, use RLC AM, else use RLC UM",
                                         ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
 static ns3::GlobalValue
@@ -272,8 +254,6 @@ static ns3::GlobalValue
     g_maxYAxis ("maxYAxis",
                 "The maximum Y coordinate for the area in which to deploy the buildings",
                 ns3::DoubleValue (320), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue g_outPath ("outPath", "The path of output log files",
-                                   ns3::StringValue ("./"), ns3::MakeStringChecker ());
 static ns3::GlobalValue g_noiseAndFilter (
     "noiseAndFilter",
     "If true, use noisy SINR samples, filtered. If false, just use the SINR measure",
@@ -293,7 +273,7 @@ main (int argc, char *argv[])
 {
   // LogComponentEnable ("TcpL4Protocol", LOG_LEVEL_ALL);
   // LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
-  LogComponentEnable ("ScenarioOne", LOG_LEVEL_ALL);
+  // LogComponentEnable ("ScenarioOne", LOG_LEVEL_ALL);
 
   bool harqEnabled = true;
   bool fixedTti = false;
@@ -350,26 +330,20 @@ main (int argc, char *argv[])
   bool rlcAmEnabled = booleanValue.Get ();
   GlobalValue::GetValueByName ("bufferSize", uintegerValue);
   uint32_t bufferSize = uintegerValue.Get ();
-  GlobalValue::GetValueByName ("interPckInterval", uintegerValue);
-  uint32_t interPacketInterval = uintegerValue.Get ();
   GlobalValue::GetValueByName ("x2Latency", doubleValue);
   double x2Latency = doubleValue.Get ();
   GlobalValue::GetValueByName ("mmeLatency", doubleValue);
   double mmeLatency = doubleValue.Get ();
-  GlobalValue::GetValueByName ("mobileSpeed", doubleValue);
-  double ueSpeed = doubleValue.Get ();
+  // TODO tagliare
+  double ueSpeed = 2;
 
   double transientDuration = double (vectorTransient) / 1000000;
   double simTime =
       transientDuration + ((double) ueFinalPosition - (double) ueInitialPosition) / ueSpeed + 1;
 
-  NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << bufferSize
-                                 << " interPacketInterval " << interPacketInterval << " x2Latency "
-                                 << x2Latency << " mmeLatency " << mmeLatency << " mobileSpeed "
-                                 << ueSpeed);
+  NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << bufferSize << " x2Latency "
+                                 << x2Latency << " mmeLatency " << mmeLatency);
 
-  GlobalValue::GetValueByName ("outPath", stringValue);
-  std::string path = stringValue.Get ();
   std::string mmWaveOutName = "MmWaveSwitchStats";
   std::string lteOutName = "LteSwitchStats";
   std::string dlRlcOutName = "DlRlcStats";
@@ -624,10 +598,6 @@ main (int argc, char *argv[])
   uemobility.Install (ueNodes);
 
   BuildingsHelper::Install (ueNodes);
-
-  //ueNodes.Get (0)->GetObject<MobilityModel> ()->SetPosition (Vector (ueInitialPosition, -5, 0));
-  //ueNodes.Get (0)->GetObject<MobilityModel> ()->SetPosition (Vector (ueInitialPosition, -5, 1.6));
-  //ueNodes.Get (0)->GetObject<ConstantVelocityMobilityModel> ()->SetVelocity (Vector (0, 0, 0));
 
   // Install mmWave, lte, mc Devices to the nodes
   NetDeviceContainer lteEnbDevs = mmwaveHelper->InstallLteEnbDevice (lteEnbNodes);
