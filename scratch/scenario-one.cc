@@ -270,8 +270,9 @@ static ns3::GlobalValue g_lteUplink ("lteUplink", "If true, always use LTE for u
 
 static ns3::GlobalValue g_bandwidth ("bandwidth", "The carrier bandwidth in Hz",
                                      ns3::DoubleValue (200e6), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue g_bandwidth ("centerFrequency", "The center frequency in Hz",
-                                     ns3::DoubleValue (28e9), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_centerFrequency ("centerFrequency", "The center frequency in Hz",
+                                           ns3::DoubleValue (28e9),
+                                           ns3::MakeDoubleChecker<double> ());
 int
 main (int argc, char *argv[])
 {
