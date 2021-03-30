@@ -446,7 +446,6 @@ main (int argc, char *argv[])
   bool lteUplink = booleanValue.Get ();
 
   Config::SetDefault ("ns3::McUePdcp::LteUplink", BooleanValue (lteUplink));
-  std::cout << "Lte uplink " << lteUplink << "\n";
 
   // settings for the 3GPP the channel
   Config::SetDefault ("ns3::ThreeGppChannelModel::UpdatePeriod",
@@ -473,11 +472,10 @@ main (int argc, char *argv[])
   Ptr<MmWavePointToPointEpcHelper> epcHelper = CreateObject<MmWavePointToPointEpcHelper> ();
   mmwaveHelper->SetEpcHelper (epcHelper);
   mmwaveHelper->SetHarqEnabled (harqEnabled);
+  mmwaveHelper->Initialize ();
   mmwaveHelper->GetCcPhyParams ().at (0).GetConfigurationParameters ()->SetBandwidth (bandwidth);
   mmwaveHelper->GetCcPhyParams ().at (0).GetConfigurationParameters ()->SetCentreFrequency (
       centerFrequency);
-
-  mmwaveHelper->Initialize ();
 
   ConfigStore inputConfig;
   inputConfig.ConfigureDefaults ();
@@ -493,6 +491,9 @@ main (int argc, char *argv[])
   cmd.Parse (argc, argv);
   uint8_t nLteEnbNodes = 1;
   uint8_t nUeNodes = 5 * nMmWaveEnbNodes;
+
+  std::cout << "Lte uplink " << lteUplink << " Bandwidth " << bandwidth << " centerFrequency "
+            << centerFrequency << " nMmWaveEnbNodes" << nMmWaveEnbNodes << "\n";
 
   // Get SGW/PGW and create a single RemoteHost
   Ptr<Node> pgw = epcHelper->GetPgwNode ();
