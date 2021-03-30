@@ -268,6 +268,10 @@ static ns3::GlobalValue g_outageThreshold ("outageTh", "Outage threshold", ns3::
 static ns3::GlobalValue g_lteUplink ("lteUplink", "If true, always use LTE for uplink signalling",
                                      ns3::BooleanValue (false), ns3::MakeBooleanChecker ());
 
+static ns3::GlobalValue g_bandwidth ("bandwidth", "The carrier bandwidth in Hz",
+                                     ns3::DoubleValue (200e6), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_bandwidth ("centerFrequency", "The center frequency in Hz",
+                                     ns3::DoubleValue (28e9), ns3::MakeDoubleChecker<double> ());
 int
 main (int argc, char *argv[])
 {
@@ -291,9 +295,6 @@ main (int argc, char *argv[])
   double maxXAxis = doubleValue.Get ();
   GlobalValue::GetValueByName ("maxYAxis", doubleValue);
   double maxYAxis = doubleValue.Get ();
-
-  double ueInitialPosition = 90;
-  double ueFinalPosition = 110;
 
   // Variables for the RT
   int windowForTransient = 150; // number of samples for the vector to use in the filter
@@ -334,7 +335,16 @@ main (int argc, char *argv[])
   double x2Latency = doubleValue.Get ();
   GlobalValue::GetValueByName ("mmeLatency", doubleValue);
   double mmeLatency = doubleValue.Get ();
+
+  GlobalValue::GetValueByName ("bandwidth", doubleValue);
+  double bandwidth = doubleValue.Get ();
+
+  GlobalValue::GetValueByName ("centerFrequency", doubleValue);
+  double centerFrequency = doubleValue.Get ();
+
   // TODO tagliare
+  double ueInitialPosition = 90;
+  double ueFinalPosition = 110;
   double ueSpeed = 2;
 
   double transientDuration = double (vectorTransient) / 1000000;
@@ -462,9 +472,9 @@ main (int argc, char *argv[])
   Ptr<MmWavePointToPointEpcHelper> epcHelper = CreateObject<MmWavePointToPointEpcHelper> ();
   mmwaveHelper->SetEpcHelper (epcHelper);
   mmwaveHelper->SetHarqEnabled (harqEnabled);
-  ///home/thecave3/mmwave-workspace/ns3-mmwave-oran/src/mmwave/model/mmwave-phy-mac-common.cc
-  // mmwaveHelper->GetCcPhyParams ().at (0).GetConfigurationParameters ()->SetAttribute (
-  //     "SymbolsPerSlot", uintegerValue (30));
+  mmwaveHelper->GetCcPhyParams ().at (0).GetConfigurationParameters ()->SetBandwidth (bandwidth);
+  mmwaveHelper->GetCcPhyParams ().at (0).GetConfigurationParameters ()->SetCentreFrequency (
+      centerFrequency);
 
   mmwaveHelper->Initialize ();
 
@@ -553,6 +563,7 @@ main (int argc, char *argv[])
   // Install Mobility Model
   Ptr<ListPositionAllocator> enbPositionAlloc = CreateObject<ListPositionAllocator> ();
 
+  // We want a center with one LTE enb and one mmWave co-located in the same place
   enbPositionAlloc->Add (centerPosition);
   enbPositionAlloc->Add (centerPosition);
 
@@ -561,7 +572,7 @@ main (int argc, char *argv[])
   double y;
   double nConstellation = nMmWaveEnbNodes - 1;
 
-  // This guarantee that each BS is placed at the same distance from the two co-located in the center
+  // This guarantee that each of the rest BSs is placed at the same distance from the two co-located in the center
   for (int8_t i = 0; i < nConstellation; ++i)
     {
       x = distanceFromCenter * cos ((2 * M_PI * i) / (nConstellation));
@@ -576,8 +587,6 @@ main (int argc, char *argv[])
   BuildingsHelper::Install (allEnbNodes);
 
   MobilityHelper uemobility;
-  //Ptr<ListPositionAllocator> uePositionAlloc = CreateObject<ListPositionAllocator> ();
-  //uePositionAlloc->Add (Vector (ueInitialPosition, -5, 0));
 
   Ptr<UniformRandomVariable> randomUePositionX = CreateObject<UniformRandomVariable> ();
   Ptr<UniformRandomVariable> randomUePositionY = CreateObject<UniformRandomVariable> ();
@@ -674,29 +683,6 @@ main (int argc, char *argv[])
 
   //WIP : Animation of the movement of the node
   // AnimationInterface anim ("anim_scenario_one.xml");
-
-  // Set the constant position on all ENB nodes
-  // Ptr<ConstantPositionMobilityModel> enb1 =
-  //     allEnbNodes.Get (0)->GetObject<ConstantPositionMobilityModel> ();
-
-  // Ptr<ConstantPositionMobilityModel> enb2 =
-  //     allEnbNodes.Get (1)->GetObject<ConstantPositionMobilityModel> ();
-
-  // Ptr<ConstantPositionMobilityModel> enb3 =
-  //     allEnbNodes.Get (2)->GetObject<ConstantPositionMobilityModel> ();
-  // Ptr<ConstantPositionMobilityModel> enb4 =
-  //     allEnbNodes.Get (3)->GetObject<ConstantPositionMobilityModel> ();
-  // Ptr<ConstantPositionMobilityModel> enb5 =
-  //     allEnbNodes.Get (4)->GetObject<ConstantPositionMobilityModel> ();
-  // Ptr<ConstantPositionMobilityModel> enb6 =
-  //     allEnbNodes.Get (5)->GetObject<ConstantPositionMobilityModel> ();
-
-  // enb1->SetPosition (mmw1Position);
-  // enb2->SetPosition (mmw1Position);
-  // enb3->SetPosition (mmw2Position);
-  // enb4->SetPosition (mmw3Position);
-  // enb5->SetPosition (mmw4Position);
-  // enb6->SetPosition (mmw5Position);
 
   // for (uint32_t i = 0; i < ueNodes.GetN (); ++i)
   //   {
