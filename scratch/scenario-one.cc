@@ -16,18 +16,17 @@
  * Author: Michele Polese <michele.polese@gmail.com>
  */
 
-#include "ns3/mmwave-helper.h"
-#include "ns3/epc-helper.h"
 #include "ns3/core-module.h"
 #include "ns3/network-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/mobility-module.h"
 #include "ns3/applications-module.h"
 #include "ns3/point-to-point-helper.h"
-#include "ns3/config-store.h"
-#include "ns3/mmwave-point-to-point-epc-helper.h"
 #include <ns3/buildings-module.h>
 #include <ns3/lte-ue-net-device.h>
+#include "ns3/mmwave-helper.h"
+#include "ns3/epc-helper.h"
+#include "ns3/mmwave-point-to-point-epc-helper.h"
 
 using namespace ns3;
 using namespace mmwave;
@@ -464,9 +463,6 @@ main (int argc, char *argv[])
   mmwaveHelper->GetCcPhyParams ().at (0).GetConfigurationParameters ()->SetBandwidth (bandwidth);
   mmwaveHelper->GetCcPhyParams ().at (0).GetConfigurationParameters ()->SetCentreFrequency (
       centerFrequency);
-
-  ConfigStore inputConfig;
-  inputConfig.ConfigureDefaults ();
 
   uint8_t nMmWaveEnbNodes = 7;
 
