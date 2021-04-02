@@ -330,14 +330,10 @@ main (int argc, char *argv[])
   GlobalValue::GetValueByName ("centerFrequency", doubleValue);
   double centerFrequency = doubleValue.Get ();
 
-  // TODO tagliare
-  double ueInitialPosition = 90;
-  double ueFinalPosition = 110;
-  double ueSpeed = 2;
+  double walkTime = 7;
 
   double transientDuration = double (vectorTransient) / 1000000;
-  double simTime =
-      transientDuration + ((double) ueFinalPosition - (double) ueInitialPosition) / ueSpeed + 1;
+  double simTime = transientDuration + walkTime;
 
   NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << bufferSize << " x2Latency "
                                  << x2Latency << " mmeLatency " << mmeLatency);
@@ -359,8 +355,6 @@ main (int argc, char *argv[])
   std::string udpSentFilename = "UdpSent";
   std::string udpReceivedFilename = "UdpReceived";
   std::string extension = ".txt";
-  std::string version;
-  version = "mc";
   Config::SetDefault ("ns3::MmWaveUeMac::UpdateUeSinrEstimatePeriod", DoubleValue (0));
 
   //get current time
@@ -465,13 +459,16 @@ main (int argc, char *argv[])
       centerFrequency);
 
   uint8_t nMmWaveEnbNodes = 7;
+  double distanceFromCenter = 100;
 
   // Command line arguments
   CommandLine cmd;
 
   cmd.AddValue ("nMmWaveEnbNodes", "Numbers of mmWave Enb nodes", nMmWaveEnbNodes);
   //cmd.AddValue ("nLteEnbNodes", "Numbers of LTE Enb nodes", nLteEnbNodes);
-  //cmd.AddValue ("nUeNodes", "Numbers of Ue nodes", nUeNodes);
+  cmd.AddValue ("distanceFromCenter",
+                "Distance between the mmWave BSs and the two co-located LTE and mmWave BSs",
+                distanceFromCenter);
   cmd.Parse (argc, argv);
   uint8_t nLteEnbNodes = 1;
   uint8_t nUeNodes = 5 * nMmWaveEnbNodes;
@@ -553,7 +550,6 @@ main (int argc, char *argv[])
   enbPositionAlloc->Add (centerPosition);
   enbPositionAlloc->Add (centerPosition);
 
-  double distanceFromCenter = 100;
   double x;
   double y;
   double nConstellation = nMmWaveEnbNodes - 1;
@@ -660,9 +656,9 @@ main (int argc, char *argv[])
     }
 
   mmwaveHelper->EnableTraces ();
+  p2ph.EnablePcapAll ("p2p-", true);
 
   //Since nodes are randomly allocated during each run we always need to print their positions
-
   PrintGnuplottableBuildingListToFile ("buildings.txt");
   PrintGnuplottableUeListToFile ("ues.txt");
   PrintGnuplottableEnbListToFile ("enbs.txt");
