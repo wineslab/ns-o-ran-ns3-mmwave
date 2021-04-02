@@ -686,7 +686,7 @@ main (int argc, char *argv[])
 
   // anim.EnablePacketMetadata ();
 
-  bool run = true;
+  bool run = false;
   if (run)
     {
       // NS_LOG_UNCOND ("Simlation time is " << simTime << " seconds ");
