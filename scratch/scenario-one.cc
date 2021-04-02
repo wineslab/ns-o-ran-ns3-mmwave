@@ -656,7 +656,7 @@ main (int argc, char *argv[])
     }
 
   mmwaveHelper->EnableTraces ();
-  p2ph.EnablePcapAll ("p2p-", true);
+  p2ph.EnablePcapAll ("p2p", true);
 
   //Since nodes are randomly allocated during each run we always need to print their positions
   PrintGnuplottableBuildingListToFile ("buildings.txt");
@@ -686,7 +686,7 @@ main (int argc, char *argv[])
 
   // anim.EnablePacketMetadata ();
 
-  bool run = false;
+  bool run = true;
   if (run)
     {
       // NS_LOG_UNCOND ("Simlation time is " << simTime << " seconds ");
