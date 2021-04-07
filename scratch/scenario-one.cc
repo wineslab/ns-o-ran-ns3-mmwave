@@ -556,35 +556,11 @@ main (int argc, char *argv[])
     }
 
   mmwaveHelper->EnableTraces ();
-  // p2ph.EnablePcapAll ("p2p", true);
 
-  //Since nodes are randomly allocated during each run we always need to print their positions
+  // Since nodes are randomly allocated during each run we always need to print their positions
   // PrintGnuplottableBuildingListToFile ("buildings.txt");
   PrintGnuplottableUeListToFile ("ues.txt");
   PrintGnuplottableEnbListToFile ("enbs.txt");
-
-  //WIP : Animation of the movement of the node
-  // AnimationInterface anim ("anim_scenario_one.xml");
-
-  // for (uint32_t i = 0; i < ueNodes.GetN (); ++i)
-  //   {
-  //     anim.UpdateNodeDescription (ueNodes.Get (i), "UE");
-  //     anim.UpdateNodeColor (ueNodes.Get (i), 0, 0, 255);
-  //   }
-
-  // for (uint32_t i = 0; i < lteEnbNodes.GetN (); ++i)
-  //   {
-  //     anim.UpdateNodeDescription (lteEnbNodes.Get (i), "LTE");
-  //     anim.UpdateNodeColor (lteEnbNodes.Get (i), 255, 0, 0);
-  //   }
-
-  // for (uint32_t i = 0; i < mmWaveEnbNodes.GetN (); ++i)
-  //   {
-  //     anim.UpdateNodeDescription (mmWaveEnbNodes.Get (i), "NR");
-  //     anim.UpdateNodeColor (mmWaveEnbNodes.Get (i), 0, 255, 0);
-  //   }
-
-  // anim.EnablePacketMetadata ();
 
   bool run = false;
   if (run)
