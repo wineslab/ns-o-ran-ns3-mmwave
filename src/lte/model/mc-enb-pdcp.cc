@@ -22,6 +22,7 @@
 
 #include "ns3/log.h"
 #include "ns3/simulator.h"
+#include "ns3/random-variable-stream.h"
 
 #include "ns3/mc-enb-pdcp.h"
 #include "ns3/lte-pdcp-header.h"
@@ -225,7 +226,47 @@ McEnbPdcp::DoTransmitPdcpSdu (Ptr<Packet> p)
   params.rnti = m_rnti;
   params.lcid = m_lcid;
 
-  if(m_epcX2PdcpProvider == 0 || (!m_useMmWaveConnection))
+  double min = 0.0;
+  double max = 1.0;
+  double threshold = 0.2;
+
+  NS_ASSERT (threshold > min && threshold < max);
+  
+  Ptr<UniformRandomVariable> x = CreateObject<UniformRandomVariable> ();
+  x->SetAttribute ("Min", DoubleValue (min));
+  x->SetAttribute ("Max", DoubleValue (max));
+
+  double rndValue = x->GetValue ();
+  NS_LOG_INFO (this << " McEnbPdcp: rndValue is " << rndValue << " , threshold is " << threshold);
+  if (rndValue > threshold)
+    {
+      NS_LOG_INFO (this << " McEnbPdcp: Tx packet to downlink local stack");
+
+      // Sender timestamp. We will use this to measure the delay on top of RLC
+      PdcpTag pdcpTag (Simulator::Now ());
+      p->AddByteTag (pdcpTag);
+      m_txPdu (m_rnti, m_lcid, p->GetSize ());
+      params.pdcpPdu = p;
+
+      NS_LOG_LOGIC ("Params.rnti " << params.rnti);
+      NS_LOG_LOGIC ("Params.m_lcid " << params.lcid);
+      NS_LOG_LOGIC ("Params.pdcpPdu " << params.pdcpPdu);
+
+      m_rlcSapProvider->TransmitPdcpPdu (params);
+    }
+  else
+    {
+      // Do not add sender time stamp: we are not interested in adding X2 delay for MC connections
+      NS_LOG_INFO (this << " McEnbPdcp: Tx packet to downlink MmWave stack on remote cell "
+                        << m_ueDataParams.targetCellId);
+      m_ueDataParams.ueData = p;
+      m_txPdu (m_rnti, m_lcid, p->GetSize ());
+      m_epcX2PdcpProvider->SendMcPdcpPdu (m_ueDataParams);
+    }
+
+  // Old policy
+  
+  /*if(m_epcX2PdcpProvider == 0 || (!m_useMmWaveConnection))
   {
     NS_LOG_INFO(this << " McEnbPdcp: Tx packet to downlink local stack");
 
@@ -252,7 +293,9 @@ McEnbPdcp::DoTransmitPdcpSdu (Ptr<Packet> p)
   else
   {
     NS_FATAL_ERROR("Invalid combination");
-  }
+  }*/
+
+
 }
 
 void

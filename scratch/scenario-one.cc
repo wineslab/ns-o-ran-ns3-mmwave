@@ -22,7 +22,6 @@
 #include "ns3/mobility-module.h"
 #include "ns3/applications-module.h"
 #include "ns3/point-to-point-helper.h"
-#include <ns3/buildings-module.h>
 #include <ns3/lte-ue-net-device.h>
 #include "ns3/mmwave-helper.h"
 #include "ns3/epc-helper.h"
@@ -37,26 +36,6 @@ using namespace mmwave;
  */
 
 NS_LOG_COMPONENT_DEFINE ("ScenarioOne");
-
-void
-PrintGnuplottableBuildingListToFile (std::string filename)
-{
-  std::ofstream outFile;
-  outFile.open (filename.c_str (), std::ios_base::out | std::ios_base::trunc);
-  if (!outFile.is_open ())
-    {
-      NS_LOG_ERROR ("Can't open file " << filename);
-      return;
-    }
-  uint32_t index = 0;
-  for (BuildingList::Iterator it = BuildingList::Begin (); it != BuildingList::End (); ++it)
-    {
-      ++index;
-      Box box = (*it)->GetBoundaries ();
-      outFile << "set object " << index << " rect from " << box.xMin << "," << box.yMin << " to "
-              << box.xMax << "," << box.yMax << " front fs empty " << std::endl;
-    }
-}
 
 void
 PrintGnuplottableUeListToFile (std::string filename)
@@ -121,7 +100,6 @@ PrintGnuplottableEnbListToFile (std::string filename)
       int nDevs = node->GetNDevices ();
       for (int j = 0; j < nDevs; j++)
         {
-          //ssPtr<MmWaveEnbNetDevice> mm2 = CreateObject<MmWaveEnbNetDevice> ();
           Ptr<LteEnbNetDevice> enbdev = node->GetDevice (j)->GetObject<LteEnbNetDevice> ();
           Ptr<MmWaveEnbNetDevice> mmdev = node->GetDevice (j)->GetObject<MmWaveEnbNetDevice> ();
           if (enbdev)
@@ -152,78 +130,6 @@ PrintPosition (Ptr<Node> node)
                                                              << Simulator::Now ().GetSeconds ());
 }
 
-bool
-AreOverlapping (Box a, Box b)
-{
-  return !((a.xMin > b.xMax) || (b.xMin > a.xMax) || (a.yMin > b.yMax) || (b.yMin > a.yMax));
-}
-
-bool
-OverlapWithAnyPrevious (Box box, std::list<Box> m_previousBlocks)
-{
-  for (std::list<Box>::iterator it = m_previousBlocks.begin (); it != m_previousBlocks.end (); ++it)
-    {
-      if (AreOverlapping (*it, box))
-        {
-          return true;
-        }
-    }
-  return false;
-}
-
-std::pair<Box, std::list<Box>>
-GenerateBuildingBounds (double xArea, double yArea, double maxBuildSize,
-                        std::list<Box> m_previousBlocks)
-{
-
-  Ptr<UniformRandomVariable> xMinBuilding = CreateObject<UniformRandomVariable> ();
-  xMinBuilding->SetAttribute ("Min", DoubleValue (30));
-  xMinBuilding->SetAttribute ("Max", DoubleValue (xArea));
-
-  // TODO: is it useful to be shown now?
-  // NS_LOG_UNCOND ("min " << 0 << " max " << xArea);
-
-  Ptr<UniformRandomVariable> yMinBuilding = CreateObject<UniformRandomVariable> ();
-  yMinBuilding->SetAttribute ("Min", DoubleValue (0));
-  yMinBuilding->SetAttribute ("Max", DoubleValue (yArea));
-
-  // TODO: is it useful to be shown now?
-  // NS_LOG_UNCOND ("min " << 0 << " max " << yArea);
-
-  Box box;
-  uint32_t attempt = 0;
-  do
-    {
-      NS_ASSERT_MSG (attempt < 100, "Too many failed attempts to position non-overlapping "
-                                    "buildings. Maybe area too small or too many buildings?");
-      box.xMin = xMinBuilding->GetValue ();
-
-      Ptr<UniformRandomVariable> xMaxBuilding = CreateObject<UniformRandomVariable> ();
-      xMaxBuilding->SetAttribute ("Min", DoubleValue (box.xMin));
-      xMaxBuilding->SetAttribute ("Max", DoubleValue (box.xMin + maxBuildSize));
-      box.xMax = xMaxBuilding->GetValue ();
-
-      box.yMin = yMinBuilding->GetValue ();
-
-      Ptr<UniformRandomVariable> yMaxBuilding = CreateObject<UniformRandomVariable> ();
-      yMaxBuilding->SetAttribute ("Min", DoubleValue (box.yMin));
-      yMaxBuilding->SetAttribute ("Max", DoubleValue (box.yMin + maxBuildSize));
-      box.yMax = yMaxBuilding->GetValue ();
-
-      ++attempt;
-  } while (OverlapWithAnyPrevious (box, m_previousBlocks));
-
-  // NS_LOG_UNCOND ("Building in coordinates (" << box.xMin << " , " << box.yMin << ") and ("
-  //                                            << box.xMax << " , " << box.yMax << ") accepted after "
-  //                                            << attempt << " attempts");
-  m_previousBlocks.push_back (box);
-  std::pair<Box, std::list<Box>> pairReturn = std::make_pair (box, m_previousBlocks);
-  return pairReturn;
-}
-
-static ns3::GlobalValue g_numBuildingsBetweenMmWaveEnb ("numBlocks", "Number of buildings",
-                                                        ns3::UintegerValue (20),
-                                                        ns3::MakeUintegerChecker<uint32_t> ());
 static ns3::GlobalValue g_bufferSize ("bufferSize", "RLC tx buffer size (MB)",
                                       ns3::UintegerValue (20),
                                       ns3::MakeUintegerChecker<uint32_t> ());
@@ -233,14 +139,6 @@ static ns3::GlobalValue g_mmeLatency ("mmeLatency", "Latency on MME interface (u
                                       ns3::DoubleValue (10000), ns3::MakeDoubleChecker<double> ());
 static ns3::GlobalValue g_rlcAmEnabled ("rlcAmEnabled", "If true, use RLC AM, else use RLC UM",
                                         ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
-static ns3::GlobalValue
-    g_maxXAxis ("maxXAxis",
-                "The maximum X coordinate for the area in which to deploy the buildings",
-                ns3::DoubleValue (500), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue
-    g_maxYAxis ("maxYAxis",
-                "The maximum Y coordinate for the area in which to deploy the buildings",
-                ns3::DoubleValue (320), ns3::MakeDoubleChecker<double> ());
 static ns3::GlobalValue g_noiseAndFilter (
     "noiseAndFilter",
     "If true, use noisy SINR samples, filtered. If false, just use the SINR measure",
@@ -255,11 +153,11 @@ static ns3::GlobalValue g_outageThreshold ("outageTh", "Outage threshold", ns3::
 static ns3::GlobalValue g_lteUplink ("lteUplink", "If true, always use LTE for uplink signalling",
                                      ns3::BooleanValue (false), ns3::MakeBooleanChecker ());
 
-static ns3::GlobalValue g_bandwidth ("bandwidth", "The carrier bandwidth in Hz",
-                                     ns3::DoubleValue (200e6), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue g_centerFrequency ("centerFrequency", "The center frequency in Hz",
-                                           ns3::DoubleValue (28e9),
-                                           ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_configuration ("configuration",
+                                         "Set the wanted configuration to emulate [0,2]",
+                                         ns3::UintegerValue (0),
+                                         ns3::MakeUintegerChecker<uint8_t> ());
+
 int
 main (int argc, char *argv[])
 {
@@ -267,22 +165,18 @@ main (int argc, char *argv[])
   // LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
   // LogComponentEnable ("ScenarioOne", LOG_LEVEL_ALL);
 
+  // The maximum X coordinate of the scenario
+  double maxXAxis = 4000;
+  // The maximum Y coordinate of the scenario
+  double maxYAxis = 4000;
+
   bool harqEnabled = true;
   bool fixedTti = false;
-
-  std::list<Box> m_previousBlocks;
 
   UintegerValue uintegerValue;
   BooleanValue booleanValue;
   StringValue stringValue;
   DoubleValue doubleValue;
-  //EnumValue enumValue;
-  GlobalValue::GetValueByName ("numBlocks", uintegerValue);
-  uint32_t numBlocks = uintegerValue.Get ();
-  GlobalValue::GetValueByName ("maxXAxis", doubleValue);
-  double maxXAxis = doubleValue.Get ();
-  GlobalValue::GetValueByName ("maxYAxis", doubleValue);
-  double maxYAxis = doubleValue.Get ();
 
   // Variables for the RT
   int windowForTransient = 150; // number of samples for the vector to use in the filter
@@ -323,13 +217,6 @@ main (int argc, char *argv[])
   double x2Latency = doubleValue.Get ();
   GlobalValue::GetValueByName ("mmeLatency", doubleValue);
   double mmeLatency = doubleValue.Get ();
-
-  GlobalValue::GetValueByName ("bandwidth", doubleValue);
-  double bandwidth = doubleValue.Get ();
-
-  GlobalValue::GetValueByName ("centerFrequency", doubleValue);
-  double centerFrequency = doubleValue.Get ();
-
   double walkTime = 7;
 
   double transientDuration = double (vectorTransient) / 1000000;
@@ -446,9 +333,61 @@ main (int argc, char *argv[])
   // set to false to use the 3GPP radiation pattern (proper configuration of the bearing and downtilt angles is needed)
   Config::SetDefault ("ns3::ThreeGppAntennaArrayModel::IsotropicElements", BooleanValue (true));
 
+  // Carrier bandwidth in Hz
+  double bandwidth;
+  // Center frequency in Hz
+  double centerFrequency;
+  // Distance between the mmWave BSs and the two co-located LTE and mmWave BSs in meters
+  double distanceFromCenter;
+  // Number of antennas in each UE
+  int numAntennasMcUe;
+  // Number of antennas in each mmWave BS
+  int numAntennasMmWave;
+  // Data rate of transport layer
+  std::string dataRate = "30Mbps";
+
+  GlobalValue::GetValueByName ("configuration", uintegerValue);
+  uint8_t configuration = uintegerValue.Get ();
+  switch (configuration)
+    {
+    case 0:
+      centerFrequency = 130e6;
+      bandwidth = 20e6;
+      distanceFromCenter = 1700;
+      numAntennasMcUe = 1;
+      numAntennasMmWave = 1;
+      dataRate = "30Mbps";
+      break;
+
+    case 1:
+      centerFrequency = 3.5e6;
+      bandwidth = 20e6;
+      distanceFromCenter = 1700;
+      numAntennasMcUe = 1;
+      numAntennasMmWave = 1;
+      dataRate = "30Mbps";
+      break;
+
+    case 2:
+      centerFrequency = 28e9;
+      bandwidth = 100e6;
+      distanceFromCenter = 200;
+      numAntennasMcUe = 16;
+      numAntennasMmWave = 64;
+      dataRate = "30Mbps";
+      break;
+
+    default:
+      NS_FATAL_ERROR ("Configuration not recognized" << configuration);
+      break;
+    }
+
+  Config::SetDefault ("ns3::McUeNetDevice::AntennaNum", UintegerValue (numAntennasMcUe));
+  Config::SetDefault ("ns3::MmWaveNetDevice::AntennaNum", UintegerValue (numAntennasMmWave));
+
   Ptr<MmWaveHelper> mmwaveHelper = CreateObject<MmWaveHelper> ();
   mmwaveHelper->SetPathlossModelType ("ns3::ThreeGppUmiStreetCanyonPropagationLossModel");
-  mmwaveHelper->SetChannelConditionModelType ("ns3::BuildingsChannelConditionModel");
+  mmwaveHelper->SetChannelConditionModelType ("ns3::ThreeGppUmiStreetCanyonChannelConditionModel");
 
   Ptr<MmWavePointToPointEpcHelper> epcHelper = CreateObject<MmWavePointToPointEpcHelper> ();
   mmwaveHelper->SetEpcHelper (epcHelper);
@@ -459,17 +398,6 @@ main (int argc, char *argv[])
       centerFrequency);
 
   uint8_t nMmWaveEnbNodes = 7;
-  double distanceFromCenter = 100;
-
-  // Command line arguments
-  CommandLine cmd;
-
-  cmd.AddValue ("nMmWaveEnbNodes", "Numbers of mmWave Enb nodes", nMmWaveEnbNodes);
-  //cmd.AddValue ("nLteEnbNodes", "Numbers of LTE Enb nodes", nLteEnbNodes);
-  cmd.AddValue ("distanceFromCenter",
-                "Distance between the mmWave BSs and the two co-located LTE and mmWave BSs",
-                distanceFromCenter);
-  cmd.Parse (argc, argv);
   uint8_t nLteEnbNodes = 1;
   uint8_t nUeNodes = 5 * nMmWaveEnbNodes;
 
@@ -514,35 +442,6 @@ main (int argc, char *argv[])
   // Positions
   Vector centerPosition = Vector (maxXAxis / 2, maxYAxis / 2, 3);
 
-  std::vector<Ptr<Building>> buildingVector;
-
-  double maxBuildingSize = 50;
-  // NS_LOG_UNCOND ("Start of the generation of Building Bounds");
-  for (uint32_t buildingIndex = 0; buildingIndex < numBlocks; buildingIndex++)
-    {
-      Ptr<Building> building;
-      building = Create<Building> ();
-      /* returns a vecotr where:
-      * position [0]: coordinates for x min
-      * position [1]: coordinates for x max
-      * position [2]: coordinates for y min
-      * position [3]: coordinates for y max
-      */
-      std::pair<Box, std::list<Box>> pairBuildings =
-          GenerateBuildingBounds (maxXAxis, maxYAxis, maxBuildingSize, m_previousBlocks);
-      m_previousBlocks = std::get<1> (pairBuildings);
-      Box box = std::get<0> (pairBuildings);
-      Ptr<UniformRandomVariable> randomBuildingZ = CreateObject<UniformRandomVariable> ();
-      randomBuildingZ->SetAttribute ("Min", DoubleValue (1.6));
-      randomBuildingZ->SetAttribute ("Max", DoubleValue (40));
-      double buildingHeight = randomBuildingZ->GetValue ();
-
-      building->SetBoundaries (Box (box.xMin, box.xMax, box.yMin, box.yMax, 0.0, buildingHeight));
-      buildingVector.push_back (building);
-    }
-
-  // NS_LOG_UNCOND ("End of the generation of Bulding Bounds");
-
   // Install Mobility Model
   Ptr<ListPositionAllocator> enbPositionAlloc = CreateObject<ListPositionAllocator> ();
 
@@ -566,7 +465,6 @@ main (int argc, char *argv[])
   enbmobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
   enbmobility.SetPositionAllocator (enbPositionAlloc);
   enbmobility.Install (allEnbNodes);
-  BuildingsHelper::Install (allEnbNodes);
 
   MobilityHelper uemobility;
 
@@ -579,16 +477,15 @@ main (int argc, char *argv[])
   randomUePositionY->SetAttribute ("Min", DoubleValue (0));
   randomUePositionY->SetAttribute ("Max", DoubleValue (maxYAxis));
 
-  Ptr<OutdoorPositionAllocator> uePositionAlloc = CreateObject<OutdoorPositionAllocator> ();
-  uePositionAlloc->SetAttribute ("X", PointerValue (randomUePositionX));
-  uePositionAlloc->SetAttribute ("Y", PointerValue (randomUePositionY));
+  Ptr<RandomRectanglePositionAllocator> uePositionAlloc =
+      CreateObject<RandomRectanglePositionAllocator> ();
+  uePositionAlloc->SetX (randomUePositionX);
+  uePositionAlloc->SetY (randomUePositionY);
 
   uemobility.SetMobilityModel ("ns3::RandomWalk2dOutdoorMobilityModel", "Bounds",
                                RectangleValue (Rectangle (0, maxXAxis, 0, maxYAxis)));
   uemobility.SetPositionAllocator (uePositionAlloc);
   uemobility.Install (ueNodes);
-
-  BuildingsHelper::Install (ueNodes);
 
   // Install mmWave, lte, mc Devices to the nodes
   NetDeviceContainer lteEnbDevs = mmwaveHelper->InstallLteEnbDevice (lteEnbNodes);
@@ -618,6 +515,8 @@ main (int argc, char *argv[])
 
   // Install and start applications on UEs
 
+  // TODO UDP
+
   // On the remoteHost is placed a TCP server
   uint16_t port = 5000;
   Address sinkLocalAddress (InetSocketAddress (Ipv4Address::GetAny (), port));
@@ -628,9 +527,10 @@ main (int argc, char *argv[])
   // On the UEs there are TCP clients
   OnOffHelper clientHelper ("ns3::TcpSocketFactory", Address ());
   clientHelper.SetAttribute ("Remote", serverAddress);
+  // usare exponential random variable
   clientHelper.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1]"));
   clientHelper.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-  clientHelper.SetAttribute ("DataRate", StringValue ("2Mbps"));
+  clientHelper.SetAttribute ("DataRate", StringValue (dataRate));
   clientHelper.SetAttribute ("PacketSize", UintegerValue (1280));
   ApplicationContainer clientApp;
   for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
@@ -656,10 +556,10 @@ main (int argc, char *argv[])
     }
 
   mmwaveHelper->EnableTraces ();
-  p2ph.EnablePcapAll ("p2p", true);
+  // p2ph.EnablePcapAll ("p2p", true);
 
   //Since nodes are randomly allocated during each run we always need to print their positions
-  PrintGnuplottableBuildingListToFile ("buildings.txt");
+  // PrintGnuplottableBuildingListToFile ("buildings.txt");
   PrintGnuplottableUeListToFile ("ues.txt");
   PrintGnuplottableEnbListToFile ("enbs.txt");
 
@@ -686,10 +586,10 @@ main (int argc, char *argv[])
 
   // anim.EnablePacketMetadata ();
 
-  bool run = true;
+  bool run = false;
   if (run)
     {
-      // NS_LOG_UNCOND ("Simlation time is " << simTime << " seconds ");
+      NS_LOG_UNCOND ("Simlation time is " << simTime << " seconds ");
       Simulator::Stop (Seconds (simTime));
       Simulator::Run ();
     }
