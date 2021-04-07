@@ -131,7 +131,7 @@ PrintPosition (Ptr<Node> node)
 }
 
 static ns3::GlobalValue g_bufferSize ("bufferSize", "RLC tx buffer size (MB)",
-                                      ns3::UintegerValue (20),
+                                      ns3::UintegerValue (10),
                                       ns3::MakeUintegerChecker<uint32_t> ());
 static ns3::GlobalValue g_x2Latency ("x2Latency", "Latency on X2 interface (us)",
                                      ns3::DoubleValue (500), ns3::MakeDoubleChecker<double> ());
@@ -562,14 +562,13 @@ main (int argc, char *argv[])
   mmwaveHelper->EnableTraces ();
 
   // Since nodes are randomly allocated during each run we always need to print their positions
-  // PrintGnuplottableBuildingListToFile ("buildings.txt");
   PrintGnuplottableUeListToFile ("ues.txt");
   PrintGnuplottableEnbListToFile ("enbs.txt");
 
-  bool run = false;
+  bool run = true;
   if (run)
     {
-      NS_LOG_UNCOND ("Simlation time is " << simTime << " seconds ");
+      NS_LOG_UNCOND ("Simulation time is " << simTime << " seconds ");
       Simulator::Stop (Seconds (simTime));
       Simulator::Run ();
     }
