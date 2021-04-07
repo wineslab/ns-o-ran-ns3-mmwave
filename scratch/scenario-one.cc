@@ -170,6 +170,10 @@ main (int argc, char *argv[])
   // The maximum Y coordinate of the scenario
   double maxYAxis = 4000;
 
+  // Command line arguments
+  CommandLine cmd;
+  cmd.Parse (argc, argv);
+
   bool harqEnabled = true;
   bool fixedTti = false;
 
