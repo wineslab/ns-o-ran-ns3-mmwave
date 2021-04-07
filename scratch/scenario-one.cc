@@ -563,8 +563,8 @@ main (int argc, char *argv[])
 
   // Since nodes are randomly allocated during each run we always need to print their positions
   // PrintGnuplottableBuildingListToFile ("buildings.txt");
-  // PrintGnuplottableUeListToFile ("ues.txt");
-  // PrintGnuplottableEnbListToFile ("enbs.txt");
+  PrintGnuplottableUeListToFile ("ues.txt");
+  PrintGnuplottableEnbListToFile ("enbs.txt");
 
   bool run = false;
   if (run)
