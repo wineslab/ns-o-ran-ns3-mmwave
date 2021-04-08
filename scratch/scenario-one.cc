@@ -160,7 +160,7 @@ static ns3::GlobalValue g_configuration ("configuration",
 
 static ns3::GlobalValue g_perPckToLTE ("perPckToLTE",
                                        "Percentage of packets to be directed to LTE.",
-                                       ns3::DoubleValue (0),
+                                       ns3::DoubleValue (0.2),
                                        ns3::MakeDoubleChecker<double> (0.0, 1.0));
 
 int
@@ -468,7 +468,7 @@ main (int argc, char *argv[])
       x = isd * cos ((2 * M_PI * i) / (nConstellation));
       y = isd * sin ((2 * M_PI * i) / (nConstellation));
       // verify distance
-      enbPositionAlloc->Add (Vector (centerPosition.x + x, centerPosition.y + y, 0));
+      enbPositionAlloc->Add (Vector (centerPosition.x + x, centerPosition.y + y, 3));
     }
 
   MobilityHelper enbmobility;
@@ -476,22 +476,15 @@ main (int argc, char *argv[])
   enbmobility.SetPositionAllocator (enbPositionAlloc);
   enbmobility.Install (allEnbNodes);
 
-  // TODO  random disc allocator o inserire internamente UEs
   MobilityHelper uemobility;
 
-  Ptr<UniformRandomVariable> randomUePositionX = CreateObject<UniformRandomVariable> ();
-  Ptr<UniformRandomVariable> randomUePositionY = CreateObject<UniformRandomVariable> ();
+  // TODO check
+  
+  Ptr<UniformDiscPositionAllocator> uePositionAlloc = CreateObject<UniformDiscPositionAllocator> ();
 
-  randomUePositionX->SetAttribute ("Min", DoubleValue (0));
-  randomUePositionX->SetAttribute ("Max", DoubleValue (maxXAxis));
-
-  randomUePositionY->SetAttribute ("Min", DoubleValue (0));
-  randomUePositionY->SetAttribute ("Max", DoubleValue (maxYAxis));
-
-  Ptr<RandomRectanglePositionAllocator> uePositionAlloc =
-      CreateObject<RandomRectanglePositionAllocator> ();
-  uePositionAlloc->SetX (randomUePositionX);
-  uePositionAlloc->SetY (randomUePositionY);
+  uePositionAlloc->SetX (centerPosition.x);
+  uePositionAlloc->SetY (centerPosition.y);
+  uePositionAlloc->SetRho (isd);
 
   uemobility.SetMobilityModel ("ns3::RandomWalk2dOutdoorMobilityModel", "Bounds",
                                RectangleValue (Rectangle (0, maxXAxis, 0, maxYAxis)));
@@ -530,15 +523,17 @@ main (int argc, char *argv[])
   uint16_t portTcp = 5000;
   Address sinkLocalAddressTcp (InetSocketAddress (Ipv4Address::GetAny (), portTcp));
   PacketSinkHelper sinkHelperTcp ("ns3::TcpSocketFactory", sinkLocalAddressTcp);
-  ApplicationContainer sinkAppTcp = sinkHelperTcp.Install (remoteHost);
   AddressValue serverAddressTcp (InetSocketAddress (remoteHostAddr, portTcp));
 
   // On the remoteHost is placed a UDP server
   uint16_t portUdp = 6000;
   Address sinkLocalAddressUdp (InetSocketAddress (Ipv4Address::GetAny (), portUdp));
   PacketSinkHelper sinkHelperUdp ("ns3::UdpSocketFactory", sinkLocalAddressUdp);
-  ApplicationContainer sinkAppUdp = sinkHelperUdp.Install (remoteHost);
   AddressValue serverAddressUdp (InetSocketAddress (remoteHostAddr, portUdp));
+
+  ApplicationContainer sinkApp;
+  sinkApp.Add (sinkHelperTcp.Install (remoteHost));
+  sinkApp.Add (sinkHelperUdp.Install (remoteHost));
 
   // On the UEs there are TCP and UDP clients
   // If needed [Mean=1,Bound=0]
@@ -572,11 +567,8 @@ main (int argc, char *argv[])
 
   // Start applications
   NS_LOG_UNCOND ("transientDuration " << transientDuration << " simTime " << simTime);
-  sinkAppTcp.Start (Seconds (transientDuration));
-  sinkAppTcp.Stop (Seconds (simTime - 1));
-
-  sinkAppUdp.Start (Seconds (transientDuration));
-  sinkAppUdp.Stop (Seconds (simTime - 1));
+  sinkApp.Start (Seconds (transientDuration));
+  sinkApp.Stop (Seconds (simTime - 1));
 
   clientApp.Start (Seconds (transientDuration));
   clientApp.Stop (Seconds (simTime - 1));
