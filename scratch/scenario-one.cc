@@ -411,7 +411,9 @@ main (int argc, char *argv[])
   uint8_t nUeNodes = 5 * nMmWaveEnbNodes;
 
   std::cout << "Lte uplink " << lteUplink << " Bandwidth " << bandwidth << " centerFrequency "
-            << centerFrequency << " nMmWaveEnbNodes " << unsigned (nMmWaveEnbNodes) << "\n";
+            << centerFrequency << " isd " << isd << " numAntennasMcUe " << numAntennasMcUe
+            << " numAntennasMmWave " << numAntennasMmWave << " dataRate " << dataRate
+            << " nMmWaveEnbNodes " << unsigned (nMmWaveEnbNodes) << "\n";
 
   // Get SGW/PGW and create a single RemoteHost
   Ptr<Node> pgw = epcHelper->GetPgwNode ();
@@ -448,7 +450,7 @@ main (int argc, char *argv[])
   allEnbNodes.Add (lteEnbNodes);
   allEnbNodes.Add (mmWaveEnbNodes);
 
-  // Positions
+  // Position
   Vector centerPosition = Vector (maxXAxis / 2, maxYAxis / 2, 3);
 
   // Install Mobility Model
@@ -479,7 +481,7 @@ main (int argc, char *argv[])
   MobilityHelper uemobility;
 
   // TODO check
-  
+
   Ptr<UniformDiscPositionAllocator> uePositionAlloc = CreateObject<UniformDiscPositionAllocator> ();
 
   uePositionAlloc->SetX (centerPosition.x);
@@ -494,8 +496,7 @@ main (int argc, char *argv[])
   // Install mmWave, lte, mc Devices to the nodes
   NetDeviceContainer lteEnbDevs = mmwaveHelper->InstallLteEnbDevice (lteEnbNodes);
   NetDeviceContainer mmWaveEnbDevs = mmwaveHelper->InstallEnbDevice (mmWaveEnbNodes);
-  NetDeviceContainer mcUeDevs;
-  mcUeDevs = mmwaveHelper->InstallMcUeDevice (ueNodes);
+  NetDeviceContainer mcUeDevs = mmwaveHelper->InstallMcUeDevice (ueNodes);
 
   // Install the IP stack on the UEs
   internet.Install (ueNodes);
