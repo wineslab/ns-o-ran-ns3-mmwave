@@ -235,6 +235,12 @@ private:
 
   bool m_useMmWaveConnection;
 
+  /**
+   * Percentage of packets to be directed to LTE. 
+   * Used to perform traffic split.
+   * 
+   */
+  double m_perPckToLTE;
 };
 
 

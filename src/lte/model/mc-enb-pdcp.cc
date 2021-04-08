@@ -68,14 +68,15 @@ McPdcpSpecificLteRlcSapUser::ReceivePdcpPdu (Ptr<Packet> p)
 NS_OBJECT_ENSURE_REGISTERED (McEnbPdcp);
 
 McEnbPdcp::McEnbPdcp ()
-  : m_pdcpSapUser (0),
-    m_rlcSapProvider (0),
-    m_rnti (0),
-    m_lcid (0),
-    m_epcX2PdcpProvider (0),
-    m_txSequenceNumber (0),
-    m_rxSequenceNumber (0),
-    m_useMmWaveConnection (false)
+    : m_pdcpSapUser (0),
+      m_rlcSapProvider (0),
+      m_rnti (0),
+      m_lcid (0),
+      m_epcX2PdcpProvider (0),
+      m_txSequenceNumber (0),
+      m_rxSequenceNumber (0),
+      m_useMmWaveConnection (false),
+      m_perPckToLTE (0)
 {
   NS_LOG_FUNCTION (this);
   m_pdcpSapProvider = new LtePdcpSpecificLtePdcpSapProvider<McEnbPdcp> (this);
@@ -91,17 +92,20 @@ McEnbPdcp::~McEnbPdcp ()
 TypeId
 McEnbPdcp::GetTypeId (void)
 {
-  static TypeId tid = TypeId ("ns3::McEnbPdcp")
-    .SetParent<Object> ()
-    .AddTraceSource ("TxPDU",
-                     "PDU transmission notified to the RLC.",
-                     MakeTraceSourceAccessor (&McEnbPdcp::m_txPdu),
-                     "ns3::McEnbPdcp::PduTxTracedCallback")
-    .AddTraceSource ("RxPDU",
-                     "PDU received.",
-                     MakeTraceSourceAccessor (&McEnbPdcp::m_rxPdu),
-                     "ns3::McEnbPdcp::PduRxTracedCallback")
-    ;
+  static TypeId tid =
+      TypeId ("ns3::McEnbPdcp")
+          .SetParent<Object> ()
+          .AddTraceSource ("TxPDU", "PDU transmission notified to the RLC.",
+                           MakeTraceSourceAccessor (&McEnbPdcp::m_txPdu),
+                           "ns3::McEnbPdcp::PduTxTracedCallback")
+          .AddTraceSource ("RxPDU", "PDU received.", MakeTraceSourceAccessor (&McEnbPdcp::m_rxPdu),
+                           "ns3::McEnbPdcp::PduRxTracedCallback")
+          .AddAttribute ("perPckToLTE",
+                         "Percentage of packets to be directed to LTE. Used to perform traffic split.",
+                         DoubleValue (0),
+                         MakeDoubleAccessor(&McEnbPdcp::m_perPckToLTE),
+                         MakeDoubleChecker<double> (0.0,1.0))
+          ;
   return tid;
 }
 
@@ -228,17 +232,15 @@ McEnbPdcp::DoTransmitPdcpSdu (Ptr<Packet> p)
 
   double min = 0.0;
   double max = 1.0;
-  double threshold = 0.2;
 
-  NS_ASSERT (threshold > min && threshold < max);
-  
-  Ptr<UniformRandomVariable> x = CreateObject<UniformRandomVariable> ();
-  x->SetAttribute ("Min", DoubleValue (min));
-  x->SetAttribute ("Max", DoubleValue (max));
+  Ptr<UniformRandomVariable> uniformRNG = CreateObject<UniformRandomVariable> ();
+  uniformRNG->SetAttribute ("Min", DoubleValue (min));
+  uniformRNG->SetAttribute ("Max", DoubleValue (max));
 
-  double rndValue = x->GetValue ();
-  NS_LOG_INFO (this << " McEnbPdcp: rndValue is " << rndValue << " , threshold is " << threshold);
-  if (rndValue > threshold)
+  double rndValue = uniformRNG->GetValue ();
+  NS_LOG_INFO (this << " McEnbPdcp: rndValue is " << rndValue << " , m_perPckToLTE is "
+                    << m_perPckToLTE);
+  if ((m_epcX2PdcpProvider == 0 || (!m_useMmWaveConnection)) && (rndValue > m_perPckToLTE))
     {
       NS_LOG_INFO (this << " McEnbPdcp: Tx packet to downlink local stack");
 
@@ -254,7 +256,7 @@ McEnbPdcp::DoTransmitPdcpSdu (Ptr<Packet> p)
 
       m_rlcSapProvider->TransmitPdcpPdu (params);
     }
-  else
+  else if (m_useMmWaveConnection && !(rndValue > m_perPckToLTE))
     {
       // Do not add sender time stamp: we are not interested in adding X2 delay for MC connections
       NS_LOG_INFO (this << " McEnbPdcp: Tx packet to downlink MmWave stack on remote cell "
@@ -263,39 +265,10 @@ McEnbPdcp::DoTransmitPdcpSdu (Ptr<Packet> p)
       m_txPdu (m_rnti, m_lcid, p->GetSize ());
       m_epcX2PdcpProvider->SendMcPdcpPdu (m_ueDataParams);
     }
-
-  // Old policy
-  
-  /*if(m_epcX2PdcpProvider == 0 || (!m_useMmWaveConnection))
-  {
-    NS_LOG_INFO(this << " McEnbPdcp: Tx packet to downlink local stack");
-
-    // Sender timestamp. We will use this to measure the delay on top of RLC
-    PdcpTag pdcpTag (Simulator::Now ());
-    p->AddByteTag (pdcpTag);
-    m_txPdu (m_rnti, m_lcid, p->GetSize ());
-    params.pdcpPdu = p;
-
-    NS_LOG_LOGIC("Params.rnti " << params.rnti);
-    NS_LOG_LOGIC("Params.m_lcid " << params.lcid);
-    NS_LOG_LOGIC("Params.pdcpPdu " << params.pdcpPdu);
-
-    m_rlcSapProvider->TransmitPdcpPdu (params);
-  }
-  else if (m_useMmWaveConnection)
-  {
-    // Do not add sender time stamp: we are not interested in adding X2 delay for MC connections
-    NS_LOG_INFO(this << " McEnbPdcp: Tx packet to downlink MmWave stack on remote cell " << m_ueDataParams.targetCellId);
-    m_ueDataParams.ueData = p;
-    m_txPdu (m_rnti, m_lcid, p->GetSize ());
-    m_epcX2PdcpProvider->SendMcPdcpPdu (m_ueDataParams);
-  }
   else
-  {
-    NS_FATAL_ERROR("Invalid combination");
-  }*/
-
-
+    {
+      NS_FATAL_ERROR ("Invalid combination");
+    }
 }
 
 void

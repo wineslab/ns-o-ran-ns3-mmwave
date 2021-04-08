@@ -158,12 +158,18 @@ static ns3::GlobalValue g_configuration ("configuration",
                                          ns3::UintegerValue (0),
                                          ns3::MakeUintegerChecker<uint8_t> ());
 
+static ns3::GlobalValue g_perPckToLTE ("perPckToLTE",
+                                       "Percentage of packets to be directed to LTE.",
+                                       ns3::DoubleValue (0),
+                                       ns3::MakeDoubleChecker<double> (0.0, 1.0));
+
 int
 main (int argc, char *argv[])
 {
   // LogComponentEnable ("TcpL4Protocol", LOG_LEVEL_ALL);
   // LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
   // LogComponentEnable ("ScenarioOne", LOG_LEVEL_ALL);
+  // LogComponentEnable ("McEnbPdcp", LOG_LEVEL_ALL);
 
   // The maximum X coordinate of the scenario
   double maxXAxis = 4000;
@@ -212,7 +218,8 @@ main (int argc, char *argv[])
   uint8_t hoMode = uintegerValue.Get ();
   GlobalValue::GetValueByName ("outageTh", doubleValue);
   double outageTh = doubleValue.Get ();
-
+  GlobalValue::GetValueByName ("perPckToLTE", doubleValue);
+  double perPckToLTE = doubleValue.Get ();
   GlobalValue::GetValueByName ("rlcAmEnabled", booleanValue);
   bool rlcAmEnabled = booleanValue.Get ();
   GlobalValue::GetValueByName ("bufferSize", uintegerValue);
@@ -288,6 +295,7 @@ main (int argc, char *argv[])
                       UintegerValue (bufferSize * 1024 * 1024));
   Config::SetDefault ("ns3::LteRlcAm::StatusProhibitTimer", TimeValue (MilliSeconds (10.0)));
   Config::SetDefault ("ns3::LteRlcAm::MaxTxBufferSize", UintegerValue (bufferSize * 1024 * 1024));
+  Config::SetDefault ("ns3::McEnbPdcp::perPckToLTE", DoubleValue (perPckToLTE));
 
   // handover and RT related params
   switch (hoMode)
@@ -330,10 +338,6 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::ThreeGppChannelModel::NumNonselfBlocking",
                       IntegerValue (4)); // number of non-self blocking obstacles
 
-  // set the number of antennas in the devices
-  Config::SetDefault ("ns3::McUeNetDevice::AntennaNum", UintegerValue (16));
-  Config::SetDefault ("ns3::MmWaveNetDevice::AntennaNum", UintegerValue (64));
-
   // set to false to use the 3GPP radiation pattern (proper configuration of the bearing and downtilt angles is needed)
   Config::SetDefault ("ns3::ThreeGppAntennaArrayModel::IsotropicElements", BooleanValue (true));
 
@@ -342,13 +346,13 @@ main (int argc, char *argv[])
   // Center frequency in Hz
   double centerFrequency;
   // Distance between the mmWave BSs and the two co-located LTE and mmWave BSs in meters
-  double distanceFromCenter;
+  double isd; // rename in isd (interside distance)
   // Number of antennas in each UE
   int numAntennasMcUe;
   // Number of antennas in each mmWave BS
   int numAntennasMmWave;
   // Data rate of transport layer
-  std::string dataRate = "30Mbps";
+  std::string dataRate;
 
   GlobalValue::GetValueByName ("configuration", uintegerValue);
   uint8_t configuration = uintegerValue.Get ();
@@ -357,25 +361,25 @@ main (int argc, char *argv[])
     case 0:
       centerFrequency = 130e6;
       bandwidth = 20e6;
-      distanceFromCenter = 1700;
+      isd = 1700;
       numAntennasMcUe = 1;
       numAntennasMmWave = 1;
-      dataRate = "30Mbps";
+      dataRate = "3Mbps";
       break;
 
     case 1:
-      centerFrequency = 3.5e6;
+      centerFrequency = 3.5e9;
       bandwidth = 20e6;
-      distanceFromCenter = 1700;
+      isd = 1700;
       numAntennasMcUe = 1;
       numAntennasMmWave = 1;
-      dataRate = "30Mbps";
+      dataRate = "3Mbps";
       break;
 
     case 2:
       centerFrequency = 28e9;
       bandwidth = 100e6;
-      distanceFromCenter = 200;
+      isd = 200;
       numAntennasMcUe = 16;
       numAntennasMmWave = 64;
       dataRate = "30Mbps";
@@ -386,6 +390,7 @@ main (int argc, char *argv[])
       break;
     }
 
+  // set the number of antennas in the devices
   Config::SetDefault ("ns3::McUeNetDevice::AntennaNum", UintegerValue (numAntennasMcUe));
   Config::SetDefault ("ns3::MmWaveNetDevice::AntennaNum", UintegerValue (numAntennasMmWave));
 
@@ -460,9 +465,10 @@ main (int argc, char *argv[])
   // This guarantee that each of the rest BSs is placed at the same distance from the two co-located in the center
   for (int8_t i = 0; i < nConstellation; ++i)
     {
-      x = distanceFromCenter * cos ((2 * M_PI * i) / (nConstellation));
-      y = distanceFromCenter * sin ((2 * M_PI * i) / (nConstellation));
-      enbPositionAlloc->Add (Vector (centerPosition.x + x, centerPosition.y + y, 3));
+      x = isd * cos ((2 * M_PI * i) / (nConstellation));
+      y = isd * sin ((2 * M_PI * i) / (nConstellation));
+      // verify distance
+      enbPositionAlloc->Add (Vector (centerPosition.x + x, centerPosition.y + y, 0));
     }
 
   MobilityHelper enbmobility;
@@ -470,6 +476,7 @@ main (int argc, char *argv[])
   enbmobility.SetPositionAllocator (enbPositionAlloc);
   enbmobility.Install (allEnbNodes);
 
+  // TODO  random disc allocator o inserire internamente UEs
   MobilityHelper uemobility;
 
   Ptr<UniformRandomVariable> randomUePositionX = CreateObject<UniformRandomVariable> ();
@@ -519,33 +526,57 @@ main (int argc, char *argv[])
 
   // Install and start applications on UEs
 
-  // TODO UDP
-
   // On the remoteHost is placed a TCP server
-  uint16_t port = 5000;
-  Address sinkLocalAddress (InetSocketAddress (Ipv4Address::GetAny (), port));
-  PacketSinkHelper sinkHelper ("ns3::TcpSocketFactory", sinkLocalAddress);
-  ApplicationContainer sinkApp = sinkHelper.Install (remoteHost);
-  AddressValue serverAddress (InetSocketAddress (remoteHostAddr, port));
+  uint16_t portTcp = 5000;
+  Address sinkLocalAddressTcp (InetSocketAddress (Ipv4Address::GetAny (), portTcp));
+  PacketSinkHelper sinkHelperTcp ("ns3::TcpSocketFactory", sinkLocalAddressTcp);
+  ApplicationContainer sinkAppTcp = sinkHelperTcp.Install (remoteHost);
+  AddressValue serverAddressTcp (InetSocketAddress (remoteHostAddr, portTcp));
 
-  // On the UEs there are TCP clients
-  OnOffHelper clientHelper ("ns3::TcpSocketFactory", Address ());
-  clientHelper.SetAttribute ("Remote", serverAddress);
-  // usare exponential random variable
-  clientHelper.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1]"));
-  clientHelper.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
-  clientHelper.SetAttribute ("DataRate", StringValue (dataRate));
-  clientHelper.SetAttribute ("PacketSize", UintegerValue (1280));
+  // On the remoteHost is placed a UDP server
+  uint16_t portUdp = 6000;
+  Address sinkLocalAddressUdp (InetSocketAddress (Ipv4Address::GetAny (), portUdp));
+  PacketSinkHelper sinkHelperUdp ("ns3::UdpSocketFactory", sinkLocalAddressUdp);
+  ApplicationContainer sinkAppUdp = sinkHelperUdp.Install (remoteHost);
+  AddressValue serverAddressUdp (InetSocketAddress (remoteHostAddr, portUdp));
+
+  // On the UEs there are TCP and UDP clients
+  // If needed [Mean=1,Bound=0]
+  OnOffHelper clientHelperTcp ("ns3::TcpSocketFactory", Address ());
+  clientHelperTcp.SetAttribute ("Remote", serverAddressTcp);
+  clientHelperTcp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable"));
+  clientHelperTcp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
+  clientHelperTcp.SetAttribute ("DataRate", StringValue (dataRate));
+  clientHelperTcp.SetAttribute ("PacketSize", UintegerValue (1280));
+
+  OnOffHelper clientHelperUdp ("ns3::UdpSocketFactory", Address ());
+  clientHelperTcp.SetAttribute ("Remote", serverAddressUdp);
+  clientHelperUdp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable"));
+  clientHelperTcp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
+  clientHelperTcp.SetAttribute ("DataRate", StringValue (dataRate));
+  clientHelperTcp.SetAttribute ("PacketSize", UintegerValue (1280));
+
+  // Half of the nodes uses an UDP client and the other half a TCP client
   ApplicationContainer clientApp;
   for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
     {
-      clientApp.Add (clientHelper.Install (ueNodes.Get (u)));
+      if (u % 2 == 0)
+        {
+          clientApp.Add (clientHelperTcp.Install (ueNodes.Get (u)));
+        }
+      else
+        {
+          clientApp.Add (clientHelperUdp.Install (ueNodes.Get (u)));
+        }
     }
 
   // Start applications
   NS_LOG_UNCOND ("transientDuration " << transientDuration << " simTime " << simTime);
-  sinkApp.Start (Seconds (transientDuration));
-  sinkApp.Stop (Seconds (simTime - 1));
+  sinkAppTcp.Start (Seconds (transientDuration));
+  sinkAppTcp.Stop (Seconds (simTime - 1));
+
+  sinkAppUdp.Start (Seconds (transientDuration));
+  sinkAppUdp.Stop (Seconds (simTime - 1));
 
   clientApp.Start (Seconds (transientDuration));
   clientApp.Stop (Seconds (simTime - 1));
