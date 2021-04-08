@@ -520,13 +520,13 @@ main (int argc, char *argv[])
   // Install and start applications on UEs
 
   // On the remoteHost is placed a TCP server
-  uint16_t portTcp = 5000;
+  uint16_t portTcp = 50000;
   Address sinkLocalAddressTcp (InetSocketAddress (Ipv4Address::GetAny (), portTcp));
   PacketSinkHelper sinkHelperTcp ("ns3::TcpSocketFactory", sinkLocalAddressTcp);
   AddressValue serverAddressTcp (InetSocketAddress (remoteHostAddr, portTcp));
 
   // On the remoteHost is placed a UDP server
-  uint16_t portUdp = 6000;
+  uint16_t portUdp = 60000;
   Address sinkLocalAddressUdp (InetSocketAddress (Ipv4Address::GetAny (), portUdp));
   PacketSinkHelper sinkHelperUdp ("ns3::UdpSocketFactory", sinkLocalAddressUdp);
   AddressValue serverAddressUdp (InetSocketAddress (remoteHostAddr, portUdp));
