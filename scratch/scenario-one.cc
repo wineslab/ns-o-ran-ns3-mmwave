@@ -155,7 +155,7 @@ static ns3::GlobalValue g_lteUplink ("lteUplink", "If true, always use LTE for u
 
 static ns3::GlobalValue g_configuration ("configuration",
                                          "Set the wanted configuration to emulate [0,2]",
-                                         ns3::UintegerValue (0),
+                                         ns3::UintegerValue (2),
                                          ns3::MakeUintegerChecker<uint8_t> ());
 
 static ns3::GlobalValue g_perPckToLTE ("perPckToLTE",
@@ -166,10 +166,15 @@ static ns3::GlobalValue g_perPckToLTE ("perPckToLTE",
 int
 main (int argc, char *argv[])
 {
-  // LogComponentEnable ("TcpL4Protocol", LOG_LEVEL_ALL);
-  // LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
-  // LogComponentEnable ("ScenarioOne", LOG_LEVEL_ALL);
-  // LogComponentEnable ("McEnbPdcp", LOG_LEVEL_ALL);
+  LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
+  LogComponentEnable ("OnOffApplication", LOG_LEVEL_ALL);
+  // LogComponentEnableAll (LOG_LEVEL_DEBUG);
+  //LogComponentEnable ("LtePdcp", LOG_LEVEL_ALL);
+  //LogComponentEnable ("LteEnbRrc", LOG_LEVEL_ALL);
+  //LogComponentEnable ("LteUeRrc", LOG_LEVEL_ALL);
+  //LogComponentEnable ("McEnbPdcp", LOG_LEVEL_ALL);
+  //LogComponentEnable ("McUePdcp", LOG_LEVEL_ALL);
+  LogComponentEnable ("ScenarioOne", LOG_LEVEL_ALL);
 
   // The maximum X coordinate of the scenario
   double maxXAxis = 4000;
@@ -236,23 +241,24 @@ main (int argc, char *argv[])
   NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << bufferSize << " x2Latency "
                                  << x2Latency << " mmeLatency " << mmeLatency);
 
-  std::string mmWaveOutName = "MmWaveSwitchStats";
-  std::string lteOutName = "LteSwitchStats";
-  std::string dlRlcOutName = "DlRlcStats";
-  std::string dlPdcpOutName = "DlPdcpStats";
-  std::string ulRlcOutName = "UlRlcStats";
-  std::string ulPdcpOutName = "UlPdcpStats";
-  std::string ueHandoverStartOutName = "UeHandoverStartStats";
-  std::string enbHandoverStartOutName = "EnbHandoverStartStats";
-  std::string ueHandoverEndOutName = "UeHandoverEndStats";
-  std::string enbHandoverEndOutName = "EnbHandoverEndStats";
-  std::string cellIdInTimeOutName = "CellIdStats";
-  std::string cellIdInTimeHandoverOutName = "CellIdStatsHandover";
-  std::string mmWaveSinrOutputFilename = "MmWaveSinrTime";
-  std::string x2statOutputFilename = "X2Stats";
-  std::string udpSentFilename = "UdpSent";
-  std::string udpReceivedFilename = "UdpReceived";
-  std::string extension = ".txt";
+  // std::string mmWaveOutName = "MmWaveSwitchStats";
+  // std::string lteOutName = "LteSwitchStats";
+  // std::string dlRlcOutName = "DlRlcStats";
+  // std::string dlPdcpOutName = "DlPdcpStats";
+  // std::string ulRlcOutName = "UlRlcStats";
+  // std::string ulPdcpOutName = "UlPdcpStats";
+  // std::string ueHandoverStartOutName = "UeHandoverStartStats";
+  // std::string enbHandoverStartOutName = "EnbHandoverStartStats";
+  // std::string ueHandoverEndOutName = "UeHandoverEndStats";
+  // std::string enbHandoverEndOutName = "EnbHandoverEndStats";
+  // std::string cellIdInTimeOutName = "CellIdStats";
+  // std::string cellIdInTimeHandoverOutName = "CellIdStatsHandover";
+  // std::string mmWaveSinrOutputFilename = "MmWaveSinrTime";
+  // std::string x2statOutputFilename = "X2Stats";
+  // std::string udpSentFilename = "UdpSent";
+  // std::string udpReceivedFilename = "UdpReceived";
+  // std::string extension = ".txt";
+
   Config::SetDefault ("ns3::MmWaveUeMac::UpdateUeSinrEstimatePeriod", DoubleValue (0));
 
   //get current time
@@ -469,7 +475,6 @@ main (int argc, char *argv[])
     {
       x = isd * cos ((2 * M_PI * i) / (nConstellation));
       y = isd * sin ((2 * M_PI * i) / (nConstellation));
-      // verify distance
       enbPositionAlloc->Add (Vector (centerPosition.x + x, centerPosition.y + y, 3));
     }
 
@@ -479,8 +484,6 @@ main (int argc, char *argv[])
   enbmobility.Install (allEnbNodes);
 
   MobilityHelper uemobility;
-
-  // TODO check
 
   Ptr<UniformDiscPositionAllocator> uePositionAlloc = CreateObject<UniformDiscPositionAllocator> ();
 
@@ -594,9 +597,11 @@ main (int argc, char *argv[])
     {
       NS_LOG_UNCOND ("Simulation time is " << simTime << " seconds ");
       Simulator::Stop (Seconds (simTime));
+      NS_LOG_INFO ("Run Simulation.");
       Simulator::Run ();
     }
 
   Simulator::Destroy ();
+  NS_LOG_INFO ("Done.");
   return 0;
 }
