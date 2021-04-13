@@ -549,11 +549,11 @@ main (int argc, char *argv[])
   clientHelperTcp.SetAttribute ("PacketSize", UintegerValue (1280));
 
   OnOffHelper clientHelperUdp ("ns3::UdpSocketFactory", Address ());
-  clientHelperTcp.SetAttribute ("Remote", serverAddressUdp);
+  clientHelperUdp.SetAttribute ("Remote", serverAddressUdp);
   clientHelperUdp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable"));
-  clientHelperTcp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
-  clientHelperTcp.SetAttribute ("DataRate", StringValue (dataRate));
-  clientHelperTcp.SetAttribute ("PacketSize", UintegerValue (1280));
+  clientHelperUdp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
+  clientHelperUdp.SetAttribute ("DataRate", StringValue (dataRate));
+  clientHelperUdp.SetAttribute ("PacketSize", UintegerValue (1280));
 
   // Half of the nodes uses an UDP client and the other half a TCP client
   ApplicationContainer clientApp;
