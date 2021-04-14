@@ -133,23 +133,13 @@ PrintPosition (Ptr<Node> node)
 static ns3::GlobalValue g_bufferSize ("bufferSize", "RLC tx buffer size (MB)",
                                       ns3::UintegerValue (10),
                                       ns3::MakeUintegerChecker<uint32_t> ());
-static ns3::GlobalValue g_x2Latency ("x2Latency", "Latency on X2 interface (us)",
-                                     ns3::DoubleValue (500), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue g_mmeLatency ("mmeLatency", "Latency on MME interface (us)",
-                                      ns3::DoubleValue (10000), ns3::MakeDoubleChecker<double> ());
 static ns3::GlobalValue g_rlcAmEnabled ("rlcAmEnabled", "If true, use RLC AM, else use RLC UM",
                                         ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
-static ns3::GlobalValue g_noiseAndFilter (
-    "noiseAndFilter",
-    "If true, use noisy SINR samples, filtered. If false, just use the SINR measure",
-    ns3::BooleanValue (false), ns3::MakeBooleanChecker ());
 static ns3::GlobalValue g_handoverMode ("handoverMode", "Handover mode", ns3::UintegerValue (3),
                                         ns3::MakeUintegerChecker<uint8_t> ());
 static ns3::GlobalValue g_reportTablePeriodicity ("reportTablePeriodicity", "Periodicity of RTs",
                                                   ns3::UintegerValue (1600),
                                                   ns3::MakeUintegerChecker<uint32_t> ());
-static ns3::GlobalValue g_outageThreshold ("outageTh", "Outage threshold", ns3::DoubleValue (-5),
-                                           ns3::MakeDoubleChecker<double> ());
 static ns3::GlobalValue g_lteUplink ("lteUplink", "If true, always use LTE for uplink signalling",
                                      ns3::BooleanValue (false), ns3::MakeBooleanChecker ());
 
@@ -225,17 +215,13 @@ main (int argc, char *argv[])
   bool rlcAmEnabled = booleanValue.Get ();
   GlobalValue::GetValueByName ("bufferSize", uintegerValue);
   uint32_t bufferSize = uintegerValue.Get ();
-  GlobalValue::GetValueByName ("x2Latency", doubleValue);
-  double x2Latency = doubleValue.Get ();
-  GlobalValue::GetValueByName ("mmeLatency", doubleValue);
-  double mmeLatency = doubleValue.Get ();
+
   double walkTime = 7;
 
   double transientDuration = double (vectorTransient) / 1000000;
   double simTime = transientDuration + walkTime;
 
-  NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << bufferSize << " x2Latency "
-                                 << x2Latency << " mmeLatency " << mmeLatency);
+  NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << bufferSize);
 
   Config::SetDefault ("ns3::MmWaveUeMac::UpdateUeSinrEstimatePeriod", DoubleValue (0));
 
