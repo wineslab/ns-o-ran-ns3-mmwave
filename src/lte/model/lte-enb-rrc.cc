@@ -1503,6 +1503,9 @@ UeManager::RecvRrcConnectionRequest (LteRrcSap::RrcConnectionRequest msg)
             LteRrcSap::RrcConnectionSetup msg2;
             msg2.rrcTransactionIdentifier = GetNewRrcTransactionIdentifier ();
             msg2.radioResourceConfigDedicated = BuildRadioResourceConfigDedicated ();
+            NS_LOG_INFO (this << " Send RrcConnectionSetupto source cellId " << m_sourceCellId
+                              << " target " << m_targetCellId << " IMSI " << m_imsi << " RTNI "
+                              << m_rnti);
             m_rrc->m_rrcSapUser->SendRrcConnectionSetup (m_rnti, msg2);
 
             RecordDataRadioBearersToBeStarted ();
@@ -2418,7 +2421,7 @@ UeManager::SwitchToState (State newState)
   NS_LOG_FUNCTION (this << ToString (newState));
   State oldState = m_state;
   m_state = newState;
-  NS_LOG_INFO (this << " IMSI " << m_imsi << " RNTI " << m_rnti << " UeManager "
+  NS_LOG_INFO (this << " ENB Switch to state IMSI " << m_imsi << " RNTI " << m_rnti << " UeManager "
                     << ToString (oldState) << " --> " << ToString (newState));
   m_stateTransitionTrace (m_imsi, m_rrc->ComponentCarrierToCellId (m_componentCarrierId), m_rnti, oldState, newState);
 

@@ -155,25 +155,26 @@ static ns3::GlobalValue g_lteUplink ("lteUplink", "If true, always use LTE for u
 
 static ns3::GlobalValue g_configuration ("configuration",
                                          "Set the wanted configuration to emulate [0,2]",
-                                         ns3::UintegerValue (2),
+                                         ns3::UintegerValue (1),
                                          ns3::MakeUintegerChecker<uint8_t> ());
 
 static ns3::GlobalValue g_perPckToLTE ("perPckToLTE",
                                        "Percentage of packets to be directed to LTE.",
-                                       ns3::DoubleValue (0.2),
+                                       ns3::DoubleValue (0.4),
                                        ns3::MakeDoubleChecker<double> (0.0, 1.0));
 
 int
 main (int argc, char *argv[])
 {
-  LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
-  LogComponentEnable ("OnOffApplication", LOG_LEVEL_ALL);
-  // LogComponentEnableAll (LOG_LEVEL_DEBUG);
+  LogComponentEnableAll (LOG_PREFIX_ALL);
+  //LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
+  //LogComponentEnable ("OnOffApplication", LOG_LEVEL_ALL);
   //LogComponentEnable ("LtePdcp", LOG_LEVEL_ALL);
-  //LogComponentEnable ("LteEnbRrc", LOG_LEVEL_ALL);
-  //LogComponentEnable ("LteUeRrc", LOG_LEVEL_ALL);
-  //LogComponentEnable ("McEnbPdcp", LOG_LEVEL_ALL);
-  //LogComponentEnable ("McUePdcp", LOG_LEVEL_ALL);
+  LogComponentEnable ("LteEnbRrc", LOG_LEVEL_ALL);
+  LogComponentEnable ("LteEnbRrc", LOG_LEVEL_ALL);
+  LogComponentEnable ("LteUeRrc", LOG_LEVEL_ALL);
+  LogComponentEnable ("McEnbPdcp", LOG_LEVEL_ALL);
+  LogComponentEnable ("McUePdcp", LOG_LEVEL_ALL);
   LogComponentEnable ("ScenarioOne", LOG_LEVEL_ALL);
 
   // The maximum X coordinate of the scenario
@@ -186,7 +187,6 @@ main (int argc, char *argv[])
   cmd.Parse (argc, argv);
 
   bool harqEnabled = true;
-  bool fixedTti = false;
 
   UintegerValue uintegerValue;
   BooleanValue booleanValue;
@@ -217,12 +217,8 @@ main (int argc, char *argv[])
   int vectorTransient = windowForTransient * ReportTablePeriodicity;
 
   // params for RT, filter, HO mode
-  GlobalValue::GetValueByName ("noiseAndFilter", booleanValue);
-  bool noiseAndFilter = booleanValue.Get ();
   GlobalValue::GetValueByName ("handoverMode", uintegerValue);
   uint8_t hoMode = uintegerValue.Get ();
-  GlobalValue::GetValueByName ("outageTh", doubleValue);
-  double outageTh = doubleValue.Get ();
   GlobalValue::GetValueByName ("perPckToLTE", doubleValue);
   double perPckToLTE = doubleValue.Get ();
   GlobalValue::GetValueByName ("rlcAmEnabled", booleanValue);
@@ -241,24 +237,6 @@ main (int argc, char *argv[])
   NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << bufferSize << " x2Latency "
                                  << x2Latency << " mmeLatency " << mmeLatency);
 
-  // std::string mmWaveOutName = "MmWaveSwitchStats";
-  // std::string lteOutName = "LteSwitchStats";
-  // std::string dlRlcOutName = "DlRlcStats";
-  // std::string dlPdcpOutName = "DlPdcpStats";
-  // std::string ulRlcOutName = "UlRlcStats";
-  // std::string ulPdcpOutName = "UlPdcpStats";
-  // std::string ueHandoverStartOutName = "UeHandoverStartStats";
-  // std::string enbHandoverStartOutName = "EnbHandoverStartStats";
-  // std::string ueHandoverEndOutName = "UeHandoverEndStats";
-  // std::string enbHandoverEndOutName = "EnbHandoverEndStats";
-  // std::string cellIdInTimeOutName = "CellIdStats";
-  // std::string cellIdInTimeHandoverOutName = "CellIdStatsHandover";
-  // std::string mmWaveSinrOutputFilename = "MmWaveSinrTime";
-  // std::string x2statOutputFilename = "X2Stats";
-  // std::string udpSentFilename = "UdpSent";
-  // std::string udpReceivedFilename = "UdpReceived";
-  // std::string extension = ".txt";
-
   Config::SetDefault ("ns3::MmWaveUeMac::UpdateUeSinrEstimatePeriod", DoubleValue (0));
 
   //get current time
@@ -275,27 +253,12 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::HarqEnabled", BooleanValue (harqEnabled));
   Config::SetDefault ("ns3::MmWaveFlexTtiMaxWeightMacScheduler::HarqEnabled",
                       BooleanValue (harqEnabled));
-  Config::SetDefault ("ns3::MmWaveFlexTtiMaxWeightMacScheduler::FixedTti", BooleanValue (fixedTti));
-  Config::SetDefault ("ns3::MmWaveFlexTtiMaxWeightMacScheduler::SymPerSlot", UintegerValue (6));
-  Config::SetDefault ("ns3::MmWavePhyMacCommon::TbDecodeLatency", UintegerValue (200.0));
   Config::SetDefault ("ns3::MmWavePhyMacCommon::NumHarqProcess", UintegerValue (100));
   Config::SetDefault ("ns3::ThreeGppChannelModel::UpdatePeriod", TimeValue (MilliSeconds (100.0)));
-  Config::SetDefault ("ns3::LteEnbRrc::SystemInformationPeriodicity",
-                      TimeValue (MilliSeconds (5.0)));
   Config::SetDefault ("ns3::LteRlcAm::ReportBufferStatusTimer", TimeValue (MicroSeconds (100.0)));
   Config::SetDefault ("ns3::LteRlcUmLowLat::ReportBufferStatusTimer",
                       TimeValue (MicroSeconds (100.0)));
   Config::SetDefault ("ns3::LteEnbRrc::SrsPeriodicity", UintegerValue (320));
-  Config::SetDefault ("ns3::LteEnbRrc::FirstSibTime", UintegerValue (2));
-  Config::SetDefault ("ns3::MmWavePointToPointEpcHelper::X2LinkDelay",
-                      TimeValue (MicroSeconds (x2Latency)));
-  Config::SetDefault ("ns3::MmWavePointToPointEpcHelper::X2LinkDataRate",
-                      DataRateValue (DataRate ("1000Gb/s")));
-  Config::SetDefault ("ns3::MmWavePointToPointEpcHelper::X2LinkMtu", UintegerValue (10000));
-  Config::SetDefault ("ns3::MmWavePointToPointEpcHelper::S1uLinkDelay",
-                      TimeValue (MicroSeconds (1000)));
-  Config::SetDefault ("ns3::MmWavePointToPointEpcHelper::S1apLinkDelay",
-                      TimeValue (MicroSeconds (mmeLatency)));
   Config::SetDefault ("ns3::LteRlcUm::MaxTxBufferSize", UintegerValue (bufferSize * 1024 * 1024));
   Config::SetDefault ("ns3::LteRlcUmLowLat::MaxTxBufferSize",
                       UintegerValue (bufferSize * 1024 * 1024));
@@ -320,29 +283,14 @@ main (int argc, char *argv[])
       break;
     }
 
-  Config::SetDefault ("ns3::LteEnbRrc::FixedTttValue", UintegerValue (150));
-  Config::SetDefault ("ns3::LteEnbRrc::CrtPeriod", IntegerValue (ReportTablePeriodicity));
-  Config::SetDefault ("ns3::LteEnbRrc::OutageThreshold", DoubleValue (outageTh));
-  Config::SetDefault ("ns3::MmWaveEnbPhy::UpdateSinrEstimatePeriod",
-                      IntegerValue (ReportTablePeriodicity));
-  Config::SetDefault ("ns3::MmWaveEnbPhy::Transient", IntegerValue (vectorTransient));
-  Config::SetDefault ("ns3::MmWaveEnbPhy::NoiseAndFilter", BooleanValue (noiseAndFilter));
-
   GlobalValue::GetValueByName ("lteUplink", booleanValue);
   bool lteUplink = booleanValue.Get ();
-
   Config::SetDefault ("ns3::McUePdcp::LteUplink", BooleanValue (lteUplink));
 
   // settings for the 3GPP the channel
   Config::SetDefault ("ns3::ThreeGppChannelModel::UpdatePeriod",
                       TimeValue (MilliSeconds (
                           100))); // interval after which the channel for a moving user is updated,
-  Config::SetDefault ("ns3::ThreeGppChannelModel::Blockage",
-                      BooleanValue (true)); // use blockage or not
-  Config::SetDefault ("ns3::ThreeGppChannelModel::PortraitMode",
-                      BooleanValue (true)); // use blockage model with UT in portrait mode
-  Config::SetDefault ("ns3::ThreeGppChannelModel::NumNonselfBlocking",
-                      IntegerValue (4)); // number of non-self blocking obstacles
 
   // set to false to use the 3GPP radiation pattern (proper configuration of the bearing and downtilt angles is needed)
   Config::SetDefault ("ns3::ThreeGppAntennaArrayModel::IsotropicElements", BooleanValue (true));
@@ -352,7 +300,7 @@ main (int argc, char *argv[])
   // Center frequency in Hz
   double centerFrequency;
   // Distance between the mmWave BSs and the two co-located LTE and mmWave BSs in meters
-  double isd; // rename in isd (interside distance)
+  double isd; // (interside distance)
   // Number of antennas in each UE
   int numAntennasMcUe;
   // Number of antennas in each mmWave BS
@@ -365,7 +313,7 @@ main (int argc, char *argv[])
   switch (configuration)
     {
     case 0:
-      centerFrequency = 130e6;
+      centerFrequency = 850e6;
       bandwidth = 20e6;
       isd = 1700;
       numAntennasMcUe = 1;
@@ -396,9 +344,16 @@ main (int argc, char *argv[])
       break;
     }
 
+  NS_LOG_INFO ("Bandwidth " << bandwidth << " centerFrequency " << double (centerFrequency)
+                            << " isd " << isd << " numAntennasMcUe " << numAntennasMcUe
+                            << " numAntennasMmWave " << numAntennasMmWave << " dataRate "
+                            << dataRate);
+
   // set the number of antennas in the devices
   Config::SetDefault ("ns3::McUeNetDevice::AntennaNum", UintegerValue (numAntennasMcUe));
   Config::SetDefault ("ns3::MmWaveNetDevice::AntennaNum", UintegerValue (numAntennasMmWave));
+  Config::SetDefault ("ns3::MmWavePhyMacCommon::Bandwidth", DoubleValue (bandwidth));
+  Config::SetDefault ("ns3::MmWavePhyMacCommon::CenterFreq", DoubleValue (centerFrequency));
 
   Ptr<MmWaveHelper> mmwaveHelper = CreateObject<MmWaveHelper> ();
   mmwaveHelper->SetPathlossModelType ("ns3::ThreeGppUmiStreetCanyonPropagationLossModel");
@@ -406,20 +361,16 @@ main (int argc, char *argv[])
 
   Ptr<MmWavePointToPointEpcHelper> epcHelper = CreateObject<MmWavePointToPointEpcHelper> ();
   mmwaveHelper->SetEpcHelper (epcHelper);
-  mmwaveHelper->SetHarqEnabled (harqEnabled);
-  mmwaveHelper->Initialize ();
-  mmwaveHelper->GetCcPhyParams ().at (0).GetConfigurationParameters ()->SetBandwidth (bandwidth);
-  mmwaveHelper->GetCcPhyParams ().at (0).GetConfigurationParameters ()->SetCentreFrequency (
-      centerFrequency);
 
   uint8_t nMmWaveEnbNodes = 7;
   uint8_t nLteEnbNodes = 1;
-  uint8_t nUeNodes = 5 * nMmWaveEnbNodes;
+  uint8_t nUeNodes = 3 * nMmWaveEnbNodes;
 
-  std::cout << "Lte uplink " << lteUplink << " Bandwidth " << bandwidth << " centerFrequency "
-            << centerFrequency << " isd " << isd << " numAntennasMcUe " << numAntennasMcUe
-            << " numAntennasMmWave " << numAntennasMmWave << " dataRate " << dataRate
-            << " nMmWaveEnbNodes " << unsigned (nMmWaveEnbNodes) << "\n";
+  NS_LOG_INFO ("Lte uplink " << lteUplink << " Bandwidth " << bandwidth << " centerFrequency "
+                             << double (centerFrequency) << " isd " << isd << " numAntennasMcUe "
+                             << numAntennasMcUe << " numAntennasMmWave " << numAntennasMmWave
+                             << " dataRate " << dataRate << " nMmWaveEnbNodes "
+                             << unsigned (nMmWaveEnbNodes));
 
   // Get SGW/PGW and create a single RemoteHost
   Ptr<Node> pgw = epcHelper->GetPgwNode ();

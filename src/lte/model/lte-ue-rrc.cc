@@ -1152,23 +1152,24 @@ LteUeRrc::DoRecvSystemInformation (LteRrcSap::SystemInformation msg)
 void
 LteUeRrc::DoRecvRrcConnectionSetup (LteRrcSap::RrcConnectionSetup msg)
 {
-  NS_LOG_FUNCTION (this << " RNTI " << m_rnti);
   switch (m_state)
     {
     case IDLE_CONNECTING:
       {
-        ApplyRadioResourceConfigDedicated (msg.radioResourceConfigDedicated);
-        m_connectionTimeout.Cancel ();
-        SwitchToState (CONNECTED_NORMALLY);
-        LteRrcSap::RrcConnectionSetupCompleted msg2;
-        msg2.rrcTransactionIdentifier = msg.rrcTransactionIdentifier;
-        m_rrcSapUser->SendRrcConnectionSetupCompleted (msg2);
-        m_asSapUser->NotifyConnectionSuccessful (m_rnti);
-        m_connectionEstablishedTrace (m_imsi, m_cellId, m_rnti);
+      ApplyRadioResourceConfigDedicated (msg.radioResourceConfigDedicated);
+      m_connectionTimeout.Cancel ();
+      SwitchToState (CONNECTED_NORMALLY);
+      LteRrcSap::RrcConnectionSetupCompleted msg2;
+      msg2.rrcTransactionIdentifier = msg.rrcTransactionIdentifier;
+      m_rrcSapUser->SendRrcConnectionSetupCompleted (msg2);
+      m_asSapUser->NotifyConnectionSuccessful (m_rnti);
+      m_connectionEstablishedTrace (m_imsi, m_cellId, m_rnti);
       }
       break;
 
     default:
+      NS_LOG_ERROR (this << " IMSI " << m_imsi << " RNTI " << m_rnti << " CellId " << m_cellId
+                          << " UeRrc  m_state " << ToString (m_state));
       NS_FATAL_ERROR ("method unexpected in state " << ToString (m_state));
       break;
     }
@@ -4030,8 +4031,9 @@ LteUeRrc::SwitchToState (State newState)
   NS_LOG_FUNCTION (this << ToString (newState));
   State oldState = m_state;
   m_state = newState;
-  NS_LOG_INFO (this << " IMSI " << m_imsi << " RNTI " << m_rnti << " CellId " << m_cellId << " UeRrc "
-                    << ToString (oldState) << " --> " << ToString (newState));
+  NS_LOG_INFO (this << " UE Switch to state IMSI " << m_imsi << " RNTI " << m_rnti << " CellId "
+                    << m_cellId << " UeRrc " << ToString (oldState) << " --> "
+                    << ToString (newState));
   m_stateTransitionTrace (m_imsi, m_cellId, m_rnti, oldState, newState);
 
   switch (newState)

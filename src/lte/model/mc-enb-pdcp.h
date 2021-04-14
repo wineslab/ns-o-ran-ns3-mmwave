@@ -241,6 +241,19 @@ private:
    * 
    */
   double m_perPckToLTE;
+  /**
+   * @brief accessory function to send pdcp over LTE
+   * 
+   * @param p packet to be sent
+   * @param params parameters
+   */
+  void DoTransmitPdcpSduLTE (Ptr<Packet> p, LteRlcSapProvider::TransmitPdcpPduParameters params);
+  /**
+   * @brief accessory function to send pdcp over LTE
+   * 
+   * @param p packet to be sent
+   */
+  void DoTransmitPdcpSduMmWave (Ptr<Packet> p);
 };
 
 
