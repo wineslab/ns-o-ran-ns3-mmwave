@@ -153,6 +153,9 @@ static ns3::GlobalValue g_perPckToLTE ("perPckToLTE",
                                        ns3::DoubleValue (0.4),
                                        ns3::MakeDoubleChecker<double> (0.0, 1.0));
 
+static ns3::GlobalValue g_ues ("ues", "Number of UEs for each mmWave ENB.", ns3::UintegerValue (3),
+                               ns3::MakeUintegerChecker<uint8_t> ());
+
 int
 main (int argc, char *argv[])
 {
@@ -350,7 +353,9 @@ main (int argc, char *argv[])
 
   uint8_t nMmWaveEnbNodes = 7;
   uint8_t nLteEnbNodes = 1;
-  uint8_t nUeNodes = 3 * nMmWaveEnbNodes;
+  GlobalValue::GetValueByName ("ues", uintegerValue);
+  uint32_t ues = uintegerValue.Get ();
+  uint8_t nUeNodes = ues * nMmWaveEnbNodes;
 
   NS_LOG_INFO ("Lte uplink " << lteUplink << " Bandwidth " << bandwidth << " centerFrequency "
                              << double (centerFrequency) << " isd " << isd << " numAntennasMcUe "
