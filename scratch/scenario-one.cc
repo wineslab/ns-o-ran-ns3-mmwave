@@ -135,13 +135,6 @@ static ns3::GlobalValue g_bufferSize ("bufferSize", "RLC tx buffer size (MB)",
                                       ns3::MakeUintegerChecker<uint32_t> ());
 static ns3::GlobalValue g_rlcAmEnabled ("rlcAmEnabled", "If true, use RLC AM, else use RLC UM",
                                         ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
-static ns3::GlobalValue g_handoverMode ("handoverMode", "Handover mode", ns3::UintegerValue (3),
-                                        ns3::MakeUintegerChecker<uint8_t> ());
-static ns3::GlobalValue g_reportTablePeriodicity ("reportTablePeriodicity", "Periodicity of RTs",
-                                                  ns3::UintegerValue (1600),
-                                                  ns3::MakeUintegerChecker<uint32_t> ());
-static ns3::GlobalValue g_lteUplink ("lteUplink", "If true, always use LTE for uplink signalling",
-                                     ns3::BooleanValue (false), ns3::MakeBooleanChecker ());
 
 static ns3::GlobalValue g_configuration ("configuration",
                                          "Set the wanted configuration to emulate [0,2]",
@@ -156,6 +149,9 @@ static ns3::GlobalValue g_perPckToLTE ("perPckToLTE",
 static ns3::GlobalValue g_ues ("ues", "Number of UEs for each mmWave ENB.", ns3::UintegerValue (3),
                                ns3::MakeUintegerChecker<uint8_t> ());
 
+static ns3::GlobalValue g_simTime ("simTime", "Simulation time in seconds", ns3::DoubleValue (5.0), 
+                                   ns3::MakeDoubleChecker<double> (0.1, 1000.0));
+
 int
 main (int argc, char *argv[])
 {
@@ -163,12 +159,12 @@ main (int argc, char *argv[])
   //LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
   //LogComponentEnable ("OnOffApplication", LOG_LEVEL_ALL);
   //LogComponentEnable ("LtePdcp", LOG_LEVEL_ALL);
-  LogComponentEnable ("LteEnbRrc", LOG_LEVEL_ALL);
-  LogComponentEnable ("LteEnbRrc", LOG_LEVEL_ALL);
-  LogComponentEnable ("LteUeRrc", LOG_LEVEL_ALL);
-  LogComponentEnable ("McEnbPdcp", LOG_LEVEL_ALL);
-  LogComponentEnable ("McUePdcp", LOG_LEVEL_ALL);
-  LogComponentEnable ("ScenarioOne", LOG_LEVEL_ALL);
+  // LogComponentEnable ("LteEnbRrc", LOG_LEVEL_ALL);
+  // LogComponentEnable ("LteEnbRrc", LOG_LEVEL_ALL);
+  // LogComponentEnable ("LteUeRrc", LOG_LEVEL_ALL);
+  // LogComponentEnable ("McEnbPdcp", LOG_LEVEL_ALL);
+  // LogComponentEnable ("McUePdcp", LOG_LEVEL_ALL);
+  // LogComponentEnable ("ScenarioOne", LOG_LEVEL_ALL);
 
   // The maximum X coordinate of the scenario
   double maxXAxis = 4000;
@@ -186,32 +182,6 @@ main (int argc, char *argv[])
   StringValue stringValue;
   DoubleValue doubleValue;
 
-  // Variables for the RT
-  int windowForTransient = 150; // number of samples for the vector to use in the filter
-  GlobalValue::GetValueByName ("reportTablePeriodicity", uintegerValue);
-  int ReportTablePeriodicity = (int) uintegerValue.Get (); // in microseconds
-  if (ReportTablePeriodicity == 1600)
-    {
-      windowForTransient = 150;
-    }
-  else if (ReportTablePeriodicity == 25600)
-    {
-      windowForTransient = 50;
-    }
-  else if (ReportTablePeriodicity == 12800)
-    {
-      windowForTransient = 100;
-    }
-  else
-    {
-      NS_ASSERT_MSG (false, "Unrecognized");
-    }
-
-  int vectorTransient = windowForTransient * ReportTablePeriodicity;
-
-  // params for RT, filter, HO mode
-  GlobalValue::GetValueByName ("handoverMode", uintegerValue);
-  uint8_t hoMode = uintegerValue.Get ();
   GlobalValue::GetValueByName ("perPckToLTE", doubleValue);
   double perPckToLTE = doubleValue.Get ();
   GlobalValue::GetValueByName ("rlcAmEnabled", booleanValue);
@@ -219,14 +189,7 @@ main (int argc, char *argv[])
   GlobalValue::GetValueByName ("bufferSize", uintegerValue);
   uint32_t bufferSize = uintegerValue.Get ();
 
-  double walkTime = 7;
-
-  double transientDuration = double (vectorTransient) / 1000000;
-  double simTime = transientDuration + walkTime;
-
   NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << bufferSize);
-
-  Config::SetDefault ("ns3::MmWaveUeMac::UpdateUeSinrEstimatePeriod", DoubleValue (0));
 
   //get current time
   time_t rawtime;
@@ -241,46 +204,15 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::MmWaveHelper::HarqEnabled", BooleanValue (harqEnabled));
   Config::SetDefault ("ns3::MmWaveHelper::UseIdealRrc", BooleanValue (true));
   Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::HarqEnabled", BooleanValue (harqEnabled));
-  Config::SetDefault ("ns3::MmWaveFlexTtiMaxWeightMacScheduler::HarqEnabled",
-                      BooleanValue (harqEnabled));
   Config::SetDefault ("ns3::MmWavePhyMacCommon::NumHarqProcess", UintegerValue (100));
   Config::SetDefault ("ns3::ThreeGppChannelModel::UpdatePeriod", TimeValue (MilliSeconds (100.0)));
-  Config::SetDefault ("ns3::LteRlcAm::ReportBufferStatusTimer", TimeValue (MicroSeconds (100.0)));
-  Config::SetDefault ("ns3::LteRlcUmLowLat::ReportBufferStatusTimer",
-                      TimeValue (MicroSeconds (100.0)));
-  Config::SetDefault ("ns3::LteEnbRrc::SrsPeriodicity", UintegerValue (320));
+  Config::SetDefault ("ns3::ThreeGppChannelConditionModel::UpdatePeriod", TimeValue (MilliSeconds (100)));
+  Config::SetDefault ("ns3::LteRlcAm::ReportBufferStatusTimer", TimeValue (MilliSeconds (10.0)));
+  Config::SetDefault ("ns3::LteRlcUmLowLat::ReportBufferStatusTimer", TimeValue (MilliSeconds (10.0)));
   Config::SetDefault ("ns3::LteRlcUm::MaxTxBufferSize", UintegerValue (bufferSize * 1024 * 1024));
-  Config::SetDefault ("ns3::LteRlcUmLowLat::MaxTxBufferSize",
-                      UintegerValue (bufferSize * 1024 * 1024));
-  Config::SetDefault ("ns3::LteRlcAm::StatusProhibitTimer", TimeValue (MilliSeconds (10.0)));
+  Config::SetDefault ("ns3::LteRlcUmLowLat::MaxTxBufferSize", UintegerValue (bufferSize * 1024 * 1024));
   Config::SetDefault ("ns3::LteRlcAm::MaxTxBufferSize", UintegerValue (bufferSize * 1024 * 1024));
   Config::SetDefault ("ns3::McEnbPdcp::perPckToLTE", DoubleValue (perPckToLTE));
-
-  // handover and RT related params
-  switch (hoMode)
-    {
-    case 1:
-      Config::SetDefault ("ns3::LteEnbRrc::SecondaryCellHandoverMode",
-                          EnumValue (LteEnbRrc::THRESHOLD));
-      break;
-    case 2:
-      Config::SetDefault ("ns3::LteEnbRrc::SecondaryCellHandoverMode",
-                          EnumValue (LteEnbRrc::FIXED_TTT));
-      break;
-    case 3:
-      Config::SetDefault ("ns3::LteEnbRrc::SecondaryCellHandoverMode",
-                          EnumValue (LteEnbRrc::DYNAMIC_TTT));
-      break;
-    }
-
-  GlobalValue::GetValueByName ("lteUplink", booleanValue);
-  bool lteUplink = booleanValue.Get ();
-  Config::SetDefault ("ns3::McUePdcp::LteUplink", BooleanValue (lteUplink));
-
-  // settings for the 3GPP the channel
-  Config::SetDefault ("ns3::ThreeGppChannelModel::UpdatePeriod",
-                      TimeValue (MilliSeconds (
-                          100))); // interval after which the channel for a moving user is updated,
 
   // set to false to use the 3GPP radiation pattern (proper configuration of the bearing and downtilt angles is needed)
   Config::SetDefault ("ns3::ThreeGppAntennaArrayModel::IsotropicElements", BooleanValue (true));
@@ -314,7 +246,7 @@ main (int argc, char *argv[])
     case 1:
       centerFrequency = 3.5e9;
       bandwidth = 20e6;
-      isd = 1700;
+      isd = 1000;
       numAntennasMcUe = 1;
       numAntennasMmWave = 1;
       dataRate = "3Mbps";
@@ -358,7 +290,7 @@ main (int argc, char *argv[])
   uint32_t ues = uintegerValue.Get ();
   uint8_t nUeNodes = ues * nMmWaveEnbNodes;
 
-  NS_LOG_INFO ("Lte uplink " << lteUplink << " Bandwidth " << bandwidth << " centerFrequency "
+  NS_LOG_INFO (" Bandwidth " << bandwidth << " centerFrequency "
                              << double (centerFrequency) << " isd " << isd << " numAntennasMcUe "
                              << numAntennasMcUe << " numAntennasMmWave " << numAntennasMmWave
                              << " dataRate " << dataRate << " nMmWaveEnbNodes "
@@ -512,12 +444,14 @@ main (int argc, char *argv[])
         }
     }
 
-  // Start applications
-  NS_LOG_UNCOND ("transientDuration " << transientDuration << " simTime " << simTime);
-  sinkApp.Start (Seconds (transientDuration));
+  // Start applications  
+  GlobalValue::GetValueByName ("simTime", doubleValue);
+  double simTime = doubleValue.Get ();
+  
+  sinkApp.Start (Seconds (0));
   sinkApp.Stop (Seconds (simTime - 1));
 
-  clientApp.Start (Seconds (transientDuration));
+  clientApp.Start (MilliSeconds (100));
   clientApp.Stop (Seconds (simTime - 1));
 
   int numPrints = 5;
