@@ -143,8 +143,8 @@ static ns3::GlobalValue g_configuration ("configuration",
 
 static ns3::GlobalValue g_perPckToLTE ("perPckToLTE",
                                        "Percentage of packets to be directed to LTE.",
-                                       ns3::DoubleValue (0.4),
-                                       ns3::MakeDoubleChecker<double> (0.0, 1.0));
+                                       ns3::DoubleValue (0.5),
+                                       ns3::MakeDoubleChecker<double> (-1, 1.0));
 
 static ns3::GlobalValue g_ues ("ues", "Number of UEs for each mmWave ENB.", ns3::UintegerValue (3),
                                ns3::MakeUintegerChecker<uint8_t> ());
