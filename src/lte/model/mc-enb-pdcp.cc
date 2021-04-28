@@ -76,7 +76,7 @@ McEnbPdcp::McEnbPdcp ()
       m_txSequenceNumber (0),
       m_rxSequenceNumber (0),
       m_useMmWaveConnection (false),
-      m_perPckToLTE (0)
+      m_perPckToLTE (-1)
 {
   NS_LOG_FUNCTION (this);
   m_pdcpSapProvider = new LtePdcpSpecificLtePdcpSapProvider<McEnbPdcp> (this);
