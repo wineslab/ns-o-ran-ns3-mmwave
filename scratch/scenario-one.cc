@@ -454,14 +454,14 @@ main (int argc, char *argv[])
   clientApp.Start (MilliSeconds (100));
   clientApp.Stop (Seconds (simTime - 1));
 
-  int numPrints = 5;
-  for (int i = 0; i < numPrints; i++)
-    {
-      for (uint32_t j = 0; j < ueNodes.GetN (); j++)
-        {
-          Simulator::Schedule (Seconds (i * simTime / numPrints), &PrintPosition, ueNodes.Get (j));
-        }
-    }
+  // int numPrints = 5;
+  // for (int i = 0; i < numPrints; i++)
+  //   {
+  //     for (uint32_t j = 0; j < ueNodes.GetN (); j++)
+  //       {
+  //         Simulator::Schedule (Seconds (i * simTime / numPrints), &PrintPosition, ueNodes.Get (j));
+  //       }
+  //   }
 
   mmwaveHelper->EnableTraces ();
 
