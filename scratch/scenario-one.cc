@@ -146,10 +146,10 @@ static ns3::GlobalValue g_perPckToLTE ("perPckToLTE",
                                        ns3::DoubleValue (0.5),
                                        ns3::MakeDoubleChecker<double> (-1, 1.0));
 
-static ns3::GlobalValue g_ues ("ues", "Number of UEs for each mmWave ENB.", ns3::UintegerValue (3),
+static ns3::GlobalValue g_ues ("ues", "Number of UEs for each mmWave ENB.", ns3::UintegerValue (7),
                                ns3::MakeUintegerChecker<uint8_t> ());
 
-static ns3::GlobalValue g_simTime ("simTime", "Simulation time in seconds", ns3::DoubleValue (5.0), 
+static ns3::GlobalValue g_simTime ("simTime", "Simulation time in seconds", ns3::DoubleValue (6.0),
                                    ns3::MakeDoubleChecker<double> (0.1, 1000.0));
 
 int
@@ -158,13 +158,18 @@ main (int argc, char *argv[])
   LogComponentEnableAll (LOG_PREFIX_ALL);
   //LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
   //LogComponentEnable ("OnOffApplication", LOG_LEVEL_ALL);
-  //LogComponentEnable ("LtePdcp", LOG_LEVEL_ALL);
-  // LogComponentEnable ("LteEnbRrc", LOG_LEVEL_ALL);
-  // LogComponentEnable ("LteEnbRrc", LOG_LEVEL_ALL);
-  // LogComponentEnable ("LteUeRrc", LOG_LEVEL_ALL);
+  LogComponentEnable ("LtePdcp", LOG_LEVEL_ALL);
+  LogComponentEnable ("LteRlcAm", LOG_LEVEL_ALL);
+  LogComponentEnable ("MmWaveUeMac", LOG_LEVEL_ALL);
+  LogComponentEnable ("MmWaveEnbMac", LOG_LEVEL_ALL);
+  LogComponentEnable ("LteUeMac", LOG_LEVEL_ALL);
+  LogComponentEnable ("LteEnbMac", LOG_LEVEL_ALL);
+  LogComponentEnable ("MmWaveFlexTtiMacScheduler", LOG_LEVEL_ALL);
+  LogComponentEnable ("LteEnbRrc", LOG_LEVEL_ALL);
+  LogComponentEnable ("LteUeRrc", LOG_LEVEL_ALL);
   // LogComponentEnable ("McEnbPdcp", LOG_LEVEL_ALL);
   // LogComponentEnable ("McUePdcp", LOG_LEVEL_ALL);
-  // LogComponentEnable ("ScenarioOne", LOG_LEVEL_ALL);
+  LogComponentEnable ("ScenarioOne", LOG_LEVEL_ALL);
 
   // The maximum X coordinate of the scenario
   double maxXAxis = 4000;
@@ -206,11 +211,14 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::HarqEnabled", BooleanValue (harqEnabled));
   Config::SetDefault ("ns3::MmWavePhyMacCommon::NumHarqProcess", UintegerValue (100));
   Config::SetDefault ("ns3::ThreeGppChannelModel::UpdatePeriod", TimeValue (MilliSeconds (100.0)));
-  Config::SetDefault ("ns3::ThreeGppChannelConditionModel::UpdatePeriod", TimeValue (MilliSeconds (100)));
+  Config::SetDefault ("ns3::ThreeGppChannelConditionModel::UpdatePeriod",
+                      TimeValue (MilliSeconds (100)));
   Config::SetDefault ("ns3::LteRlcAm::ReportBufferStatusTimer", TimeValue (MilliSeconds (10.0)));
-  Config::SetDefault ("ns3::LteRlcUmLowLat::ReportBufferStatusTimer", TimeValue (MilliSeconds (10.0)));
+  Config::SetDefault ("ns3::LteRlcUmLowLat::ReportBufferStatusTimer",
+                      TimeValue (MilliSeconds (10.0)));
   Config::SetDefault ("ns3::LteRlcUm::MaxTxBufferSize", UintegerValue (bufferSize * 1024 * 1024));
-  Config::SetDefault ("ns3::LteRlcUmLowLat::MaxTxBufferSize", UintegerValue (bufferSize * 1024 * 1024));
+  Config::SetDefault ("ns3::LteRlcUmLowLat::MaxTxBufferSize",
+                      UintegerValue (bufferSize * 1024 * 1024));
   Config::SetDefault ("ns3::LteRlcAm::MaxTxBufferSize", UintegerValue (bufferSize * 1024 * 1024));
   Config::SetDefault ("ns3::McEnbPdcp::perPckToLTE", DoubleValue (perPckToLTE));
 
@@ -290,11 +298,10 @@ main (int argc, char *argv[])
   uint32_t ues = uintegerValue.Get ();
   uint8_t nUeNodes = ues * nMmWaveEnbNodes;
 
-  NS_LOG_INFO (" Bandwidth " << bandwidth << " centerFrequency "
-                             << double (centerFrequency) << " isd " << isd << " numAntennasMcUe "
-                             << numAntennasMcUe << " numAntennasMmWave " << numAntennasMmWave
-                             << " dataRate " << dataRate << " nMmWaveEnbNodes "
-                             << unsigned (nMmWaveEnbNodes));
+  NS_LOG_INFO (" Bandwidth " << bandwidth << " centerFrequency " << double (centerFrequency)
+                             << " isd " << isd << " numAntennasMcUe " << numAntennasMcUe
+                             << " numAntennasMmWave " << numAntennasMmWave << " dataRate "
+                             << dataRate << " nMmWaveEnbNodes " << unsigned (nMmWaveEnbNodes));
 
   // Get SGW/PGW and create a single RemoteHost
   Ptr<Node> pgw = epcHelper->GetPgwNode ();
@@ -444,10 +451,10 @@ main (int argc, char *argv[])
         }
     }
 
-  // Start applications  
+  // Start applications
   GlobalValue::GetValueByName ("simTime", doubleValue);
   double simTime = doubleValue.Get ();
-  
+
   sinkApp.Start (Seconds (0));
   sinkApp.Stop (Seconds (simTime - 1));
 
