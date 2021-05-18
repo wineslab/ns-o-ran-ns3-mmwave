@@ -245,7 +245,7 @@ main (int argc, char *argv[])
     case 0:
       centerFrequency = 850e6;
       bandwidth = 20e6;
-      isd = 1700;
+      isd = 1000;
       numAntennasMcUe = 1;
       numAntennasMmWave = 1;
       dataRate = "3Mbps";
