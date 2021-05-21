@@ -169,6 +169,7 @@ main (int argc, char *argv[])
   LogComponentEnable ("LteUeRrc", LOG_LEVEL_ALL);
   // LogComponentEnable ("McEnbPdcp", LOG_LEVEL_ALL);
   // LogComponentEnable ("McUePdcp", LOG_LEVEL_ALL);
+  LogComponentEnable ("MmWaveSpectrumPhy", LOG_LEVEL_ALL);
   LogComponentEnable ("ScenarioOne", LOG_LEVEL_ALL);
 
   // The maximum X coordinate of the scenario
@@ -407,35 +408,35 @@ main (int argc, char *argv[])
 
   // On the remoteHost is placed a TCP server
   uint16_t portTcp = 50000;
-  Address sinkLocalAddressTcp (InetSocketAddress (Ipv4Address::GetAny (), portTcp));
-  PacketSinkHelper sinkHelperTcp ("ns3::TcpSocketFactory", sinkLocalAddressTcp);
+  Address serverLocalAddressTcp (InetSocketAddress (Ipv4Address::GetAny (), portTcp));
+  OnOffHelper serverHelperTcp ("ns3::TcpSocketFactory", serverLocalAddressTcp);
   AddressValue serverAddressTcp (InetSocketAddress (remoteHostAddr, portTcp));
+  serverHelperTcp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable"));
+  serverHelperTcp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
+  serverHelperTcp.SetAttribute ("DataRate", StringValue (dataRate));
+  serverHelperTcp.SetAttribute ("PacketSize", UintegerValue (1280));
 
   // On the remoteHost is placed a UDP server
   uint16_t portUdp = 60000;
-  Address sinkLocalAddressUdp (InetSocketAddress (Ipv4Address::GetAny (), portUdp));
-  PacketSinkHelper sinkHelperUdp ("ns3::UdpSocketFactory", sinkLocalAddressUdp);
+  Address serverLocalAddressUdp (InetSocketAddress (Ipv4Address::GetAny (), portUdp));
+  OnOffHelper serverHelperUdp ("ns3::UdpSocketFactory", serverLocalAddressUdp);
   AddressValue serverAddressUdp (InetSocketAddress (remoteHostAddr, portUdp));
+  serverHelperUdp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable"));
+  serverHelperUdp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
+  serverHelperUdp.SetAttribute ("DataRate", StringValue (dataRate));
+  serverHelperUdp.SetAttribute ("PacketSize", UintegerValue (1280));
 
-  ApplicationContainer sinkApp;
-  sinkApp.Add (sinkHelperTcp.Install (remoteHost));
-  sinkApp.Add (sinkHelperUdp.Install (remoteHost));
+  ApplicationContainer serverApp;
+  serverApp.Add (serverHelperTcp.Install (remoteHost));
+  serverApp.Add (serverHelperUdp.Install (remoteHost));
 
   // On the UEs there are TCP and UDP clients
   // If needed [Mean=1,Bound=0]
-  OnOffHelper clientHelperTcp ("ns3::TcpSocketFactory", Address ());
+  PacketSinkHelper clientHelperTcp ("ns3::TcpSocketFactory", Address ());
   clientHelperTcp.SetAttribute ("Remote", serverAddressTcp);
-  clientHelperTcp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable"));
-  clientHelperTcp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
-  clientHelperTcp.SetAttribute ("DataRate", StringValue (dataRate));
-  clientHelperTcp.SetAttribute ("PacketSize", UintegerValue (1280));
 
-  OnOffHelper clientHelperUdp ("ns3::UdpSocketFactory", Address ());
+  PacketSinkHelper clientHelperUdp ("ns3::UdpSocketFactory", Address ());
   clientHelperUdp.SetAttribute ("Remote", serverAddressUdp);
-  clientHelperUdp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable"));
-  clientHelperUdp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
-  clientHelperUdp.SetAttribute ("DataRate", StringValue (dataRate));
-  clientHelperUdp.SetAttribute ("PacketSize", UintegerValue (1280));
 
   // Half of the nodes uses an UDP client and the other half a TCP client
   ApplicationContainer clientApp;
