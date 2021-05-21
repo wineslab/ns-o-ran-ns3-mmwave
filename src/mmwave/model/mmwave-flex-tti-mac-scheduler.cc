@@ -1178,7 +1178,11 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (const struct MmWaveMacSchedSapProv
           remSym = symAvail;
         }
 
-      int nSymPerFlow0 = remSym / nFlowsTot;    // initial average symbols per non-retx flow
+      unsigned int dummy;
+      int minNumSymbols = CalcMinTbSizeNumSym (0,
+                                               m_rlcHdrSize + 8 + m_subHdrSize + m_macHdrSize,
+                                               dummy); 
+      int nSymPerFlow0 = std::max (remSym / nFlowsTot, minNumSymbols); // initial average symbols per non-retx flow
       if (nSymPerFlow0 == 0)    // minimum of 1
         {
           nSymPerFlow0 = 1;
@@ -1238,6 +1242,17 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (const struct MmWaveMacSchedSapProv
                         {
                           addSym = nRemSymPerFlow;
                         }
+                        
+                        if (addSym > minNumSymbols)
+                        {
+                          allocated = true;
+                        }
+                        else 
+                        {
+                          allocated = false; 
+                          addSym = 0;
+                          break;
+                        }
                     }
                   allocated = true;
                 }
@@ -1286,7 +1301,17 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (const struct MmWaveMacSchedSapProv
                         {
                           addSym = nRemSymPerFlow;
                         }
-                      allocated = true;
+                      
+                      if (addSym > minNumSymbols)
+                      {
+                        allocated = true;
+                      }
+                      else 
+                      {
+                        allocated = false; 
+                        addSym = 0;
+                        break;
+                      }
                     }
                 }
               itUeInfo->second.m_ulSymbols += addSym;
