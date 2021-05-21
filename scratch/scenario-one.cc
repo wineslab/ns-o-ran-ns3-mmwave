@@ -456,8 +456,8 @@ main (int argc, char *argv[])
   GlobalValue::GetValueByName ("simTime", doubleValue);
   double simTime = doubleValue.Get ();
 
-  sinkApp.Start (Seconds (0));
-  sinkApp.Stop (Seconds (simTime - 1));
+  serverApp.Start (Seconds (0));
+  serverApp.Stop (Seconds (simTime - 1));
 
   clientApp.Start (MilliSeconds (100));
   clientApp.Stop (Seconds (simTime - 1));
