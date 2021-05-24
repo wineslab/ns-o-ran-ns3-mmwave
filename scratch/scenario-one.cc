@@ -156,20 +156,20 @@ int
 main (int argc, char *argv[])
 {
   LogComponentEnableAll (LOG_PREFIX_ALL);
-  //LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
-  //LogComponentEnable ("OnOffApplication", LOG_LEVEL_ALL);
-  LogComponentEnable ("LtePdcp", LOG_LEVEL_ALL);
-  LogComponentEnable ("LteRlcAm", LOG_LEVEL_ALL);
-  LogComponentEnable ("MmWaveUeMac", LOG_LEVEL_ALL);
-  LogComponentEnable ("MmWaveEnbMac", LOG_LEVEL_ALL);
-  LogComponentEnable ("LteUeMac", LOG_LEVEL_ALL);
-  LogComponentEnable ("LteEnbMac", LOG_LEVEL_ALL);
-  LogComponentEnable ("MmWaveFlexTtiMacScheduler", LOG_LEVEL_ALL);
-  LogComponentEnable ("LteEnbRrc", LOG_LEVEL_ALL);
-  LogComponentEnable ("LteUeRrc", LOG_LEVEL_ALL);
+  // LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
+  // LogComponentEnable ("OnOffApplication", LOG_LEVEL_ALL);
+  // LogComponentEnable ("LtePdcp", LOG_LEVEL_ALL);
+  // LogComponentEnable ("LteRlcAm", LOG_LEVEL_ALL);
+  // LogComponentEnable ("MmWaveUeMac", LOG_LEVEL_ALL);
+  // LogComponentEnable ("MmWaveEnbMac", LOG_LEVEL_ALL);
+  // LogComponentEnable ("LteUeMac", LOG_LEVEL_ALL);
+  // LogComponentEnable ("LteEnbMac", LOG_LEVEL_ALL);
+  // LogComponentEnable ("MmWaveFlexTtiMacScheduler", LOG_LEVEL_ALL);
+  // LogComponentEnable ("LteEnbRrc", LOG_LEVEL_ALL);
+  // LogComponentEnable ("LteUeRrc", LOG_LEVEL_ALL);
   // LogComponentEnable ("McEnbPdcp", LOG_LEVEL_ALL);
   // LogComponentEnable ("McUePdcp", LOG_LEVEL_ALL);
-  LogComponentEnable ("MmWaveSpectrumPhy", LOG_LEVEL_ALL);
+  // LogComponentEnable ("MmWaveSpectrumPhy", LOG_LEVEL_ALL);
   LogComponentEnable ("ScenarioOne", LOG_LEVEL_ALL);
 
   // The maximum X coordinate of the scenario
@@ -322,7 +322,7 @@ main (int argc, char *argv[])
   ipv4h.SetBase ("1.0.0.0", "255.0.0.0");
   Ipv4InterfaceContainer internetIpIfaces = ipv4h.Assign (internetDevices);
   // interface 0 is localhost, 1 is the p2p device
-  Ipv4Address remoteHostAddr = internetIpIfaces.GetAddress (1);
+  // Ipv4Address remoteHostAddr = internetIpIfaces.GetAddress (1);
   Ipv4StaticRoutingHelper ipv4RoutingHelper;
   Ptr<Ipv4StaticRouting> remoteHostStaticRouting =
       ipv4RoutingHelper.GetStaticRouting (remoteHost->GetObject<Ipv4> ());
@@ -404,49 +404,44 @@ main (int argc, char *argv[])
   // Manual attachment
   mmwaveHelper->AttachToClosestEnb (mcUeDevs, mmWaveEnbDevs, lteEnbDevs);
 
-  // Install and start applications on UEs
-
-  // On the remoteHost is placed a TCP server
+  // Install and start applications
+  // On the remoteHost there are TCP and UDP OnOff Applications
   uint16_t portTcp = 50000;
-  Address serverLocalAddressTcp (InetSocketAddress (Ipv4Address::GetAny (), portTcp));
-  OnOffHelper serverHelperTcp ("ns3::TcpSocketFactory", serverLocalAddressTcp);
-  AddressValue serverAddressTcp (InetSocketAddress (remoteHostAddr, portTcp));
-  serverHelperTcp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable"));
-  serverHelperTcp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
-  serverHelperTcp.SetAttribute ("DataRate", StringValue (dataRate));
-  serverHelperTcp.SetAttribute ("PacketSize", UintegerValue (1280));
-
-  // On the remoteHost is placed a UDP server
   uint16_t portUdp = 60000;
-  Address serverLocalAddressUdp (InetSocketAddress (Ipv4Address::GetAny (), portUdp));
-  OnOffHelper serverHelperUdp ("ns3::UdpSocketFactory", serverLocalAddressUdp);
-  AddressValue serverAddressUdp (InetSocketAddress (remoteHostAddr, portUdp));
-  serverHelperUdp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable"));
-  serverHelperUdp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
-  serverHelperUdp.SetAttribute ("DataRate", StringValue (dataRate));
-  serverHelperUdp.SetAttribute ("PacketSize", UintegerValue (1280));
 
-  // On the UEs there are TCP and UDP clients
-  // If needed [Mean=1,Bound=0]
-  PacketSinkHelper clientHelperTcp ("ns3::TcpSocketFactory", Address ());
-  PacketSinkHelper clientHelperUdp ("ns3::UdpSocketFactory", Address ());
+  // On the UEs there are TCP and UDP packet sinks
+  // Half of the nodes are UDP and the other half TCP
+  ApplicationContainer remoteApps;
+  ApplicationContainer ueApps;
 
-  // Half of the nodes are an UDP client and the other half a TCP client
-  ApplicationContainer serverApp;
-  ApplicationContainer clientApp;
   for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
     {
       if (u % 2 == 0)
         {
-          serverHelperTcp.SetAttribute ("Remote", AddressValue (ueIpIface.GetAddress (u)));
-          serverApp.Add (serverHelperTcp.Install (remoteHost));
-          clientApp.Add (clientHelperTcp.Install (ueNodes.Get (u)));
+          OnOffHelper remoteHelperTcp ("ns3::TcpSocketFactory",
+                                       InetSocketAddress (ueIpIface.GetAddress (u), portTcp));
+          remoteHelperTcp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable"));
+          remoteHelperTcp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
+          remoteHelperTcp.SetAttribute ("DataRate", StringValue (dataRate));
+          remoteHelperTcp.SetAttribute ("PacketSize", UintegerValue (1280));
+          remoteApps.Add (remoteHelperTcp.Install (remoteHost));
+          PacketSinkHelper ueHelperTcp ("ns3::TcpSocketFactory",
+                                        InetSocketAddress (ueIpIface.GetAddress (u), portTcp));
+          ueApps.Add (ueHelperTcp.Install (ueNodes.Get (u)));
         }
       else
         {
-          serverHelperUdp.SetAttribute ("Remote", AddressValue (ueIpIface.GetAddress (u)));
-          serverApp.Add (serverHelperUdp.Install (remoteHost));
-          clientApp.Add (clientHelperUdp.Install (ueNodes.Get (u)));
+          OnOffHelper remoteHelperUdp ("ns3::UdpSocketFactory",
+                                       InetSocketAddress (ueIpIface.GetAddress (u), portUdp));
+          remoteHelperUdp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable"));
+          remoteHelperUdp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
+          remoteHelperUdp.SetAttribute ("DataRate", StringValue (dataRate));
+          remoteHelperUdp.SetAttribute ("PacketSize", UintegerValue (1280));
+          remoteApps.Add (remoteHelperUdp.Install (remoteHost));
+
+          PacketSinkHelper ueHelperUdp ("ns3::UdpSocketFactory",
+                                        InetSocketAddress (ueIpIface.GetAddress (u), portUdp));
+          ueApps.Add (ueHelperUdp.Install (ueNodes.Get (u)));
         }
     }
 
@@ -454,11 +449,11 @@ main (int argc, char *argv[])
   GlobalValue::GetValueByName ("simTime", doubleValue);
   double simTime = doubleValue.Get ();
 
-  serverApp.Start (Seconds (0));
-  serverApp.Stop (Seconds (simTime - 1));
+  remoteApps.Start (Seconds (0));
+  remoteApps.Stop (Seconds (simTime - 1));
 
-  clientApp.Start (MilliSeconds (100));
-  clientApp.Stop (Seconds (simTime - 1));
+  ueApps.Start (Seconds (0));
+  ueApps.Stop (Seconds (simTime - 1));
 
   // int numPrints = 5;
   // for (int i = 0; i < numPrints; i++)
