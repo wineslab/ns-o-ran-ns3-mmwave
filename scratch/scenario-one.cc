@@ -426,28 +426,26 @@ main (int argc, char *argv[])
   serverHelperUdp.SetAttribute ("DataRate", StringValue (dataRate));
   serverHelperUdp.SetAttribute ("PacketSize", UintegerValue (1280));
 
-  ApplicationContainer serverApp;
-  serverApp.Add (serverHelperTcp.Install (remoteHost));
-  serverApp.Add (serverHelperUdp.Install (remoteHost));
-
   // On the UEs there are TCP and UDP clients
   // If needed [Mean=1,Bound=0]
   PacketSinkHelper clientHelperTcp ("ns3::TcpSocketFactory", Address ());
-  clientHelperTcp.SetAttribute ("Remote", serverAddressTcp);
-
   PacketSinkHelper clientHelperUdp ("ns3::UdpSocketFactory", Address ());
-  clientHelperUdp.SetAttribute ("Remote", serverAddressUdp);
 
-  // Half of the nodes uses an UDP client and the other half a TCP client
+  // Half of the nodes are an UDP client and the other half a TCP client
+  ApplicationContainer serverApp;
   ApplicationContainer clientApp;
   for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
     {
       if (u % 2 == 0)
         {
+          serverHelperTcp.SetAttribute ("Remote", AddressValue (ueIpIface.GetAddress (u)));
+          serverApp.Add (serverHelperTcp.Install (remoteHost));
           clientApp.Add (clientHelperTcp.Install (ueNodes.Get (u)));
         }
       else
         {
+          serverHelperUdp.SetAttribute ("Remote", AddressValue (ueIpIface.GetAddress (u)));
+          serverApp.Add (serverHelperUdp.Install (remoteHost));
           clientApp.Add (clientHelperUdp.Install (ueNodes.Get (u)));
         }
     }
