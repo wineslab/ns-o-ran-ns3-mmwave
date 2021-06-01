@@ -105,6 +105,13 @@ public:
   /**
    *
    *
+   * \param imsi
+   */
+  void SetImsi (uint64_t imsi);
+
+  /**
+   *
+   *
    * \param s the RLC SAP user to be used by this LTE_RLC
    */
   void SetLteRlcSapUser (LteRlcSapUser * s);
@@ -223,6 +230,7 @@ protected:
 
   uint16_t m_rnti; ///< RNTI
   uint8_t m_lcid; ///< LCID
+  uint64_t m_imsi; ///< IMSI
 
   /**
    * Used to inform of a PDU delivery to the MAC SAP provider

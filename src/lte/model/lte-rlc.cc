@@ -104,6 +104,7 @@ LteRlc::LteRlc ()
     m_macSapProvider (0),
     m_rnti (0),
     m_lcid (0),
+    m_imsi (0),
     isMc(false) // TODO refactor this!!
 {
   NS_LOG_FUNCTION (this);
@@ -159,6 +160,13 @@ LteRlc::SetLcId (uint8_t lcId)
 {
   NS_LOG_FUNCTION (this << (uint32_t) lcId);
   m_lcid = lcId;
+}
+
+void
+LteRlc::SetImsi (uint64_t imsi)
+{
+  NS_LOG_FUNCTION (this << imsi);
+  m_imsi = imsi;
 }
 
 void
