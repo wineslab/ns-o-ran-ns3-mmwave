@@ -26,6 +26,7 @@
 #include "ns3/mmwave-helper.h"
 #include "ns3/epc-helper.h"
 #include "ns3/mmwave-point-to-point-epc-helper.h"
+#include "ns3/lte-helper.h"
 
 using namespace ns3;
 using namespace mmwave;
@@ -468,6 +469,13 @@ main (int argc, char *argv[])
 
   mmwaveHelper->EnableTraces ();
 
+  // trick to enable PHY traces for the LTE stack
+  Ptr<LteHelper> lteHelper = CreateObject<LteHelper>();
+  lteHelper->Initialize ();
+  lteHelper->EnablePhyTraces();
+  lteHelper->EnableMacTraces();
+
+
   // Since nodes are randomly allocated during each run we always need to print their positions
   PrintGnuplottableUeListToFile ("ues.txt");
   PrintGnuplottableEnbListToFile ("enbs.txt");
@@ -480,6 +488,8 @@ main (int argc, char *argv[])
       NS_LOG_INFO ("Run Simulation.");
       Simulator::Run ();
     }
+
+  NS_LOG_INFO (lteHelper);
 
   Simulator::Destroy ();
   NS_LOG_INFO ("Done.");
