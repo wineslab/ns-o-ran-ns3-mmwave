@@ -147,6 +147,15 @@ static ns3::GlobalValue g_perPckToLTE ("perPckToLTE",
                                        ns3::DoubleValue (0.5),
                                        ns3::MakeDoubleChecker<double> (-1, 1.0));
 
+static ns3::GlobalValue
+    g_hoSinrDifference ("hoSinrDifference",
+                        "The value for which an handover between MmWave eNB is triggered",
+                        ns3::DoubleValue (3), ns3::MakeDoubleChecker<double> ());
+
+static ns3::GlobalValue
+    g_dataRate ("dataRate", "Set the data rate to be used [only \"0\"(low),\"1\"(high) admitted]",
+                ns3::DoubleValue (0), ns3::MakeDoubleChecker<double> (0, 1));
+
 static ns3::GlobalValue g_ues ("ues", "Number of UEs for each mmWave ENB.", ns3::UintegerValue (7),
                                ns3::MakeUintegerChecker<uint8_t> ());
 
@@ -191,6 +200,10 @@ main (int argc, char *argv[])
 
   GlobalValue::GetValueByName ("perPckToLTE", doubleValue);
   double perPckToLTE = doubleValue.Get ();
+  GlobalValue::GetValueByName ("hoSinrDifference", doubleValue);
+  double hoSinrDifference = doubleValue.Get ();
+  GlobalValue::GetValueByName ("dataRate", doubleValue);
+  double dataRateFromConf = doubleValue.Get ();
   GlobalValue::GetValueByName ("rlcAmEnabled", booleanValue);
   bool rlcAmEnabled = booleanValue.Get ();
   GlobalValue::GetValueByName ("bufferSize", uintegerValue);
@@ -226,6 +239,8 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::LteRlcAm::MaxTxBufferSize", UintegerValue (bufferSize * 1024 * 1024));
   Config::SetDefault ("ns3::McEnbPdcp::perPckToLTE", DoubleValue (perPckToLTE));
 
+  Config::SetDefault ("ns3::LteEnbRrc::HoSinrDifference", DoubleValue (hoSinrDifference));
+
   // set to false to use the 3GPP radiation pattern (proper configuration of the bearing and downtilt angles is needed)
   Config::SetDefault ("ns3::ThreeGppAntennaArrayModel::IsotropicElements", BooleanValue (true));
 
@@ -252,7 +267,7 @@ main (int argc, char *argv[])
       isd = 1000;
       numAntennasMcUe = 1;
       numAntennasMmWave = 1;
-      dataRate = "3Mbps";
+      dataRate = (dataRateFromConf == 0 ? "1.5Mbps" : "4.5Mbps");
       break;
 
     case 1:
@@ -261,7 +276,7 @@ main (int argc, char *argv[])
       isd = 1000;
       numAntennasMcUe = 1;
       numAntennasMmWave = 1;
-      dataRate = "3Mbps";
+      dataRate = (dataRateFromConf == 0 ? "1.5Mbps" : "4.5Mbps");
       break;
 
     case 2:
@@ -270,7 +285,7 @@ main (int argc, char *argv[])
       isd = 200;
       numAntennasMcUe = 16;
       numAntennasMmWave = 64;
-      dataRate = "30Mbps";
+      dataRate = (dataRateFromConf == 0 ? "15Mbps" : "45Mbps");
       break;
 
     default:
@@ -470,11 +485,10 @@ main (int argc, char *argv[])
   mmwaveHelper->EnableTraces ();
 
   // trick to enable PHY traces for the LTE stack
-  Ptr<LteHelper> lteHelper = CreateObject<LteHelper>();
+  Ptr<LteHelper> lteHelper = CreateObject<LteHelper> ();
   lteHelper->Initialize ();
-  lteHelper->EnablePhyTraces();
-  lteHelper->EnableMacTraces();
-
+  lteHelper->EnablePhyTraces ();
+  lteHelper->EnableMacTraces ();
 
   // Since nodes are randomly allocated during each run we always need to print their positions
   PrintGnuplottableUeListToFile ("ues.txt");
