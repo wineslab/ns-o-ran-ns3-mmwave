@@ -1103,6 +1103,7 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (const struct MmWaveMacSchedSapProv
                 {
                   itUeInfo->second.m_ulMcs = mcs;                      //m_amc->GetMcsFromCqi (cqi);  // get MCS
                 }
+            
               itUeInfo->second.m_maxUlBufSize = ceBsrIt->second + m_rlcHdrSize + m_macHdrSize + 8;
               NS_LOG_INFO (this << " UE " << ceBsrIt->first << ": itUeInfo->second.m_maxUlBufSize "
                                 << +itUeInfo->second.m_maxUlBufSize << " ceBsrIt->second "

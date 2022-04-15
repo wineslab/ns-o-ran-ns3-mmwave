@@ -33,7 +33,7 @@
 */
 
 
-#include "mmwave-bearer-stats-calculator.h"
+#include "ns3/mmwave-bearer-stats-calculator.h"
 #include "mmwave-bearer-stats-connector.h"
 
 #include <ns3/log.h>
@@ -279,6 +279,26 @@ MmWaveBearerStatsConnector::EnablePdcpStats (Ptr<MmWaveBearerStatsCalculator> pd
 {
   m_pdcpStats = pdcpStats;
   EnsureConnected ();
+}
+
+void
+MmWaveBearerStatsConnector::EnableE2PdcpStats (Ptr<MmWaveBearerStatsCalculator> e2PdcpStats)
+{
+  if(m_e2PdcpStatsVector.empty()) {
+    Simulator::Schedule(Seconds(0), &MmWaveBearerStatsConnector::EnsureConnected, this);
+  }
+
+  m_e2PdcpStatsVector.push_back(e2PdcpStats);
+}
+
+void
+MmWaveBearerStatsConnector::EnableE2RlcStats (Ptr<MmWaveBearerStatsCalculator> e2RlcStats)
+{
+  if(m_e2RlcStatsVector.empty()) {
+    Simulator::Schedule(Seconds(0), &MmWaveBearerStatsConnector::EnsureConnected, this);
+  }
+
+  m_e2RlcStatsVector.push_back(e2RlcStats);
 }
 
 void
@@ -633,6 +653,42 @@ MmWaveBearerStatsConnector::ConnectSrb0Traces (std::string context, uint64_t ims
                        MakeBoundCallback (&UlRxPduCallback, arg));
 
     }
+  if (!m_e2RlcStatsVector.empty())
+    {
+      for(auto rlcStats : m_e2RlcStatsVector)
+      {
+        Ptr<MmWaveBoundCallbackArgument> arg = Create<MmWaveBoundCallbackArgument> ();
+        arg->imsi = imsi;
+        arg->cellId = cellId;
+        arg->stats = rlcStats;
+  
+        // diconnect eventually previously connected SRB0 both at UE and eNB
+        Config::Disconnect (ueRrcPath + "/Srb0/LteRlc/TxPDU",
+                            MakeBoundCallback (&UlTxPduCallback, arg));
+        Config::Disconnect (ueRrcPath + "/Srb0/LteRlc/RxPDU",
+                            MakeBoundCallback (&DlRxPduCallback, arg));
+        Config::Disconnect (ueManagerPath + "/Srb0/LteRlc/TxPDU",
+                            MakeBoundCallback (&DlTxPduCallback, arg));
+        Config::Disconnect (ueManagerPath + "/Srb0/LteRlc/RxPDU",
+                            MakeBoundCallback (&UlRxPduCallback, arg));
+  
+        // connect SRB0 both at UE and eNB
+        Config::ConnectFailSafe (ueRrcPath + "/Srb0/LteRlc/TxPDU",
+                         MakeBoundCallback (&UlTxPduCallback, arg));
+        Config::ConnectFailSafe (ueRrcPath + "/Srb0/LteRlc/RxPDU",
+                         MakeBoundCallback (&DlRxPduCallback, arg));
+        Config::ConnectFailSafe (ueManagerPath + "/Srb0/LteRlc/TxPDU",
+                         MakeBoundCallback (&DlTxPduCallback, arg));
+        Config::ConnectFailSafe (ueManagerPath + "/Srb0/LteRlc/RxPDU",
+                         MakeBoundCallback (&UlRxPduCallback, arg));
+  
+        // connect SRB1 at eNB only (at UE SRB1 will be setup later)
+        Config::ConnectFailSafe (ueManagerPath + "/Srb1/LteRlc/TxPDU",
+                         MakeBoundCallback (&DlTxPduCallback, arg));
+        Config::ConnectFailSafe (ueManagerPath + "/Srb1/LteRlc/RxPDU",
+                         MakeBoundCallback (&UlRxPduCallback, arg));
+      }
+    }
   if (m_pdcpStats)
     {
       Ptr<MmWaveBoundCallbackArgument> arg = Create<MmWaveBoundCallbackArgument> ();
@@ -645,6 +701,22 @@ MmWaveBearerStatsConnector::ConnectSrb0Traces (std::string context, uint64_t ims
                        MakeBoundCallback (&UlRxPduCallback, arg));
       Config::ConnectFailSafe (ueManagerPath + "/Srb1/LtePdcp/TxPDU",
                        MakeBoundCallback (&DlTxPduCallback, arg));
+    }
+
+  if (!m_e2PdcpStatsVector.empty())
+    {
+      for (auto e2PdcpStats : m_e2PdcpStatsVector) {
+          Ptr<MmWaveBoundCallbackArgument> arg = Create<MmWaveBoundCallbackArgument> ();
+          arg->imsi = imsi;
+          arg->cellId = cellId;
+          arg->stats = e2PdcpStats;
+    
+          // connect SRB1 at eNB only (at UE SRB1 will be setup later)
+          Config::ConnectFailSafe (ueManagerPath + "/Srb1/LtePdcp/RxPDU",
+                           MakeBoundCallback (&UlRxPduCallback, arg));
+          Config::ConnectFailSafe (ueManagerPath + "/Srb1/LtePdcp/TxPDU",
+                           MakeBoundCallback (&DlTxPduCallback, arg));
+        }
     }
 }
 
@@ -736,6 +808,24 @@ MmWaveBearerStatsConnector::ConnectDrbTracesUe (std::string context, uint64_t im
                        m_rlcDrbDlRxCb.at (imsi));
 
     }
+  if (!m_e2RlcStatsVector.empty())
+    {
+      for(auto rlcStats : m_e2RlcStatsVector)
+      {
+        Ptr<MmWaveBoundCallbackArgument> arg = Create<MmWaveBoundCallbackArgument> ();
+        arg->imsi = imsi;
+        arg->cellId = cellId;
+        arg->stats = rlcStats;
+  
+        m_rlcDrbDlRxCb[imsi] = MakeBoundCallback (&DlRxPduCallback, arg);
+        m_rlcDrbUlTxCb[imsi] = MakeBoundCallback (&UlTxPduCallback, arg);
+
+        Config::ConnectFailSafe (basePath + "/DataRadioBearerMap/*/LteRlc/TxPDU",
+                         m_rlcDrbUlTxCb.at (imsi));
+        Config::ConnectFailSafe (basePath + "/DataRadioBearerMap/*/LteRlc/RxPDU",
+                         m_rlcDrbDlRxCb.at (imsi));
+      }
+    }
   if (m_pdcpStats)
     {
       Ptr<MmWaveBoundCallbackArgument> arg = Create<MmWaveBoundCallbackArgument> ();
@@ -750,6 +840,23 @@ MmWaveBearerStatsConnector::ConnectDrbTracesUe (std::string context, uint64_t im
                        m_pdcpDrbDlRxCb.at (imsi));
       Config::ConnectFailSafe (basePath + "/DataRadioBearerMap/*/LtePdcp/TxPDU",
                        m_pdcpDrbUlTxCb.at (imsi));
+    }
+  if (!m_e2PdcpStatsVector.empty())
+    {
+      for (auto e2PdcpStats : m_e2PdcpStatsVector) {
+          Ptr<MmWaveBoundCallbackArgument> arg = Create<MmWaveBoundCallbackArgument> ();
+          arg->imsi = imsi;
+          arg->cellId = cellId;
+          arg->stats = e2PdcpStats;
+    
+          m_pdcpDrbDlRxCb[imsi] = MakeBoundCallback (&DlRxPduCallback, arg);
+          m_pdcpDrbUlTxCb[imsi] = MakeBoundCallback (&UlTxPduCallback, arg);
+
+          Config::ConnectFailSafe (basePath + "/DataRadioBearerMap/*/LtePdcp/RxPDU",
+                           m_pdcpDrbDlRxCb.at (imsi));
+          Config::ConnectFailSafe (basePath + "/DataRadioBearerMap/*/LtePdcp/TxPDU",
+                           m_pdcpDrbUlTxCb.at (imsi));
+        }
     }
 }
 
@@ -771,6 +878,24 @@ MmWaveBearerStatsConnector::ConnectSrb1TracesUe (std::string ueRrcPath, uint64_t
       Config::ConnectFailSafe (basePath + "/Srb1/LteRlc/RxPDU",
                        MakeBoundCallback (&DlRxPduCallback, arg));
     }
+  if (!m_e2RlcStatsVector.empty())
+    {
+      for(auto rlcStats : m_e2RlcStatsVector)
+      {
+        Ptr<MmWaveBoundCallbackArgument> arg = Create<MmWaveBoundCallbackArgument> ();
+        arg->imsi = imsi;
+        arg->cellId = cellId;
+        arg->stats = rlcStats;
+  
+        m_rlcDrbDlRxCb[imsi] = MakeBoundCallback (&DlRxPduCallback, arg);
+        m_rlcDrbUlTxCb[imsi] = MakeBoundCallback (&UlTxPduCallback, arg);
+
+        Config::ConnectFailSafe (basePath + "/Srb1/LteRlc/TxPDU",
+                         MakeBoundCallback (&UlTxPduCallback, arg));
+        Config::ConnectFailSafe (basePath + "/Srb1/LteRlc/RxPDU",
+                         MakeBoundCallback (&DlRxPduCallback, arg));
+      }
+    }
   if (m_pdcpStats)
     {
       Ptr<MmWaveBoundCallbackArgument> arg = Create<MmWaveBoundCallbackArgument> ();
@@ -781,6 +906,20 @@ MmWaveBearerStatsConnector::ConnectSrb1TracesUe (std::string ueRrcPath, uint64_t
                        MakeBoundCallback (&DlRxPduCallback, arg));
       Config::ConnectFailSafe (basePath + "/Srb1/LtePdcp/TxPDU",
                        MakeBoundCallback (&UlTxPduCallback, arg));
+    }
+  if (!m_e2PdcpStatsVector.empty())
+    {
+      for (auto e2PdcpStats : m_e2PdcpStatsVector) {
+          Ptr<MmWaveBoundCallbackArgument> arg = Create<MmWaveBoundCallbackArgument> ();
+          arg->imsi = imsi;
+          arg->cellId = cellId;
+          arg->stats = e2PdcpStats;
+    
+          Config::ConnectFailSafe (basePath + "/Srb1/LtePdcp/RxPDU",
+                           MakeBoundCallback (&DlRxPduCallback, arg));
+          Config::ConnectFailSafe (basePath + "/Srb1/LtePdcp/TxPDU",
+                           MakeBoundCallback (&UlTxPduCallback, arg));
+        }
     }
   if (m_mcStats)
     {
@@ -816,6 +955,25 @@ MmWaveBearerStatsConnector::ConnectSrb1TracesEnb (std::string context, uint64_t 
       Config::ConnectFailSafe (basePath.str () + "/Srb1/LteRlc/TxPDU",
                        MakeBoundCallback (&DlTxPduCallback, arg));
     }
+  if (!m_e2RlcStatsVector.empty())
+    {
+      for(auto rlcStats : m_e2RlcStatsVector)
+      {
+        Ptr<MmWaveBoundCallbackArgument> arg = Create<MmWaveBoundCallbackArgument> ();
+        arg->imsi = imsi;
+        arg->cellId = cellId;
+        arg->stats = rlcStats;
+  
+        Config::ConnectFailSafe (basePath.str () + "/Srb0/LteRlc/RxPDU",
+                         MakeBoundCallback (&UlRxPduCallback, arg));
+        Config::ConnectFailSafe (basePath.str () + "/Srb0/LteRlc/TxPDU",
+                         MakeBoundCallback (&DlTxPduCallback, arg));
+        Config::ConnectFailSafe (basePath.str () + "/Srb1/LteRlc/RxPDU",
+                         MakeBoundCallback (&UlRxPduCallback, arg));
+        Config::ConnectFailSafe (basePath.str () + "/Srb1/LteRlc/TxPDU",
+                         MakeBoundCallback (&DlTxPduCallback, arg));
+      }
+    }
   if (m_pdcpStats)
     {
       Ptr<MmWaveBoundCallbackArgument> arg = Create<MmWaveBoundCallbackArgument> ();
@@ -826,6 +984,20 @@ MmWaveBearerStatsConnector::ConnectSrb1TracesEnb (std::string context, uint64_t 
                        MakeBoundCallback (&DlTxPduCallback, arg));
       Config::ConnectFailSafe (basePath.str () + "/Srb1/LtePdcp/RxPDU",
                        MakeBoundCallback (&UlRxPduCallback, arg));
+    }
+  if (!m_e2PdcpStatsVector.empty())
+    {
+      for (auto e2PdcpStats : m_e2PdcpStatsVector) {
+          Ptr<MmWaveBoundCallbackArgument> arg = Create<MmWaveBoundCallbackArgument> ();
+          arg->imsi = imsi;
+          arg->cellId = cellId;
+          arg->stats = e2PdcpStats;
+    
+          Config::ConnectFailSafe (basePath.str () + "/Srb1/LtePdcp/TxPDU",
+                       MakeBoundCallback (&DlTxPduCallback, arg));
+          Config::ConnectFailSafe (basePath.str () + "/Srb1/LtePdcp/RxPDU",
+                       MakeBoundCallback (&UlRxPduCallback, arg));
+        }
     }
 }
 
@@ -847,6 +1019,21 @@ MmWaveBearerStatsConnector::ConnectDrbTracesEnb (std::string context, uint64_t i
       Config::ConnectFailSafe (basePath.str () + "/DataRadioBearerMap/*/LteRlc/TxPDU",
                        MakeBoundCallback (&DlTxPduCallback, arg));
     }
+  if (!m_e2RlcStatsVector.empty())
+    {
+      for(auto rlcStats : m_e2RlcStatsVector)
+      {
+        Ptr<MmWaveBoundCallbackArgument> arg = Create<MmWaveBoundCallbackArgument> ();
+        arg->imsi = imsi;
+        arg->cellId = cellId;
+        arg->stats = rlcStats;
+  
+        Config::ConnectFailSafe (basePath.str () + "/DataRadioBearerMap/*/LteRlc/RxPDU",
+                         MakeBoundCallback (&UlRxPduCallback, arg));
+        Config::ConnectFailSafe (basePath.str () + "/DataRadioBearerMap/*/LteRlc/TxPDU",
+                         MakeBoundCallback (&DlTxPduCallback, arg));
+      }
+    }
   if (m_pdcpStats)
     {
       Ptr<MmWaveBoundCallbackArgument> arg = Create<MmWaveBoundCallbackArgument> ();
@@ -857,6 +1044,20 @@ MmWaveBearerStatsConnector::ConnectDrbTracesEnb (std::string context, uint64_t i
                        MakeBoundCallback (&DlTxPduCallback, arg));
       Config::ConnectFailSafe (basePath.str () + "/DataRadioBearerMap/*/LtePdcp/RxPDU",
                        MakeBoundCallback (&UlRxPduCallback, arg));
+    }
+  if (!m_e2PdcpStatsVector.empty())
+    {
+      for (auto e2PdcpStats : m_e2PdcpStatsVector) {
+          Ptr<MmWaveBoundCallbackArgument> arg = Create<MmWaveBoundCallbackArgument> ();
+          arg->imsi = imsi;
+          arg->cellId = cellId;
+          arg->stats = e2PdcpStats;
+    
+          Config::ConnectFailSafe (basePath.str () + "/DataRadioBearerMap/*/LtePdcp/TxPDU",
+                       MakeBoundCallback (&DlTxPduCallback, arg));
+          Config::ConnectFailSafe (basePath.str () + "/DataRadioBearerMap/*/LtePdcp/RxPDU",
+                       MakeBoundCallback (&UlRxPduCallback, arg));
+        }
     }
 }
 
@@ -896,6 +1097,17 @@ MmWaveBearerStatsConnector::DisconnectDrbTracesUe (std::string context, uint64_t
       rlc_container.Disconnect ("RxPDU",m_rlcDrbDlRxCb.at (imsi));
       rlc_container.Disconnect ("TxPDU",m_rlcDrbUlTxCb.at (imsi));
     }
+  if (!m_e2RlcStatsVector.empty())
+    {
+      for(auto rlcStats : m_e2RlcStatsVector)
+      {
+        Config::MatchContainer rlc_container = Config::LookupMatches (basePath +  "/DataRadioBearerMap/*/LteRlc/");
+        NS_LOG_LOGIC ("Number of RLC to disconnect " << rlc_container.GetN ());
+
+        rlc_container.Disconnect ("RxPDU",m_rlcDrbDlRxCb.at (imsi));
+        rlc_container.Disconnect ("TxPDU",m_rlcDrbUlTxCb.at (imsi));
+      }
+    }
 
   if (m_pdcpStats)
     {
@@ -904,6 +1116,16 @@ MmWaveBearerStatsConnector::DisconnectDrbTracesUe (std::string context, uint64_t
 
       pdcp_container.Disconnect ("RxPDU",m_pdcpDrbDlRxCb.at (imsi));
       pdcp_container.Disconnect ("TxPDU",m_pdcpDrbUlTxCb.at (imsi));
+    }
+  if (!m_e2PdcpStatsVector.empty())
+    {
+      for (auto e2PdcpStats : m_e2PdcpStatsVector) {
+        Config::MatchContainer pdcp_container = Config::LookupMatches (basePath +  "/DataRadioBearerMap/*/LtePdcp/");
+        NS_LOG_LOGIC ("Number of PDCP to disconnect " << pdcp_container.GetN ());
+
+        pdcp_container.Disconnect ("RxPDU",m_pdcpDrbDlRxCb.at (imsi));
+        pdcp_container.Disconnect ("TxPDU",m_pdcpDrbUlTxCb.at (imsi));
+      }
     }
 }
 
@@ -936,6 +1158,22 @@ MmWaveBearerStatsConnector::ConnectSecondaryTracesUe (std::string context, uint6
       Config::ConnectFailSafe (basePath + "/DataRadioRlcMap/*/LteRlc/RxPDU",
                        MakeBoundCallback (&DlRxPduCallback, arg));
     }
+  if (!m_e2RlcStatsVector.empty())
+    {
+      for(auto rlcStats : m_e2RlcStatsVector)
+      {
+        Ptr<MmWaveBoundCallbackArgument> arg = Create<MmWaveBoundCallbackArgument> ();
+        arg->imsi = imsi;
+        arg->cellId = cellId;
+        arg->stats = rlcStats;
+  
+        // for MC devices
+        Config::ConnectFailSafe (basePath + "/DataRadioRlcMap/*/LteRlc/TxPDU",
+                         MakeBoundCallback (&UlTxPduCallback, arg));
+        Config::ConnectFailSafe (basePath + "/DataRadioRlcMap/*/LteRlc/RxPDU",
+                         MakeBoundCallback (&DlRxPduCallback, arg));
+      }
+    }
 }
 
 void
@@ -959,6 +1197,22 @@ MmWaveBearerStatsConnector::ConnectSecondaryTracesEnb (std::string context, uint
                        MakeBoundCallback (&UlRxPduCallback, arg));
       Config::ConnectFailSafe (basePath.str () + "/DataRadioRlcMap/*/LteRlc/TxPDU",
                        MakeBoundCallback (&DlTxPduCallback, arg));
+    }
+  if (!m_e2RlcStatsVector.empty())
+    {
+      for(auto rlcStats : m_e2RlcStatsVector)
+      {
+        Ptr<MmWaveBoundCallbackArgument> arg = Create<MmWaveBoundCallbackArgument> ();
+        arg->imsi = imsi;
+        arg->cellId = cellId;
+        arg->stats = rlcStats;
+  
+        // for MC devices
+        Config::ConnectFailSafe (basePath.str () + "/DataRadioRlcMap/*/LteRlc/RxPDU",
+                         MakeBoundCallback (&UlRxPduCallback, arg));
+        Config::ConnectFailSafe (basePath.str () + "/DataRadioRlcMap/*/LteRlc/TxPDU",
+                         MakeBoundCallback (&DlTxPduCallback, arg));
+      }
     }
 }
 

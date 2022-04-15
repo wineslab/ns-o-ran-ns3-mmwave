@@ -173,6 +173,10 @@ public:
    */
   void SetupDataRadioBearer (EpsBearer bearer, uint8_t bearerId, uint32_t gtpTeid, Ipv4Address transportLayerAddress);
 
+  // TODO doxy
+  std::map <uint8_t, Ptr<LteDataRadioBearerInfo> > GetDrbMap () const;
+  std::map <uint8_t, Ptr<RlcBearerInfo> > GetRlcMap () const;
+
   /**
    * Start all configured data radio bearers. It is safe to call this
    * method if any bearer had been already started previously.
@@ -1247,7 +1251,8 @@ public:
    {
      FIXED_TTT = 1,
      DYNAMIC_TTT = 2,
-     THRESHOLD = 3
+     THRESHOLD = 3,
+     NO_AUTOMATIC_HANDOVER = 4,
    };
 
    struct HandoverEventInfo
@@ -1528,7 +1533,16 @@ private:
 
 
 
+
+
 public:
+
+  /**
+   * Get the UE map
+   *
+   * \return the map of rnti and UeManager
+   */
+  std::map<uint16_t, Ptr<UeManager> > GetUeMap () const;
 
   /**
    * Add a neighbour with an X2 interface
@@ -1569,6 +1583,19 @@ public:
    * simulation.
    */
   void SetCsgId (uint32_t csgId, bool csgIndication);
+  
+  /**
+   * Take the HO control for a certain UE
+   * @params imsi UE 
+   */
+  void TakeUeHoControl (uint64_t imsi);
+  
+  /**
+   * Triggers an handover between secondary cells
+   * @params imsi UE 
+   * @params targetCellId target cell
+   */
+  void PerformHandoverToTargetCell (uint64_t imsi, uint16_t targetCellId);
 
 private:
 
@@ -1944,6 +1971,8 @@ private:
   std::map<uint8_t, Ptr<ComponentCarrierEnb>> m_componentCarrierPhyConf; ///< component carrier phy configuration
 
   std::map<uint8_t, MmWaveComponentCarrierConf> m_mmWaveComponentCarrierPhyConf; ///< mmWave component carrier phy configuration
+  
+  std::set<uint64_t> m_e2ControlledUes; ///< contains a list of UEs for which HO is controlled externally 
 
 }; // end of `class LteEnbRrc`
 

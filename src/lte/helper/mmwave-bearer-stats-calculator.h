@@ -356,6 +356,8 @@ public:
   std::vector<double>
   GetDlPduSizeStats (uint64_t imsi, uint8_t lcid);
 
+  void ResetResultsForImsiLcid (uint64_t imsi, uint16_t lcid);
+
 private:
   /**
    * Called after each epoch to write collected

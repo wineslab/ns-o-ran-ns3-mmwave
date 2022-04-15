@@ -35,6 +35,7 @@
 #include <ns3/trace-source-accessor.h>
 #include <ns3/pointer.h>
 #include <ns3/enum.h>
+#include <ns3/string.h>
 #include <ns3/lte-amc.h>
 #include <ns3/lte-enb-mac.h>
 #include <ns3/lte-enb-net-device.h>
@@ -52,12 +53,157 @@
 #include <ns3/lte-enb-component-carrier-manager.h>
 #include <ns3/object-map.h>
 #include <ns3/object-factory.h>
+#include <ns3/lte-radio-bearer-info.h>
+#include <cstdint>
+#include "encode_e2apv1.hpp"
+#include <fstream>
+#include <sstream>
+#include <ns3/lte-indication-message-helper.h>
+
 
 namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("LteEnbNetDevice");
 
 NS_OBJECT_ENSURE_REGISTERED ( LteEnbNetDevice);
+
+/**
+* KPM Subscription Request callback.
+* This function is triggered whenever a RIC Subscription Request for 
+* the KPM RAN Function is received.
+*
+* \param pdu request message
+*/
+void 
+LteEnbNetDevice::KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu)
+{
+  NS_LOG_UNCOND ("\nReceived RIC Subscription Request, cellId = " << m_cellId << "\n");
+
+  E2Termination::RicSubscriptionRequest_rval_s params = m_e2term->ProcessRicSubscriptionRequest (sub_req_pdu);
+  NS_LOG_UNCOND ("requestorId " << +params.requestorId << 
+                 ", instanceId " << +params.instanceId << 
+                 ", ranFuncionId " << +params.ranFuncionId << 
+                 ", actionId " << +params.actionId);  
+  
+  if (!m_isReportingEnabled && !m_forceE2FileLogging)
+  {
+    BuildAndSendReportMessage (params);
+    m_isReportingEnabled = true; 
+  }
+}
+
+void 
+LteEnbNetDevice::ReadControlFile ()
+{
+  // open the control file and read handover commands
+  if (m_handoverControlFilename != "") {
+    std::ifstream csv {};
+    csv.open (m_handoverControlFilename.c_str (), std::ifstream::in);
+
+    if (!csv.is_open ())
+    {
+      NS_FATAL_ERROR ("Can't open file " << m_handoverControlFilename.c_str ());
+    }
+
+    std::string line;
+
+    long long ts {};
+
+    while (std::getline(csv,line))
+    {
+      if(line == "") 
+      {
+        // skip empty lines
+        continue;
+      }
+      NS_LOG_INFO("Read handover command");
+      std::stringstream lineStream(line);
+      std::string cell;
+
+      std::getline(lineStream, cell, ',');
+      ts = std::stoll(cell);
+
+      uint64_t imsi;
+      std::getline(lineStream, cell, ',');
+      imsi = std::stoi(cell);
+
+      uint16_t targetCellId;
+      std::getline(lineStream, cell, ',');
+      // uncomment the next line if need to remove PLM ID, first 3 digits always 111
+      // cell.erase(0, 3);
+      targetCellId = std::stoi(cell);
+
+      NS_LOG_INFO("Handover command for ts " << ts << " imsi " << imsi << " targetCellId " << targetCellId);
+
+
+        m_rrc->TakeUeHoControl (imsi);
+        Simulator::ScheduleWithContext (1, Seconds (0), &LteEnbRrc::PerformHandoverToTargetCell, m_rrc,
+                                     imsi, targetCellId);
+    }
+
+    csv.close();
+
+    std::ofstream csvDelete {};
+    csvDelete.open(m_handoverControlFilename.c_str ());
+
+    NS_LOG_INFO("File flushed");
+
+  }
+
+  // TODO check if we need to run multiple times in a m_e2Periodicity time delta, to catch 
+  // handover commands that are late
+  // We can run every ms, if the file is empty, do not do anything
+  Simulator::Schedule(Seconds(0.001), &LteEnbNetDevice::ReadControlFile, this);
+}
+
+void 
+LteEnbNetDevice::ControlMessageReceivedCallback (E2AP_PDU_t* sub_req_pdu)
+{
+  NS_LOG_UNCOND ("\n\nLteEnbNetDevice::ControlMessageReceivedCallback: Received RIC Control Message");
+  
+  Ptr<RicControlMessage> controlMessage = Create<RicControlMessage> (sub_req_pdu);
+  NS_LOG_INFO ("After RicControlMessage::RicControlMessage constructor");
+  NS_LOG_INFO ("Request type " << controlMessage->m_requestType);
+  switch (controlMessage->m_requestType)
+  {
+  case RicControlMessage::ControlMessageRequestIdType::TS :{
+    NS_LOG_INFO("TS, do the handover");
+    // do handover
+     Ptr<OctetString> imsiString =
+         Create<OctetString> ((void *) controlMessage->m_e2SmRcControlHeaderFormat1->ueId.buf,
+                              controlMessage->m_e2SmRcControlHeaderFormat1->ueId.size);
+     char *end;
+     
+     uint64_t imsi = std::strtoull (imsiString->DecodeContent ().c_str (), &end, 10);
+     uint16_t targetCellId = std::stoi (controlMessage->GetSecondaryCellIdHO ());
+     NS_LOG_INFO ("Imsi Decoded: " << imsi);
+     NS_LOG_INFO ("Target Cell id " << targetCellId);
+     m_rrc->TakeUeHoControl (imsi);
+     if (!m_forceE2FileLogging)
+       {
+         Simulator::ScheduleWithContext (1, Seconds (0), &LteEnbRrc::PerformHandoverToTargetCell,
+                                         m_rrc, imsi, targetCellId);
+       }
+     else
+       {
+         Simulator::Schedule (Seconds (0), &LteEnbRrc::PerformHandoverToTargetCell,
+                                         m_rrc, imsi, targetCellId);
+       }
+     break;
+  }
+  case RicControlMessage::ControlMessageRequestIdType::QoS :{
+    // Ptr<UeManager> ueManager = m_rrc->GetUeManager (0); // find UE given rnti
+    // set m_pdcp di UE at new value
+    // ueManager->m_pdcp
+    NS_LOG_ERROR ("QoS is an unhandled case");
+    break;
+  }
+  default:{
+    NS_LOG_ERROR ("Unrecognized id type of Ric Control Message");
+    break;
+    }
+  }
+}
 
 TypeId LteEnbNetDevice::GetTypeId (void)
 {
@@ -138,6 +284,52 @@ TypeId LteEnbNetDevice::GetTypeId (void)
                    MakeBooleanAccessor (&LteEnbNetDevice::SetCsgIndication,
                                         &LteEnbNetDevice::GetCsgIndication),
                    MakeBooleanChecker ())
+    .AddAttribute ("E2Termination",
+                   "The E2 termination object associated to this node",
+                   PointerValue (),
+                   MakePointerAccessor (&LteEnbNetDevice::SetE2Termination,
+                                        &LteEnbNetDevice::GetE2Termination),
+                   MakePointerChecker <E2Termination> ())
+    .AddAttribute ("E2PdcpCalculator",
+                   "The PDCP calculator object for E2 reporting",
+                   PointerValue (),
+                   MakePointerAccessor (&LteEnbNetDevice::m_e2PdcpStatsCalculator),
+                   MakePointerChecker <mmwave::MmWaveBearerStatsCalculator> ())    
+    .AddAttribute ("E2RlcCalculator",
+                   "The RLC calculator object for E2 reporting",
+                   PointerValue (),
+                   MakePointerAccessor (&LteEnbNetDevice::m_e2RlcStatsCalculator),
+                   MakePointerChecker <mmwave::MmWaveBearerStatsCalculator> ())
+    .AddAttribute ("E2Periodicity",
+                   "Periodicity of E2 reporting",
+                   DoubleValue (0.1),
+                   MakeDoubleAccessor (&LteEnbNetDevice::m_e2Periodicity),
+                   MakeDoubleChecker<double> ())
+    .AddAttribute ("EnableCuUpReport",
+                   "If true, send CuUpReport",
+                   BooleanValue (true),
+                   MakeBooleanAccessor (&LteEnbNetDevice::m_sendCuUp),
+                   MakeBooleanChecker ())
+    .AddAttribute ("EnableCuCpReport",
+                   "If true, send CuCpReport",
+                   BooleanValue (true),
+                   MakeBooleanAccessor (&LteEnbNetDevice::m_sendCuCp),
+                   MakeBooleanChecker ())
+    .AddAttribute ("ReducedPmValues",
+                   "If true, send only a subset of pmValues",
+                   BooleanValue (false),
+                   MakeBooleanAccessor (&LteEnbNetDevice::m_reducedPmValues),
+                   MakeBooleanChecker ())
+    .AddAttribute ("EnableE2FileLogging",
+                   "If true, force E2 indication generation and write E2 fields in csv file",
+                   BooleanValue (false),
+                   MakeBooleanAccessor (&LteEnbNetDevice::m_forceE2FileLogging),
+                   MakeBooleanChecker ())
+    .AddAttribute ("HandoverControlFileName",
+                   "Filename for the handover control. Contains multiple lines with ts, imsi, targetCellId and is delete after every read",
+                   StringValue(""),
+                   MakeStringAccessor (&LteEnbNetDevice::m_handoverControlFilename),
+                   MakeStringChecker())
   ;
   return tid;
 }
@@ -146,7 +338,12 @@ LteEnbNetDevice::LteEnbNetDevice ()
   : m_isConstructed (false),
     m_isConfigured (false),
     m_anr (0),
-    m_componentCarrierManager(0)
+    m_componentCarrierManager(0), 
+    m_isReportingEnabled (false),
+    m_reducedPmValues (false),
+    m_forceE2FileLogging (false),
+    m_cuUpFileName (),
+    m_cuCpFileName ()
 {
   NS_LOG_FUNCTION (this);
 }
@@ -418,6 +615,40 @@ LteEnbNetDevice::UpdateConfig (void)
                          << " with CSG ID " << m_csgId
                          << " and CSG indication " << m_csgIndication);
       m_rrc->SetCsgId (m_csgId, m_csgIndication);
+
+      if(m_e2term)
+      {
+      	NS_LOG_UNCOND("E2sim start in cell " << m_cellId 
+          << " force CSV logging " << m_forceE2FileLogging);
+
+        if (!m_forceE2FileLogging)
+          {
+            Simulator::Schedule (MicroSeconds (0), &E2Termination::Start, m_e2term);
+          }
+        else { // give some time for the simulation to start, TODO check value
+          m_cuUpFileName = "cu-up-cell-" + std::to_string(m_cellId) + ".txt";
+          std::ofstream csv {};
+          csv.open (m_cuUpFileName.c_str ());
+          csv << "timestamp, ueImsiComplete, DRB.PdcpSduDelayDl (cellAverageLatency), "
+                 "m_pDCPBytesUL(0), m_pDCPBytesDL (cellDlTxVolume), "
+                 "DRB.PdcpSduVolumeDl_Filter.UEID (txBytes), "
+                 "Tot.PdcpSduNbrDl.UEID (txDlPackets), DRB.PdcpSduBitRateDl.UEID (pdcpThroughput), "
+                 "DRB.PdcpSduDelayDl.UEID (pdcpLatency), QosFlow.PdcpPduVolumeDL_Filter.UEID "
+                 "(txPdcpPduBytesNrRlc), DRB.PdcpPduNbrDl.Qos.UEID (txPdcpPduNrRlc)\n";
+          csv.close();
+
+          m_cuCpFileName = "cu-cp-cell-" + std::to_string(m_cellId) + ".txt";
+          csv.open (m_cuCpFileName.c_str ());
+          csv << "timestamp, ueImsiComplete, numActiveUes, DRB.EstabSucc.5QI.UEID (numDrb),"
+                 "DRB.RelActNbr.5QI.UEID (0), enbdev (m_cellId), UE (imsi), sameCellSinr,"
+                 "sameCellSinr 3gpp encoded,L3 neigh Id (cellId),"
+                 "sinr, 3gpp encoded sinr (convertedSinr)\n";
+          csv.close();
+          Simulator::Schedule(MicroSeconds(500), &LteEnbNetDevice::BuildAndSendReportMessage, this, E2Termination::RicSubscriptionRequest_rval_s{});
+
+          Simulator::Schedule(MicroSeconds(1000), &LteEnbNetDevice::ReadControlFile, this);
+        }
+      }
     }
   else
     {
@@ -428,5 +659,366 @@ LteEnbNetDevice::UpdateConfig (void)
     }
 }
 
+Ptr<E2Termination>
+LteEnbNetDevice::GetE2Termination() const
+{
+  return m_e2term;
+}
+
+void
+LteEnbNetDevice::SetE2Termination(Ptr<E2Termination> e2term)
+{
+  m_e2term = e2term;
+
+  NS_LOG_DEBUG("Register E2SM");
+
+  if (!m_forceE2FileLogging)
+    {
+      Ptr<KpmFunctionDescription> kpmFd = Create<KpmFunctionDescription> ();
+      e2term->RegisterKpmCallbackToE2Sm (
+          200, kpmFd,
+          std::bind (&LteEnbNetDevice::KpmSubscriptionCallback, this, std::placeholders::_1));
+
+      Ptr<RicControlFunctionDescription> ricCtrlFd = Create<RicControlFunctionDescription> ();
+      e2term->RegisterSmCallbackToE2Sm (300, ricCtrlFd,
+                                        std::bind (&LteEnbNetDevice::ControlMessageReceivedCallback,
+                                                   this, std::placeholders::_1));
+    }
+}
+
+std::string
+LteEnbNetDevice::GetImsiString(uint64_t imsi)
+{
+  std::string ueImsi = std::to_string(imsi);
+  std::string ueImsiComplete {};
+  if (ueImsi.length() == 1)
+  {
+    ueImsiComplete = "0000" + ueImsi;
+  }
+  else if (ueImsi.length() == 2)
+  {
+    ueImsiComplete = "000" + ueImsi;
+  }
+  else
+  {
+    ueImsiComplete = "00" + ueImsi;
+  }
+  return ueImsiComplete;
+}
+
+Ptr<KpmIndicationHeader>
+LteEnbNetDevice::BuildRicIndicationHeader (std::string plmId, std::string gnbId, uint16_t nrCellId)
+{
+  if (!m_forceE2FileLogging)
+    {
+      KpmIndicationHeader::KpmRicIndicationHeaderValues headerValues;
+      headerValues.m_plmId = plmId;
+      headerValues.m_gnbId = gnbId;
+      headerValues.m_nrCellId = nrCellId;
+      auto time = Simulator::Now ();
+      uint64_t timestamp = m_startTime + (uint64_t) time.GetMilliSeconds ();
+      NS_LOG_DEBUG ("NR plmid " << plmId << " gnbId " << gnbId << " nrCellId " << nrCellId);
+      NS_LOG_DEBUG ("Timestamp " << timestamp);
+      headerValues.m_timestamp = timestamp;
+      Ptr<KpmIndicationHeader> header =
+          Create<KpmIndicationHeader> (KpmIndicationHeader::GlobalE2nodeType::eNB, headerValues);
+
+      return header;
+    }
+  else
+    {
+      return nullptr;
+    }
+}
+
+Ptr<KpmIndicationMessage>
+LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
+{
+  Ptr<LteIndicationMessageHelper> indicationMessageHelper =
+      Create<LteIndicationMessageHelper> (IndicationMessageHelper::IndicationMessageType::CuUp,
+                                          m_forceE2FileLogging, m_reducedPmValues);
+
+  // get <rnti, UeManager> map of connected UEs
+  auto ueMap = m_rrc->GetUeMap();
+  // gNB-wide PDCP volume in downlink
+  double cellDlTxVolume = 0;
+
+  // sum of the per-user average latency
+  double perUserAverageLatencySum = 0;
+
+  std::unordered_map<uint64_t, std::string> uePmString {};
+
+  for (auto ue : ueMap)
+  {
+    uint64_t imsi = ue.second->GetImsi();
+    std::string ueImsiComplete = GetImsiString(imsi);
+
+    // TODO fix types
+    long txDlPackets = m_e2PdcpStatsCalculator->GetDlTxPackets(imsi, 3); // LCID 3 is used for data
+    double txBytes = m_e2PdcpStatsCalculator->GetDlTxData(imsi, 3)  * 8 / 1e3; // in kbit, not byte
+    cellDlTxVolume += txBytes;
+
+    long txPdcpPduLteRlc = 0;
+    double txPdcpPduBytesLteRlc = 0;
+    auto drbMap = ue.second->GetDrbMap();
+    for (auto drb : drbMap)
+    {
+      txPdcpPduLteRlc += drb.second->m_rlc->GetTxPacketsInReportingPeriod();
+      txPdcpPduBytesLteRlc += drb.second->m_rlc->GetTxBytesInReportingPeriod();
+      drb.second->m_rlc->ResetRlcCounters();
+    }
+    auto rlcMap = ue.second->GetRlcMap(); // secondary-connected RLCs
+    for (auto drb : rlcMap)
+    {
+      txPdcpPduLteRlc += drb.second->m_rlc->GetTxPacketsInReportingPeriod();
+      txPdcpPduBytesLteRlc += drb.second->m_rlc->GetTxBytesInReportingPeriod();
+      drb.second->m_rlc->ResetRlcCounters();
+    }
+    txPdcpPduBytesLteRlc *= 8 / 1e3;
+
+    long txPdcpPduNrRlc = std::max(long(0), txDlPackets - txPdcpPduLteRlc);
+    double txPdcpPduBytesNrRlc = std::max(0.0, txBytes - txPdcpPduBytesLteRlc);
+
+    double pdcpLatency = m_e2PdcpStatsCalculator->GetDlDelay(imsi, 3) / 1e5; // unit: x 0.1 ms
+    perUserAverageLatencySum += pdcpLatency;
+
+    double pdcpThroughput = txBytes / m_e2Periodicity; // unit kbps
+
+    NS_LOG_UNCOND(Simulator::Now().GetSeconds() << " " << m_cellId << " cell, connected UE with IMSI " << imsi 
+      << " ueImsiString " << ueImsiComplete
+      << " txDlPackets " << txDlPackets 
+      << " txDlPacketsNr " << txPdcpPduNrRlc
+      << " txBytes " << txBytes 
+      << " txDlBytesNr " << txPdcpPduBytesNrRlc
+      << " pdcpLatency " << pdcpLatency 
+      << " pdcpThroughput " << pdcpThroughput);
+
+    m_e2PdcpStatsCalculator->ResetResultsForImsiLcid (imsi, 3);
+
+      if (!indicationMessageHelper->IsOffline ()){
+          indicationMessageHelper->AddCuUpUePmItem (ueImsiComplete, txBytes, txDlPackets,
+                                                    pdcpThroughput, pdcpLatency);
+      }
+
+    uePmString.insert(std::make_pair(imsi, std::to_string(txBytes) + "," +
+      std::to_string(txDlPackets) + "," +
+      std::to_string(pdcpThroughput) + "," +
+      std::to_string(pdcpLatency)));
+  }
+
+  // get average cell latency
+  double cellAverageLatency = 0; 
+  if (!ueMap.empty ())
+  {
+    cellAverageLatency = perUserAverageLatencySum / ueMap.size();
+  }
+    
+  NS_LOG_UNCOND(Simulator::Now().GetSeconds() << " " << m_cellId << " cell, connected UEs number " << ueMap.size() 
+      << " cellAverageLatency " << cellAverageLatency
+    );
+
+  if (!indicationMessageHelper->IsOffline ())
+    {
+      indicationMessageHelper->AddCuUpCellPmItem (cellAverageLatency);
+    }
+
+  // PDCP volume for the whole cell
+  if (!indicationMessageHelper->IsOffline ())
+    {
+      // pDCPBytesUL = 0 since it is not supported from the simulator
+      indicationMessageHelper->FillCuUpValues (plmId, 0, cellDlTxVolume);
+    }
+
+  NS_LOG_UNCOND(Simulator::Now().GetSeconds() << " " << m_cellId << " cell volume " << cellDlTxVolume);
+
+  if (m_forceE2FileLogging) {
+    std::ofstream csv {};
+    csv.open (m_cuUpFileName.c_str (),  std::ios_base::app);
+    if (!csv.is_open ())
+    {
+      NS_FATAL_ERROR ("Can't open file " << m_cuUpFileName.c_str ());
+    }
+
+    uint64_t timestamp = m_startTime + (uint64_t) Simulator::Now().GetMilliSeconds ();
+
+    // the string is timestamp, ueImsiComplete, DRB.PdcpSduDelayDl (cellAverageLatency), 
+    // m_pDCPBytesUL (0), m_pDCPBytesDL (cellDlTxVolume), DRB.PdcpSduVolumeDl_Filter.UEID (txBytes),
+    // Tot.PdcpSduNbrDl.UEID (txDlPackets), DRB.PdcpSduBitRateDl.UEID (pdcpThroughput),
+    // DRB.PdcpSduDelayDl.UEID (pdcpLatency), QosFlow.PdcpPduVolumeDL_Filter.UEID (txPdcpPduBytesNrRlc),
+    // DRB.PdcpPduNbrDl.Qos.UEID (txPdcpPduNrRlc)
+
+    // the last two are not available on LTE
+    for (auto ue : ueMap)
+    {
+      uint64_t imsi = ue.second->GetImsi();
+      std::string ueImsiComplete = GetImsiString(imsi);
+
+      auto uePms = uePmString.find(imsi)->second;
+
+      std::string to_print = std::to_string(timestamp) + "," + 
+        ueImsiComplete + "," +
+        std::to_string(cellAverageLatency) + "," +
+        std::to_string(0) + "," +
+        std::to_string(cellDlTxVolume) + "," +
+        uePms + ",,\n";
+
+      csv << to_print;
+    }
+    csv.close();
+    return nullptr;
+    }
+  else
+    {
+      return indicationMessageHelper->CreateIndicationMessage ();
+    }
+}
+
+Ptr<KpmIndicationMessage>
+LteEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
+{
+  Ptr<LteIndicationMessageHelper> indicationMessageHelper =
+      Create<LteIndicationMessageHelper> (IndicationMessageHelper::IndicationMessageType::CuCp,
+                                       m_forceE2FileLogging, m_reducedPmValues);
+
+  auto ueMap = m_rrc->GetUeMap();
+  auto ueMapSize = ueMap.size ();
+
+  std::unordered_map<uint64_t, std::string> uePmString {};
+
+  for (auto ue : ueMap)
+  {
+    uint64_t imsi = ue.second->GetImsi();
+    std::string ueImsiComplete = GetImsiString(imsi);
+    long numDrb = ue.second->GetDrbMap().size();
+
+    if (!indicationMessageHelper->IsOffline ())
+      {
+        // DRB.RelActNbr.5QI.UEID not modeled in the simulator
+        indicationMessageHelper->AddCuCpUePmItem (ueImsiComplete, numDrb, 0);
+      }
+
+    uePmString.insert(std::make_pair(imsi, std::to_string(numDrb) + "," +
+      std::to_string(0)));
+  }
+
+  if (!indicationMessageHelper->IsOffline ())
+    {
+      indicationMessageHelper->FillCuCpValues (ueMapSize);
+    }
+
+  if (m_forceE2FileLogging) {
+    std::ofstream csv {};
+    csv.open (m_cuCpFileName.c_str (),  std::ios_base::app);
+    if (!csv.is_open ())
+    {
+      NS_FATAL_ERROR ("Can't open file " << m_cuCpFileName.c_str ());
+    }
+
+    NS_LOG_UNCOND ("m_cuCpFileName open " << m_cuCpFileName);
+
+    // the string is timestamp, ueImsiComplete, numActiveUes, DRB.EstabSucc.5QI.UEID (numDrb), DRB.RelActNbr.5QI.UEID (0)
+
+    uint64_t timestamp = m_startTime + (uint64_t) Simulator::Now ().GetMilliSeconds ();
+
+    for (auto ue : ueMap)
+    {
+      uint64_t imsi = ue.second->GetImsi();
+      std::string ueImsiComplete = GetImsiString(imsi);
+
+      auto uePms = uePmString.find(imsi)->second;
+
+      std::string to_print = std::to_string (timestamp) + "," + ueImsiComplete + "," +
+                             std::to_string (ueMapSize) + "," + uePms + ",,,,,,," +
+                             "\n";
+
+      NS_LOG_UNCOND(to_print);
+
+      csv << to_print;
+    }
+
+    csv.close ();
+    
+    return nullptr;
+    }
+  else
+    {
+      return indicationMessageHelper->CreateIndicationMessage ();
+    }
+}
+
+void
+LteEnbNetDevice::BuildAndSendReportMessage(E2Termination::RicSubscriptionRequest_rval_s params)
+{
+  std::string plmId = "111";
+  std::string gnbId = std::to_string(m_cellId);
+
+  // TODO here we can get something from RRC and onward
+  NS_LOG_UNCOND("LteEnbNetDevice " << m_cellId << " BuildAndSendMessage at time " << Simulator::Now().GetSeconds());
+  
+  if(m_sendCuUp)
+  {
+    // Create CU-UP
+    Ptr<KpmIndicationHeader> header = BuildRicIndicationHeader(plmId, gnbId, m_cellId);
+    Ptr<KpmIndicationMessage> cuUpMsg = BuildRicIndicationMessageCuUp(plmId);
+    
+    // Send CU-UP only if offline logging is disabled
+    if (!m_forceE2FileLogging && header != nullptr && cuUpMsg != nullptr)
+    {
+      NS_LOG_DEBUG ("Send LTE CU-UP");
+      E2AP_PDU *pdu_cuup_ue = new E2AP_PDU; 
+      encoding::generate_e2apv1_indication_request_parameterized(pdu_cuup_ue, 
+                                                               params.requestorId,
+                                                               params.instanceId,
+                                                               params.ranFuncionId,
+                                                               params.actionId,
+                                                               1, // TODO sequence number  
+                                                               (uint8_t*) header->m_buffer, // buffer containing the encoded header
+                                                               header->m_size, // size of the encoded header
+                                                               (uint8_t*) cuUpMsg->m_buffer, // buffer containing the encoded message
+                                                               cuUpMsg->m_size); // size of the encoded message
+      m_e2term->SendE2Message (pdu_cuup_ue);
+      delete pdu_cuup_ue;
+    }
+  }
+
+  if(m_sendCuCp)
+  {
+    // Create CU-CP
+    Ptr<KpmIndicationHeader> header = BuildRicIndicationHeader(plmId, gnbId, m_cellId);
+    Ptr<KpmIndicationMessage> cuCpMsg = BuildRicIndicationMessageCuCp(plmId);
+
+    // Send CU-CP only if offline logging is disabled
+    if (!m_forceE2FileLogging && header != nullptr && cuCpMsg != nullptr)
+    {
+      NS_LOG_DEBUG ("Send LTE CU-CP");
+      E2AP_PDU *pdu_cucp_ue = new E2AP_PDU; 
+      encoding::generate_e2apv1_indication_request_parameterized(pdu_cucp_ue, 
+                                                                 params.requestorId,
+                                                                 params.instanceId,
+                                                                 params.ranFuncionId,
+                                                                 params.actionId,
+                                                                 1, // TODO sequence number  
+                                                                 (uint8_t*) header->m_buffer, // buffer containing the encoded header
+                                                                 header->m_size, // size of the encoded header
+                                                                 (uint8_t*) cuCpMsg->m_buffer, // buffer containing the encoded message
+                                                                 cuCpMsg->m_size); // size of the encoded message  
+      m_e2term->SendE2Message (pdu_cucp_ue);
+      delete pdu_cucp_ue;
+    }
+  }
+  
+  if (!m_forceE2FileLogging)
+    Simulator::ScheduleWithContext (1, Seconds (m_e2Periodicity),
+                                    &LteEnbNetDevice::BuildAndSendReportMessage, this, params);
+  else
+    Simulator::Schedule (Seconds (m_e2Periodicity), &LteEnbNetDevice::BuildAndSendReportMessage,
+                         this, params);
+}
+
+void
+LteEnbNetDevice::SetStartTime (uint64_t st)
+{
+  m_startTime = st;
+}
 
 } // namespace ns3

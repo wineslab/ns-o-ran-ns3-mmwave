@@ -190,6 +190,7 @@ void
 MmWaveBearerStatsCalculator::DlTxPdu (uint16_t cellId, uint64_t imsi, uint16_t rnti, uint8_t lcid, uint32_t packetSize)
 {
   NS_LOG_FUNCTION (this << "DlTxPDU" << cellId << imsi << rnti << (uint32_t) lcid << packetSize);
+
   if(m_aggregatedStats)
   {
     ImsiLcidPair_t p (imsi, lcid);
@@ -251,6 +252,10 @@ MmWaveBearerStatsCalculator::UlRxPdu (uint16_t cellId, uint64_t imsi, uint16_t r
     m_ulOutFile << "Rx\t" << Simulator::Now ().GetNanoSeconds () / 1.0e9 << "\t" 
     << cellId << "\t" << imsi << "\t" << rnti << "\t" << (uint32_t) lcid << "\t" 
     << packetSize << "\t" << delay << "\t" << std::endl;
+
+    NS_LOG_DEBUG ("Rx\t" << Simulator::Now ().GetNanoSeconds () / 1.0e9 << "\t" 
+    << cellId << "\t" << imsi << "\t" << rnti << "\t" << (uint32_t) lcid << "\t" 
+    << packetSize << "\t" << delay << "\t" << std::endl);
   }
 }
 
@@ -258,6 +263,7 @@ void
 MmWaveBearerStatsCalculator::DlRxPdu (uint16_t cellId, uint64_t imsi, uint16_t rnti, uint8_t lcid, uint32_t packetSize, uint64_t delay)
 {
   NS_LOG_FUNCTION (this << "DlRxPDU" << cellId << imsi << rnti << (uint32_t) lcid << packetSize << delay);
+
   if(m_aggregatedStats)
   {
     ImsiLcidPair_t p (imsi, lcid);
@@ -289,6 +295,9 @@ MmWaveBearerStatsCalculator::DlRxPdu (uint16_t cellId, uint64_t imsi, uint16_t r
     m_dlOutFile << "Rx\t" << Simulator::Now ().GetNanoSeconds () / 1.0e9 << "\t" 
     << cellId << "\t" << imsi << "\t" << rnti << "\t" << (uint32_t) lcid << "\t" 
     << packetSize << "\t" << delay << "\t" << std::endl;
+    NS_LOG_DEBUG ("Rx\t" << Simulator::Now ().GetNanoSeconds () / 1.0e9 << "\t" 
+    << cellId << "\t" << imsi << "\t" << rnti << "\t" << (uint32_t) lcid << "\t" 
+    << packetSize << "\t" << delay << "\t" << std::endl);
   }
 }
 
@@ -459,6 +468,75 @@ MmWaveBearerStatsCalculator::ResetResults (void)
   m_dlTxData.erase (m_dlTxData.begin (), m_dlTxData.end ());
   m_dlDelay.erase (m_dlDelay.begin (), m_dlDelay.end ());
   m_dlPduSize.erase (m_dlPduSize.begin (), m_dlPduSize.end ());
+}
+
+
+void
+MmWaveBearerStatsCalculator::ResetResultsForImsiLcid (uint64_t imsi, uint16_t lcid)
+{
+  NS_LOG_FUNCTION (this);
+
+  auto ulTxPacketsEntry = m_ulTxPackets.find(ImsiLcidPair_t(imsi, lcid));
+  if(ulTxPacketsEntry != m_ulTxPackets.end())
+  {
+    m_ulTxPackets.erase (ulTxPacketsEntry);
+  }
+  auto ulRxPacketsEntry = m_ulRxPackets.find(ImsiLcidPair_t(imsi, lcid));
+  if(ulRxPacketsEntry != m_ulRxPackets.end())
+  {
+    m_ulRxPackets.erase (ulRxPacketsEntry);
+  }
+  auto ulRxDataEntry = m_ulRxData.find(ImsiLcidPair_t(imsi, lcid));
+  if(ulRxDataEntry != m_ulRxData.end())
+  {
+    m_ulRxData.erase (ulRxDataEntry);
+  }
+  auto ulTxDataEntry = m_ulTxData.find(ImsiLcidPair_t(imsi, lcid));
+  if(ulTxDataEntry != m_ulTxData.end())
+  {
+    m_ulTxData.erase (ulTxDataEntry);
+  }
+  auto ulDelayEntry = m_ulDelay.find(ImsiLcidPair_t(imsi, lcid));
+  if(ulDelayEntry != m_ulDelay.end())
+  {
+    m_ulDelay.erase (ulDelayEntry);
+  }
+  auto ulPduSizeEntry = m_ulPduSize.find(ImsiLcidPair_t(imsi, lcid));
+  if(ulPduSizeEntry != m_ulPduSize.end())
+  {
+    m_ulPduSize.erase (ulPduSizeEntry);
+  }
+
+  auto dlTxPacketsEntry = m_dlTxPackets.find(ImsiLcidPair_t(imsi, lcid));
+  if(dlTxPacketsEntry != m_dlTxPackets.end())
+  {
+    m_dlTxPackets.erase (dlTxPacketsEntry);
+  }
+  auto dlRxPacketsEntry = m_dlRxPackets.find(ImsiLcidPair_t(imsi, lcid));
+  if(dlRxPacketsEntry != m_dlRxPackets.end())
+  {
+    m_dlRxPackets.erase (dlRxPacketsEntry);
+  }
+  auto dlRxDatEntry = m_dlRxData.find(ImsiLcidPair_t(imsi, lcid));
+  if(dlRxDatEntry != m_dlRxData.end())
+  {
+    m_dlRxData.erase (dlRxDatEntry);
+  }
+  auto dlTxDataEntry = m_dlTxData.find(ImsiLcidPair_t(imsi, lcid));
+  if(dlTxDataEntry != m_dlTxData.end())
+  {
+    m_dlTxData.erase (dlTxDataEntry);
+  }
+  auto dlDelayEntry = m_dlDelay.find(ImsiLcidPair_t(imsi, lcid));
+  if(dlDelayEntry != m_dlDelay.end())
+  {
+    m_dlDelay.erase (dlDelayEntry);
+  }
+  auto dlPduSizeEntry = m_dlPduSize.find(ImsiLcidPair_t(imsi, lcid));
+  if(dlPduSizeEntry != m_dlPduSize.end())
+  {
+    m_dlPduSize.erase (dlPduSizeEntry);
+  }
 }
 
 void

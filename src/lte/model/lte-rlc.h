@@ -192,6 +192,20 @@ public:
   /// \todo MRE What is the sense to duplicate all the interfaces here???
   // NB to avoid the use of multiple inheritance
 
+  uint32_t GetTxBytesInReportingPeriod() const {
+    return m_txBytesInReportingPeriod;
+  }
+
+  uint32_t GetTxPacketsInReportingPeriod() const {
+    return m_txPacketsInReportingPeriod;
+  }
+
+  void ResetRlcCounters () {
+    m_txBytesInReportingPeriod = 0;
+    m_txPacketsInReportingPeriod = 0;
+  }
+
+
 protected:
   // Interface forwarded by LteRlcSapProvider
   /**
@@ -250,6 +264,8 @@ protected:
   EpcX2RlcProvider* m_epcX2RlcProvider;
   EpcX2RlcUser* m_epcX2RlcUser;
 
+  uint32_t m_txPacketsInReportingPeriod;
+  uint32_t m_txBytesInReportingPeriod;
 };
 
 

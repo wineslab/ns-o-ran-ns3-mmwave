@@ -67,7 +67,7 @@ public:
   virtual void DoReceivePdu (LteMacSapUser::ReceivePduParameters params);
 
   std::vector < Ptr<Packet> > GetTxBuffer();
-  uint32_t GetTxBufferSize()
+  uint32_t GetTxBufferSize() const
   {
     return m_txBufferSize;
   }

@@ -105,7 +105,9 @@ LteRlc::LteRlc ()
     m_rnti (0),
     m_lcid (0),
     m_imsi (0),
-    isMc(false) // TODO refactor this!!
+    isMc(false), // TODO refactor this!!
+    m_txPacketsInReportingPeriod(0),
+    m_txBytesInReportingPeriod(0)
 {
   NS_LOG_FUNCTION (this);
   m_rlcSapProvider = new LteRlcSpecificLteRlcSapProvider<LteRlc> (this);
