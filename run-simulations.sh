@@ -22,7 +22,7 @@ EnableE2FileLogging=1 # enable offline generation of data
 ues=3 # Number of UEs for each mmWave ENB
 
 # Select 0 or 1 to switch between the optimized or debug build
-build=0
+build=1
 if [[ build -eq 0 ]];then
   # Debug build
    echo "Build ns-3 in debug mode"
