@@ -3704,6 +3704,12 @@ LteEnbRrc::DoRecvUeSinrUpdate(EpcX2SapUser::UeImsiSinrParams params)
     m_cellSinrMap.insert(std::pair<uint16_t, ImsiSinrMap> (mmWaveCellId, params.ueImsiSinrMap));
     m_numNewSinrReports++;
   }
+
+  // add the cell to the list of cells that need to be tracked for on/off state and handover barring
+  if(m_allowHandoverTo.find(mmWaveCellId) == m_allowHandoverTo.end()) {
+    m_allowHandoverTo.insert(std::pair<uint16_t, bool> (mmWaveCellId, true));
+  }
+
   // cycle on all the Imsi whose SINR is known in cell mmWaveCellId
   for(std::map<uint64_t, double>::iterator imsiIter = params.ueImsiSinrMap.begin(); imsiIter != params.ueImsiSinrMap.end(); ++imsiIter)
   {
@@ -4271,12 +4277,19 @@ LteEnbRrc::TriggerUeAssociationUpdate()
 
       for(CellSinrMap::iterator cellIter = imsiIter->second.begin(); cellIter != imsiIter->second.end(); ++cellIter)
       {
-        NS_LOG_INFO("Cell " << cellIter->first << " reports " << 10*std::log10(cellIter->second));
-        if(cellIter->second > maxSinr)
-        {
-          maxSinr = cellIter->second;
-          maxSinrCellId = cellIter->first;
+        // check if the BS is barred from HOs and in case ignore it
+        if(m_allowHandoverTo.find(cellIter->first)->second) {
+          NS_LOG_INFO("Cell " << cellIter->first << " reports " << 10*std::log10(cellIter->second));
+          if(cellIter->second > maxSinr)
+          {
+            maxSinr = cellIter->second;
+            maxSinrCellId = cellIter->first;
+          }
         }
+        else {
+          NS_LOG_DEBUG("Cell " << cellIter->first << " reports " << 10*std::log10(cellIter->second) << " but HO not allowed to");
+        }
+
         if(m_lastMmWaveCell[imsi] == cellIter->first)
         {
           currentSinr = cellIter->second;
@@ -5520,6 +5533,117 @@ LteEnbRrc::SendSystemInformation ()
    * systems the periodicy of each SIBs could be different.
    */
   Simulator::Schedule (m_systemInformationPeriodicity, &LteEnbRrc::SendSystemInformation, this);
+}
+
+
+bool 
+LteEnbRrc::SetSecondaryCellHandoverAllowedStatus (uint16_t cellId, bool hoAllowed)
+{
+  auto entry = m_allowHandoverTo.find(cellId);
+  if (entry != m_allowHandoverTo.end())
+  {
+    NS_LOG_DEBUG("HO bar for cell " << cellId << " status from " << entry->second << " to " << hoAllowed);
+    entry->second = hoAllowed;
+    return true;
+  }
+  else 
+  {
+    return false;
+  }
+}
+
+
+void 
+LteEnbRrc::EvictUsersFromSecondaryCell ()
+{
+  // cycle on UEs of that cell
+  if(m_imsiCellSinrMap.size() > 0) // there are some entries
+  {
+    NS_LOG_DEBUG("Evict users from disabled cells");
+
+    for(std::map<uint64_t, CellSinrMap>::iterator imsiIter = m_imsiCellSinrMap.begin(); imsiIter != m_imsiCellSinrMap.end(); ++imsiIter)
+    {
+      uint64_t imsi = imsiIter->first;
+
+      // if (m_e2ControlledUes.find (imsi) != m_e2ControlledUes.end ())
+      // {
+      //   // HO for this UE is controlled externally
+      //   continue;
+      // }
+      
+      long double maxSinr = 0;
+      uint16_t maxSinrCellId = 0;
+      bool alreadyAssociatedImsi = false;
+      bool onHandoverImsi = true;
+      Ptr<UeManager> ueMan;
+      // On RecvRrcConnectionRequest for a new RNTI, the Lte Enb RRC stores the imsi
+      // of the UE and insert a new false entry in m_mmWaveCellSetupCompleted.
+      // After the first connection to a MmWave eNB, the entry becomes true.
+      // When an handover between MmWave cells is triggered, it is set to false.
+      if(m_mmWaveCellSetupCompleted.find(imsi) != m_mmWaveCellSetupCompleted.end())
+      {
+        alreadyAssociatedImsi = true;
+        //onHandoverImsi = (!m_switchEnabled) ? true : !m_mmWaveCellSetupCompleted.find(imsi)->second;
+        onHandoverImsi = !m_mmWaveCellSetupCompleted.find(imsi)->second;
+
+        // get current cell
+        uint16_t cellId = m_lastMmWaveCell[imsi];
+        if (m_allowHandoverTo.find(cellId)->second || (m_allowHandoverTo.find(cellId) == m_allowHandoverTo.end())) {
+          // the user can still camp here, skip the rest of this for loop
+          continue;
+        }
+      }
+      else
+      {
+        // the user is not on a mmWave/NR cell, go to the next
+        continue;
+      }
+      
+      NS_LOG_INFO("imsi " << imsi << " needs to move from cell " << m_lastMmWaveCell[imsi] << " alreadyAssociatedImsi " << alreadyAssociatedImsi << " onHandoverImsi " << onHandoverImsi);
+
+      // check best mmWave/NR BS
+      for(CellSinrMap::iterator cellIter = imsiIter->second.begin(); cellIter != imsiIter->second.end(); ++cellIter)
+      {
+        // check if the BS is barred from HOs and in case ignore it
+        if(m_allowHandoverTo.find(cellIter->first)->second) {
+          NS_LOG_INFO("Cell " << cellIter->first << " reports " << 10*std::log10(cellIter->second));
+          if(cellIter->second > maxSinr)
+          {
+            maxSinr = cellIter->second;
+            maxSinrCellId = cellIter->first;
+          }
+        }
+        else {
+          NS_LOG_DEBUG("Cell " << cellIter->first << " reports " << 10*std::log10(cellIter->second) << " but HO not allowed to");
+        }
+      }
+  
+      m_bestMmWaveCellForImsiMap[imsi] = maxSinrCellId;
+        
+      // start HO immediately - cannot use FixedTtt or DynamicTtt or ThresholdBased
+      NS_LOG_DEBUG("Start HO to evict the user to cell " << maxSinrCellId);
+      
+      // schedule the event
+      EventId scheduledHandoverEvent = Simulator::Schedule(MilliSeconds(0), &LteEnbRrc::PerformHandover, this, imsi);
+      LteEnbRrc::HandoverEventInfo handoverInfo;
+      handoverInfo.sourceCellId = m_lastMmWaveCell[imsi];
+      handoverInfo.targetCellId = maxSinrCellId;
+      handoverInfo.scheduledHandoverEvent = scheduledHandoverEvent;
+      HandoverEventMap::iterator handoverEvent = m_imsiHandoverEventsMap.find(imsi);
+      if(handoverEvent != m_imsiHandoverEventsMap.end()) // another event was scheduled
+      {
+        // cancel prev event
+        handoverEvent->second.scheduledHandoverEvent.Cancel();
+
+        // save new event
+        handoverEvent->second = handoverInfo;
+      }
+      else
+      {
+        m_imsiHandoverEventsMap.insert(std::pair<uint64_t, HandoverEventInfo> (imsi, handoverInfo));
+      }
+    }
+  }
 }
 
 

@@ -1597,6 +1597,19 @@ public:
    */
   void PerformHandoverToTargetCell (uint64_t imsi, uint16_t targetCellId);
 
+  /**
+   * Set mmWave/NR BS handover status (allowed or not)
+   * @params cellId
+   * @params a boolean that is true if the cell can accept handovers, false otherwise
+   * @returns false if the cell is not in the list of known cells
+   */
+  bool SetSecondaryCellHandoverAllowedStatus (uint16_t cellId, bool hoAllowed);
+
+  /**
+   * Evict users from secondary cells that have deactivated forcing handover to another cell
+   */
+  void EvictUsersFromSecondaryCell ();
+
 private:
 
   /**
@@ -1943,6 +1956,9 @@ private:
   std::map<uint64_t, CellSinrMap> m_imsiCellSinrMap;
   std::map<uint64_t, uint16_t> m_imsiRntiMap;
   std::map<uint16_t, uint64_t> m_rntiImsiMap;
+
+  // sleep mode for mmWave/NR BSs controlled by the LTE eNB
+  std::map<uint16_t, bool> m_allowHandoverTo;  // cellId, true if HO is allowed, false if not
 
   HandoverMode m_handoverMode;
 

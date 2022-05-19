@@ -294,7 +294,7 @@ private:
   std::string m_cuUpFileName;
   std::string m_cuCpFileName;
 
-  std::string m_handoverControlFilename;
+  std::string m_controlFilename;
   int m_lastValidTimestamp {0};
 
 

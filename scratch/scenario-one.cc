@@ -219,6 +219,9 @@ static ns3::GlobalValue
               "If true, generate offline file logging instead of connecting to RIC",
               ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
 
+// static ns3::GlobalValue g_controlFileName ("controlFileName", "The path to the control file (can be absolute)",
+//                                     ns3::StringValue ("qos_actions.csv"), ns3::MakeStringChecker ());
+
 static ns3::GlobalValue g_minSpeed ("minSpeed",
                                            "minimum UE speed in m/s",
                                            ns3::DoubleValue (2.0),
@@ -296,13 +299,17 @@ main (int argc, char *argv[])
   double minSpeed = doubleValue.Get ();
   GlobalValue::GetValueByName ("maxSpeed", doubleValue);
   double maxSpeed = doubleValue.Get ();
+  // GlobalValue::GetValueByName ("controlFileName", stringValue);
+  // std::string controlFileName = stringValue.Get ();
 
   NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << bufferSize
                                  << " traffic Model " << trafficModel << " OutageThreshold "
                                  << outageThreshold << " HandoverMode " << handoverMode
                                  << " BasicCellId " << basicCellId << " e2TermIp " << e2TermIp
                                  << " enableE2FileLogging " << enableE2FileLogging << " minSpeed "
-                                 << minSpeed << " maxSpeed " << maxSpeed);
+                                 << minSpeed << " maxSpeed " << maxSpeed 
+                                //  << " controlFileName " << controlFileName
+                                 );
 
   //get current time
   time_t rawtime;
@@ -342,6 +349,8 @@ main (int argc, char *argv[])
   // since in the RLC/MAC/PHY entities are present in BOTH NR gNB as well as LTE eNB.
   // TODO DU reports from LTE eNB are not implemented yet
   Config::SetDefault ("ns3::MmWaveEnbNetDevice::EnableDuReport", BooleanValue(e2du));
+
+  // Config::SetDefault ("ns3::LteEnbNetDevice::ControlFileName", StringValue (controlFileName));
 
   // The CU-UP PM reports should only come from LTE eNB, since in the NS3 “EN-DC 
   // simulation (Option 3A)”, the PDCP is only in the LTE eNB and NOT in the NR gNB

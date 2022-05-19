@@ -92,68 +92,117 @@ LteEnbNetDevice::KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu)
   }
 }
 
-void 
+void
 LteEnbNetDevice::ReadControlFile ()
 {
   // open the control file and read handover commands
-  if (m_handoverControlFilename != "") {
-    std::ifstream csv {};
-    csv.open (m_handoverControlFilename.c_str (), std::ifstream::in);
-
-    if (!csv.is_open ())
+  if (m_controlFilename != "")
     {
-      NS_FATAL_ERROR ("Can't open file " << m_handoverControlFilename.c_str ());
-    }
+      std::ifstream csv{};
+      csv.open (m_controlFilename.c_str (), std::ifstream::in);
+      if (!csv.is_open ())
+        {
+          NS_FATAL_ERROR ("Can't open file " << m_controlFilename.c_str ());
+        }
+      std::string line;
 
-    std::string line;
+      if (m_controlFilename.find("ts_actions_for_ns3.csv") != std::string::npos)
+        {
 
-    long long ts {};
+          long long timestamp{};
 
-    while (std::getline(csv,line))
-    {
-      if(line == "") 
-      {
-        // skip empty lines
-        continue;
+          while (std::getline (csv, line))
+            {
+              if (line == "")
+                {
+                  // skip empty lines
+                  continue;
+                }
+              NS_LOG_INFO ("Read handover command");
+              std::stringstream lineStream (line);
+              std::string cell;
+
+              std::getline (lineStream, cell, ',');
+              timestamp = std::stoll (cell);
+
+              uint64_t imsi;
+              std::getline (lineStream, cell, ',');
+              imsi = std::stoi (cell);
+
+              uint16_t targetCellId;
+              std::getline (lineStream, cell, ',');
+              // uncomment the next line if need to remove PLM ID, first 3 digits always 111
+              // cell.erase(0, 3);
+              targetCellId = std::stoi (cell);
+
+              NS_LOG_INFO ("Handover command for timestamp " << timestamp << " imsi " << imsi << " targetCellId "
+                                                      << targetCellId);
+
+              m_rrc->TakeUeHoControl (imsi);
+              Simulator::ScheduleWithContext (1, Seconds (0),
+                                              &LteEnbRrc::PerformHandoverToTargetCell, m_rrc, imsi,
+                                              targetCellId);
+            }
+        }
+      else if (m_controlFilename.find("es_actions_for_ns3.csv") != std::string::npos)
+        {
+          long long timestamp{};
+          uint8_t counter = 0;
+
+          while (std::getline (csv, line))
+            {
+              if (line == "")
+                {
+                  // skip empty lines
+                  continue;
+                }
+              NS_LOG_INFO ("Read evict users command");
+              counter++;
+              std::stringstream lineStream (line);
+              std::string cell;
+
+              std::getline (lineStream, cell, ',');
+              timestamp = std::stoll (cell);
+
+              uint16_t cellId;
+              std::getline (lineStream, cell, ',');
+              // uncomment the next line if need to remove PLM ID, first 3 digits always 111
+              // cell.erase(0, 3);
+              cellId = std::stoi (cell);
+
+              bool hoAllowed; // TODO check what value is written in the file (should be 0 for false and 1 for true now)
+              std::getline (lineStream, cell, ',');
+              hoAllowed = std::stoi (cell);
+
+              NS_LOG_INFO ("Set allowed command with timestamp " << timestamp << " cellId " << cellId
+                                                      << "hoAllowed" << hoAllowed);
+
+              m_rrc->SetSecondaryCellHandoverAllowedStatus (cellId, hoAllowed); // set the status of the cell (On/Off)
+            }
+
+          if (counter > 0) // we want this to be triggered only when we have the file
+            m_rrc->EvictUsersFromSecondaryCell (); // Triggers the handovers for UEs in the Off cells
+        }
+      else if (m_controlFilename == "qos_actions.csv")
+        {
+          NS_LOG_ERROR ("QoS use case not implemented yet");
+        }
+      else{
+          NS_LOG_ERROR ("Unknown use case not implemented yet with filename:" << m_controlFilename);
       }
-      NS_LOG_INFO("Read handover command");
-      std::stringstream lineStream(line);
-      std::string cell;
 
-      std::getline(lineStream, cell, ',');
-      ts = std::stoll(cell);
+      csv.close ();
 
-      uint64_t imsi;
-      std::getline(lineStream, cell, ',');
-      imsi = std::stoi(cell);
+      std::ofstream csvDelete{};
+      csvDelete.open (m_controlFilename.c_str ());
 
-      uint16_t targetCellId;
-      std::getline(lineStream, cell, ',');
-      // uncomment the next line if need to remove PLM ID, first 3 digits always 111
-      // cell.erase(0, 3);
-      targetCellId = std::stoi(cell);
-
-      NS_LOG_INFO("Handover command for ts " << ts << " imsi " << imsi << " targetCellId " << targetCellId);
-
-
-        m_rrc->TakeUeHoControl (imsi);
-        Simulator::ScheduleWithContext (1, Seconds (0), &LteEnbRrc::PerformHandoverToTargetCell, m_rrc,
-                                     imsi, targetCellId);
+      NS_LOG_INFO ("File flushed");
     }
 
-    csv.close();
-
-    std::ofstream csvDelete {};
-    csvDelete.open(m_handoverControlFilename.c_str ());
-
-    NS_LOG_INFO("File flushed");
-
-  }
-
-  // TODO check if we need to run multiple times in a m_e2Periodicity time delta, to catch 
-  // handover commands that are late
+  // TODO check if we need to run multiple times in a m_e2Periodicity time delta,
+  // to catch commands that are late
   // We can run every ms, if the file is empty, do not do anything
-  Simulator::Schedule(Seconds(0.001), &LteEnbNetDevice::ReadControlFile, this);
+  Simulator::Schedule (Seconds (0.001), &LteEnbNetDevice::ReadControlFile, this);
 }
 
 void 
@@ -301,7 +350,7 @@ TypeId LteEnbNetDevice::GetTypeId (void)
                    MakePointerAccessor (&LteEnbNetDevice::m_e2RlcStatsCalculator),
                    MakePointerChecker <mmwave::MmWaveBearerStatsCalculator> ())
     .AddAttribute ("E2Periodicity",
-                   "Periodicity of E2 reporting",
+                   "Periodicity of E2 reporting (value in seconds)",
                    DoubleValue (0.1),
                    MakeDoubleAccessor (&LteEnbNetDevice::m_e2Periodicity),
                    MakeDoubleChecker<double> ())
@@ -325,10 +374,14 @@ TypeId LteEnbNetDevice::GetTypeId (void)
                    BooleanValue (false),
                    MakeBooleanAccessor (&LteEnbNetDevice::m_forceE2FileLogging),
                    MakeBooleanChecker ())
-    .AddAttribute ("HandoverControlFileName",
-                   "Filename for the handover control. Contains multiple lines with ts, imsi, targetCellId and is delete after every read",
+    .AddAttribute ("ControlFileName",
+                   "Filename for the stand alone control mode. The file is deleted after every read."
+                   "Format should correspond to the particular use case:\n"
+                   "TS: Contains multiple lines with ts, imsi, targetCellId\n"
+                   "QoS: TBD\n"
+                   "EE: Contains multiple lines with ts, cellId, action",
                    StringValue(""),
-                   MakeStringAccessor (&LteEnbNetDevice::m_handoverControlFilename),
+                   MakeStringAccessor (&LteEnbNetDevice::m_controlFilename),
                    MakeStringChecker())
   ;
   return tid;

@@ -135,7 +135,7 @@ TypeId MmWaveEnbNetDevice::GetTypeId ()
                    MakePointerAccessor (&MmWaveEnbNetDevice::m_e2PdcpStatsCalculator),
                    MakePointerChecker <MmWaveBearerStatsCalculator> ())
     .AddAttribute ("E2Periodicity",
-                   "Periodicity of E2 reporting",
+                   "Periodicity of E2 reporting (value in seconds)",
                    DoubleValue (0.1),
                    MakeDoubleAccessor (&MmWaveEnbNetDevice::m_e2Periodicity),
                    MakeDoubleChecker<double> ())
