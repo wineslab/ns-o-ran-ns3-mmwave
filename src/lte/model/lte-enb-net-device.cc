@@ -42,6 +42,7 @@
 #include <ns3/lte-enb-rrc.h>
 #include <ns3/lte-ue-net-device.h>
 #include <ns3/lte-enb-phy.h>
+#include <ns3/mc-enb-pdcp.h>
 #include <ns3/ff-mac-scheduler.h>
 #include <ns3/lte-handover-algorithm.h>
 #include <ns3/lte-anr.h>
@@ -236,10 +237,12 @@ LteEnbNetDevice::ReadControlFile ()
               double percentage = uePercentage.second;
               auto ueManager = m_rrc->GetUeManager (ueId);
               auto drbMap = ueManager->GetDrbMap ();
-              for(auto drb:drbMap){
+              for (auto drb : drbMap)
+                {
                   auto dataBearer = drb.second;
-                  auto pdcp = dataBearer->m_pdcp;
-                  pdcp->SetAttribute ("", DoubleValue (percentage));
+                  Ptr<McEnbPdcp> pdcp = DynamicCast<McEnbPdcp> (dataBearer->m_pdcp);
+                  if (pdcp != 0)
+                    pdcp->SetAttribute ("perPckToLTE", DoubleValue (percentage));
                 }
             }
         }
