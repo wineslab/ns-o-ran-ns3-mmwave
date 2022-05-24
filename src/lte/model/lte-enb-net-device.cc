@@ -106,7 +106,7 @@ LteEnbNetDevice::ReadControlFile ()
         }
       std::string line;
 
-      if (m_controlFilename.find("ts_actions_for_ns3.csv") != std::string::npos)
+      if (m_controlFilename.find ("ts_actions_for_ns3.csv") != std::string::npos)
         {
 
           long long timestamp{};
@@ -135,8 +135,8 @@ LteEnbNetDevice::ReadControlFile ()
               // cell.erase(0, 3);
               targetCellId = std::stoi (cell);
 
-              NS_LOG_INFO ("Handover command for timestamp " << timestamp << " imsi " << imsi << " targetCellId "
-                                                      << targetCellId);
+              NS_LOG_INFO ("Handover command for timestamp " << timestamp << " imsi " << imsi
+                                                             << " targetCellId " << targetCellId);
 
               m_rrc->TakeUeHoControl (imsi);
               Simulator::ScheduleWithContext (1, Seconds (0),
@@ -144,7 +144,7 @@ LteEnbNetDevice::ReadControlFile ()
                                               targetCellId);
             }
         }
-      else if (m_controlFilename.find("es_actions_for_ns3.csv") != std::string::npos)
+      else if (m_controlFilename.find ("es_actions_for_ns3.csv") != std::string::npos)
         {
           long long timestamp{};
           uint8_t counter = 0;
@@ -174,22 +174,80 @@ LteEnbNetDevice::ReadControlFile ()
               std::getline (lineStream, cell, ',');
               hoAllowed = std::stoi (cell);
 
-              NS_LOG_INFO ("Set allowed command with timestamp " << timestamp << " cellId " << cellId
-                                                      << "hoAllowed" << hoAllowed);
+              NS_LOG_INFO ("Set allowed command with timestamp " << timestamp << " cellId " << cellId << "hoAllowed" << hoAllowed);
 
               m_rrc->SetSecondaryCellHandoverAllowedStatus (cellId, hoAllowed); // set the status of the cell (On/Off)
             }
 
-          if (counter > 0) // we want this to be triggered only when we have the file
+          if (counter > 0) // we want this to be triggered only when we have some new data in the dale
             m_rrc->EvictUsersFromSecondaryCell (); // Triggers the handovers for UEs in the Off cells
         }
       else if (m_controlFilename == "qos_actions.csv")
         {
           NS_LOG_ERROR ("QoS use case not implemented yet");
+
+          long long timestamp{};
+          std::unordered_map<uint16_t, double> uePercentages{};
+          while (std::getline (csv, line))
+            {
+              if (line == "")
+                {
+                  // skip empty lines
+                  continue;
+                }
+              NS_LOG_INFO ("Read QoS command");
+              std::stringstream lineStream (line);
+              std::string data;
+
+              std::getline (lineStream, data, ',');
+              timestamp = std::stoll (data);
+
+              uint16_t ueId;
+              std::getline (lineStream, data, ',');
+              // uncomment the next line if need to remove PLM ID, first 3 digits always 111
+              // cell.erase(0, 3);
+              ueId = std::stoi (data);
+
+              double uePerc;
+              std::getline (lineStream, data, ',');
+              uePerc = std::stof (data);
+              if (uePerc < 0 || uePerc > 1)
+                {
+                  NS_LOG_ERROR ("Wrong value for ueid " << uePerc << " percentage ");
+                }
+              else
+                {
+                  NS_LOG_INFO ("Set ue percentage command with timestamp "
+                               << timestamp << " ueId " << ueId << "percentage" << uePerc);
+                  uePercentages.insert ({ueId, uePerc});
+                }
+            }
+          // rrc -> GetUeMap returns the map <rnti, UeManager> with all UEs in the BS
+          // get the UeManager for the user you want to control from this map, if you know the imsi you can use rrc-> GetImsiFromRnti
+          // get the drbMap from that UeManager (GetDrbMap), the map has <drbid, Ptr<LteDataRadioBearerInfo>>
+
+          // Ptr<LteDataRadioBearerInfo> has a pointer to the PDCP
+          // Call SetAttribute (“attr_name”, DoubleValue(perc)) on the PDCP object
+          auto ueMap = m_rrc->GetUeMap ();
+          for (std::pair<uint16_t, double> uePercentage : uePercentages)
+            {
+              // uint64_t ueId = m_rrc->GetImsiFromRnti (uePercentage.first); // TODO check if we need this
+              uint16_t ueId = uePercentage.first;
+              double percentage = uePercentage.second;
+              auto ueManager = m_rrc->GetUeManager (ueId);
+              auto drbMap = ueManager->GetDrbMap ();
+              for(auto drb:drbMap){
+                  auto dataBearer = drb.second;
+                  auto pdcp = dataBearer->m_pdcp;
+                  pdcp->SetAttribute ("", DoubleValue (percentage));
+                }
+            }
         }
-      else{
-          NS_LOG_ERROR ("Unknown use case not implemented yet with filename:" << m_controlFilename);
-      }
+      else
+        {
+          NS_FATAL_ERROR (
+              "Unknown use case not implemented yet with filename: " << m_controlFilename);
+        }
 
       csv.close ();
 
