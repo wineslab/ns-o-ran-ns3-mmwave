@@ -235,15 +235,7 @@ LteEnbNetDevice::ReadControlFile ()
               // uint64_t ueId = m_rrc->GetImsiFromRnti (uePercentage.first); // TODO check if we need this
               uint16_t ueId = uePercentage.first;
               double percentage = uePercentage.second;
-              auto ueManager = m_rrc->GetUeManager (ueId);
-              auto drbMap = ueManager->GetDrbMap ();
-              for (auto drb : drbMap)
-                {
-                  auto dataBearer = drb.second;
-                  Ptr<McEnbPdcp> pdcp = DynamicCast<McEnbPdcp> (dataBearer->m_pdcp);
-                  if (pdcp != 0)
-                    pdcp->SetAttribute ("perPckToLTE", DoubleValue (percentage));
-                }
+              this->SetUeQoS (ueId, percentage);
             }
         }
       else
@@ -264,6 +256,20 @@ LteEnbNetDevice::ReadControlFile ()
   // to catch commands that are late
   // We can run every ms, if the file is empty, do not do anything
   Simulator::Schedule (Seconds (0.001), &LteEnbNetDevice::ReadControlFile, this);
+}
+
+void
+LteEnbNetDevice::SetUeQoS (uint16_t ueId, double percentage)
+{
+  auto ueManager = m_rrc->GetUeManager (ueId);
+  auto drbMap = ueManager->GetDrbMap ();
+  for (auto drb : drbMap)
+    {
+      auto dataBearer = drb.second;
+      Ptr<McEnbPdcp> pdcp = DynamicCast<McEnbPdcp> (dataBearer->m_pdcp);
+      if (pdcp != 0)
+        pdcp->SetAttribute ("perPckToLTE", DoubleValue (percentage));
+    }
 }
 
 void 

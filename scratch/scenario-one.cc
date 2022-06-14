@@ -177,6 +177,11 @@ static ns3::GlobalValue g_perPckToLTE ("perPckToLTE",
                                        ns3::MakeDoubleChecker<double> (-1, 1.0));
 
 static ns3::GlobalValue
+    g_ueZeroPercentage ("ueZeroPercentage",
+                        "Percentage of packets to be directed to LTE from UE with X.",
+                        ns3::DoubleValue (-1), ns3::MakeDoubleChecker<double> (-1, 1.0));
+
+static ns3::GlobalValue
     g_hoSinrDifference ("hoSinrDifference",
                         "The value for which an handover between MmWave eNB is triggered",
                         ns3::DoubleValue (3), ns3::MakeDoubleChecker<double> ());
@@ -273,6 +278,8 @@ main (int argc, char *argv[])
 
   GlobalValue::GetValueByName ("perPckToLTE", doubleValue);
   double perPckToLTE = doubleValue.Get ();
+  GlobalValue::GetValueByName ("ueZeroPercentage", doubleValue);
+  double ueZeroPercentage = doubleValue.Get ();
   GlobalValue::GetValueByName ("hoSinrDifference", doubleValue);
   double hoSinrDifference = doubleValue.Get ();
   GlobalValue::GetValueByName ("dataRate", doubleValue);
@@ -787,6 +794,10 @@ main (int argc, char *argv[])
       Simulator::Stop (Seconds (simTime));
       NS_LOG_INFO ("Run Simulation.");
       Simulator::Run ();
+      // TODO need to take RNTI or the best candidate for the first UE and the percentage.
+      // TODO need to get the LteEnbNetDevice reference created in the helper
+      NS_LOG_UNCOND (ueZeroPercentage);
+      // Simulator::Schedule (MilliSeconds (1), LteEnbNetDevice::SetUeQoS (,ueZeroPercentage));
     }
 
   NS_LOG_INFO (lteHelper);
