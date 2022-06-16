@@ -3265,7 +3265,7 @@ LteEnbRrc::GetUeManager (uint16_t rnti)
 {
   NS_LOG_FUNCTION (this << (uint32_t) rnti);
   NS_ASSERT (0 != rnti);
-  std::map<uint16_t, Ptr<UeManager> >::iterator it = m_ueMap.find (rnti);
+  std::map<uint16_t, Ptr<UeManager>>::iterator it = m_ueMap.find (rnti);
   NS_ASSERT_MSG (it != m_ueMap.end (), "UE manager for RNTI " << rnti << " not found");
   return it->second;
 }

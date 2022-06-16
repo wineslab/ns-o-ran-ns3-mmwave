@@ -13,6 +13,7 @@ minSpeed=2.0 # minimum UE speed in m/s
 maxSpeed=4.0 # maximum UE speed in m/s
 simTime=1 # simulation time
 e2TermIp="10.102.157.65" # actual E2term IP interface
+ueZeroPercentage=-1 # PDCP split for UE RNTI 0 on eNB
 
 # Useful parameters to be configured
 N=1 # number of simulations
@@ -21,21 +22,21 @@ reducedPmValues=0 # use reduced subset of pmValues
 EnableE2FileLogging=1 # enable offline generation of data
 ues=3 # Number of UEs for each mmWave ENB
 
-# Select 0 or 1 to switch between the optimized or debug build
-build=1
-if [[ build -eq 0 ]];then
-  # Debug build
-   echo "Build ns-3 in debug mode"
-   ./waf -debug
-else
-    # Optimized build
-   echo "Build ns-3 in optimized mode"
-    ./waf -optimized
-fi
+# # Select 0 or 1 to switch between the optimized or debug build
+# build=0
+# if [[ build -eq 0 ]];then
+#   # Debug build
+#    echo "Build ns-3 in debug mode"
+#    ./waf configure --build-profile=debug
+# else
+#     # Optimized build
+#    echo "Build ns-3 in optimized mode"
+#     ./waf configure --build-profile=optimized 
+# fi
 
 # Select 0 or 1 to switch between the use cases
 # Remember to create an empty version of the control file before the start of this script, otherwise it would lead to premature crashes.
-use_case=1
+use_case=2
 if [[ use_case -eq 0 ]];then
   ## Energy Efficiency use case
   echo "Energy Efficiency use case"
@@ -43,13 +44,21 @@ if [[ use_case -eq 0 ]];then
   handoverMode="DynamicTtt"
   indicationPeriodicity=0.02 # value in seconds (20 ms)
   controlPath="es_actions_for_ns3.csv" # TS control file path
-else
+elif [[ use_case -eq 1 ]];then
   ## Traffic Steering use case
   echo "Traffic Steering use case"
   outageThreshold=-1000
   handoverMode="NoAuto"
   indicationPeriodicity=0.1 # value in seconds (100 ms)
   controlPath="ts_actions_for_ns3.csv" # EE control file path
+else
+  ## Quality of Service use case
+  echo "Quality of Service use case"
+  outageThreshold=-5.0 # use -5.0 when handover is not in NoAuto 
+  handoverMode="DynamicTtt"
+  indicationPeriodicity=0.02 # value in seconds (20 ms)
+  # controlPath="qos_actions.csv" # QoS control file path, decomment for control
+  ueZeroPercentage=0.1
 fi
 # NS_LOG="KpmIndication"
 # NS_LOG="RicControlMessage" 
@@ -75,8 +84,9 @@ for i in $(seq 1 $N); do
                                     --enableE2FileLogging=$EnableE2FileLogging \
                                     --minSpeed=$minSpeed\
                                     --maxSpeed=$maxSpeed\
-                                    --ns3::LteEnbNetDevice::E2Periodicity=$E2Periodicity\
-                                    --ns3::MmWaveEnbNetDevice::E2Periodicity=$E2Periodicity\
+                                    --ueZeroPercentage=$ueZeroPercentage\
+                                    --ns3::LteEnbNetDevice::E2Periodicity=$indicationPeriodicity\
+                                    --ns3::MmWaveEnbNetDevice::E2Periodicity=$indicationPeriodicity\
                                     --ns3::LteEnbNetDevice::ControlFileName=$controlPath";
   sleep 1;
 done

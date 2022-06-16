@@ -347,6 +347,8 @@ main (int argc, char *argv[])
     << " e2cuCp " << e2cuCp
     << " e2cuUp " << e2cuUp
     << " reducedPmValues " << reducedPmValues 
+    << " perPckToLTE " << perPckToLTE
+    << " ueZeroPercentage " << ueZeroPercentage
   );
 
   Config::SetDefault ("ns3::MmWaveHelper::E2ModeLte", BooleanValue(e2lteEnabled));
@@ -787,6 +789,15 @@ main (int argc, char *argv[])
   PrintGnuplottableUeListToFile ("ues.txt");
   PrintGnuplottableEnbListToFile ("enbs.txt");
 
+  Ptr<LteEnbNetDevice> eNBDevice = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
+  uint16_t ueIdRnti = 1; // RNTI of the UE to be controlled
+  if (ueZeroPercentage != -1)
+    {
+      NS_LOG_UNCOND ("Setting UE with RNTI " << ueIdRnti << " PDCP split to " << ueZeroPercentage);
+      Simulator::Schedule (MilliSeconds (100), &LteEnbNetDevice::SetUeQoS, eNBDevice, ueIdRnti,
+                           ueZeroPercentage);
+    }
+
   bool run = true;
   if (run)
     {
@@ -794,10 +805,6 @@ main (int argc, char *argv[])
       Simulator::Stop (Seconds (simTime));
       NS_LOG_INFO ("Run Simulation.");
       Simulator::Run ();
-      // TODO need to take RNTI or the best candidate for the first UE and the percentage.
-      // TODO need to get the LteEnbNetDevice reference created in the helper
-      NS_LOG_UNCOND (ueZeroPercentage);
-      // Simulator::Schedule (MilliSeconds (1), LteEnbNetDevice::SetUeQoS (,ueZeroPercentage));
     }
 
   NS_LOG_INFO (lteHelper);

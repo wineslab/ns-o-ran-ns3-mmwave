@@ -78,10 +78,10 @@ NS_OBJECT_ENSURE_REGISTERED ( LteEnbNetDevice);
 void 
 LteEnbNetDevice::KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu)
 {
-  NS_LOG_UNCOND ("\nReceived RIC Subscription Request, cellId = " << m_cellId << "\n");
+  NS_LOG_DEBUG ("\nReceived RIC Subscription Request, cellId = " << m_cellId << "\n");
 
   E2Termination::RicSubscriptionRequest_rval_s params = m_e2term->ProcessRicSubscriptionRequest (sub_req_pdu);
-  NS_LOG_UNCOND ("requestorId " << +params.requestorId << 
+  NS_LOG_DEBUG ("requestorId " << +params.requestorId << 
                  ", instanceId " << +params.instanceId << 
                  ", ranFuncionId " << +params.ranFuncionId << 
                  ", actionId " << +params.actionId);  
@@ -185,8 +185,6 @@ LteEnbNetDevice::ReadControlFile ()
         }
       else if (m_controlFilename == "qos_actions.csv")
         {
-          NS_LOG_ERROR ("QoS use case not implemented yet");
-
           long long timestamp{};
           std::unordered_map<uint16_t, double> uePercentages{};
           while (std::getline (csv, line))
@@ -268,14 +266,23 @@ LteEnbNetDevice::SetUeQoS (uint16_t ueId, double percentage)
       auto dataBearer = drb.second;
       Ptr<McEnbPdcp> pdcp = DynamicCast<McEnbPdcp> (dataBearer->m_pdcp);
       if (pdcp != 0)
-        pdcp->SetAttribute ("perPckToLTE", DoubleValue (percentage));
+        {
+          NS_LOG_UNCOND (Simulator::Now ().GetSeconds ()
+                         << ": About to set pecentage " << percentage
+                         << " on UE connectes to eNB with RNTI " << ueId);
+          pdcp->SetAttribute ("perPckToLTE", DoubleValue (percentage));
+        }
+      else
+        {
+          NS_LOG_UNCOND ("pdcp not found");
+        }
     }
 }
 
 void 
 LteEnbNetDevice::ControlMessageReceivedCallback (E2AP_PDU_t* sub_req_pdu)
 {
-  NS_LOG_UNCOND ("\n\nLteEnbNetDevice::ControlMessageReceivedCallback: Received RIC Control Message");
+  NS_LOG_DEBUG ("\n\nLteEnbNetDevice::ControlMessageReceivedCallback: Received RIC Control Message");
   
   Ptr<RicControlMessage> controlMessage = Create<RicControlMessage> (sub_req_pdu);
   NS_LOG_INFO ("After RicControlMessage::RicControlMessage constructor");
@@ -308,10 +315,8 @@ LteEnbNetDevice::ControlMessageReceivedCallback (E2AP_PDU_t* sub_req_pdu)
      break;
   }
   case RicControlMessage::ControlMessageRequestIdType::QoS :{
-    // Ptr<UeManager> ueManager = m_rrc->GetUeManager (0); // find UE given rnti
-    // set m_pdcp di UE at new value
-    // ueManager->m_pdcp
-    NS_LOG_ERROR ("QoS is an unhandled case");
+    // use SetUeQoS()
+    NS_FATAL_ERROR ("For QoS use file-based control.");
     break;
   }
   default:{
@@ -738,7 +743,7 @@ LteEnbNetDevice::UpdateConfig (void)
 
       if(m_e2term)
       {
-      	NS_LOG_UNCOND("E2sim start in cell " << m_cellId 
+      	NS_LOG_DEBUG("E2sim start in cell " << m_cellId 
           << " force CSV logging " << m_forceE2FileLogging);
 
         if (!m_forceE2FileLogging)
@@ -904,7 +909,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
 
     double pdcpThroughput = txBytes / m_e2Periodicity; // unit kbps
 
-    NS_LOG_UNCOND(Simulator::Now().GetSeconds() << " " << m_cellId << " cell, connected UE with IMSI " << imsi 
+    NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << m_cellId << " cell, connected UE with IMSI " << imsi 
       << " ueImsiString " << ueImsiComplete
       << " txDlPackets " << txDlPackets 
       << " txDlPacketsNr " << txPdcpPduNrRlc
@@ -933,7 +938,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
     cellAverageLatency = perUserAverageLatencySum / ueMap.size();
   }
     
-  NS_LOG_UNCOND(Simulator::Now().GetSeconds() << " " << m_cellId << " cell, connected UEs number " << ueMap.size() 
+  NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << m_cellId << " cell, connected UEs number " << ueMap.size() 
       << " cellAverageLatency " << cellAverageLatency
     );
 
@@ -949,7 +954,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
       indicationMessageHelper->FillCuUpValues (plmId, 0, cellDlTxVolume);
     }
 
-  NS_LOG_UNCOND(Simulator::Now().GetSeconds() << " " << m_cellId << " cell volume " << cellDlTxVolume);
+  NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << m_cellId << " cell volume " << cellDlTxVolume);
 
   if (m_forceE2FileLogging) {
     std::ofstream csv {};
@@ -1034,7 +1039,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
       NS_FATAL_ERROR ("Can't open file " << m_cuCpFileName.c_str ());
     }
 
-    NS_LOG_UNCOND ("m_cuCpFileName open " << m_cuCpFileName);
+    NS_LOG_DEBUG ("m_cuCpFileName open " << m_cuCpFileName);
 
     // the string is timestamp, ueImsiComplete, numActiveUes, DRB.EstabSucc.5QI.UEID (numDrb), DRB.RelActNbr.5QI.UEID (0)
 
@@ -1051,7 +1056,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
                              std::to_string (ueMapSize) + "," + uePms + ",,,,,,," +
                              "\n";
 
-      NS_LOG_UNCOND(to_print);
+      NS_LOG_DEBUG(to_print);
 
       csv << to_print;
     }
@@ -1073,7 +1078,7 @@ LteEnbNetDevice::BuildAndSendReportMessage(E2Termination::RicSubscriptionRequest
   std::string gnbId = std::to_string(m_cellId);
 
   // TODO here we can get something from RRC and onward
-  NS_LOG_UNCOND("LteEnbNetDevice " << m_cellId << " BuildAndSendMessage at time " << Simulator::Now().GetSeconds());
+  NS_LOG_DEBUG("LteEnbNetDevice " << m_cellId << " BuildAndSendMessage at time " << Simulator::Now().GetSeconds());
   
   if(m_sendCuUp)
   {
