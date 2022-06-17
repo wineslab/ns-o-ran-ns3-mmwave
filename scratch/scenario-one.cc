@@ -159,7 +159,7 @@ static ns3::GlobalValue g_e2cuCp ("e2cuCp", "If true, send CU-CP reports",
 
 static ns3::GlobalValue g_trafficModel (
     "trafficModel",
-    "Type of the traffic model at the transport layer [0,2],"
+    "Type of the traffic model at the transport layer [0,3],"
     " can generate full buffer traffic (0),"
     " half nodes in full buffer and half nodes in bursty (1),"
     " bursty traffic (2),"
@@ -310,13 +310,11 @@ main (int argc, char *argv[])
   // std::string controlFileName = stringValue.Get ();
 
   NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << bufferSize
-                                 << " traffic Model " << trafficModel << " OutageThreshold "
-                                 << outageThreshold << " HandoverMode " << handoverMode
-                                 << " BasicCellId " << basicCellId << " e2TermIp " << e2TermIp
-                                 << " enableE2FileLogging " << enableE2FileLogging << " minSpeed "
-                                 << minSpeed << " maxSpeed " << maxSpeed 
-                                //  << " controlFileName " << controlFileName
-                                 );
+                                 << " traffic Model " << unsigned (trafficModel)
+                                 << " OutageThreshold " << outageThreshold << " HandoverMode "
+                                 << handoverMode << " BasicCellId " << basicCellId << " e2TermIp "
+                                 << e2TermIp << " enableE2FileLogging " << enableE2FileLogging
+                                 << " minSpeed " << minSpeed << " maxSpeed " << maxSpeed);
 
   //get current time
   time_t rawtime;
@@ -462,7 +460,7 @@ main (int argc, char *argv[])
                             << " numAntennasMmWave " << numAntennasMmWave << " dataRate "
                             << dataRate);
 
-  // set the number of antennas in the devices
+  // Set the number of antennas in the devices
   Config::SetDefault ("ns3::McUeNetDevice::AntennaNum", UintegerValue (numAntennasMcUe));
   Config::SetDefault ("ns3::MmWaveNetDevice::AntennaNum", UintegerValue (numAntennasMmWave));
   Config::SetDefault ("ns3::MmWavePhyMacCommon::Bandwidth", DoubleValue (bandwidth));

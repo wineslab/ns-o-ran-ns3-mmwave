@@ -267,7 +267,7 @@ LteEnbNetDevice::SetUeQoS (uint16_t ueId, double percentage)
       Ptr<McEnbPdcp> pdcp = DynamicCast<McEnbPdcp> (dataBearer->m_pdcp);
       if (pdcp != 0)
         {
-          NS_LOG_UNCOND (Simulator::Now ().GetSeconds ()
+          NS_LOG_UNCOND (Simulator::Now ().GetMilliSeconds ()
                          << ": About to set pecentage " << percentage
                          << " on UE connectes to eNB with RNTI " << ueId);
           pdcp->SetAttribute ("perPckToLTE", DoubleValue (percentage));
