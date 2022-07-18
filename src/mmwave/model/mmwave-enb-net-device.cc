@@ -403,58 +403,58 @@ MmWaveEnbNetDevice::UpdateConfig (void)
                 m_cuUpFileName = "cu-up-cell-" + std::to_string(m_cellId) + ".txt";
                 std::ofstream csv {};
                 csv.open (m_cuUpFileName.c_str ());
-                csv << "timestamp, ueImsiComplete, DRB.PdcpSduDelayDl (cellAverageLatency), "
-                       "m_pDCPBytesUL (0), "
-                       "m_pDCPBytesDL (cellDlTxVolume), DRB.PdcpSduVolumeDl_Filter.UEID (txBytes), "
-                       "Tot.PdcpSduNbrDl.UEID (txDlPackets), DRB.PdcpSduBitRateDl.UEID "
-                       "(pdcpThroughput), "
-                       "DRB.PdcpSduDelayDl.UEID (pdcpLatency), QosFlow.PdcpPduVolumeDL_Filter.UEID "
-                       "(txPdcpPduBytesNrRlc), DRB.PdcpPduNbrDl.Qos.UEID (txPdcpPduNrRlc)\n";
+                csv << "timestamp,ueImsiComplete,DRB.PdcpSduDelayDl (cellAverageLatency),"
+                       "m_pDCPBytesUL (0),"
+                       "m_pDCPBytesDL (cellDlTxVolume),DRB.PdcpSduVolumeDl_Filter.UEID (txBytes),"
+                       "Tot.PdcpSduNbrDl.UEID (txDlPackets),DRB.PdcpSduBitRateDl.UEID"
+                       "(pdcpThroughput),"
+                       "DRB.PdcpSduDelayDl.UEID (pdcpLatency),QosFlow.PdcpPduVolumeDL_Filter.UEID"
+                       "(txPdcpPduBytesNrRlc),DRB.PdcpPduNbrDl.Qos.UEID (txPdcpPduNrRlc)\n";
                 csv.close ();
 
                 m_cuCpFileName = "cu-cp-cell-" + std::to_string(m_cellId) + ".txt";
                 csv.open (m_cuCpFileName.c_str ());
-                csv << "timestamp, ueImsiComplete, numActiveUes, DRB.EstabSucc.5QI.UEID (numDrb),"
-                       "DRB.RelActNbr.5QI.UEID (0), L3 serving Id(m_cellId),  UE (imsi), L3 serving SINR,"
+                csv << "timestamp,ueImsiComplete,numActiveUes,DRB.EstabSucc.5QI.UEID (numDrb),"
+                       "DRB.RelActNbr.5QI.UEID (0),L3 serving Id(m_cellId),UE (imsi),L3 serving SINR,"
                        "L3 serving SINR 3gpp,"
-                       "L3 neigh Id 1 (cellId), L3 neigh SINR 1, L3 neigh SINR 3gpp 1 (convertedSinr),"
-                       "L3 neigh Id 2 (cellId), L3 neigh SINR 2, L3 neigh SINR 3gpp 2 (convertedSinr),"
-                       "L3 neigh Id 3 (cellId), L3 neigh SINR 3, L3 neigh SINR 3gpp 3 (convertedSinr),"
-                       "L3 neigh Id 4 (cellId), L3 neigh SINR 4, L3 neigh SINR 3gpp 4 (convertedSinr),"
-                       "L3 neigh Id 5 (cellId), L3 neigh SINR 5, L3 neigh SINR 3gpp 5 (convertedSinr),"
-                       "L3 neigh Id 6 (cellId), L3 neigh SINR 6, L3 neigh SINR 3gpp 6 (convertedSinr)"
+                       "L3 neigh Id 1 (cellId),L3 neigh SINR 1,L3 neigh SINR 3gpp 1 (convertedSinr),"
+                       "L3 neigh Id 2 (cellId),L3 neigh SINR 2,L3 neigh SINR 3gpp 2 (convertedSinr),"
+                       "L3 neigh Id 3 (cellId),L3 neigh SINR 3,L3 neigh SINR 3gpp 3 (convertedSinr),"
+                       "L3 neigh Id 4 (cellId),L3 neigh SINR 4,L3 neigh SINR 3gpp 4 (convertedSinr),"
+                       "L3 neigh Id 5 (cellId),L3 neigh SINR 5,L3 neigh SINR 3gpp 5 (convertedSinr),"
+                       "L3 neigh Id 6 (cellId),L3 neigh SINR 6,L3 neigh SINR 3gpp 6 (convertedSinr)"
                        "\n";
                 csv.close();
 
                 m_duFileName = "du-cell-" + std::to_string(m_cellId) + ".txt";
                 csv.open (m_duFileName.c_str ());
                 std::string header_csv =
-                    "timestamp, ueImsiComplete, plmId, nrCellId, dlAvailablePrbs,"
-                    "ulAvailablePrbs, qci, dlPrbUsage, ulPrbUsage";
+                    "timestamp,ueImsiComplete,plmId,nrCellId,dlAvailablePrbs,"
+                    "ulAvailablePrbs,qci,dlPrbUsage,ulPrbUsage";
                 std::string cell_header =
-                    "TB.TotNbrDl.1, TB.TotNbrDlInitial, TB.TotNbrDlInitial.Qpsk,"
-                    "TB.TotNbrDlInitial.16Qam, "
-                    "TB.TotNbrDlInitial.64Qam, RRU.PrbUsedDl, TB.ErrTotalNbrDl.1,"
-                    "QosFlow.PdcpPduVolumeDL_Filter, CARR.PDSCHMCSDist.Bin1,"
+                    "TB.TotNbrDl.1,TB.TotNbrDlInitial,TB.TotNbrDlInitial.Qpsk,"
+                    "TB.TotNbrDlInitial.16Qam,"
+                    "TB.TotNbrDlInitial.64Qam,RRU.PrbUsedDl,TB.ErrTotalNbrDl.1,"
+                    "QosFlow.PdcpPduVolumeDL_Filter,CARR.PDSCHMCSDist.Bin1,"
                     "CARR.PDSCHMCSDist.Bin2,"
-                    "CARR.PDSCHMCSDist.Bin3, CARR.PDSCHMCSDist.Bin4, CARR.PDSCHMCSDist.Bin5,"
-                    "CARR.PDSCHMCSDist.Bin6, L1M.RS-SINR.Bin34, L1M.RS-SINR.Bin46, "
+                    "CARR.PDSCHMCSDist.Bin3,CARR.PDSCHMCSDist.Bin4,CARR.PDSCHMCSDist.Bin5,"
+                    "CARR.PDSCHMCSDist.Bin6,L1M.RS-SINR.Bin34,L1M.RS-SINR.Bin46, "
                     "L1M.RS-SINR.Bin58,"
-                    "L1M.RS-SINR.Bin70, L1M.RS-SINR.Bin82, L1M.RS-SINR.Bin94, L1M.RS-SINR.Bin127,"
-                    "DRB.BufferSize.Qos, DRB.MeanActiveUeDl";
+                    "L1M.RS-SINR.Bin70,L1M.RS-SINR.Bin82,L1M.RS-SINR.Bin94,L1M.RS-SINR.Bin127,"
+                    "DRB.BufferSize.Qos,DRB.MeanActiveUeDl";
 
                 std::string ue_header =
-                    "TB.TotNbrDl.1.UEID, TB.TotNbrDlInitial.UEID, TB.TotNbrDlInitial.Qpsk.UEID,"
+                    "TB.TotNbrDl.1.UEID,TB.TotNbrDlInitial.UEID,TB.TotNbrDlInitial.Qpsk.UEID,"
                     "TB.TotNbrDlInitial.16Qam.UEID,TB.TotNbrDlInitial.64Qam.UEID,"
-                    "TB.ErrTotalNbrDl.1.UEID, "
+                    "TB.ErrTotalNbrDl.1.UEID,"
                     "QosFlow.PdcpPduVolumeDL_Filter.UEID,RRU.PrbUsedDl.UEID,"
-                    "CARR.PDSCHMCSDist.Bin1.UEID, "
-                    "CARR.PDSCHMCSDist.Bin2.UEID, CARR.PDSCHMCSDist.Bin3.UEID,"
+                    "CARR.PDSCHMCSDist.Bin1.UEID,"
+                    "CARR.PDSCHMCSDist.Bin2.UEID,CARR.PDSCHMCSDist.Bin3.UEID,"
                     ",CARR.PDSCHMCSDist.Bin4.UEID"
-                    "CARR.PDSCHMCSDist.Bin5.UEID, "
-                    "CARR.PDSCHMCSDist.Bin6.UEID, L1M.RS-SINR.Bin34.UEID, L1M.RS-SINR.Bin46.UEID,"
-                    "L1M.RS-SINR.Bin58.UEID, L1M.RS-SINR.Bin70.UEID, L1M.RS-SINR.Bin82.UEID,"
-                    "L1M.RS-SINR.Bin94.UEID, L1M.RS-SINR.Bin127.UEID, DRB.BufferSize.Qos.UEID,"
+                    "CARR.PDSCHMCSDist.Bin5.UEID,"
+                    "CARR.PDSCHMCSDist.Bin6.UEID,L1M.RS-SINR.Bin34.UEID, L1M.RS-SINR.Bin46.UEID,"
+                    "L1M.RS-SINR.Bin58.UEID,L1M.RS-SINR.Bin70.UEID,L1M.RS-SINR.Bin82.UEID,"
+                    "L1M.RS-SINR.Bin94.UEID,L1M.RS-SINR.Bin127.UEID,DRB.BufferSize.Qos.UEID,"
                     "DRB.UEThpDl.UEID, DRB.UEThpDlPdcpBased.UEID";
 
                 csv << header_csv + "," + cell_header + "," + ue_header + "\n";

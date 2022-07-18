@@ -204,7 +204,10 @@ static ns3::GlobalValue g_basicCellId ("basicCellId", "The next value will be th
                                        ns3::UintegerValue (1),
                                        ns3::MakeUintegerChecker<uint8_t> ());
 
-// TODO check the value
+static ns3::GlobalValue g_numberOfRaPreambles ("numberOfRaPreambles", "how many random access preambles are available for the contention based RACH process",
+                                       ns3::UintegerValue (40), // this was the for ther TS use case, 52 is default, 30 is for ES
+                                       ns3::MakeUintegerChecker<uint8_t> ());
+
 static ns3::GlobalValue
     g_handoverMode ("handoverMode",
                     "SNR threshold for outage events [dB],"
@@ -299,16 +302,17 @@ main (int argc, char *argv[])
   double minSpeed = doubleValue.Get ();
   GlobalValue::GetValueByName ("maxSpeed", doubleValue);
   double maxSpeed = doubleValue.Get ();
-  // GlobalValue::GetValueByName ("controlFileName", stringValue);
-  // std::string controlFileName = stringValue.Get ();
+  GlobalValue::GetValueByName ("numberOfRaPreambles", uintegerValue);
+  uint8_t numberOfRaPreambles = uintegerValue.Get ();
+
 
   NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << bufferSize
                                  << " traffic Model " << trafficModel << " OutageThreshold "
                                  << outageThreshold << " HandoverMode " << handoverMode
                                  << " BasicCellId " << basicCellId << " e2TermIp " << e2TermIp
                                  << " enableE2FileLogging " << enableE2FileLogging << " minSpeed "
-                                 << minSpeed << " maxSpeed " << maxSpeed 
-                                //  << " controlFileName " << controlFileName
+                                 << minSpeed << " maxSpeed " << maxSpeed << " numberofRaPreambles " << numberOfRaPreambles 
+                                 << " dataRateFromConf " << dataRateFromConf
                                  );
 
   //get current time
@@ -366,8 +370,7 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::LteEnbNetDevice::EnableE2FileLogging", BooleanValue (enableE2FileLogging));
   Config::SetDefault ("ns3::MmWaveEnbNetDevice::EnableE2FileLogging", BooleanValue (enableE2FileLogging));
 
-  Config::SetDefault ("ns3::MmWaveEnbMac::NumberOfRaPreambles", UintegerValue (40));
-  Config::SetDefault ("ns3::LteEnbMac::NumberOfRaPreambles", UintegerValue (40));
+  Config::SetDefault ("ns3::MmWaveEnbMac::NumberOfRaPreambles", UintegerValue (numberOfRaPreambles));
 
   Config::SetDefault ("ns3::MmWaveHelper::RlcAmEnabled", BooleanValue (rlcAmEnabled));
   Config::SetDefault ("ns3::MmWaveHelper::HarqEnabled", BooleanValue (harqEnabled));
