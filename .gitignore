@@ -65,3 +65,6 @@ UlE2RlcStats.txt
 UlE2RlcStatsLte.txt
 X2Stats.txt
 *.eps
+LteDlRsrpSinrStats.txt
+RlcAmBufferSize.txt
+LteUlSinrStats.txt
