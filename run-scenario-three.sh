@@ -38,7 +38,7 @@ fi
 echo "Energy Efficiency use case"
 outageThreshold=-5.0 # use -5.0 when handover is not in NoAuto 
 handoverMode="DynamicTtt"
-indicationPeriodicity=0.02 # value in seconds (20 ms)
+#indicationPeriodicity=0.02 # value in seconds (20 ms)
 controlPath="es_actions_for_ns3.csv" # ES control file path
 
 # NS_LOG="KpmIndication"
@@ -64,8 +64,6 @@ for i in $(seq 1 $N); do
                                     --enableE2FileLogging=$EnableE2FileLogging \
                                     --minSpeed=$minSpeed\
                                     --maxSpeed=$maxSpeed\
-                                    --ns3::LteEnbNetDevice::E2Periodicity=$indicationPeriodicity\
-                                    --ns3::MmWaveEnbNetDevice::E2Periodicity=$indicationPeriodicity\
                                     --ns3::LteEnbNetDevice::ControlFileName=$controlPath";
   sleep 1;
 done
