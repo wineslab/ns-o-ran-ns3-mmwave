@@ -46,7 +46,7 @@ if [[ use_case -eq 0 ]];then
   outageThreshold=-5.0 # use -5.0 when handover is not in NoAuto 
   handoverMode="DynamicTtt"
   indicationPeriodicity=0.02 # value in seconds (20 ms)
-  controlPath="es_actions_for_ns3.csv" # TS control file path
+  controlFileName="es_actions_for_ns3.csv" # TS control file path
   numberOfRaPreambles=20
 else
   ## Traffic Steering use case
@@ -54,7 +54,7 @@ else
   outageThreshold=-1000
   handoverMode="NoAuto"
   indicationPeriodicity=0.1 # value in seconds (100 ms)
-  controlPath="ts_actions_for_ns3.csv" # EE control file path
+  controlFileName="ts_actions_for_ns3.csv" # EE control file path
   numberOfRaPreambles=40
 fi
 
@@ -82,8 +82,7 @@ for i in $(seq 1 $N); do
                                     --minSpeed=$minSpeed\
                                     --maxSpeed=$maxSpeed\
                                     --numberOfRaPreambles=$numberOfRaPreambles\
-                                    --ns3::LteEnbNetDevice::E2Periodicity=$indicationPeriodicity\
-                                    --ns3::MmWaveEnbNetDevice::E2Periodicity=$indicationPeriodicity\
-                                    --ns3::LteEnbNetDevice::ControlFileName=$controlPath";
+                                    --indicationPeriodicity=$indicationPeriodicity\
+                                    --controlFileName=$controlFileName";
   sleep 1;
 done

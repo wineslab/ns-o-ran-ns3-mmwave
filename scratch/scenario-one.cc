@@ -188,8 +188,10 @@ static ns3::GlobalValue
 static ns3::GlobalValue g_ues ("ues", "Number of UEs for each mmWave ENB.", ns3::UintegerValue (7),
                                ns3::MakeUintegerChecker<uint8_t> ());
 
-static ns3::GlobalValue g_simTime ("simTime", "Simulation time in seconds", ns3::DoubleValue (1.9), 
+static ns3::GlobalValue g_indicationPeriodicity ("indicationPeriodicity", "E2 Indication Periodicity reports (value in seconds)", ns3::DoubleValue (0.1),
+                                   ns3::MakeDoubleChecker<double> (0.01, 2.0));
 
+static ns3::GlobalValue g_simTime ("simTime", "Simulation time in seconds", ns3::DoubleValue (1.9),
                                    ns3::MakeDoubleChecker<double> (0.1, 1000.0));
 
 static ns3::GlobalValue g_reducedPmValues ("reducedPmValues", "If true, use a subset of the the pm containers",
@@ -210,7 +212,7 @@ static ns3::GlobalValue g_numberOfRaPreambles ("numberOfRaPreambles", "how many 
 
 static ns3::GlobalValue
     g_handoverMode ("handoverMode",
-                    "SNR threshold for outage events [dB],"
+                    "HO euristic to be used,"
                     "can be only \"NoAuto\", \"FixedTtt\", \"DynamicTtt\",   \"Threshold\"",
                     ns3::StringValue ("NoAuto"), ns3::MakeStringChecker ());
 
@@ -222,8 +224,8 @@ static ns3::GlobalValue
               "If true, generate offline file logging instead of connecting to RIC",
               ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
 
-// static ns3::GlobalValue g_controlFileName ("controlFileName", "The path to the control file (can be absolute)",
-//                                     ns3::StringValue ("qos_actions.csv"), ns3::MakeStringChecker ());
+static ns3::GlobalValue g_controlFileName ("controlFileName", "The path to the control file (can be absolute)",
+                                     ns3::StringValue ("qos_actions.csv"), ns3::MakeStringChecker ());
 
 static ns3::GlobalValue g_minSpeed ("minSpeed",
                                            "minimum UE speed in m/s",
@@ -338,13 +340,25 @@ main (int argc, char *argv[])
   GlobalValue::GetValueByName ("reducedPmValues", booleanValue);
   bool reducedPmValues = booleanValue.Get ();
 
-  NS_LOG_UNCOND("e2lteEnabled " << e2lteEnabled 
+  GlobalValue::GetValueByName ("indicationPeriodicity", doubleValue);
+  double indicationPeriodicity = doubleValue.Get ();
+
+  GlobalValue::GetValueByName ("controlFileName", stringValue);
+  std::string controlFilename = stringValue.Get ();
+
+    NS_LOG_UNCOND("e2lteEnabled " << e2lteEnabled 
     << " e2nrEnabled " << e2nrEnabled
     << " e2du " << e2du
     << " e2cuCp " << e2cuCp
     << " e2cuUp " << e2cuUp
     << " reducedPmValues " << reducedPmValues 
+    << " controlFilename " << controlFilename
+    << " indicationPeriodicity " << indicationPeriodicity
   );
+
+  Config::SetDefault ("ns3::LteEnbNetDevice::ControlFileName", StringValue(controlFilename));
+  Config::SetDefault ("ns3::LteEnbNetDevice::E2Periodicity", DoubleValue (indicationPeriodicity));
+  Config::SetDefault ("ns3::MmWaveEnbNetDevice::E2Periodicity", DoubleValue (indicationPeriodicity));
 
   Config::SetDefault ("ns3::MmWaveHelper::E2ModeLte", BooleanValue(e2lteEnabled));
   Config::SetDefault ("ns3::MmWaveHelper::E2ModeNr", BooleanValue(e2nrEnabled));
