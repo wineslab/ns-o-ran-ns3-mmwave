@@ -175,9 +175,12 @@ static ns3::GlobalValue
 static ns3::GlobalValue g_ues ("ues", "Number of UEs for each mmWave ENB.", ns3::UintegerValue (7),
                                ns3::MakeUintegerChecker<uint8_t> ());
 
-static ns3::GlobalValue g_simTime ("simTime", "Simulation time in seconds", ns3::DoubleValue (1.9), 
+static ns3::GlobalValue g_indicationPeriodicity ("indicationPeriodicity", "E2 Indication Periodicity reports (value in seconds)", ns3::DoubleValue (0.1),
+                                   ns3::MakeDoubleChecker<double> (0.01, 2.0));
 
+static ns3::GlobalValue g_simTime ("simTime", "Simulation time in seconds", ns3::DoubleValue (1.9),
                                    ns3::MakeDoubleChecker<double> (0.1, 1000.0));
+
 
 static ns3::GlobalValue g_reducedPmValues ("reducedPmValues", "If true, use a subset of the the pm containers",
                                         ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
@@ -197,8 +200,7 @@ static ns3::GlobalValue g_numberOfRaPreambles ("numberOfRaPreambles", "how many 
 
 static ns3::GlobalValue
     g_handoverMode ("handoverMode",
-                    "SNR threshold for outage events [dB],"
-                    "can be only \"NoAuto\", \"FixedTtt\", \"DynamicTtt\",   \"Threshold\"",
+                    "HO euristic to be used, can be only \"NoAuto\", \"FixedTtt\", \"DynamicTtt\",   \"Threshold\"",
                     ns3::StringValue ("NoAuto"), ns3::MakeStringChecker ());
 
 static ns3::GlobalValue g_e2TermIp ("e2TermIp", "The IP address of the RIC E2 termination",
@@ -209,8 +211,8 @@ static ns3::GlobalValue
               "If true, generate offline file logging instead of connecting to RIC",
               ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
 
-// static ns3::GlobalValue g_controlFileName ("controlFileName", "The path to the control file (can be absolute)",
-//                                     ns3::StringValue ("qos_actions.csv"), ns3::MakeStringChecker ());
+static ns3::GlobalValue g_controlFileName ("controlFileName", "The path to the control file (can be absolute)",
+                                     ns3::StringValue ("es_actions_for_ns3.csv"), ns3::MakeStringChecker ());
 
 static ns3::GlobalValue g_minSpeed ("minSpeed",
                                            "minimum UE speed in m/s",
@@ -317,14 +319,25 @@ main (int argc, char *argv[])
 
   GlobalValue::GetValueByName ("reducedPmValues", booleanValue);
   bool reducedPmValues = booleanValue.Get ();
+  GlobalValue::GetValueByName ("indicationPeriodicity", doubleValue);
+  double indicationPeriodicity = doubleValue.Get ();
+
+  GlobalValue::GetValueByName ("controlFileName", stringValue);
+  std::string controlFilename = stringValue.Get ();
 
   NS_LOG_UNCOND("e2lteEnabled " << e2lteEnabled 
     << " e2nrEnabled " << e2nrEnabled
     << " e2du " << e2du
     << " e2cuCp " << e2cuCp
     << " e2cuUp " << e2cuUp
-    << " reducedPmValues " << reducedPmValues 
+    << " reducedPmValues " << reducedPmValues
+    << " controlFilename " << controlFilename
+    << " indicationPeriodicity " << indicationPeriodicity
   );
+
+  Config::SetDefault ("ns3::LteEnbNetDevice::ControlFileName", StringValue(controlFilename));
+  Config::SetDefault ("ns3::LteEnbNetDevice::E2Periodicity", DoubleValue (indicationPeriodicity));
+  Config::SetDefault ("ns3::MmWaveEnbNetDevice::E2Periodicity", DoubleValue (indicationPeriodicity));
 
   Config::SetDefault ("ns3::MmWaveHelper::E2ModeLte", BooleanValue(e2lteEnabled));
   Config::SetDefault ("ns3::MmWaveHelper::E2ModeNr", BooleanValue(e2nrEnabled));
@@ -386,7 +399,7 @@ main (int argc, char *argv[])
   // Center frequency in Hz
   double centerFrequency;
   // Distance between the mmWave BSs and the two co-located LTE and mmWave BSs in meters
-  double isd; // (interside distance)
+  double isd = 850; // (interside distance)
   // Number of antennas in each UE
   int numAntennasMcUe;
   // Number of antennas in each mmWave BS
@@ -398,31 +411,31 @@ main (int argc, char *argv[])
   uint8_t configuration = uintegerValue.Get ();
   switch (configuration)
     {
+
+    // 
     case 0:
       centerFrequency = 850e6;
       bandwidth = 20e6;
-      isd = 850;
       numAntennasMcUe = 1;
       numAntennasMmWave = 1;
       dataRate = (dataRateFromConf == 0 ? "1.5Mbps" : "4.5Mbps");
       break;
 
+    // FR-1 
     case 1:
       centerFrequency = 3.5e9;
       bandwidth = 20e6;
-      isd = 850;
       numAntennasMcUe = 1;
       numAntennasMmWave = 1;
       dataRate = (dataRateFromConf == 0 ? "1.5Mbps" : "4.5Mbps");
       break;
 
+    // FR-2
     case 2:
       centerFrequency = 28e9;
       bandwidth = 100e6;
-      isd = 850;
       numAntennasMcUe = 16;
       numAntennasMmWave = 64;
-      dataRate = (dataRateFromConf == 0 ? "15Mbps" : "45Mbps");
       break;
 
     default:
@@ -612,8 +625,40 @@ main (int argc, char *argv[])
   clientHelperTcp.SetAttribute ("Remote", serverAddressTcp);
   clientHelperTcp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable"));
   clientHelperTcp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
-  clientHelperTcp.SetAttribute ("DataRate", StringValue (dataRate));
+  // Datarate defined in the switch
   clientHelperTcp.SetAttribute ("PacketSize", UintegerValue (1280));
+
+  OnOffHelper clientHelperUdp ("ns3::UdpSocketFactory", Address ());
+  clientHelperUdp.SetAttribute ("Remote", serverAddressUdp);
+  clientHelperUdp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable"));
+  clientHelperUdp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
+  // Datarate defined in the switch
+  clientHelperUdp.SetAttribute ("PacketSize", UintegerValue (1280));
+
+  switch (configuration)
+    {
+    // 
+    case 0:
+      clientHelperTcp.SetAttribute ("DataRate", StringValue (dataRate));
+      clientHelperUdp.SetAttribute ("DataRate", StringValue (dataRate));
+      break;
+
+    // FR-1
+    case 1:
+      clientHelperTcp.SetAttribute ("DataRate", StringValue (dataRate));
+      clientHelperUdp.SetAttribute ("DataRate", StringValue (dataRate));
+      break;
+
+    // FR-2
+    case 2:
+      clientHelperTcp.SetAttribute ("DataRate", StringValue ("45Mbps"));
+      clientHelperUdp.SetAttribute ("DataRate", StringValue ("15Mbps"));
+      break;
+
+    default:
+      NS_FATAL_ERROR ("Configuration not recognized" << configuration);
+      break;
+    }
 
   OnOffHelper clientHelperTcp150 ("ns3::TcpSocketFactory", Address ());
   clientHelperTcp150.SetAttribute ("Remote", serverAddressTcp);
@@ -629,15 +674,10 @@ main (int argc, char *argv[])
   clientHelperTcp750.SetAttribute ("DataRate", StringValue ("750kbps"));
   clientHelperTcp750.SetAttribute ("PacketSize", UintegerValue (1280));
 
-  OnOffHelper clientHelperUdp ("ns3::UdpSocketFactory", Address ());
-  clientHelperUdp.SetAttribute ("Remote", serverAddressUdp);
-  clientHelperUdp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable"));
-  clientHelperUdp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
-  clientHelperUdp.SetAttribute ("DataRate", StringValue (dataRate));
-  clientHelperUdp.SetAttribute ("PacketSize", UintegerValue (1280));
+
 
   ApplicationContainer clientApp;
-  // 25% bursty Full-buffer traffic
+  // 25% Full-buffer traffic
   // 25% Bursty traffic with higher application bit-rate averaging around 3 Mbps
   // 25% Bursty traffic with higher application bit-rate averaging around 750 Kbps
   // 25% Bursty traffic with lower application bit-rate averaging around 150 Kbps.

@@ -19,6 +19,7 @@ basicCellId=1 # The next value will be the first cellId
 reducedPmValues=0 # use reduced subset of pmValues
 EnableE2FileLogging=1 # enable offline generation of data
 ues=3 # Number of UEs for each mmWave ENB
+dataRate=0
 
 # Select 0 or 1 to switch between the optimized or debug build
 build=1
@@ -39,7 +40,7 @@ echo "Energy Efficiency use case"
 outageThreshold=-5.0 # use -5.0 when handover is not in NoAuto 
 handoverMode="DynamicTtt"
 indicationPeriodicity=0.02 # value in seconds (20 ms)
-controlPath="es_actions_for_ns3.csv" # ES control file path
+controlFileName="es_actions_for_ns3.csv" # ES control file path
 
 # NS_LOG="KpmIndication"
 # NS_LOG="RicControlMessage" 
@@ -48,6 +49,7 @@ for i in $(seq 1 $N); do
   echo "Running simulation $i out of $N";
   ./waf --run "scratch/scenario-three --RngRun=$i \
                                     --configuration=$configuration \
+                                    --dataRate=$dataRate \
                                     --enableTraces=$enableTraces \
                                     --e2lteEnabled=$e2lteEnabled \
                                     --e2nrEnabled=$e2nrEnabled \
@@ -64,8 +66,7 @@ for i in $(seq 1 $N); do
                                     --enableE2FileLogging=$EnableE2FileLogging \
                                     --minSpeed=$minSpeed\
                                     --maxSpeed=$maxSpeed\
-                                    --ns3::LteEnbNetDevice::E2Periodicity=$indicationPeriodicity\
-                                    --ns3::MmWaveEnbNetDevice::E2Periodicity=$indicationPeriodicity\
-                                    --ns3::LteEnbNetDevice::ControlFileName=$controlPath";
+                                    --indicationPeriodicity=$indicationPeriodicity\
+                                    --controlFileName=$controlFileName";
   sleep 1;
 done
