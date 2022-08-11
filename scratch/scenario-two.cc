@@ -227,15 +227,15 @@ static ns3::GlobalValue
 // static ns3::GlobalValue g_controlFileName ("controlFileName", "The path to the control file (can be absolute)",
 //                                     ns3::StringValue ("qos_actions.csv"), ns3::MakeStringChecker ());
 
-static ns3::GlobalValue g_minSpeed ("minSpeed",
-                                           "minimum UE speed in m/s",
-                                           ns3::DoubleValue (2.0),
-                                           ns3::MakeDoubleChecker<double> ());
+// static ns3::GlobalValue g_minSpeed ("minSpeed",
+//                                            "minimum UE speed in m/s",
+//                                            ns3::DoubleValue (2.0),
+//                                            ns3::MakeDoubleChecker<double> ());
 
-static ns3::GlobalValue g_maxSpeed ("maxSpeed",
-                                           "maximum UE speed in m/s",
-                                           ns3::DoubleValue (4.0),
-                                           ns3::MakeDoubleChecker<double> ());
+// static ns3::GlobalValue g_maxSpeed ("maxSpeed",
+//                                            "maximum UE speed in m/s",
+//                                            ns3::DoubleValue (4.0),
+//                                            ns3::MakeDoubleChecker<double> ());
 
 int
 main (int argc, char *argv[])
@@ -302,10 +302,10 @@ main (int argc, char *argv[])
   std::string e2TermIp = stringValue.Get ();
   GlobalValue::GetValueByName ("enableE2FileLogging", booleanValue);
   bool enableE2FileLogging = booleanValue.Get ();
-  GlobalValue::GetValueByName ("minSpeed", doubleValue);
-  double minSpeed = doubleValue.Get ();
-  GlobalValue::GetValueByName ("maxSpeed", doubleValue);
-  double maxSpeed = doubleValue.Get ();
+  //GlobalValue::GetValueByName ("minSpeed", doubleValue);
+  //double minSpeed = doubleValue.Get ();
+  //GlobalValue::GetValueByName ("maxSpeed", doubleValue);
+  // maxSpeed = doubleValue.Get ();
   // GlobalValue::GetValueByName ("controlFileName", stringValue);
   // std::string controlFileName = stringValue.Get ();
 
@@ -313,8 +313,8 @@ main (int argc, char *argv[])
                                  << " traffic Model " << unsigned (trafficModel)
                                  << " OutageThreshold " << outageThreshold << " HandoverMode "
                                  << handoverMode << " BasicCellId " << basicCellId << " e2TermIp "
-                                 << e2TermIp << " enableE2FileLogging " << enableE2FileLogging
-                                 << " minSpeed " << minSpeed << " maxSpeed " << maxSpeed);
+                                 << e2TermIp << " enableE2FileLogging " << enableE2FileLogging);
+                                 //<< " minSpeed " << minSpeed << " maxSpeed " << maxSpeed);
 
   //get current time
   time_t rawtime;
@@ -553,15 +553,50 @@ main (int argc, char *argv[])
   uePositionAlloc->SetX (centerPosition.x);
   uePositionAlloc->SetY (centerPosition.y);
   uePositionAlloc->SetRho (isd);
-  Ptr<UniformRandomVariable> speed = CreateObject<UniformRandomVariable> ();
-  speed->SetAttribute ("Min", DoubleValue (minSpeed));
-  speed->SetAttribute ("Max", DoubleValue (maxSpeed));
 
-  uemobility.SetMobilityModel ("ns3::RandomWalk2dOutdoorMobilityModel", "Speed",
-                               PointerValue (speed), "Bounds",
-                               RectangleValue (Rectangle (0, maxXAxis, 0, maxYAxis)));
+
+  switch (trafficModel)
+  {
+    //eMBB
+    case 0: {
+      //low mobility m/s
+      Ptr<UniformRandomVariable> speed = CreateObject<UniformRandomVariable> ();
+      speed->SetAttribute ("Min", DoubleValue (0.3));// 1 km/h
+      speed->SetAttribute ("Max", DoubleValue (3));// 10 km/h
+
+      uemobility.SetMobilityModel ("ns3::RandomWalk2dOutdoorMobilityModel", "Speed",
+                                  PointerValue (speed), "Bounds",
+                                  RectangleValue (Rectangle (0, maxXAxis, 0, maxYAxis)));
+    }
+    break;
+    //mIoT 
+    case 1: {
+      //static UEs so don't set any speed
+    }
+    break;
+    //URLLC
+    case 2: {
+      //high mobility m/s
+      Ptr<UniformRandomVariable> speed = CreateObject<UniformRandomVariable> ();
+      speed->SetAttribute ("Min", DoubleValue (3));// 10 km/h
+      speed->SetAttribute ("Max", DoubleValue (33));// 120 km/h
+
+      uemobility.SetMobilityModel ("ns3::RandomWalk2dOutdoorMobilityModel", "Speed",
+                                  PointerValue (speed), "Bounds",
+                                  RectangleValue (Rectangle (0, maxXAxis, 0, maxYAxis)));
+    }
+    break;
+
+  default:
+    NS_FATAL_ERROR (
+        "Traffic model not recognized, the only possible values are [0,1,2]. Value passed: "
+        << trafficModel);
+  }
+
   uemobility.SetPositionAllocator (uePositionAlloc);
   uemobility.Install (ueNodes);
+
+
 
   // Install mmWave, lte, mc Devices to the nodes
   NetDeviceContainer lteEnbDevs = mmwaveHelper->InstallLteEnbDevice (lteEnbNodes);
@@ -637,22 +672,38 @@ main (int argc, char *argv[])
   ApplicationContainer clientApp;
   switch (trafficModel)
     {
+      //eMBB
       case 0: {
         for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
           {
-            // Full traffic
-            PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory",
-                                                 InetSocketAddress (Ipv4Address::GetAny (), 1234));
-            sinkApp.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
-            UdpClientHelper dlClient (ueIpIface.GetAddress (u), 1234);
-            dlClient.SetAttribute ("Interval", TimeValue (MicroSeconds (500)));
-            dlClient.SetAttribute ("MaxPackets", UintegerValue (UINT32_MAX));
-            dlClient.SetAttribute ("PacketSize", UintegerValue (1280));
-            clientApp.Add (dlClient.Install (remoteHost));
+            if (u % 2 == 0)
+              {
+                // Bursty traffic
+                if (u % 4 == 0)
+                  {
+                    clientApp.Add (clientHelperTcp.Install (ueNodes.Get (u)));
+                  }
+                else
+                  {
+                    clientApp.Add (clientHelperUdp.Install (ueNodes.Get (u)));
+                  }
+              }
+            else
+              {
+                // Full traffic
+                PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory",
+                                                    InetSocketAddress (Ipv4Address::GetAny (), 1234));
+                sinkApp.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
+                UdpClientHelper dlClient (ueIpIface.GetAddress (u), 1234);
+                dlClient.SetAttribute ("Interval", TimeValue (MicroSeconds (2560)));//4 Mbit/s
+                dlClient.SetAttribute ("MaxPackets", UintegerValue (UINT32_MAX));
+                dlClient.SetAttribute ("PacketSize", UintegerValue (1280));
+                clientApp.Add (dlClient.Install (remoteHost));
+              }
           }
       }
       break;
-
+      //mIoT 
       case 1: {
         for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
           {
@@ -672,94 +723,65 @@ main (int argc, char *argv[])
             else
               {
                 // Full traffic
-                PacketSinkHelper dlPacketSinkHelper (
-                    "ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), 1234));
-                sinkApp.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
-                UdpClientHelper dlClient (ueIpIface.GetAddress (u), 1234);
-                dlClient.SetAttribute ("Interval", TimeValue (MicroSeconds (500)));
-                dlClient.SetAttribute ("MaxPackets", UintegerValue (UINT32_MAX));
-                dlClient.SetAttribute ("PacketSize", UintegerValue (1280));
-                clientApp.Add (dlClient.Install (remoteHost));
+                //PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory",
+                                                    //InetSocketAddress (Ipv4Address::GetAny (), 1234));
+                //sinkApp.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
+                OnOffHelper onOffAP ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), 1234));
+                //sinkApp.Add (onOffAP.Install (ueNodes.Get (u)));
+                onOffAP.SetAttribute("PacketSize", UintegerValue(1280));
+                onOffAP.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]")); 
+                onOffAP.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]"));
+                onOffAP.SetAttribute("DataRate", StringValue ("44.6kbps"));
+                clientApp.Add (onOffAP.Install (remoteHost));
               }
           }
       }
       break;
-
+      //URLLC
       case 2: {
         for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
-          {
-            // Bursty traffic
-            if (u % 2 == 0)
-              {
-                clientApp.Add (clientHelperTcp.Install (ueNodes.Get (u)));
-              }
-            else
-              {
-                clientApp.Add (clientHelperUdp.Install (ueNodes.Get (u)));
-              }
-          }
+        {
+          if (u % 2 == 0)
+            {
+              // Bursty traffic
+              if (u % 4 == 0)
+                {
+                  clientApp.Add (clientHelperTcp.Install (ueNodes.Get (u)));
+                }
+              else
+                {
+                  clientApp.Add (clientHelperUdp.Install (ueNodes.Get (u)));
+                }
+            }
+          else
+            {
+              // Full traffic
+              //PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory",
+                                                  //InetSocketAddress (Ipv4Address::GetAny (), 1234));
+              //sinkApp.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
+              OnOffHelper onOffAP ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), 1234));
+              //sinkApp.Add (onOffAP.Install (ueNodes.Get (u)));
+              onOffAP.SetAttribute("PacketSize", UintegerValue(1280));
+              onOffAP.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]")); 
+              onOffAP.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]"));
+              onOffAP.SetAttribute("DataRate", StringValue ("89.3kbps"));
+              clientApp.Add (onOffAP.Install (remoteHost));
+            }
+        }
       }
       break;
 
-      case 3: { // 25% bursty Full-buffer traffic
-                // 25% Bursty traffic with higher application bit-rate averaging around 3 Mbps
-                // 25% Bursty traffic with higher application bit-rate averaging around 750 Kbps
-                // 25% Bursty traffic with lower application bit-rate averaging around 150 Kbps.
-        for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
-          {
-
-            if (u % 4 == 0)
-              {
-                // Full buffer traffic
-                PacketSinkHelper dlPacketSinkHelper (
-                    "ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), 1234));
-                sinkApp.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
-                UdpClientHelper dlClient (ueIpIface.GetAddress (u), 1234);
-                dlClient.SetAttribute ("MaxPackets", UintegerValue (UINT32_MAX));
-                dlClient.SetAttribute ("PacketSize", UintegerValue (1280));
-                if (configuration == 2)
-                  {
-                    // Data rate 40 Mbps
-                    dlClient.SetAttribute ("Interval", TimeValue (MicroSeconds (250)));
-                  }
-                else
-                  {
-                    // Data rate 20 Mbps 
-                    dlClient.SetAttribute ("Interval", TimeValue (MicroSeconds (500)));
-                  }
-
-                clientApp.Add (dlClient.Install (remoteHost));
-              }
-            else if (u % 4 == 1)
-              {
-                if (configuration == 2)
-                  clientHelperTcp.SetAttribute ("DataRate", StringValue ("20Mbps"));
-                clientApp.Add (clientHelperTcp.Install (ueNodes.Get (u)));
-              }
-            else if (u % 4 == 2)
-              {
-                clientApp.Add (clientHelperTcp750.Install (ueNodes.Get (u)));
-              }
-            else if (u % 4 == 3)
-              {
-                clientApp.Add (clientHelperTcp150.Install (ueNodes.Get (u)));
-              }
-          }
-        break;
-      }
 
     default:
       NS_FATAL_ERROR (
-          "Traffic model not recognized, the only possible values are [0,1,2,3]. Value passed: "
+          "Traffic model not recognized, the only possible values are [0,1,2]. Value passed: "
           << trafficModel);
-
     }
-
   // Start applications
   GlobalValue::GetValueByName ("simTime", doubleValue);
   double simTime = doubleValue.Get ();
   sinkApp.Start (Seconds (0));
-
+  
   clientApp.Start (MilliSeconds (100));
   clientApp.Stop (Seconds (simTime - 0.1));
 
