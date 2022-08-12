@@ -159,11 +159,10 @@ static ns3::GlobalValue g_e2cuCp ("e2cuCp", "If true, send CU-CP reports",
 
 static ns3::GlobalValue g_trafficModel (
     "trafficModel",
-    "Type of the traffic model at the transport layer [0,3],"
-    " can generate full buffer traffic (0),"
-    " half nodes in full buffer and half nodes in bursty (1),"
-    " bursty traffic (2),"
-    " Mixed (3): 0.25 full buffer, 0.25 bursty 3Mbps, 0.25 bursty 0.75Mbps, 0.25 bursty 0.15Mbps",
+    "Type of the traffic model at the transport layer [0,2],"
+    " eMBB (0),"
+    " MIoT (1),"
+    " URLLC (2)",
     ns3::UintegerValue (0), ns3::MakeUintegerChecker<uint8_t> ());
 
 static ns3::GlobalValue g_configuration ("configuration",
@@ -579,7 +578,7 @@ main (int argc, char *argv[])
       //high mobility m/s
       Ptr<UniformRandomVariable> speed = CreateObject<UniformRandomVariable> ();
       speed->SetAttribute ("Min", DoubleValue (3));// 10 km/h
-      speed->SetAttribute ("Max", DoubleValue (33));// 120 km/h
+      speed->SetAttribute ("Max", DoubleValue (13.8));// 50 km/h
 
       uemobility.SetMobilityModel ("ns3::RandomWalk2dOutdoorMobilityModel", "Speed",
                                   PointerValue (speed), "Bounds",
@@ -639,36 +638,6 @@ main (int argc, char *argv[])
   sinkApp.Add (sinkHelperTcp.Install (remoteHost));
   sinkApp.Add (sinkHelperUdp.Install (remoteHost));
 
-  // On the UEs there are TCP and UDP clients
-  // If needed [Mean=1,Bound=0]
-  OnOffHelper clientHelperTcp ("ns3::TcpSocketFactory", Address ());
-  clientHelperTcp.SetAttribute ("Remote", serverAddressTcp);
-  clientHelperTcp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable"));
-  clientHelperTcp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
-  clientHelperTcp.SetAttribute ("DataRate", StringValue (dataRate));
-  clientHelperTcp.SetAttribute ("PacketSize", UintegerValue (1280));
-
-  OnOffHelper clientHelperTcp150 ("ns3::TcpSocketFactory", Address ());
-  clientHelperTcp150.SetAttribute ("Remote", serverAddressTcp);
-  clientHelperTcp150.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable"));
-  clientHelperTcp150.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
-  clientHelperTcp150.SetAttribute ("DataRate", StringValue ("150kbps"));
-  clientHelperTcp150.SetAttribute ("PacketSize", UintegerValue (1280));
-
-  OnOffHelper clientHelperTcp750 ("ns3::TcpSocketFactory", Address ());
-  clientHelperTcp750.SetAttribute ("Remote", serverAddressTcp);
-  clientHelperTcp750.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable"));
-  clientHelperTcp750.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
-  clientHelperTcp750.SetAttribute ("DataRate", StringValue ("750kbps"));
-  clientHelperTcp750.SetAttribute ("PacketSize", UintegerValue (1280));
-
-  OnOffHelper clientHelperUdp ("ns3::UdpSocketFactory", Address ());
-  clientHelperUdp.SetAttribute ("Remote", serverAddressUdp);
-  clientHelperUdp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable"));
-  clientHelperUdp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
-  clientHelperUdp.SetAttribute ("DataRate", StringValue (dataRate));
-  clientHelperUdp.SetAttribute ("PacketSize", UintegerValue (1280));
-
   ApplicationContainer clientApp;
   switch (trafficModel)
     {
@@ -676,30 +645,15 @@ main (int argc, char *argv[])
       case 0: {
         for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
           {
-            if (u % 2 == 0)
-              {
-                // Bursty traffic
-                if (u % 4 == 0)
-                  {
-                    clientApp.Add (clientHelperTcp.Install (ueNodes.Get (u)));
-                  }
-                else
-                  {
-                    clientApp.Add (clientHelperUdp.Install (ueNodes.Get (u)));
-                  }
-              }
-            else
-              {
-                // Full traffic
-                PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory",
-                                                    InetSocketAddress (Ipv4Address::GetAny (), 1234));
-                sinkApp.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
-                UdpClientHelper dlClient (ueIpIface.GetAddress (u), 1234);
-                dlClient.SetAttribute ("Interval", TimeValue (MicroSeconds (2560)));//4 Mbit/s
-                dlClient.SetAttribute ("MaxPackets", UintegerValue (UINT32_MAX));
-                dlClient.SetAttribute ("PacketSize", UintegerValue (1280));
-                clientApp.Add (dlClient.Install (remoteHost));
-              }
+            // Full traffic
+            PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory",
+                                                InetSocketAddress (Ipv4Address::GetAny (), 1234));
+            sinkApp.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
+            UdpClientHelper dlClient (ueIpIface.GetAddress (u), 1234);
+            dlClient.SetAttribute ("Interval", TimeValue (MicroSeconds (2560)));//4 Mbit/s
+            dlClient.SetAttribute ("MaxPackets", UintegerValue (UINT32_MAX));
+            dlClient.SetAttribute ("PacketSize", UintegerValue (1280));
+            clientApp.Add (dlClient.Install (remoteHost));
           }
       }
       break;
@@ -707,66 +661,35 @@ main (int argc, char *argv[])
       case 1: {
         for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
           {
-
-            if (u % 2 == 0)
-              {
-                // Bursty traffic
-                if (u % 4 == 0)
-                  {
-                    clientApp.Add (clientHelperTcp.Install (ueNodes.Get (u)));
-                  }
-                else
-                  {
-                    clientApp.Add (clientHelperUdp.Install (ueNodes.Get (u)));
-                  }
-              }
-            else
-              {
-                // Full traffic
-                //PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory",
-                                                    //InetSocketAddress (Ipv4Address::GetAny (), 1234));
-                //sinkApp.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
-                OnOffHelper onOffAP ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), 1234));
-                //sinkApp.Add (onOffAP.Install (ueNodes.Get (u)));
-                onOffAP.SetAttribute("PacketSize", UintegerValue(1280));
-                onOffAP.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]")); 
-                onOffAP.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]"));
-                onOffAP.SetAttribute("DataRate", StringValue ("44.6kbps"));
-                clientApp.Add (onOffAP.Install (remoteHost));
-              }
+            // Full traffic
+            //PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory",
+                                                //InetSocketAddress (Ipv4Address::GetAny (), 1234));
+            //sinkApp.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
+            OnOffHelper onOffAP ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), 1234));
+            //sinkApp.Add (onOffAP.Install (ueNodes.Get (u)));
+            onOffAP.SetAttribute("PacketSize", UintegerValue(1280));
+            onOffAP.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]")); 
+            onOffAP.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]"));
+            onOffAP.SetAttribute("DataRate", StringValue ("44.6kbps"));
+            clientApp.Add (onOffAP.Install (remoteHost));
           }
       }
       break;
       //URLLC
       case 2: {
         for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
-        {
-          if (u % 2 == 0)
-            {
-              // Bursty traffic
-              if (u % 4 == 0)
-                {
-                  clientApp.Add (clientHelperTcp.Install (ueNodes.Get (u)));
-                }
-              else
-                {
-                  clientApp.Add (clientHelperUdp.Install (ueNodes.Get (u)));
-                }
-            }
-          else
-            {
-              // Full traffic
-              //PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory",
-                                                  //InetSocketAddress (Ipv4Address::GetAny (), 1234));
-              //sinkApp.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
-              OnOffHelper onOffAP ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), 1234));
-              //sinkApp.Add (onOffAP.Install (ueNodes.Get (u)));
-              onOffAP.SetAttribute("PacketSize", UintegerValue(1280));
-              onOffAP.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]")); 
-              onOffAP.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]"));
-              onOffAP.SetAttribute("DataRate", StringValue ("89.3kbps"));
-              clientApp.Add (onOffAP.Install (remoteHost));
-            }
+        { 
+          // Full traffic
+          //PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory",
+                                              //InetSocketAddress (Ipv4Address::GetAny (), 1234));
+          //sinkApp.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
+          OnOffHelper onOffAP ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), 1234));
+          //sinkApp.Add (onOffAP.Install (ueNodes.Get (u)));
+          onOffAP.SetAttribute("PacketSize", UintegerValue(1280));
+          onOffAP.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]")); 
+          onOffAP.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]"));
+          onOffAP.SetAttribute("DataRate", StringValue ("89.3kbps"));
+          clientApp.Add (onOffAP.Install (remoteHost));
         }
       }
       break;
