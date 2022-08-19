@@ -55,9 +55,12 @@ DlPhyTransmissionTrace.txt
 du-cell-*.txt
 enbs.txt
 EnbSchedAllocTraces.txt
+LteDlRsrpSinrStats.txt
+LteUlSinrStats.txt
 MmWaveSinrTime.txt
 MmWaveSwitchStats.txt
 RxPacketTrace.txt
+RlcAmBufferSize.txt
 ues.txt
 UlE2PdcpStats.txt
 UlE2PdcpStatsLte.txt
