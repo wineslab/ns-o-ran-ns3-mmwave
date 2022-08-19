@@ -159,9 +159,6 @@ static ns3::GlobalValue g_ues ("ues", "Number of UEs for each mmWave ENB.", ns3:
 static ns3::GlobalValue g_simTime ("simTime", "Simulation time in seconds", ns3::DoubleValue (1.9),
                                    ns3::MakeDoubleChecker<double> (0.1, 1000.0));
 
-static ns3::GlobalValue g_e2TermIp ("e2TermIp", "The IP address of the RIC E2 termination",
-                                    ns3::StringValue ("10.244.0.240"), ns3::MakeStringChecker ());
-
 static ns3::GlobalValue
     g_enableE2FileLogging ("enableE2FileLogging",
                            "If true, generate offline file logging instead of connecting to RIC",
@@ -216,14 +213,12 @@ main (int argc, char *argv[])
   uint32_t bufferSize = uintegerValue.Get ();
   GlobalValue::GetValueByName ("trafficModel", uintegerValue);
   uint8_t trafficModel = uintegerValue.Get ();
-  GlobalValue::GetValueByName ("e2TermIp", stringValue);
-  std::string e2TermIp = stringValue.Get ();
   GlobalValue::GetValueByName ("enableE2FileLogging", booleanValue);
   bool enableE2FileLogging = booleanValue.Get ();
 
   NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << bufferSize
                                  << " traffic Model " << unsigned (trafficModel)
-                                 << " e2TermIp " << e2TermIp << " enableE2FileLogging " << enableE2FileLogging);
+                                 << " enableE2FileLogging " << enableE2FileLogging);
 
   //get current time
   time_t rawtime;
@@ -263,7 +258,7 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::MmWaveHelper::RlcAmEnabled", BooleanValue (rlcAmEnabled));
   Config::SetDefault ("ns3::MmWaveHelper::HarqEnabled", BooleanValue (harqEnabled));
   Config::SetDefault ("ns3::MmWaveHelper::UseIdealRrc", BooleanValue (true));
-  Config::SetDefault ("ns3::MmWaveHelper::E2TermIp", StringValue (e2TermIp));
+  Config::SetDefault ("ns3::MmWaveHelper::E2TermIp", StringValue ("10.244.0.240")); // Might be deleted in the future
 
   Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::HarqEnabled", BooleanValue (harqEnabled));
   Config::SetDefault ("ns3::MmWavePhyMacCommon::NumHarqProcess", UintegerValue (100));
