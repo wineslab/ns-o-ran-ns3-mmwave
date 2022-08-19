@@ -33,7 +33,7 @@ using namespace ns3;
 using namespace mmwave;
 
 /**
- * Scenario One
+ * Scenario Two
  * 
  */
 
