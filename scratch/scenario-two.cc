@@ -159,11 +159,6 @@ static ns3::GlobalValue g_ues ("ues", "Number of UEs for each mmWave ENB.", ns3:
 static ns3::GlobalValue g_simTime ("simTime", "Simulation time in seconds", ns3::DoubleValue (1.9),
                                    ns3::MakeDoubleChecker<double> (0.1, 1000.0));
 
-static ns3::GlobalValue
-    g_enableE2FileLogging ("enableE2FileLogging",
-                           "If true, generate offline file logging instead of connecting to RIC",
-                           ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
-
 int
 main (int argc, char *argv[])
 {
@@ -213,12 +208,9 @@ main (int argc, char *argv[])
   uint32_t bufferSize = uintegerValue.Get ();
   GlobalValue::GetValueByName ("trafficModel", uintegerValue);
   uint8_t trafficModel = uintegerValue.Get ();
-  GlobalValue::GetValueByName ("enableE2FileLogging", booleanValue);
-  bool enableE2FileLogging = booleanValue.Get ();
 
   NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << bufferSize
-                                 << " traffic Model " << unsigned (trafficModel)
-                                 << " enableE2FileLogging " << enableE2FileLogging);
+                                 << " traffic Model " << unsigned (trafficModel));
 
   //get current time
   time_t rawtime;
@@ -249,8 +241,8 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::MmWaveEnbNetDevice::EnableCuCpReport", BooleanValue(true));
   Config::SetDefault ("ns3::LteEnbNetDevice::EnableCuCpReport", BooleanValue(true));
 
-  Config::SetDefault ("ns3::LteEnbNetDevice::EnableE2FileLogging", BooleanValue (enableE2FileLogging));
-  Config::SetDefault ("ns3::MmWaveEnbNetDevice::EnableE2FileLogging", BooleanValue (enableE2FileLogging));
+  Config::SetDefault ("ns3::LteEnbNetDevice::EnableE2FileLogging", BooleanValue (true));
+  Config::SetDefault ("ns3::MmWaveEnbNetDevice::EnableE2FileLogging", BooleanValue (true));
 
   Config::SetDefault ("ns3::MmWaveEnbMac::NumberOfRaPreambles", UintegerValue (40));
   Config::SetDefault ("ns3::LteEnbMac::NumberOfRaPreambles", UintegerValue (40));
