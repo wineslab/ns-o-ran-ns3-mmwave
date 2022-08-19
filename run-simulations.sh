@@ -11,7 +11,7 @@ trafficModel=3 # Type of the traffic model at the transport layer [0,3], can gen
 configuration=0 # 0: NR carrier at 850 MHz, low traffic | 1: NR carrier at 3.5 GHz, low traffic | 2: NR carrier at 28 GHz, high traffic
 minSpeed=2.0 # minimum UE speed in m/s
 maxSpeed=4.0 # maximum UE speed in m/s
-simTime=1.5 # simulation time
+simTime=1.0 # simulation time
 e2TermIp="10.102.157.65" # actual E2term IP interface
 
 # Useful parameters to be configured
@@ -25,7 +25,7 @@ ues=3 # Number of UEs for each mmWave ENB
 build=0
 builf_conf=0
 
-if [[ build -eq 1 ]];then
+if [[ build -eq 0 ]];then
   if [[ build_conf -eq 0 ]];then
     # Debug build
     echo "Build ns-3 in debug mode"
@@ -39,7 +39,7 @@ fi
 
 # Select 0 or 1 to switch between the use cases
 # Remember to create an empty version of the control file before the start of this script, otherwise it would lead to premature crashes.
-use_case=1
+use_case=0
 if [[ use_case -eq 0 ]];then
   ## Energy Efficiency use case
   echo "Energy Efficiency use case"

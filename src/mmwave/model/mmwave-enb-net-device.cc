@@ -654,7 +654,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
       indicationMessageHelper->FillCuUpValues (plmId);
     }
 
-  NS_LOG_UNCOND(Simulator::Now().GetSeconds() << " " << m_cellId << " cell volume " << cellDlTxVolume);
+  NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << m_cellId << " cell volume mmWave " << cellDlTxVolume);
 
   if (m_forceE2FileLogging)
     {
@@ -799,7 +799,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
           NS_FATAL_ERROR ("Can't open file " << m_cuCpFileName.c_str ());
         }
 
-      NS_LOG_UNCOND ("m_cuCpFileName open " << m_cuCpFileName);
+      NS_LOG_DEBUG ("m_cuCpFileName open " << m_cuCpFileName);
 
       // the string is timestamp, ueImsiComplete, numActiveUes, DRB.EstabSucc.5QI.UEID (numDrb), DRB.RelActNbr.5QI.UEID (0), L3 serving Id (m_cellId), UE (imsi), L3 serving SINR, L3 serving SINR 3gpp, L3 neigh Id (cellId), L3 neigh Sinr, L3 neigh SINR 3gpp (convertedSinr)
       // The values for L3 neighbour cells are repeated for each neighbour (7 times in this implementation)

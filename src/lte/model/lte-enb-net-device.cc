@@ -683,7 +683,7 @@ LteEnbNetDevice::UpdateConfig (void)
           std::ofstream csv {};
           csv.open (m_cuUpFileName.c_str ());
           csv << "timestamp,ueImsiComplete,DRB.PdcpSduDelayDl (cellAverageLatency),"
-                 "m_pDCPBytesUL(0),m_pDCPBytesDL (cellDlTxVolume),"
+                 "m_pDCPBytesUL (0),m_pDCPBytesDL (cellDlTxVolume),"
                  "DRB.PdcpSduVolumeDl_Filter.UEID (txBytes),"
                  "Tot.PdcpSduNbrDl.UEID (txDlPackets),DRB.PdcpSduBitRateDl.UEID (pdcpThroughput),"
                  "DRB.PdcpSduDelayDl.UEID (pdcpLatency),QosFlow.PdcpPduVolumeDL_Filter.UEID"
@@ -882,7 +882,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
       indicationMessageHelper->FillCuUpValues (plmId, 0, cellDlTxVolume);
     }
 
-  NS_LOG_UNCOND(Simulator::Now().GetSeconds() << " " << m_cellId << " cell volume " << cellDlTxVolume);
+  NS_LOG_UNCOND(Simulator::Now().GetSeconds() << " " << m_cellId << " cell volume Lte " << cellDlTxVolume);
 
   if (m_forceE2FileLogging) {
     std::ofstream csv {};
@@ -967,7 +967,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
       NS_FATAL_ERROR ("Can't open file " << m_cuCpFileName.c_str ());
     }
 
-    NS_LOG_UNCOND ("m_cuCpFileName open " << m_cuCpFileName);
+    NS_LOG_DEBUG ("m_cuCpFileName open " << m_cuCpFileName);
 
     // the string is timestamp, ueImsiComplete, numActiveUes, DRB.EstabSucc.5QI.UEID (numDrb), DRB.RelActNbr.5QI.UEID (0)
 
