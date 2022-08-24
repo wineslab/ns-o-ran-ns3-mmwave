@@ -400,54 +400,48 @@ main (int argc, char *argv[])
   enbmobility.SetPositionAllocator (enbPositionAlloc);
   enbmobility.Install (allEnbNodes);
 
-  MobilityHelper uemobility;
 
   Ptr<UniformDiscPositionAllocator> uePositionAlloc = CreateObject<UniformDiscPositionAllocator> ();
-
   uePositionAlloc->SetX (centerPosition.x);
   uePositionAlloc->SetY (centerPosition.y);
   uePositionAlloc->SetRho (isd);
 
-  switch (trafficModel)
-  {
-    // eMBB
-    case 0: {
+  uint32_t countUe=0;
+
+  // eMBB
+  for (uint32_t u = countUe; u < ueNodes.GetN ()/3; ++u)
+    {
+      MobilityHelper uemobilityeMBB;
+      countUe++;
       // low mobility m/s
       Ptr<UniformRandomVariable> speed = CreateObject<UniformRandomVariable> ();
       speed->SetAttribute ("Min", DoubleValue (0.3));// 1 km/h
       speed->SetAttribute ("Max", DoubleValue (3));// 10 km/h
 
-      uemobility.SetMobilityModel ("ns3::RandomWalk2dOutdoorMobilityModel", "Speed",
+      uemobilityeMBB.SetMobilityModel ("ns3::RandomWalk2dOutdoorMobilityModel", "Speed",
                                   PointerValue (speed), "Bounds",
                                   RectangleValue (Rectangle (0, maxXAxis, 0, maxYAxis)));
+
+      uemobilityeMBB.SetPositionAllocator (uePositionAlloc);
+      uemobilityeMBB.Install (ueNodes.Get (u));
     }
-    break;
-    // mIoT 
-    case 1: {
-      // static UEs so don't set any speed
-    }
-    break;
-    // URLLC
-    case 2: {
+
+  // URLLC
+  for (uint32_t u = countUe; u < ueNodes.GetN (); ++u)
+    { 
+      countUe++;
+      MobilityHelper uemobilityURLLC;
       // high mobility m/s
       Ptr<UniformRandomVariable> speed = CreateObject<UniformRandomVariable> ();
       speed->SetAttribute ("Min", DoubleValue (3));// 10 km/h
       speed->SetAttribute ("Max", DoubleValue (13.8));// 50 km/h
 
-      uemobility.SetMobilityModel ("ns3::RandomWalk2dOutdoorMobilityModel", "Speed",
+      uemobilityURLLC.SetMobilityModel ("ns3::RandomWalk2dOutdoorMobilityModel", "Speed",
                                   PointerValue (speed), "Bounds",
                                   RectangleValue (Rectangle (0, maxXAxis, 0, maxYAxis)));
+      uemobilityURLLC.SetPositionAllocator (uePositionAlloc);
+      uemobilityURLLC.Install (ueNodes.Get (u));
     }
-    break;
-
-  default:
-    NS_FATAL_ERROR (
-        "Traffic model not recognized, the only possible values are [0,1,2]. Value passed: "
-        << trafficModel);
-  }
-
-  uemobility.SetPositionAllocator (uePositionAlloc);
-  uemobility.Install (ueNodes);
 
   // Install mmWave, lte, mc Devices to the nodes
   NetDeviceContainer lteEnbDevs = mmwaveHelper->InstallLteEnbDevice (lteEnbNodes);
@@ -491,66 +485,48 @@ main (int argc, char *argv[])
   sinkApp.Add (sinkHelperUdp.Install (remoteHost));
 
   ApplicationContainer clientApp;
-  switch (trafficModel)
+  countUe=0;
+  // eMBB
+  for (uint32_t u = countUe; u < ueNodes.GetN ()/3; ++u)
     {
-      // eMBB
-      case 0: {
-        for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
-          {
-            // Full traffic
-            PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory",
-                                                InetSocketAddress (Ipv4Address::GetAny (), 1234));
-            sinkApp.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
-            UdpClientHelper dlClient (ueIpIface.GetAddress (u), 1234);
-            dlClient.SetAttribute ("Interval", TimeValue (MicroSeconds (2560)));//4 Mbit/s
-            dlClient.SetAttribute ("MaxPackets", UintegerValue (UINT32_MAX));
-            dlClient.SetAttribute ("PacketSize", UintegerValue (1280));
-            clientApp.Add (dlClient.Install (remoteHost));
-          }
-      }
-      break;
-      // mIoT 
-      case 1: {
-        for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
-          {
-            // Full traffic
-            //PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory",
-                                                //InetSocketAddress (Ipv4Address::GetAny (), 1234));
-            //sinkApp.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
-            OnOffHelper onOffApp ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), 1234));
-            //sinkApp.Add (onOffApp.Install (ueNodes.Get (u)));
-            onOffApp.SetAttribute("PacketSize", UintegerValue(1280));
-            onOffApp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]")); 
-            onOffApp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]"));
-            onOffApp.SetAttribute("DataRate", StringValue ("44.6kbps"));
-            clientApp.Add (onOffApp.Install (remoteHost));
-          }
-      }
-      break;
-      // URLLC
-      case 2: {
-        for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
-        { 
-          // Full traffic
-          //PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory",
-                                              //InetSocketAddress (Ipv4Address::GetAny (), 1234));
-          //sinkApp.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
-          OnOffHelper onOffApp ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), 1234));
-          //sinkApp.Add (onOffApp.Install (ueNodes.Get (u)));
-          onOffApp.SetAttribute("PacketSize", UintegerValue(1280));
-          onOffApp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]")); 
-          onOffApp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]"));
-          onOffApp.SetAttribute("DataRate", StringValue ("89.3kbps"));
-          clientApp.Add (onOffApp.Install (remoteHost));
-        }
-      }
-      break;
-
-    default:
-      NS_FATAL_ERROR (
-          "Traffic model not recognized, the only possible values are [0,1,2]. Value passed: "
-          << trafficModel);
+      countUe++;
+      PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory",
+                                          InetSocketAddress (Ipv4Address::GetAny (), 1234));
+      sinkApp.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
+      UdpClientHelper dlClient (ueIpIface.GetAddress (u), 1234);
+      dlClient.SetAttribute ("Interval", TimeValue (MicroSeconds (2560)));//4 Mbit/s
+      dlClient.SetAttribute ("MaxPackets", UintegerValue (UINT32_MAX));
+      dlClient.SetAttribute ("PacketSize", UintegerValue (1280));
+      clientApp.Add (dlClient.Install (remoteHost));
     }
+  
+  // mIoT 
+  for (uint32_t u = countUe; u < ueNodes.GetN () - ueNodes.GetN ()/3; ++u)
+    {
+      countUe++;
+      OnOffHelper onOffApp ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), 1234));
+      //sinkApp.Add (onOffApp.Install (ueNodes.Get (u)));
+      onOffApp.SetAttribute("PacketSize", UintegerValue(1280));
+      onOffApp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]")); 
+      onOffApp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]"));
+      onOffApp.SetAttribute("DataRate", StringValue ("44.6kbps"));
+      clientApp.Add (onOffApp.Install (remoteHost));
+    }
+    
+  // URLLC
+  for (uint32_t u = countUe; u < ueNodes.GetN (); ++u)
+    { 
+      countUe++;
+      OnOffHelper onOffApp ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), 1234));
+      //sinkApp.Add (onOffApp.Install (ueNodes.Get (u)));
+      onOffApp.SetAttribute("PacketSize", UintegerValue(1280));
+      onOffApp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]")); 
+      onOffApp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]"));
+      onOffApp.SetAttribute("DataRate", StringValue ("89.3kbps"));
+      clientApp.Add (onOffApp.Install (remoteHost));
+    }
+
+  
   // Start applications
   GlobalValue::GetValueByName ("simTime", doubleValue);
   double simTime = doubleValue.Get ();
