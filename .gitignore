@@ -45,6 +45,9 @@ build/
 docs/
 local_build.sh
 CellIdStats.txt
+CellIdStatsHandover.txt
+UeHandoverEndStats.txt
+UeHandoverStartStats.txt
 cu-cp-cell-*.txt
 cu-up-cell-*.txt
 DlE2PdcpStats.txt
@@ -54,8 +57,12 @@ DlE2RlcStatsLte.txt
 DlPhyTransmissionTrace.txt
 du-cell-*.txt
 enbs.txt
+EnbHandoverEndStats.txt
+EnbHandoverStartStats.txt
 EnbSchedAllocTraces.txt
 LteDlRsrpSinrStats.txt
+LteSwitchStats.txt
+LteUlInterferenceStats.txt
 LteUlSinrStats.txt
 MmWaveSinrTime.txt
 MmWaveSwitchStats.txt
