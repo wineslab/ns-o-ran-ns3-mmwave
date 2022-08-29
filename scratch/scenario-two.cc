@@ -131,13 +131,15 @@ static ns3::GlobalValue g_bufferSize ("bufferSize", "RLC tx buffer size (MB)",
 static ns3::GlobalValue g_rlcAmEnabled ("rlcAmEnabled", "If true, use RLC AM, else use RLC UM",
                                         ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
 
-static ns3::GlobalValue g_trafficModel ("trafficModel",
-                                        "Type of the traffic model at the transport layer [0,2],"
-                                        " eMBB (0),"
-                                        " MIoT (1),"
-                                        " URLLC (2)",
-                                        ns3::UintegerValue (0),
-                                        ns3::MakeUintegerChecker<uint8_t> ());
+static ns3::GlobalValue g_PercUEeMBB ("PercUEeMBB",
+                                        "Percentage of UEs to delpoy for eMBB traffic model",
+                                        ns3::DoubleValue (0.3),
+                                        ns3::MakeDoubleChecker<double> ());
+
+static ns3::GlobalValue g_PercUEURLLC ("PercUEURLLC",
+                                        "Percentage of UEs to delpoy for URLLC traffic model",
+                                        ns3::DoubleValue (0.3),
+                                        ns3::MakeDoubleChecker<double> ());
 
 static ns3::GlobalValue g_configuration ("configuration", "Set the RF configuration [0,2],",
                                          ns3::UintegerValue (1),
@@ -206,11 +208,18 @@ main (int argc, char *argv[])
   bool rlcAmEnabled = booleanValue.Get ();
   GlobalValue::GetValueByName ("bufferSize", uintegerValue);
   uint32_t bufferSize = uintegerValue.Get ();
-  GlobalValue::GetValueByName ("trafficModel", uintegerValue);
-  uint8_t trafficModel = uintegerValue.Get ();
+  GlobalValue::GetValueByName ("PercUEeMBB", doubleValue);
+  double PercUEeMBB = doubleValue.Get ();
+  GlobalValue::GetValueByName ("PercUEURLLC", doubleValue);
+  double PercUEURLLC = doubleValue.Get ();
+
+  if (PercUEeMBB+PercUEURLLC>1){
+    NS_FATAL_ERROR ("The total percentage of UEs for each traffic model is higher than 1: " << PercUEeMBB+PercUEURLLC);
+  }
 
   NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << bufferSize
-                                 << " traffic Model " << unsigned (trafficModel));
+                                 << " percentage UEs eMBB " << PercUEeMBB
+                                 << " percentage UEs URLLC " << PercUEURLLC);
 
   //get current time
   time_t rawtime;
@@ -407,9 +416,8 @@ main (int argc, char *argv[])
   uePositionAlloc->SetRho (isd);
 
   uint32_t countUe=0;
-
   // eMBB
-  for (uint32_t u = countUe; u < ueNodes.GetN ()/3; ++u)
+  for (uint32_t u = countUe; u < ueNodes.GetN ()*PercUEeMBB; ++u)
     {
       MobilityHelper uemobilityeMBB;
       countUe++;
@@ -427,7 +435,7 @@ main (int argc, char *argv[])
     }
 
   // URLLC
-  for (uint32_t u = countUe; u < ueNodes.GetN (); ++u)
+  for (uint32_t u = countUe; u < ueNodes.GetN ()*PercUEeMBB + ueNodes.GetN ()*PercUEURLLC; ++u)
     { 
       countUe++;
       MobilityHelper uemobilityURLLC;
@@ -441,6 +449,15 @@ main (int argc, char *argv[])
                                   RectangleValue (Rectangle (0, maxXAxis, 0, maxYAxis)));
       uemobilityURLLC.SetPositionAllocator (uePositionAlloc);
       uemobilityURLLC.Install (ueNodes.Get (u));
+    }
+  // mIoT 
+  for (uint32_t u = countUe; u < ueNodes.GetN (); ++u)
+    {
+      countUe++;
+      MobilityHelper uemobilitymIoT;
+      // static mobility m/s
+      uemobilitymIoT.SetPositionAllocator (uePositionAlloc);
+      uemobilitymIoT.Install (ueNodes.Get (u));
     }
 
   // Install mmWave, lte, mc Devices to the nodes
@@ -487,7 +504,7 @@ main (int argc, char *argv[])
   ApplicationContainer clientApp;
   countUe=0;
   // eMBB
-  for (uint32_t u = countUe; u < ueNodes.GetN ()/3; ++u)
+  for (uint32_t u = countUe; u < ueNodes.GetN ()*PercUEeMBB; ++u)
     {
       countUe++;
       PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory",
@@ -500,21 +517,8 @@ main (int argc, char *argv[])
       clientApp.Add (dlClient.Install (remoteHost));
     }
   
-  // mIoT 
-  for (uint32_t u = countUe; u < ueNodes.GetN () - ueNodes.GetN ()/3; ++u)
-    {
-      countUe++;
-      OnOffHelper onOffApp ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), 1234));
-      //sinkApp.Add (onOffApp.Install (ueNodes.Get (u)));
-      onOffApp.SetAttribute("PacketSize", UintegerValue(1280));
-      onOffApp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]")); 
-      onOffApp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]"));
-      onOffApp.SetAttribute("DataRate", StringValue ("44.6kbps"));
-      clientApp.Add (onOffApp.Install (remoteHost));
-    }
-    
   // URLLC
-  for (uint32_t u = countUe; u < ueNodes.GetN (); ++u)
+  for (uint32_t u = countUe; u < ueNodes.GetN ()*PercUEeMBB + ueNodes.GetN ()*PercUEURLLC; ++u)
     { 
       countUe++;
       OnOffHelper onOffApp ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), 1234));
@@ -523,6 +527,19 @@ main (int argc, char *argv[])
       onOffApp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]")); 
       onOffApp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]"));
       onOffApp.SetAttribute("DataRate", StringValue ("89.3kbps"));
+      clientApp.Add (onOffApp.Install (remoteHost));
+    }
+
+  // mIoT 
+  for (uint32_t u = countUe; u < ueNodes.GetN (); ++u)
+    {
+      countUe++;
+      OnOffHelper onOffApp ("ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), 1234));
+      //sinkApp.Add (onOffApp.Install (ueNodes.Get (u)));
+      onOffApp.SetAttribute("PacketSize", UintegerValue(1280));
+      onOffApp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]")); 
+      onOffApp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable[Mean=1]"));
+      onOffApp.SetAttribute("DataRate", StringValue ("44.6kbps"));
       clientApp.Add (onOffApp.Install (remoteHost));
     }
 
