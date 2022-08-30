@@ -754,20 +754,20 @@ LteEnbNetDevice::UpdateConfig (void)
           m_cuUpFileName = "cu-up-cell-" + std::to_string(m_cellId) + ".txt";
           std::ofstream csv {};
           csv.open (m_cuUpFileName.c_str ());
-          csv << "timestamp, ueImsiComplete, DRB.PdcpSduDelayDl (cellAverageLatency), "
-                 "m_pDCPBytesUL(0), m_pDCPBytesDL (cellDlTxVolume), "
-                 "DRB.PdcpSduVolumeDl_Filter.UEID (txBytes), "
-                 "Tot.PdcpSduNbrDl.UEID (txDlPackets), DRB.PdcpSduBitRateDl.UEID (pdcpThroughput), "
-                 "DRB.PdcpSduDelayDl.UEID (pdcpLatency), QosFlow.PdcpPduVolumeDL_Filter.UEID "
-                 "(txPdcpPduBytesNrRlc), DRB.PdcpPduNbrDl.Qos.UEID (txPdcpPduNrRlc)\n";
+          csv << "timestamp,ueImsiComplete,DRB.PdcpSduDelayDl (cellAverageLatency),"
+                 "m_pDCPBytesUL (0),m_pDCPBytesDL (cellDlTxVolume),"
+                 "DRB.PdcpSduVolumeDl_Filter.UEID (txBytes),"
+                 "Tot.PdcpSduNbrDl.UEID (txDlPackets),DRB.PdcpSduBitRateDl.UEID (pdcpThroughput),"
+                 "DRB.PdcpSduDelayDl.UEID (pdcpLatency),QosFlow.PdcpPduVolumeDL_Filter.UEID"
+                 "(txPdcpPduBytesNrRlc),DRB.PdcpPduNbrDl.Qos.UEID (txPdcpPduNrRlc)\n";
           csv.close();
 
           m_cuCpFileName = "cu-cp-cell-" + std::to_string(m_cellId) + ".txt";
           csv.open (m_cuCpFileName.c_str ());
-          csv << "timestamp, ueImsiComplete, numActiveUes, DRB.EstabSucc.5QI.UEID (numDrb),"
-                 "DRB.RelActNbr.5QI.UEID (0), enbdev (m_cellId), UE (imsi), sameCellSinr,"
+          csv << "timestamp,ueImsiComplete,numActiveUes,DRB.EstabSucc.5QI.UEID (numDrb),"
+                 "DRB.RelActNbr.5QI.UEID (0),enbdev (m_cellId),UE (imsi),sameCellSinr,"
                  "sameCellSinr 3gpp encoded,L3 neigh Id (cellId),"
-                 "sinr, 3gpp encoded sinr (convertedSinr)\n";
+                 "sinr,3gpp encoded sinr (convertedSinr)\n";
           csv.close();
           Simulator::Schedule(MicroSeconds(500), &LteEnbNetDevice::BuildAndSendReportMessage, this, E2Termination::RicSubscriptionRequest_rval_s{});
 
@@ -954,7 +954,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
       indicationMessageHelper->FillCuUpValues (plmId, 0, cellDlTxVolume);
     }
 
-  NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << std::to_string(m_cellId) << " cell volume " << cellDlTxVolume);
+  NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " <<  std::to_string(m_cellId) << " cell volume Lte" << cellDlTxVolume);
 
   if (m_forceE2FileLogging) {
     std::ofstream csv {};
@@ -966,10 +966,10 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
 
     uint64_t timestamp = m_startTime + (uint64_t) Simulator::Now().GetMilliSeconds ();
 
-    // the string is timestamp, ueImsiComplete, DRB.PdcpSduDelayDl (cellAverageLatency), 
-    // m_pDCPBytesUL (0), m_pDCPBytesDL (cellDlTxVolume), DRB.PdcpSduVolumeDl_Filter.UEID (txBytes),
-    // Tot.PdcpSduNbrDl.UEID (txDlPackets), DRB.PdcpSduBitRateDl.UEID (pdcpThroughput),
-    // DRB.PdcpSduDelayDl.UEID (pdcpLatency), QosFlow.PdcpPduVolumeDL_Filter.UEID (txPdcpPduBytesNrRlc),
+    // the string is timestamp,ueImsiComplete,DRB.PdcpSduDelayDl (cellAverageLatency),
+    // m_pDCPBytesUL (0),m_pDCPBytesDL (cellDlTxVolume),DRB.PdcpSduVolumeDl_Filter.UEID (txBytes),
+    // Tot.PdcpSduNbrDl.UEID (txDlPackets),DRB.PdcpSduBitRateDl.UEID (pdcpThroughput),
+    // DRB.PdcpSduDelayDl.UEID (pdcpLatency),QosFlow.PdcpPduVolumeDL_Filter.UEID (txPdcpPduBytesNrRlc),
     // DRB.PdcpPduNbrDl.Qos.UEID (txPdcpPduNrRlc)
 
     // the last two are not available on LTE

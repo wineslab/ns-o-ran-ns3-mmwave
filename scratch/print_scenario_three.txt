@@ -1,0 +1,13 @@
+#set terminal postscript eps size 8,4 noenhanced color fontfile "/usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb" "SFRM1000" 15
+set view map
+set xlabel 'X [m]'
+set ylabel 'Y [m]'
+set style fill transparent solid 0.5 
+set xrange [0:4300]
+set yrange [0:4300]
+load 'ues.txt'
+load 'enbs.txt'
+#set output 'scenario_1.eps'
+set terminal png size 2400,2400
+set output 'scenario.png'
+plot 1/0 notitle
