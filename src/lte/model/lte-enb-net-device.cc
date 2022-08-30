@@ -909,7 +909,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
 
     double pdcpThroughput = txBytes / m_e2Periodicity; // unit kbps
 
-    NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << m_cellId << " cell, connected UE with IMSI " << imsi 
+    NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << std::to_string(m_cellId) << " cell, connected UE with IMSI " << imsi 
       << " ueImsiString " << ueImsiComplete
       << " txDlPackets " << txDlPackets 
       << " txDlPacketsNr " << txPdcpPduNrRlc
@@ -938,7 +938,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
     cellAverageLatency = perUserAverageLatencySum / ueMap.size();
   }
     
-  NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << m_cellId << " cell, connected UEs number " << ueMap.size() 
+  NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << std::to_string(m_cellId) << " cell, connected UEs number " << ueMap.size() 
       << " cellAverageLatency " << cellAverageLatency
     );
 
@@ -954,7 +954,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
       indicationMessageHelper->FillCuUpValues (plmId, 0, cellDlTxVolume);
     }
 
-  NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << m_cellId << " cell volume " << cellDlTxVolume);
+  NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << std::to_string(m_cellId) << " cell volume " << cellDlTxVolume);
 
   if (m_forceE2FileLogging) {
     std::ofstream csv {};
@@ -1078,7 +1078,7 @@ LteEnbNetDevice::BuildAndSendReportMessage(E2Termination::RicSubscriptionRequest
   std::string gnbId = std::to_string(m_cellId);
 
   // TODO here we can get something from RRC and onward
-  NS_LOG_DEBUG("LteEnbNetDevice " << m_cellId << " BuildAndSendMessage at time " << Simulator::Now().GetSeconds());
+  NS_LOG_DEBUG("LteEnbNetDevice " << std::to_string(m_cellId) << " BuildAndSendMessage at time " << Simulator::Now().GetSeconds());
   
   if(m_sendCuUp)
   {
