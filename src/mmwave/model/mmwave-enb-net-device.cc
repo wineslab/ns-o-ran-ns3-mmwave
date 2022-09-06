@@ -80,10 +80,10 @@ NS_OBJECT_ENSURE_REGISTERED (MmWaveEnbNetDevice);
 void 
 MmWaveEnbNetDevice::KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu)
 {
-  NS_LOG_UNCOND ("\nReceived RIC Subscription Request, cellId= " << m_cellId << "\n");
+  NS_LOG_DEBUG ("\nReceived RIC Subscription Request, cellId= " << m_cellId << "\n");
 
   E2Termination::RicSubscriptionRequest_rval_s params = m_e2term->ProcessRicSubscriptionRequest (sub_req_pdu);
-  NS_LOG_UNCOND ("requestorId " << +params.requestorId << 
+  NS_LOG_DEBUG ("requestorId " << +params.requestorId << 
                  ", instanceId " << +params.instanceId << 
                  ", ranFuncionId " << +params.ranFuncionId << 
                  ", actionId " << +params.actionId);  
@@ -393,7 +393,7 @@ MmWaveEnbNetDevice::UpdateConfig (void)
           // schedule at start time
           if (m_e2term != 0)
             {
-              NS_LOG_UNCOND("E2sim start in cell " << m_cellId 
+              NS_LOG_DEBUG("E2sim start in cell " << m_cellId 
                 << " force CSV logging " << m_forceE2FileLogging);              
 
               if(!m_forceE2FileLogging) {
@@ -495,7 +495,7 @@ MmWaveEnbNetDevice::SetE2Termination(Ptr<E2Termination> e2term)
 {
   m_e2term = e2term;
 
-  NS_LOG_UNCOND("Register E2SM");
+  NS_LOG_DEBUG("Register E2SM");
 
   if (!m_forceE2FileLogging)
     {
@@ -626,7 +626,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
 
     m_drbThrDlUeid [imsi] = rlcBitrate; 
     
-    NS_LOG_UNCOND(Simulator::Now().GetSeconds() << " " << m_cellId << " cell, connected UE with IMSI " << imsi 
+    NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << m_cellId << " cell, connected UE with IMSI " << imsi 
       << " ueImsiString " << ueImsiComplete
       << " txDlPackets " << txDlPackets 
       << " txDlPacketsNr " << txPdcpPduNrRlc
@@ -654,7 +654,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
       indicationMessageHelper->FillCuUpValues (plmId);
     }
 
-  NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << m_cellId << " cell volume mmWave " << cellDlTxVolume);
+NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << m_cellId << " cell volume mmWave " << cellDlTxVolume);
 
   if (m_forceE2FileLogging)
     {
@@ -733,7 +733,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
         l3RrcMeasurementServing =
             L3RrcMeasurements::CreateL3RrcUeSpecificSinrServing (m_cellId, m_cellId, convertedSinr);
       }
-    NS_LOG_UNCOND(Simulator::Now().GetSeconds() << " enbdev " << m_cellId << " UE " << imsi << " L3 serving SINR " << sinrThisCell << " L3 serving SINR 3gpp " << convertedSinr);
+    NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " enbdev " << m_cellId << " UE " << imsi << " L3 serving SINR " << sinrThisCell << " L3 serving SINR 3gpp " << convertedSinr);
 
     std::string servingStr = std::to_string (numDrb) + "," + std::to_string (0) + "," +
                              std::to_string (m_cellId) + "," + std::to_string (imsi) + "," +
@@ -767,7 +767,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
                 l3RrcMeasurementNeigh->AddNeighbourCellMeasurement (cellId, convertedSinr);
               }
 
-            NS_LOG_UNCOND (Simulator::Now ().GetSeconds ()
+            NS_LOG_DEBUG (Simulator::Now ().GetSeconds ()
                            << " enbdev " << m_cellId << " UE " << imsi << " L3 neigh " << cellId
                            << " SINR " << sinr << " sinr encoded " << convertedSinr << " first insert");
             
@@ -816,7 +816,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
           std::string to_print = std::to_string (timestamp) + "," + ueImsiComplete + "," +
                                  std::to_string (ueMap.size()) + "," + uePms + "\n";
 
-          NS_LOG_UNCOND (to_print);
+          NS_LOG_DEBUG (to_print);
 
           csv << to_print;
         }
@@ -924,7 +924,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCe
     Time reportingWindow = Simulator::Now () - m_e2DuCalculator->GetLastResetTime (rnti, m_cellId);
     double denominatorPrb = std::ceil (reportingWindow.GetNanoSeconds () / phyMac->GetSlotPeriod ().GetNanoSeconds ()) * 14; 
     
-    NS_LOG_UNCOND ("macNumberOfSymbols " << macNumberOfSymbols 
+    NS_LOG_DEBUG ("macNumberOfSymbols " << macNumberOfSymbols 
                     << " denominatorPrb " << denominatorPrb);
 
     // Average Number of PRBs allocated for the UE = (NR/DR)*139 (where 139 is the total number of PRBs available per NR cell, given numerology 2 with 60 kHz SCS)
@@ -990,7 +990,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCe
     }
     rlcBufferOccupCellSpecific += rlcBufferOccup;
 
-    NS_LOG_UNCOND(Simulator::Now().GetSeconds() << " " << m_cellId << " cell, connected UE with IMSI " << imsi 
+    NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << m_cellId << " cell, connected UE with IMSI " << imsi 
         << " rnti " << rnti     
       << " macPduUe " << macPduUe
       << " macPduInitialUe " << macPduInitialUe
@@ -1066,7 +1066,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCe
   // Average Number of PRBs allocated for the UE = (NR/DR) (where 139 is the total number of PRBs available per NR cell, given numerology 2 with 60 kHz SCS)
   double prbUtilizationDl = macPrbsCellSpecific;
 
-  NS_LOG_UNCOND(Simulator::Now().GetSeconds() << " " << m_cellId << " cell, connected UEs number " << ueMap.size() 
+  NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << m_cellId << " cell, connected UEs number " << ueMap.size() 
       << " macPduCellSpecific " << macPduCellSpecific
       << " macPduInitialCellSpecific " << macPduInitialCellSpecific
       << " macVolumeCellSpecific " << macVolumeCellSpecific 
@@ -1222,7 +1222,7 @@ MmWaveEnbNetDevice::BuildAndSendReportMessage(E2Termination::RicSubscriptionRequ
   std::string gnbId = std::to_string(m_cellId);
 
   // TODO here we can get something from RRC and onward
-  NS_LOG_UNCOND("MmWaveEnbNetDevice " << m_cellId << " BuildAndSendMessage at time " << Simulator::Now().GetSeconds());
+  NS_LOG_DEBUG("MmWaveEnbNetDevice " << m_cellId << " BuildAndSendMessage at time " << Simulator::Now().GetSeconds());
   
   if(m_sendCuUp)
   {

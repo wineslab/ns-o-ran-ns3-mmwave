@@ -223,7 +223,13 @@ public:
 
   void KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu);
   void ControlMessageReceivedCallback (E2AP_PDU_t* sub_req_pdu);
-  
+  /**
+   * @brief Set the PDCP traffic split for the given ueId
+   * 
+   * @param ueId RNTI ue
+   * @param percentage percentage of traffic using LTE
+   */
+  void SetUeQoS (uint16_t ueId, double percentage);
   void SetStartTime (uint64_t);
 
 protected:

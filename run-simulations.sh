@@ -13,6 +13,7 @@ minSpeed=2.0 # minimum UE speed in m/s
 maxSpeed=4.0 # maximum UE speed in m/s
 simTime=1.0 # simulation time
 e2TermIp="10.102.157.65" # actual E2term IP interface
+ueZeroPercentage=-1 # PDCP split for UE RNTI 0 on eNB
 
 # Useful parameters to be configured
 N=1 # number of simulations
@@ -46,15 +47,23 @@ if [[ use_case -eq 0 ]];then
   outageThreshold=-5.0 # use -5.0 when handover is not in NoAuto 
   handoverMode="DynamicTtt"
   indicationPeriodicity=0.02 # value in seconds (20 ms)
-  controlFileName="es_actions_for_ns3.csv" # TS control file path
+  controlPath="es_actions_for_ns3.csv" # EE control file path
   numberOfRaPreambles=20
-else
+elif [[ use_case -eq 1 ]];then
   ## Traffic Steering use case
   echo "Traffic Steering use case"
   outageThreshold=-1000
   handoverMode="NoAuto"
   indicationPeriodicity=0.1 # value in seconds (100 ms)
-  controlFileName="ts_actions_for_ns3.csv" # EE control file path
+  controlPath="ts_actions_for_ns3.csv" # TS control file path
+else
+  ## Quality of Service use case
+  echo "Quality of Service use case"
+  outageThreshold=-5.0 # use -5.0 when handover is not in NoAuto 
+  handoverMode="DynamicTtt"
+  indicationPeriodicity=0.02 # value in seconds (20 ms)
+  # controlPath="qos_actions.csv" # QoS control file path, decomment for control
+  # ueZeroPercentage=0.1
   numberOfRaPreambles=40
 fi
 
