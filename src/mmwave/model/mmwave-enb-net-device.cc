@@ -428,9 +428,11 @@ MmWaveEnbNetDevice::UpdateConfig (void)
 
                 m_duFileName = "du-cell-" + std::to_string(m_cellId) + ".txt";
                 csv.open (m_duFileName.c_str ());
+                
                 std::string header_csv =
                     "timestamp,ueImsiComplete,plmId,nrCellId,dlAvailablePrbs,"
                     "ulAvailablePrbs,qci,dlPrbUsage,ulPrbUsage";
+
                 std::string cell_header =
                     "TB.TotNbrDl.1,TB.TotNbrDlInitial,TB.TotNbrDlInitial.Qpsk,"
                     "TB.TotNbrDlInitial.16Qam,"
@@ -450,7 +452,7 @@ MmWaveEnbNetDevice::UpdateConfig (void)
                     "QosFlow.PdcpPduVolumeDL_Filter.UEID,RRU.PrbUsedDl.UEID,"
                     "CARR.PDSCHMCSDist.Bin1.UEID,"
                     "CARR.PDSCHMCSDist.Bin2.UEID,CARR.PDSCHMCSDist.Bin3.UEID,"
-                    ",CARR.PDSCHMCSDist.Bin4.UEID"
+                    "CARR.PDSCHMCSDist.Bin4.UEID,"
                     "CARR.PDSCHMCSDist.Bin5.UEID,"
                     "CARR.PDSCHMCSDist.Bin6.UEID,L1M.RS-SINR.Bin34.UEID, L1M.RS-SINR.Bin46.UEID,"
                     "L1M.RS-SINR.Bin58.UEID,L1M.RS-SINR.Bin70.UEID,L1M.RS-SINR.Bin82.UEID,"

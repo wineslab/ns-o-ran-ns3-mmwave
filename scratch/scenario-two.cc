@@ -132,16 +132,16 @@ static ns3::GlobalValue g_rlcAmEnabled ("rlcAmEnabled", "If true, use RLC AM, el
                                         ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
 
 static ns3::GlobalValue g_PercUEeMBB ("PercUEeMBB",
-                                        "Percentage of UEs to delpoy for eMBB traffic model",
+                                        "Percentage of UEs to deploy for eMBB traffic model",
                                         ns3::DoubleValue (0.3),
                                         ns3::MakeDoubleChecker<double> ());
 
 static ns3::GlobalValue g_PercUEURLLC ("PercUEURLLC",
-                                        "Percentage of UEs to delpoy for URLLC traffic model",
+                                        "Percentage of UEs to deploy for URLLC traffic model",
                                         ns3::DoubleValue (0.3),
                                         ns3::MakeDoubleChecker<double> ());
 
-static ns3::GlobalValue g_configuration ("configuration", "Set the RF configuration [0,2],",
+static ns3::GlobalValue g_configuration ("configuration", "Set the RF configuration [0,2]",
                                          ns3::UintegerValue (1),
                                          ns3::MakeUintegerChecker<uint8_t> ());
 
