@@ -56,7 +56,7 @@
 #include <ns3/lte-rlc-um.h>
 #include <ns3/lte-rlc-um-lowlat.h>
 #include <ns3/lte-rlc-am.h>
-
+#include <random>
 #include <ns3/mmwave-indication-message-helper.h>
 
 #include "encode_e2apv1.hpp"
@@ -92,7 +92,53 @@ MmWaveEnbNetDevice::KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu)
     BuildAndSendReportMessage (params);
     m_isReportingEnabled = true; 
   }
-    
+}
+
+void
+MmWaveEnbNetDevice::Probability_state (double p1, double p2, double p3, double p4, uint16_t nodeId)
+{
+  NS_LOG_DEBUG ("Sim time " << Simulator::Now ().GetSeconds ());
+  NS_LOG_DEBUG ("Enb name " << nodeId);
+  std::random_device rd;
+  std::default_random_engine eng (rd ());
+  std::uniform_real_distribution<double> distr (0, 1);
+  double r = distr (eng);
+  NS_LOG_DEBUG ("Prob " << r << "\n");
+  if (r <= p1)
+    {
+      NS_LOG_DEBUG ("BS state " << enum_state_BS::ON);
+      m_rrc->SetSecondaryCellHandoverAllowedStatus (nodeId, enum_state_BS::ON);
+      m_rrc->EvictUsersFromSecondaryCell ();
+      m_CellState = enum_state_BS::ON;
+    }
+  else if (r > p1 && r <= (p1 + p2))
+    {
+      NS_LOG_DEBUG ("BS state " << enum_state_BS::Idle);
+      m_rrc->SetSecondaryCellHandoverAllowedStatus (nodeId, enum_state_BS::Idle);
+      m_rrc->EvictUsersFromSecondaryCell ();
+      m_CellState = enum_state_BS::Idle;
+    }
+  else if (r > (p1 + p2) && r <= (p1 + p2 + p3))
+    {
+      NS_LOG_DEBUG ("BS state " << enum_state_BS::Sleep);
+      m_rrc->SetSecondaryCellHandoverAllowedStatus (nodeId, enum_state_BS::Sleep);
+      m_rrc->EvictUsersFromSecondaryCell ();
+      m_CellState = enum_state_BS::Sleep;
+    }
+  else if (r > (p1 + p2 + p3) && r <= 1)
+    {
+      NS_LOG_DEBUG ("BS state " << enum_state_BS::OFF);
+      m_rrc->SetSecondaryCellHandoverAllowedStatus (nodeId, enum_state_BS::OFF);
+      m_rrc->EvictUsersFromSecondaryCell ();
+      m_CellState = enum_state_BS::OFF;
+    }
+  else
+    NS_LOG_DEBUG ("BS state"
+                  << " keep same state");
+}
+
+bool MmWaveEnbNetDevice::GetBsState (){
+  return m_CellState;
 }
 
 TypeId MmWaveEnbNetDevice::GetTypeId ()
