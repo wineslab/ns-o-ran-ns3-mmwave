@@ -37,7 +37,7 @@ using namespace mmwave;
  * 
  */
 
-NS_LOG_COMPONENT_DEFINE ("ScenarioOne");
+NS_LOG_COMPONENT_DEFINE ("Scenariotwo");
 
 void
 PrintGnuplottableUeListToFile (std::string filename)

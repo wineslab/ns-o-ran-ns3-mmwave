@@ -105,6 +105,10 @@ public:
   void BuildAndSendReportMessage(E2Termination::RicSubscriptionRequest_rval_s params);
 
   void KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu);
+
+  void Probability_state(double p1, double p2, double p3, double p4, uint16_t nodeId);
+
+  bool GetBsState ();
   
   void ControlMessageReceivedCallback (E2AP_PDU_t* sub_req_pdu);
   
@@ -116,9 +120,11 @@ protected:
 
   void GetPeriodicPdcpStats();
 
-
-
 private:
+  enum enum_state_BS { ON = 1, Idle = 1, Sleep = 0, OFF = 0 };
+
+  enum_state_BS m_CellState = enum_state_BS::ON;
+
   Ptr<MmWaveMacScheduler> m_scheduler;
 
   Ptr<LteEnbRrc> m_rrc;
