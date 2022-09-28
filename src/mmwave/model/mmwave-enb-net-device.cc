@@ -58,6 +58,18 @@
 #include <ns3/lte-rlc-am.h>
 #include <random>
 #include <ns3/mmwave-indication-message-helper.h>
+#include <utility>
+
+// #include "ns3/core-module.h"
+// #include "ns3/network-module.h"
+// #include "ns3/internet-module.h"
+// #include "ns3/mobility-module.h"
+// #include "ns3/applications-module.h"
+// #include "ns3/point-to-point-helper.h"
+// #include <ns3/lte-ue-net-device.h>
+// #include "ns3/mmwave-helper.h"
+// #include "ns3/mmwave-point-to-point-epc-helper.h"
+// #include "ns3/lte-helper.h"
 
 #include "encode_e2apv1.hpp"
 
@@ -140,6 +152,33 @@ MmWaveEnbNetDevice::Probability_state (double p1, double p2, double p3, double p
 
 bool MmWaveEnbNetDevice::GetBsState (){
   return m_CellState;
+}
+
+void MmWaveEnbNetDevice::BestUesSINR(){
+  //get connected UEs from BS
+
+  std::map<uint16_t, ns3::Ptr<ns3::UeManager>>ue_attached= m_rrc->GetUeMap(); //list of attached UEs
+  std::cout <<"N ues attached: "<<ue_attached.size()<< "\n";
+  for(auto it = ue_attached.cbegin(); it != ue_attached.cend(); ++it)
+  {
+    std::cout <<"RNTI: "<< it->first << "\n"; 
+    //yes, UEs are attached during simulation
+  }
+
+  std::map<uint8_t, ImsiSinrMap> carrierMap=m_rrc->GetM_ueImsiSinrMap();
+  std::cout <<"Carrier map size: "<< carrierMap.size()<< "\n";
+  for(auto it = carrierMap.cbegin(); it != carrierMap.cend(); ++it)
+  {
+    std::cout <<"carrier: "<< it->first << " ";
+    std::map<uint64_t, double> sinrMap=it->second;
+    for(auto jt = sinrMap.cbegin(); jt != sinrMap.cend(); ++jt)
+    {
+      std::cout << "UE IMSI: " << jt->first<< "SINR: "<< jt->second<<"\n";
+    }
+  }
+
+
+
 }
 
 TypeId MmWaveEnbNetDevice::GetTypeId ()
