@@ -110,6 +110,8 @@ public:
 
   void Probability_state(double p1, double p2, double p3, double p4, uint16_t nodeId);
 
+  void BestUesSINR();
+
   bool GetBsState ();
   
   void ControlMessageReceivedCallback (E2AP_PDU_t* sub_req_pdu);

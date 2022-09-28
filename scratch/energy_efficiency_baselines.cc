@@ -132,7 +132,6 @@ PrintPosition (Ptr<Node> node)
                                                              << Simulator::Now ().GetSeconds ());
 }
 
-
 // void set_state(double p1,double p2, double p3, double p4, Ptr<LteEnbNetDevice> mmdev){
 //     std::cout << " Sim time " << Simulator::Now().GetSeconds ()<<std::endl;
 //     std::cout << " Enb name " << mmdev->GetCellId ()<<std::endl;
@@ -144,7 +143,7 @@ PrintPosition (Ptr<Node> node)
 //     if (r<=p1){
 //       std::cout << " BS state" << "ON"<<std::endl;
 //       mmdev->m_rrc->SetSecondaryCellHandoverAllowedStatus(mmdev->GetCellId (), 1);
-//     } 
+//     }
 //     else if (r>p1 && r <=(p1+p2)) std::cout << " BS state" << "Idle"<<std::endl;
 //     else if (r>(p1+p2) && r <=(p1+p2+p3)) std::cout << " BS state" << "Sleep"<<std::endl;
 //     else if (r>(p1+p2+p3) && r <=1) std::cout << " BS state" << "OFF"<<std::endl;
@@ -161,21 +160,21 @@ static ns3::GlobalValue g_rlcAmEnabled ("rlcAmEnabled", "If true, use RLC AM, el
 
 static ns3::GlobalValue g_enableTraces ("enableTraces", "If true, generate ns-3 traces",
                                         ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
-                                                                                
+
 static ns3::GlobalValue g_e2lteEnabled ("e2lteEnabled", "If true, send LTE E2 reports",
                                         ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
 
 static ns3::GlobalValue g_e2nrEnabled ("e2nrEnabled", "If false, send NR E2 reports",
-                                        ns3::BooleanValue (false), ns3::MakeBooleanChecker ());
+                                       ns3::BooleanValue (false), ns3::MakeBooleanChecker ());
 
-static ns3::GlobalValue g_e2du ("e2du", "If true, send DU reports",
-                                        ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
+static ns3::GlobalValue g_e2du ("e2du", "If true, send DU reports", ns3::BooleanValue (true),
+                                ns3::MakeBooleanChecker ());
 
-static ns3::GlobalValue g_e2cuUp ("e2cuUp", "If true, send CU-UP reports",
-                                        ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
+static ns3::GlobalValue g_e2cuUp ("e2cuUp", "If true, send CU-UP reports", ns3::BooleanValue (true),
+                                  ns3::MakeBooleanChecker ());
 
-static ns3::GlobalValue g_e2cuCp ("e2cuCp", "If true, send CU-CP reports",
-                                        ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
+static ns3::GlobalValue g_e2cuCp ("e2cuCp", "If true, send CU-CP reports", ns3::BooleanValue (true),
+                                  ns3::MakeBooleanChecker ());
 
 static ns3::GlobalValue g_trafficModel (
     "trafficModel",
@@ -213,14 +212,17 @@ static ns3::GlobalValue
 static ns3::GlobalValue g_ues ("ues", "Number of UEs for each mmWave ENB.", ns3::UintegerValue (7),
                                ns3::MakeUintegerChecker<uint8_t> ());
 
-static ns3::GlobalValue g_indicationPeriodicity ("indicationPeriodicity", "E2 Indication Periodicity reports (value in seconds)", ns3::DoubleValue (0.1),
-                                   ns3::MakeDoubleChecker<double> (0.01, 2.0));
+static ns3::GlobalValue
+    g_indicationPeriodicity ("indicationPeriodicity",
+                             "E2 Indication Periodicity reports (value in seconds)",
+                             ns3::DoubleValue (0.1), ns3::MakeDoubleChecker<double> (0.01, 2.0));
 
 static ns3::GlobalValue g_simTime ("simTime", "Simulation time in seconds", ns3::DoubleValue (1.9),
                                    ns3::MakeDoubleChecker<double> (0.1, 1000.0));
 
-static ns3::GlobalValue g_reducedPmValues ("reducedPmValues", "If true, use a subset of the the pm containers",
-                                        ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
+static ns3::GlobalValue g_reducedPmValues ("reducedPmValues",
+                                           "If true, use a subset of the the pm containers",
+                                           ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
 
 static ns3::GlobalValue g_outageThreshold ("outageThreshold",
                                            "SNR threshold for outage events [dB]",
@@ -231,9 +233,11 @@ static ns3::GlobalValue g_basicCellId ("basicCellId", "The next value will be th
                                        ns3::UintegerValue (1),
                                        ns3::MakeUintegerChecker<uint8_t> ());
 
-static ns3::GlobalValue g_numberOfRaPreambles ("numberOfRaPreambles", "how many random access preambles are available for the contention based RACH process",
-                                       ns3::UintegerValue (40), // this was the for ther TS use case, 52 is default, 30 is for ES
-                                       ns3::MakeUintegerChecker<uint8_t> ());
+static ns3::GlobalValue g_numberOfRaPreambles (
+    "numberOfRaPreambles",
+    "how many random access preambles are available for the contention based RACH process",
+    ns3::UintegerValue (40), // this was the for ther TS use case, 52 is default, 30 is for ES
+    ns3::MakeUintegerChecker<uint8_t> ());
 
 static ns3::GlobalValue
     g_handoverMode ("handoverMode",
@@ -246,22 +250,17 @@ static ns3::GlobalValue g_e2TermIp ("e2TermIp", "The IP address of the RIC E2 te
 
 static ns3::GlobalValue
     g_enableE2FileLogging ("enableE2FileLogging",
-              "If true, generate offline file logging instead of connecting to RIC",
-              ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
+                           "If true, generate offline file logging instead of connecting to RIC",
+                           ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
 
 // static ns3::GlobalValue g_controlFileName ("controlFileName", "The path to the control file (can be absolute)",
 //                                      ns3::StringValue ("qos_actions.csv"), ns3::MakeStringChecker ());
 
-static ns3::GlobalValue g_minSpeed ("minSpeed",
-                                           "minimum UE speed in m/s",
-                                           ns3::DoubleValue (2.0),
-                                           ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_minSpeed ("minSpeed", "minimum UE speed in m/s", ns3::DoubleValue (2.0),
+                                    ns3::MakeDoubleChecker<double> ());
 
-static ns3::GlobalValue g_maxSpeed ("maxSpeed",
-                                           "maximum UE speed in m/s",
-                                           ns3::DoubleValue (4.0),
-                                           ns3::MakeDoubleChecker<double> ());
-
+static ns3::GlobalValue g_maxSpeed ("maxSpeed", "maximum UE speed in m/s", ns3::DoubleValue (4.0),
+                                    ns3::MakeDoubleChecker<double> ());
 
 int
 main (int argc, char *argv[])
@@ -287,12 +286,12 @@ main (int argc, char *argv[])
   // LogComponentEnable ("MmWaveSpectrumPhy", LOG_LEVEL_ALL);
 
   // Interval of time to change BS state: ON, IDLE, SLEEP, OFF
-  double cellUpdateTime = 30.0;
+  double cellUpdateTime = 0.1;
   // Probabilities for each state
-  double prob_ON = 0.6038;
-  double prob_Idle = 0.3854;
-  double prob_Sleep = 0.0107;
-  double prob_OFF = 0.0;
+  // double prob_ON = 0.6038;
+  // double prob_Idle = 0.3854;
+  // double prob_Sleep = 0.0107;
+  // double prob_OFF = 0.0;
 
   // The maximum X coordinate of the scenario
   double maxXAxis = 4000;
@@ -328,7 +327,7 @@ main (int argc, char *argv[])
   bool enableTraces = booleanValue.Get ();
   GlobalValue::GetValueByName ("trafficModel", uintegerValue);
   uint8_t trafficModel = uintegerValue.Get ();
-  GlobalValue::GetValueByName ("outageThreshold",doubleValue);
+  GlobalValue::GetValueByName ("outageThreshold", doubleValue);
   double outageThreshold = doubleValue.Get ();
   GlobalValue::GetValueByName ("handoverMode", stringValue);
   std::string handoverMode = stringValue.Get ();
@@ -343,14 +342,12 @@ main (int argc, char *argv[])
   GlobalValue::GetValueByName ("numberOfRaPreambles", uintegerValue);
   uint8_t numberOfRaPreambles = uintegerValue.Get ();
 
-
   NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << bufferSize
                                  << " traffic Model " << unsigned (trafficModel)
                                  << " OutageThreshold " << outageThreshold << " HandoverMode "
                                  << handoverMode << " BasicCellId " << basicCellId << " e2TermIp "
                                  << e2TermIp << " enableE2FileLogging " << enableE2FileLogging
                                  << " minSpeed " << minSpeed << " maxSpeed " << maxSpeed);
-
 
   //get current time
   time_t rawtime;
@@ -381,53 +378,53 @@ main (int argc, char *argv[])
   // GlobalValue::GetValueByName ("controlFileName", stringValue);
   // std::string controlFilename = stringValue.Get ();
 
-    NS_LOG_UNCOND("e2lteEnabled " << e2lteEnabled 
-    << " e2nrEnabled " << e2nrEnabled
-    << " e2du " << e2du
-    << " e2cuCp " << e2cuCp
-    << " e2cuUp " << e2cuUp
-    << " reducedPmValues " << reducedPmValues 
-    << " perPckToLTE " << perPckToLTE
-    << " ueZeroPercentage " << ueZeroPercentage
-    //<< " controlFilename " << controlFilename
-    << " indicationPeriodicity " << indicationPeriodicity
-  );
+  NS_LOG_UNCOND ("e2lteEnabled " << e2lteEnabled << " e2nrEnabled " << e2nrEnabled << " e2du "
+                                 << e2du << " e2cuCp " << e2cuCp << " e2cuUp " << e2cuUp
+                                 << " reducedPmValues " << reducedPmValues << " perPckToLTE "
+                                 << perPckToLTE << " ueZeroPercentage "
+                                 << ueZeroPercentage
+                                 //<< " controlFilename " << controlFilename
+                                 << " indicationPeriodicity " << indicationPeriodicity);
 
   //Config::SetDefault ("ns3::LteEnbNetDevice::ControlFileName", StringValue(controlFilename));
   Config::SetDefault ("ns3::LteEnbNetDevice::E2Periodicity", DoubleValue (indicationPeriodicity));
-  Config::SetDefault ("ns3::MmWaveEnbNetDevice::E2Periodicity", DoubleValue (indicationPeriodicity));
+  Config::SetDefault ("ns3::MmWaveEnbNetDevice::E2Periodicity",
+                      DoubleValue (indicationPeriodicity));
 
-  Config::SetDefault ("ns3::MmWaveHelper::E2ModeLte", BooleanValue(e2lteEnabled));
-  Config::SetDefault ("ns3::MmWaveHelper::E2ModeNr", BooleanValue(e2nrEnabled));
-  
-  // The DU PM reports should come from both NR gNB as well as LTE eNB, 
+  Config::SetDefault ("ns3::MmWaveHelper::E2ModeLte", BooleanValue (e2lteEnabled));
+  Config::SetDefault ("ns3::MmWaveHelper::E2ModeNr", BooleanValue (e2nrEnabled));
+
+  // The DU PM reports should come from both NR gNB as well as LTE eNB,
   // since in the RLC/MAC/PHY entities are present in BOTH NR gNB as well as LTE eNB.
   // TODO DU reports from LTE eNB are not implemented yet
-  Config::SetDefault ("ns3::MmWaveEnbNetDevice::EnableDuReport", BooleanValue(e2du));
+  Config::SetDefault ("ns3::MmWaveEnbNetDevice::EnableDuReport", BooleanValue (e2du));
 
   // Config::SetDefault ("ns3::LteEnbNetDevice::ControlFileName", StringValue (controlFileName));
 
-  // The CU-UP PM reports should only come from LTE eNB, since in the NS3 “EN-DC 
+  // The CU-UP PM reports should only come from LTE eNB, since in the NS3 “EN-DC
   // simulation (Option 3A)”, the PDCP is only in the LTE eNB and NOT in the NR gNB
-  Config::SetDefault ("ns3::MmWaveEnbNetDevice::EnableCuUpReport", BooleanValue(e2cuUp));
-  Config::SetDefault ("ns3::LteEnbNetDevice::EnableCuUpReport", BooleanValue(e2cuUp));
+  Config::SetDefault ("ns3::MmWaveEnbNetDevice::EnableCuUpReport", BooleanValue (e2cuUp));
+  Config::SetDefault ("ns3::LteEnbNetDevice::EnableCuUpReport", BooleanValue (e2cuUp));
 
-  Config::SetDefault ("ns3::MmWaveEnbNetDevice::EnableCuCpReport", BooleanValue(e2cuCp));
-  Config::SetDefault ("ns3::LteEnbNetDevice::EnableCuCpReport", BooleanValue(e2cuCp));
-  
+  Config::SetDefault ("ns3::MmWaveEnbNetDevice::EnableCuCpReport", BooleanValue (e2cuCp));
+  Config::SetDefault ("ns3::LteEnbNetDevice::EnableCuCpReport", BooleanValue (e2cuCp));
+
   Config::SetDefault ("ns3::MmWaveEnbNetDevice::ReducedPmValues", BooleanValue (reducedPmValues));
   Config::SetDefault ("ns3::LteEnbNetDevice::ReducedPmValues", BooleanValue (reducedPmValues));
 
-  Config::SetDefault ("ns3::LteEnbNetDevice::EnableE2FileLogging", BooleanValue (enableE2FileLogging));
-  Config::SetDefault ("ns3::MmWaveEnbNetDevice::EnableE2FileLogging", BooleanValue (enableE2FileLogging));
+  Config::SetDefault ("ns3::LteEnbNetDevice::EnableE2FileLogging",
+                      BooleanValue (enableE2FileLogging));
+  Config::SetDefault ("ns3::MmWaveEnbNetDevice::EnableE2FileLogging",
+                      BooleanValue (enableE2FileLogging));
 
-  Config::SetDefault ("ns3::MmWaveEnbMac::NumberOfRaPreambles", UintegerValue (numberOfRaPreambles));
+  Config::SetDefault ("ns3::MmWaveEnbMac::NumberOfRaPreambles",
+                      UintegerValue (numberOfRaPreambles));
 
   Config::SetDefault ("ns3::MmWaveHelper::RlcAmEnabled", BooleanValue (rlcAmEnabled));
   Config::SetDefault ("ns3::MmWaveHelper::HarqEnabled", BooleanValue (harqEnabled));
   Config::SetDefault ("ns3::MmWaveHelper::UseIdealRrc", BooleanValue (true));
   Config::SetDefault ("ns3::MmWaveHelper::BasicCellId", UintegerValue (basicCellId));
-  Config::SetDefault ("ns3::MmWaveHelper::BasicImsi", UintegerValue ((basicCellId-1)));
+  Config::SetDefault ("ns3::MmWaveHelper::BasicImsi", UintegerValue ((basicCellId - 1)));
   Config::SetDefault ("ns3::MmWaveHelper::E2TermIp", StringValue (e2TermIp));
 
   Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::HarqEnabled", BooleanValue (harqEnabled));
@@ -437,7 +434,8 @@ main (int argc, char *argv[])
   // set to false to use the 3GPP radiation pattern (proper configuration of the bearing and downtilt angles is needed)
   Config::SetDefault ("ns3::ThreeGppAntennaArrayModel::IsotropicElements", BooleanValue (true));
   Config::SetDefault ("ns3::ThreeGppChannelModel::UpdatePeriod", TimeValue (MilliSeconds (100.0)));
-  Config::SetDefault ("ns3::ThreeGppChannelConditionModel::UpdatePeriod", TimeValue (MilliSeconds (100)));
+  Config::SetDefault ("ns3::ThreeGppChannelConditionModel::UpdatePeriod",
+                      TimeValue (MilliSeconds (100)));
 
   Config::SetDefault ("ns3::LteRlcAm::ReportBufferStatusTimer", TimeValue (MilliSeconds (10.0)));
   Config::SetDefault ("ns3::LteRlcUmLowLat::ReportBufferStatusTimer",
@@ -451,7 +449,6 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::LteEnbRrc::OutageThreshold", DoubleValue (outageThreshold));
   Config::SetDefault ("ns3::LteEnbRrc::SecondaryCellHandoverMode", StringValue (handoverMode));
   Config::SetDefault ("ns3::LteEnbRrc::HoSinrDifference", DoubleValue (hoSinrDifference));
-
 
   // Carrier bandwidth in Hz
   double bandwidth;
@@ -565,7 +562,7 @@ main (int argc, char *argv[])
   ueNodes.Create (nUeNodes);
   allEnbNodes.Add (lteEnbNodes);
   allEnbNodes.Add (mmWaveEnbNodes);
-  
+
   // Position
   Vector centerPosition = Vector (maxXAxis / 2, maxYAxis / 2, 3);
 
@@ -749,9 +746,9 @@ main (int argc, char *argv[])
       break;
 
       case 3: { // 25% bursty Full-buffer traffic
-                // 25% Bursty traffic with higher application bit-rate averaging around 3 Mbps
-                // 25% Bursty traffic with higher application bit-rate averaging around 750 Kbps
-                // 25% Bursty traffic with lower application bit-rate averaging around 150 Kbps.
+        // 25% Bursty traffic with higher application bit-rate averaging around 3 Mbps
+        // 25% Bursty traffic with higher application bit-rate averaging around 750 Kbps
+        // 25% Bursty traffic with lower application bit-rate averaging around 150 Kbps.
         for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
           {
 
@@ -771,7 +768,7 @@ main (int argc, char *argv[])
                   }
                 else
                   {
-                    // Data rate 20 Mbps 
+                    // Data rate 20 Mbps
                     dlClient.SetAttribute ("Interval", TimeValue (MicroSeconds (500)));
                   }
 
@@ -799,7 +796,6 @@ main (int argc, char *argv[])
       NS_FATAL_ERROR (
           "Traffic model not recognized, the only possible values are [0,1,2,3]. Value passed: "
           << trafficModel);
-
     }
 
   // Start applications
@@ -820,21 +816,35 @@ main (int argc, char *argv[])
   //       }
   //   }
 
+  //static sleeping
   for (double i = 0.0; i < simTime; i = i + cellUpdateTime)
     {
       for (int j = 0; j < nMmWaveEnbNodes; j++)
         {
           Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
-          Simulator::Schedule (Seconds (i), &MmWaveEnbNetDevice::Probability_state, mmdev, prob_ON,
-                               prob_Idle, prob_Sleep, prob_OFF, mmdev->GetCellId ());
-          NS_LOG_DEBUG ("BS with id "<< mmdev->GetCellId ()<< " has the following state "<< mmdev->GetBsState());
+          Simulator::Schedule (Seconds (i), &MmWaveEnbNetDevice::BestUesSINR, mmdev);
+          //std::cout <<"before function " << "\n";
         }
     }
 
+  //random sleeping
+  // for (double i = 0.0; i < simTime; i = i + cellUpdateTime)
+  //   {
+  //     for (int j = 0; j < nMmWaveEnbNodes; j++)
+  //       {
+  //         Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
+  //         Simulator::Schedule (Seconds (i), &MmWaveEnbNetDevice::Probability_state, mmdev, prob_ON,
+  //                              prob_Idle, prob_Sleep, prob_OFF, mmdev->GetCellId ());
+  //         NS_LOG_DEBUG ("BS with id " << mmdev->GetCellId () << " has the following state "
+  //                                     << mmdev->GetBsState ());
+  //       }
+  //   }
+
+
   if (enableTraces)
-  {
-    mmwaveHelper->EnableTraces ();
-  }  
+    {
+      mmwaveHelper->EnableTraces ();
+    }
 
   // trick to enable PHY traces for the LTE stack
   Ptr<LteHelper> lteHelper = CreateObject<LteHelper> ();
@@ -846,8 +856,6 @@ main (int argc, char *argv[])
   PrintGnuplottableUeListToFile ("ues.txt");
   PrintGnuplottableEnbListToFile ("enbs.txt");
 
-
-
   Ptr<LteEnbNetDevice> eNBDevice = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
   uint16_t ueIdRnti = 1; // RNTI of the UE to be controlled
   if (ueZeroPercentage != -1)
@@ -856,7 +864,6 @@ main (int argc, char *argv[])
       Simulator::Schedule (MilliSeconds (100), &LteEnbNetDevice::SetUeQoS, eNBDevice, ueIdRnti,
                            ueZeroPercentage);
     }
-
 
   bool run = true;
   if (run)
