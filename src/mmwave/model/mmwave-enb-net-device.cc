@@ -897,7 +897,8 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCe
     std::string ueImsiComplete = GetImsiString(imsi);
     uint16_t rnti = ue.second->GetRnti();
 
-    uint32_t macPduUe = m_e2DuCalculator->GetMacPduUeSpecific(rnti, m_cellId) * 8 / 1e3; // kbit
+    uint32_t macPduUe = m_e2DuCalculator->GetMacPduUeSpecific(rnti, m_cellId);
+
     macPduCellSpecific += macPduUe;
  
     uint32_t macPduInitialUe = m_e2DuCalculator->GetMacPduInitialTransmissionUeSpecific(rnti, m_cellId);
@@ -926,8 +927,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCe
     Time reportingWindow = Simulator::Now () - m_e2DuCalculator->GetLastResetTime (rnti, m_cellId);
     double denominatorPrb = std::ceil (reportingWindow.GetNanoSeconds () / phyMac->GetSlotPeriod ().GetNanoSeconds ()) * 14; 
     
-    NS_LOG_DEBUG ("macNumberOfSymbols " << macNumberOfSymbols 
-                    << " denominatorPrb " << denominatorPrb);
+    NS_LOG_DEBUG ("macNumberOfSymbols " << macNumberOfSymbols << " denominatorPrb " << denominatorPrb);
 
     // Average Number of PRBs allocated for the UE = (NR/DR)*139 (where 139 is the total number of PRBs available per NR cell, given numerology 2 with 60 kHz SCS)
     double macPrb = 0;
