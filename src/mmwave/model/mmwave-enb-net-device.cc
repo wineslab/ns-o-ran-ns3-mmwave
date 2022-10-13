@@ -730,7 +730,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
 
     // for the same cell
     //ImsiCellIdPair_t cid {imsi, m_cellId};
-    double sinrThisCell = 10 * std::log10(m_l3sinrMap[imsi][m_cellId]);
+    double sinrThisCell = 10 * std::log10 (m_l3sinrMap[imsi][m_cellId]);
     double convertedSinr = L3RrcMeasurements::ThreeGppMapSinr (sinrThisCell);
 
     Ptr<L3RrcMeasurements> l3RrcMeasurementServing;
@@ -739,7 +739,9 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
         l3RrcMeasurementServing =
             L3RrcMeasurements::CreateL3RrcUeSpecificSinrServing (m_cellId, m_cellId, convertedSinr);
       }
-    NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " enbdev " << m_cellId << " UE " << imsi << " L3 serving SINR " << sinrThisCell << " L3 serving SINR 3gpp " << convertedSinr);
+    NS_LOG_DEBUG (Simulator::Now ().GetSeconds ()
+                  << " enbdev " << m_cellId << " UE " << imsi << " L3 serving SINR " << sinrThisCell
+                  << " L3 serving SINR 3gpp " << convertedSinr);
 
     std::string servingStr = std::to_string (numDrb) + "," + std::to_string (0) + "," +
                              std::to_string (m_cellId) + "," + std::to_string (imsi) + "," +
@@ -760,44 +762,41 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
     // TODO relax this assumption
     // the assumption is that the scenario has 8 cells, cellIds [basicCellId + 1, basicCellId + 7] are for
     // NR base stations, cellId basicCellId is for the LTE cell
+    //access map of this specific ue
+    std::map<uint16_t, long double> cellSinr = m_l3sinrMap[imsi];
 
-   //----------------------------------------------------
+    //order the map by second value
 
-   //access map of this specific ue
-   std::map<uint16_t, long double> cellSinr = m_l3sinrMap[imsi];
-
-   //order the map by second value
-
-    //output map before sorting 
-    std::cout << "Before Sorting: \n";
-    for(auto m: cellSinr){
-        std::cout << "{" << m.first << ": " << m.second << "} \n";
-    }
+    //output map before sorting
+    // std::cout << "Before Sorting: \n";
+    // for(auto m: cellSinr){
+    //     std::cout << "{" << m.first << ": " << m.second << "} \n";
+    // }
 
     //copy the elements of the map to the vector as pairs
     std::vector<std::pair<uint16_t, long double>> cellSinrVector;
-    // for(auto m: cellSinr){
-    //     cellSinrVector.push_back(std::make_pair(m.first, m.second));
-    // }
-    
-    //sort the vector using the sort() method
-    sort(cellSinrVector.begin(), cellSinrVector.end(), sortByVal);
+    for (auto m : cellSinr)
+      {
+        cellSinrVector.push_back (std::make_pair (m.first, m.second));
+      }
 
-    // //output the sorted vector
+    //sort the vector using the sort() method
+    sort (cellSinrVector.begin (), cellSinrVector.end (), sortByVal);
+
+    //output the sorted vector
     // std::cout << "After Sorting by Value: \n";
     // for(auto v: cellSinrVector){
     //     std::cout << "{" << v.first << ": " << v.second << "} \n";
     // }
-
-    
     //save only the first 8 sinr between the UE we are iterating and each neighbour cellID
-    int nNeighbours=8;
-    if (cellSinrVector.size() < 8 ){
-      nNeighbours = cellSinrVector.size();
-    }
-    for (int i = 0; i < nNeighbours ; ++i)
+    int nNeighbours = 8;
+    if (cellSinrVector.size () < 8)
       {
-        uint16_t cellId=cellSinrVector[i].first;
+        nNeighbours = cellSinrVector.size ();
+      }
+    for (int i = 0; i < nNeighbours + 1; ++i)
+      {
+        uint16_t cellId = cellSinrVector[i].first;
         if (cellId != m_cellId)
           {
             sinr = 10 * std::log10 (cellSinrVector[i].second);
@@ -810,13 +809,14 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
 
             NS_LOG_UNCOND (Simulator::Now ().GetSeconds ()
                            << " enbdev " << m_cellId << " UE " << imsi << " L3 neigh " << cellId
-                           << " SINR " << sinr << " sinr encoded " << convertedSinr << " first insert");
-            
-            neighStr += "," + std::to_string (cellId) + "," + std::to_string (sinr) + "," + std::to_string (convertedSinr);
+                           << " SINR " << sinr << " sinr encoded " << convertedSinr
+                           << " first insert");
+
+            neighStr += "," + std::to_string (cellId) + "," + std::to_string (sinr) + "," +
+                        std::to_string (convertedSinr);
           }
       }
 
-    //---------------------------------------
     uePmString.insert (std::make_pair (imsi, servingStr + neighStr));
 
     if (!indicationMessageHelper->IsOffline ())
