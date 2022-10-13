@@ -60,7 +60,7 @@
 #include <ns3/mmwave-indication-message-helper.h>
 
 #include "encode_e2apv1.hpp"
-
+#include<bits/stdc++.h>
 namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("MmWaveEnbNetDevice");
@@ -87,7 +87,7 @@ MmWaveEnbNetDevice::KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu)
                  ", instanceId " << +params.instanceId << 
                  ", ranFuncionId " << +params.ranFuncionId << 
                  ", actionId " << +params.actionId);  
-  
+
   if (!m_isReportingEnabled)
   {
     BuildAndSendReportMessage (params);
@@ -266,13 +266,10 @@ MmWaveEnbNetDevice::RegisterNewSinrReading(uint64_t imsi, uint16_t cellId, long 
 
   if (imsiFound)
   {
-    // create key
-    ImsiCellIdPair_t imsiCid {imsi, cellId};
-
     // we only need to save the last value, so we do not care about overwriting or not
-    m_l3sinrMap[imsiCid] = sinr;
+    m_l3sinrMap[imsi][cellId] = sinr;
 
-    NS_LOG_LOGIC(Simulator::Now().GetSeconds() << " enbdev " << m_cellId << " UE " << imsi << " report for " << cellId << " SINR " << m_l3sinrMap[imsiCid]);
+    NS_LOG_LOGIC(Simulator::Now().GetSeconds() << " enbdev " << m_cellId << " UE " << imsi << " report for " << cellId << " SINR " << m_l3sinrMap[imsi][cellId]);
   }
 }
 
@@ -696,6 +693,13 @@ NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << m_cellId << " cell volume m
     }
 }
 
+
+// Driver function to sort the vector elements
+// by second element of pairs
+bool sortByVal(const std::pair<uint16_t, long double> &a, const std::pair<uint16_t, long double> &b){
+    return a.second > b.second;
+}
+
 Ptr<KpmIndicationMessage>
 MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
 {
@@ -725,8 +729,8 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
     // create L3 RRC reports
 
     // for the same cell
-    ImsiCellIdPair_t cid {imsi, m_cellId};
-    double sinrThisCell = 10 * std::log10(m_l3sinrMap[cid]);
+    //ImsiCellIdPair_t cid {imsi, m_cellId};
+    double sinrThisCell = 10 * std::log10(m_l3sinrMap[imsi][m_cellId]);
     double convertedSinr = L3RrcMeasurements::ThreeGppMapSinr (sinrThisCell);
 
     Ptr<L3RrcMeasurements> l3RrcMeasurementServing;
@@ -755,13 +759,48 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
 
     // TODO relax this assumption
     // the assumption is that the scenario has 8 cells, cellIds [basicCellId + 1, basicCellId + 7] are for
-    // NR base stations, cellId basicCellId is for the LTE cell 
-    for (uint16_t cellId = m_basicCellId + 1; cellId < m_basicCellId + 8; ++cellId)
+    // NR base stations, cellId basicCellId is for the LTE cell
+
+   //----------------------------------------------------
+
+   //access map of this specific ue
+   std::map<uint16_t, long double> cellSinr = m_l3sinrMap[imsi];
+
+   //order the map by second value
+
+    //output map before sorting 
+    std::cout << "Before Sorting: \n";
+    for(auto m: cellSinr){
+        std::cout << "{" << m.first << ": " << m.second << "} \n";
+    }
+
+    //copy the elements of the map to the vector as pairs
+    std::vector<std::pair<uint16_t, long double>> cellSinrVector;
+    // for(auto m: cellSinr){
+    //     cellSinrVector.push_back(std::make_pair(m.first, m.second));
+    // }
+    
+    //sort the vector using the sort() method
+    sort(cellSinrVector.begin(), cellSinrVector.end(), sortByVal);
+
+    // //output the sorted vector
+    // std::cout << "After Sorting by Value: \n";
+    // for(auto v: cellSinrVector){
+    //     std::cout << "{" << v.first << ": " << v.second << "} \n";
+    // }
+
+    
+    //save only the first 8 sinr between the UE we are iterating and each neighbour cellID
+    int nNeighbours=8;
+    if (cellSinrVector.size() < 8 ){
+      nNeighbours = cellSinrVector.size();
+    }
+    for (int i = 0; i < nNeighbours ; ++i)
       {
+        uint16_t cellId=cellSinrVector[i].first;
         if (cellId != m_cellId)
           {
-            ImsiCellIdPair_t cidNeigh{imsi, cellId};
-            sinr = 10 * std::log10 (m_l3sinrMap[cidNeigh]);
+            sinr = 10 * std::log10 (cellSinrVector[i].second);
             convertedSinr = L3RrcMeasurements::ThreeGppMapSinr (sinr);
 
             if (!indicationMessageHelper->IsOffline ())
@@ -769,7 +808,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
                 l3RrcMeasurementNeigh->AddNeighbourCellMeasurement (cellId, convertedSinr);
               }
 
-            NS_LOG_DEBUG (Simulator::Now ().GetSeconds ()
+            NS_LOG_UNCOND (Simulator::Now ().GetSeconds ()
                            << " enbdev " << m_cellId << " UE " << imsi << " L3 neigh " << cellId
                            << " SINR " << sinr << " sinr encoded " << convertedSinr << " first insert");
             
@@ -777,6 +816,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
           }
       }
 
+    //---------------------------------------
     uePmString.insert (std::make_pair (imsi, servingStr + neighStr));
 
     if (!indicationMessageHelper->IsOffline ())
@@ -1251,7 +1291,6 @@ MmWaveEnbNetDevice::BuildAndSendReportMessage(E2Termination::RicSubscriptionRequ
       delete pdu_cuup_ue;
     }
   }
-
   if(m_sendCuCp)
   {
     // Create and send CU-CP
@@ -1305,7 +1344,6 @@ MmWaveEnbNetDevice::BuildAndSendReportMessage(E2Termination::RicSubscriptionRequ
       delete pdu_du_ue;
     }
   }
-
   if (!m_forceE2FileLogging)
     Simulator::ScheduleWithContext (1, Seconds (m_e2Periodicity),
                                     &MmWaveEnbNetDevice::BuildAndSendReportMessage, this, params);

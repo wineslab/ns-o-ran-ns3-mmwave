@@ -137,7 +137,6 @@ private:
   Ptr<MmWavePhyTrace> m_e2DuCalculator;
 
   double m_e2Periodicity;
-
   // TODO doxy
   Ptr<KpmIndicationHeader> BuildRicIndicationHeader(std::string plmId, std::string gnbId, uint16_t nrCellId);
   Ptr<KpmIndicationMessage> BuildRicIndicationMessageCuUp(std::string plmId);
@@ -152,7 +151,7 @@ private:
 
   static void RegisterNewSinrReadingCallback(Ptr<MmWaveEnbNetDevice> netDev, std::string context, uint64_t imsi, uint16_t cellId, long double sinr);
   void RegisterNewSinrReading(uint64_t imsi, uint16_t cellId, long double sinr);
-  std::map<ImsiCellIdPair_t, long double> m_l3sinrMap;
+  std::map<uint64_t, std::map<uint16_t, long double>> m_l3sinrMap;
   uint64_t m_startTime;
   std::map<uint64_t, uint32_t> m_drbThrDlPdcpBasedComputationUeid;
   std::map<uint64_t, uint32_t> m_drbThrDlUeid;
