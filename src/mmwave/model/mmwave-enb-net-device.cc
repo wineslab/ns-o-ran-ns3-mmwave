@@ -265,7 +265,7 @@ MmWaveEnbNetDevice::RegisterNewSinrReading(uint64_t imsi, uint16_t cellId, long 
 
   if (imsiFound)
   {
-    // we only need to save the last value, so we do not care about overwriting or not
+    // we only need to save the last value, so we erase if exists already a value nd save the new one
     int indexVectorSinr = 0;
     bool foundVectorSinr= false;
     for(const auto& pair : m_l3sinrMap[imsi]) {
@@ -280,6 +280,7 @@ MmWaveEnbNetDevice::RegisterNewSinrReading(uint64_t imsi, uint16_t cellId, long 
       m_l3sinrMap[imsi].erase(m_l3sinrMap[imsi].begin()+indexVectorSinr);
     }
     m_l3sinrMap[imsi].push_back( std::pair<uint16_t, long double>(cellId, sinr));
+    //we get the SINR value as m_l3sinrMap[imsi].at(m_l3sinrMap[imsi].size()-1).second because it is the last value we pushed
     NS_LOG_LOGIC(Simulator::Now().GetSeconds() << " enbdev " << m_cellId << " UE " << imsi << " report for " << cellId << " SINR " << m_l3sinrMap[imsi].at(m_l3sinrMap[imsi].size()-1).second);
   }
 }
