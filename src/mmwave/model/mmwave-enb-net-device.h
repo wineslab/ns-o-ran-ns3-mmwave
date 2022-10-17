@@ -151,7 +151,7 @@ private:
 
   static void RegisterNewSinrReadingCallback(Ptr<MmWaveEnbNetDevice> netDev, std::string context, uint64_t imsi, uint16_t cellId, long double sinr);
   void RegisterNewSinrReading(uint64_t imsi, uint16_t cellId, long double sinr);
-  std::map<uint64_t, std::map<uint16_t, long double>> m_l3sinrMap;
+  std::map<uint64_t, std::vector<std::pair<uint16_t, long double>>> m_l3sinrMap;
   uint64_t m_startTime;
   std::map<uint64_t, uint32_t> m_drbThrDlPdcpBasedComputationUeid;
   std::map<uint64_t, uint32_t> m_drbThrDlUeid;
@@ -164,6 +164,7 @@ private:
   std::string m_cuUpFileName;
   std::string m_cuCpFileName;
   std::string m_duFileName;
+  int nNeighbours = 8;
 
 };
 }
