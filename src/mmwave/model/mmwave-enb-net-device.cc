@@ -266,22 +266,8 @@ MmWaveEnbNetDevice::RegisterNewSinrReading(uint64_t imsi, uint16_t cellId, long 
   if (imsiFound)
   {
     // we only need to save the last value, so we erase if exists already a value nd save the new one
-    int indexVectorSinr = 0;
-    bool foundVectorSinr= false;
-    for(const auto& pair : m_l3sinrMap[imsi]) {
-      if(pair.first == cellId) {
-          foundVectorSinr=true;
-          break;
-      }
-      indexVectorSinr++;
-    }
-    if(foundVectorSinr){
-      //erease previous pair<cellID, sinr> and save new one
-      m_l3sinrMap[imsi].erase(m_l3sinrMap[imsi].begin()+indexVectorSinr);
-    }
-    m_l3sinrMap[imsi].push_back( std::pair<uint16_t, long double>(cellId, sinr));
-    //we get the SINR value as m_l3sinrMap[imsi].at(m_l3sinrMap[imsi].size()-1).second because it is the last value we pushed
-    NS_LOG_LOGIC(Simulator::Now().GetSeconds() << " enbdev " << m_cellId << " UE " << imsi << " report for " << cellId << " SINR " << m_l3sinrMap[imsi].at(m_l3sinrMap[imsi].size()-1).second);
+    m_l3sinrMap[imsi][cellId] = sinr;
+    NS_LOG_LOGIC(Simulator::Now().GetSeconds() << " enbdev " << m_cellId << " UE " << imsi << " report for " << cellId << " SINR " << m_l3sinrMap[imsi][cellId]);
   }
 }
 
@@ -706,8 +692,21 @@ NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << m_cellId << " cell volume m
 }
 
 
-// Driver function to sort the vector elements
-// by second element of pairs
+template<typename A, typename B>
+std::pair<B,A> flip_pair(const std::pair<A,B> &p)
+{
+    return std::pair<B,A>(p.second, p.first);
+}
+
+template<typename A, typename B>
+std::multimap<B,A> flip_map(const std::map<A,B> &src)
+{
+    std::multimap<B,A> dst;
+    std::transform(src.begin(), src.end(), std::inserter(dst, dst.begin()), 
+                   flip_pair<A,B>);
+    return dst;
+}
+
 
 Ptr<KpmIndicationMessage>
 MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
@@ -738,14 +737,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
     // create L3 RRC reports
 
     // for the same cell
-    int indexVectorSinr = 0;
-    for(const auto& pair : m_l3sinrMap[imsi]) {
-      if(pair.first == m_cellId) {
-          break;
-      }
-      indexVectorSinr++;
-    }
-    double sinrThisCell = 10 * std::log10 (m_l3sinrMap[imsi].at(indexVectorSinr).second);
+    double sinrThisCell = 10 * std::log10 (m_l3sinrMap[imsi][m_cellId]);
     double convertedSinr = L3RrcMeasurements::ThreeGppMapSinr (sinrThisCell);
 
     Ptr<L3RrcMeasurements> l3RrcMeasurementServing;
@@ -777,21 +769,24 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
     // TODO relax this assumption
     // the assumption is that the scenario has 8 cells, cellIds [basicCellId + 1, basicCellId + 7] are for
     // NR base stations, cellId basicCellId is for the LTE cell
-    //sort the vector using the sort() lambda
-    sort (m_l3sinrMap[imsi].begin (), m_l3sinrMap[imsi].end (),
-          [] (const std::pair<uint16_t, long double> &a,
-              const std::pair<uint16_t, long double> &b) { return a.second > b.second; });
+    std::multimap<long double, uint16_t> sortFlipMap = flip_map(m_l3sinrMap[imsi]);
+    // sortFlipMap is now sorted by what used to be the value in m_l3sinrMap[imsi] but key and values are inverted
+    //sortFlipMap < sinr, cellId >  
     //save only the first 8 sinr between the UE we are iterating and each neighbour cellID
     if (m_l3sinrMap[imsi].size () < 8)
       {
         nNeighbours = m_l3sinrMap[imsi].size ()-1;
       }
-    for (int i = 0; i < nNeighbours + 1; ++i)
+    int itIndex=0;
+    for (std::map<long double, uint16_t>::iterator it = --sortFlipMap.end(); it != --sortFlipMap.begin(); it--)
       {
-        uint16_t cellId = m_l3sinrMap[imsi].at(i).first;
+        if (itIndex>nNeighbours){
+            break;
+         }
+        uint16_t cellId = it->second;
         if (cellId != m_cellId)
           {
-            sinr = 10 * std::log10 (m_l3sinrMap[imsi].at(i).second);
+            sinr = 10 * std::log10 (it->first); // now SINR is a key due to the sort of the map
             convertedSinr = L3RrcMeasurements::ThreeGppMapSinr (sinr);
 
             if (!indicationMessageHelper->IsOffline ())
@@ -799,14 +794,15 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
                 l3RrcMeasurementNeigh->AddNeighbourCellMeasurement (cellId, convertedSinr);
               }
 
-            NS_LOG_DEBUG (Simulator::Now ().GetSeconds ()
+            std::cout<< Simulator::Now ().GetSeconds ()
                            << " enbdev " << m_cellId << " UE " << imsi << " L3 neigh " << cellId
                            << " SINR " << sinr << " sinr encoded " << convertedSinr
-                           << " first insert");
+                           << " first insert"<<std::endl;
 
             neighStr += "," + std::to_string (cellId) + "," + std::to_string (sinr) + "," +
                         std::to_string (convertedSinr);
           }
+        itIndex++;
       }
 
     uePmString.insert (std::make_pair (imsi, servingStr + neighStr));
