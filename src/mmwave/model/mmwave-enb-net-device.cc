@@ -797,10 +797,10 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
                 l3RrcMeasurementNeigh->AddNeighbourCellMeasurement (cellId, convertedSinr);
               }
 
-            std::cout<< Simulator::Now ().GetSeconds ()
+            NS_LOG_DEBUG ( Simulator::Now ().GetSeconds ()
                            << " enbdev " << m_cellId << " UE " << imsi << " L3 neigh " << cellId
                            << " SINR " << sinr << " sinr encoded " << convertedSinr
-                           << " first insert"<<std::endl;
+                           << " first insert");
 
             neighStr += "," + std::to_string (cellId) + "," + std::to_string (sinr) + "," +
                         std::to_string (convertedSinr);
