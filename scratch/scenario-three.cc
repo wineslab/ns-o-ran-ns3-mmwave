@@ -466,7 +466,6 @@ main (int argc, char *argv[])
   GlobalValue::GetValueByName ("ues", uintegerValue);
   uint32_t ues = uintegerValue.Get ();
   uint8_t nUeNodes = ues * nMmWaveEnbNodes;
-
   NS_LOG_INFO (" Bandwidth " << bandwidth << " centerFrequency " << double (centerFrequency)
                              << " isd " << isd << " numAntennasMcUe " << numAntennasMcUe
                              << " numAntennasMmWave " << numAntennasMmWave << " dataRate "

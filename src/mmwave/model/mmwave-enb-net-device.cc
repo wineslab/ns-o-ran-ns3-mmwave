@@ -60,7 +60,6 @@
 #include <ns3/mmwave-indication-message-helper.h>
 
 #include "encode_e2apv1.hpp"
-
 namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("MmWaveEnbNetDevice");
@@ -87,7 +86,7 @@ MmWaveEnbNetDevice::KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu)
                  ", instanceId " << +params.instanceId << 
                  ", ranFuncionId " << +params.ranFuncionId << 
                  ", actionId " << +params.actionId);  
-  
+
   if (!m_isReportingEnabled)
   {
     BuildAndSendReportMessage (params);
@@ -266,13 +265,11 @@ MmWaveEnbNetDevice::RegisterNewSinrReading(uint64_t imsi, uint16_t cellId, long 
 
   if (imsiFound)
   {
-    // create key
-    ImsiCellIdPair_t imsiCid {imsi, cellId};
-
-    // we only need to save the last value, so we do not care about overwriting or not
-    m_l3sinrMap[imsiCid] = sinr;
-
-    NS_LOG_LOGIC(Simulator::Now().GetSeconds() << " enbdev " << m_cellId << " UE " << imsi << " report for " << cellId << " SINR " << m_l3sinrMap[imsiCid]);
+    // we only need to save the last value, so we erase if exists already a value nd save the new one
+    m_l3sinrMap[imsi][cellId] = sinr;
+    NS_LOG_LOGIC (Simulator::Now ().GetSeconds ()
+                  << " enbdev " << m_cellId << " UE " << imsi << " report for " << cellId
+                  << " SINR " << m_l3sinrMap[imsi][cellId]);
   }
 }
 
@@ -696,6 +693,22 @@ NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << m_cellId << " cell volume m
     }
 }
 
+template <typename A, typename B>
+std::pair<B, A>
+flip_pair (const std::pair<A, B> &p)
+{
+  return std::pair<B, A> (p.second, p.first);
+}
+
+template <typename A, typename B>
+std::multimap<B, A>
+flip_map (const std::map<A, B> &src)
+{
+  std::multimap<B, A> dst;
+  std::transform (src.begin (), src.end (), std::inserter (dst, dst.begin ()), flip_pair<A, B>);
+  return dst;
+}
+
 Ptr<KpmIndicationMessage>
 MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
 {
@@ -725,8 +738,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
     // create L3 RRC reports
 
     // for the same cell
-    ImsiCellIdPair_t cid {imsi, m_cellId};
-    double sinrThisCell = 10 * std::log10(m_l3sinrMap[cid]);
+    double sinrThisCell = 10 * std::log10 (m_l3sinrMap[imsi][m_cellId]);
     double convertedSinr = L3RrcMeasurements::ThreeGppMapSinr (sinrThisCell);
 
     Ptr<L3RrcMeasurements> l3RrcMeasurementServing;
@@ -735,7 +747,9 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
         l3RrcMeasurementServing =
             L3RrcMeasurements::CreateL3RrcUeSpecificSinrServing (m_cellId, m_cellId, convertedSinr);
       }
-    NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " enbdev " << m_cellId << " UE " << imsi << " L3 serving SINR " << sinrThisCell << " L3 serving SINR 3gpp " << convertedSinr);
+    NS_LOG_DEBUG (Simulator::Now ().GetSeconds ()
+                  << " enbdev " << m_cellId << " UE " << imsi << " L3 serving SINR " << sinrThisCell
+                  << " L3 serving SINR 3gpp " << convertedSinr);
 
     std::string servingStr = std::to_string (numDrb) + "," + std::to_string (0) + "," +
                              std::to_string (m_cellId) + "," + std::to_string (imsi) + "," +
@@ -755,13 +769,27 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
 
     // TODO relax this assumption
     // the assumption is that the scenario has 8 cells, cellIds [basicCellId + 1, basicCellId + 7] are for
-    // NR base stations, cellId basicCellId is for the LTE cell 
-    for (uint16_t cellId = m_basicCellId + 1; cellId < m_basicCellId + 8; ++cellId)
+    // NR base stations, cellId basicCellId is for the LTE cell
+    std::multimap<long double, uint16_t> sortFlipMap = flip_map(m_l3sinrMap[imsi]);
+    // sortFlipMap is now sorted by what used to be the value in m_l3sinrMap[imsi] but key and values are inverted
+    //sortFlipMap < sinr, cellId >  
+    //save only the first 8 sinr between the UE we are iterating and each neighbour cellID
+    if (m_l3sinrMap[imsi].size () < 8)
       {
+        nNeighbours = m_l3sinrMap[imsi].size () - 1;
+      }
+    int itIndex = 0;
+    for (std::map<long double, uint16_t>::iterator it = --sortFlipMap.end ();
+         it != --sortFlipMap.begin (); it--)
+      {
+        if (itIndex > nNeighbours)
+          {
+            break;
+          }
+        uint16_t cellId = it->second;
         if (cellId != m_cellId)
           {
-            ImsiCellIdPair_t cidNeigh{imsi, cellId};
-            sinr = 10 * std::log10 (m_l3sinrMap[cidNeigh]);
+            sinr = 10 * std::log10 (it->first); // now SINR is a key due to the sort of the map
             convertedSinr = L3RrcMeasurements::ThreeGppMapSinr (sinr);
 
             if (!indicationMessageHelper->IsOffline ())
@@ -769,12 +797,15 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
                 l3RrcMeasurementNeigh->AddNeighbourCellMeasurement (cellId, convertedSinr);
               }
 
-            NS_LOG_DEBUG (Simulator::Now ().GetSeconds ()
+            std::cout<< Simulator::Now ().GetSeconds ()
                            << " enbdev " << m_cellId << " UE " << imsi << " L3 neigh " << cellId
-                           << " SINR " << sinr << " sinr encoded " << convertedSinr << " first insert");
-            
-            neighStr += "," + std::to_string (cellId) + "," + std::to_string (sinr) + "," + std::to_string (convertedSinr);
+                           << " SINR " << sinr << " sinr encoded " << convertedSinr
+                           << " first insert"<<std::endl;
+
+            neighStr += "," + std::to_string (cellId) + "," + std::to_string (sinr) + "," +
+                        std::to_string (convertedSinr);
           }
+        itIndex++;
       }
 
     uePmString.insert (std::make_pair (imsi, servingStr + neighStr));
@@ -1305,7 +1336,7 @@ MmWaveEnbNetDevice::BuildAndSendReportMessage(E2Termination::RicSubscriptionRequ
       delete pdu_du_ue;
     }
   }
-
+  
   if (!m_forceE2FileLogging)
     Simulator::ScheduleWithContext (1, Seconds (m_e2Periodicity),
                                     &MmWaveEnbNetDevice::BuildAndSendReportMessage, this, params);
