@@ -267,7 +267,9 @@ MmWaveEnbNetDevice::RegisterNewSinrReading(uint64_t imsi, uint16_t cellId, long 
   {
     // we only need to save the last value, so we erase if exists already a value nd save the new one
     m_l3sinrMap[imsi][cellId] = sinr;
-    NS_LOG_LOGIC(Simulator::Now().GetSeconds() << " enbdev " << m_cellId << " UE " << imsi << " report for " << cellId << " SINR " << m_l3sinrMap[imsi][cellId]);
+    NS_LOG_LOGIC (Simulator::Now ().GetSeconds ()
+                  << " enbdev " << m_cellId << " UE " << imsi << " report for " << cellId
+                  << " SINR " << m_l3sinrMap[imsi][cellId]);
   }
 }
 
@@ -691,22 +693,21 @@ NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << m_cellId << " cell volume m
     }
 }
 
-
-template<typename A, typename B>
-std::pair<B,A> flip_pair(const std::pair<A,B> &p)
+template <typename A, typename B>
+std::pair<B, A>
+flip_pair (const std::pair<A, B> &p)
 {
-    return std::pair<B,A>(p.second, p.first);
+  return std::pair<B, A> (p.second, p.first);
 }
 
-template<typename A, typename B>
-std::multimap<B,A> flip_map(const std::map<A,B> &src)
+template <typename A, typename B>
+std::multimap<B, A>
+flip_map (const std::map<A, B> &src)
 {
-    std::multimap<B,A> dst;
-    std::transform(src.begin(), src.end(), std::inserter(dst, dst.begin()), 
-                   flip_pair<A,B>);
-    return dst;
+  std::multimap<B, A> dst;
+  std::transform (src.begin (), src.end (), std::inserter (dst, dst.begin ()), flip_pair<A, B>);
+  return dst;
 }
-
 
 Ptr<KpmIndicationMessage>
 MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
@@ -775,14 +776,16 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
     //save only the first 8 sinr between the UE we are iterating and each neighbour cellID
     if (m_l3sinrMap[imsi].size () < 8)
       {
-        nNeighbours = m_l3sinrMap[imsi].size ()-1;
+        nNeighbours = m_l3sinrMap[imsi].size () - 1;
       }
-    int itIndex=0;
-    for (std::map<long double, uint16_t>::iterator it = --sortFlipMap.end(); it != --sortFlipMap.begin(); it--)
+    int itIndex = 0;
+    for (std::map<long double, uint16_t>::iterator it = --sortFlipMap.end ();
+         it != --sortFlipMap.begin (); it--)
       {
-        if (itIndex>nNeighbours){
+        if (itIndex > nNeighbours)
+          {
             break;
-         }
+          }
         uint16_t cellId = it->second;
         if (cellId != m_cellId)
           {
