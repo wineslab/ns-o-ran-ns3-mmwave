@@ -121,14 +121,12 @@ MmWaveEnbNetDevice::Probability_state (double p1, double p2, double p3, double p
     {
       NS_LOG_DEBUG ("BS state " << enum_state_BS::ON);
       m_rrc->SetSecondaryCellHandoverAllowedStatus (nodeId, enum_state_BS::ON);
-      m_rrc->EvictUsersFromSecondaryCell ();
       m_CellState = enum_state_BS::ON;
     }
   else if (r > p1 && r <= (p1 + p2))
     {
       NS_LOG_DEBUG ("BS state " << enum_state_BS::Idle);
       m_rrc->SetSecondaryCellHandoverAllowedStatus (nodeId, enum_state_BS::Idle);
-      m_rrc->EvictUsersFromSecondaryCell ();
       m_CellState = enum_state_BS::Idle;
     }
   else if (r > (p1 + p2) && r <= (p1 + p2 + p3))
@@ -150,36 +148,60 @@ MmWaveEnbNetDevice::Probability_state (double p1, double p2, double p3, double p
                   << " keep same state");
 }
 
+void MmWaveEnbNetDevice::TurnON(uint16_t nodeId){
+  m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enum_state_BS::ON);
+}
+
+void MmWaveEnbNetDevice::TurnIdle(uint16_t nodeId){
+    m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enum_state_BS::Idle);
+}
+
+void MmWaveEnbNetDevice::TurnSleep(uint16_t nodeId){
+    m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enum_state_BS::Sleep);
+    m_rrc->EvictUsersFromSecondaryCell ();
+}
+
+void MmWaveEnbNetDevice::TurnOFF(uint16_t nodeId){
+    m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enum_state_BS::OFF);
+    m_rrc->EvictUsersFromSecondaryCell ();
+}
+
 bool MmWaveEnbNetDevice::GetBsState (){
   return m_CellState;
 }
 
-void MmWaveEnbNetDevice::BestUesSINR(){
-  //get connected UEs from BS
+uint16_t MmWaveEnbNetDevice::GetNUeGoodSINR(){
+  return NUeGoodSINR;
+}
 
+void MmWaveEnbNetDevice::CountBestUesSINR(){
+  //reset parameter
+  NUeGoodSINR=0;
+  //get connected UEs from BS
   std::map<uint16_t, ns3::Ptr<ns3::UeManager>>ue_attached= m_rrc->GetUeMap(); //list of attached UEs
   std::cout <<"N ues attached: "<<ue_attached.size()<< "\n";
   for(auto it = ue_attached.cbegin(); it != ue_attached.cend(); ++it)
   {
-    std::cout <<"RNTI: "<< it->first << "\n"; 
     //yes, UEs are attached during simulation
-  }
-
-  std::map<uint8_t, ImsiSinrMap> carrierMap=m_rrc->GetM_ueImsiSinrMap();
-  std::cout <<"Carrier map size: "<< carrierMap.size()<< "\n";
-  for(auto it = carrierMap.cbegin(); it != carrierMap.cend(); ++it)
-  {
-    std::cout <<"carrier: "<< it->first << " ";
-    std::map<uint64_t, double> sinrMap=it->second;
-    for(auto jt = sinrMap.cbegin(); jt != sinrMap.cend(); ++jt)
+    ImsiCellIdPair_t cid {it->second->GetImsi(), m_cellId};
+    double sinrThisCell = 10 * std::log10(m_l3sinrMap[cid]);
+    double convertedSinr = L3RrcMeasurements::ThreeGppMapSinr (sinrThisCell);
+    std::cout<< "sinrThisCell: "<< convertedSinr<<std::endl;
+    if (convertedSinr > 73.0)//over 13 is a good SINR range = over 73 convertedSinr
     {
-      std::cout << "UE IMSI: " << jt->first<< "SINR: "<< jt->second<<"\n";
-    }
+      NUeGoodSINR++;
+    }   
+  }
+  std::cout<< "NUeGoodSINR for BS "<< m_rrc->GetCellId()<<" is: "<< NUeGoodSINR<<std::endl; //number of UEs with a good SINR value
+}
+
+  std::pair<double, double> MmWaveEnbNetDevice::GetClosestUEPos(){
+    return ClosestUEPos; 
   }
 
-
-
-}
+  void MmWaveEnbNetDevice::SetClosestUEPos(std::pair<double, double> pos){
+    ClosestUEPos=pos;
+  }
 
 TypeId MmWaveEnbNetDevice::GetTypeId ()
 {
