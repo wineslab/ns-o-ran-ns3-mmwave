@@ -110,13 +110,27 @@ public:
 
   void Probability_state(double p1, double p2, double p3, double p4, uint16_t nodeId);
 
-  void BestUesSINR();
+  void TurnON(uint16_t nodeId);
+
+  void TurnIdle(uint16_t nodeId);
+
+  void TurnSleep(uint16_t nodeId);
+
+  void TurnOFF(uint16_t nodeId);
+  
+  void CountBestUesSINR();
 
   bool GetBsState ();
   
   void ControlMessageReceivedCallback (E2AP_PDU_t* sub_req_pdu);
   
   void SetStartTime (uint64_t);
+
+  uint16_t GetNUeGoodSINR();
+
+  std::pair<double, double> GetClosestUEPos();
+
+  void SetClosestUEPos(std::pair<double, double>);
 
 protected:
   virtual void DoInitialize (void) override;
@@ -175,6 +189,8 @@ private:
   std::string m_cuCpFileName;
   std::string m_duFileName;
 
+  uint16_t NUeGoodSINR=0;
+  std::pair<double, double> ClosestUEPos={10000.0,10000.0};
 };
 }
 }

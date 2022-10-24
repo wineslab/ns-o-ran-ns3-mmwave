@@ -28,7 +28,6 @@
 #include "ns3/epc-helper.h"
 #include "ns3/mmwave-point-to-point-epc-helper.h"
 #include "ns3/lte-helper.h"
-
 using namespace ns3;
 using namespace mmwave;
 
@@ -37,7 +36,202 @@ using namespace mmwave;
  * 
  */
 
-NS_LOG_COMPONENT_DEFINE ("ScenarioOne");
+NS_LOG_COMPONENT_DEFINE ("Energy efficiency baselines");
+
+void
+TurnOnBSSinrPos (uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs)
+{
+  int BsON = 2;
+  int BsIdle = 2;
+  int BsSleep = 2;
+  int BsOFF = 1;
+  if (BsON + BsIdle + BsSleep + BsOFF != nMmWaveEnbNodes)
+    {
+      NS_FATAL_ERROR ("ERROR: number of BS we interact with( "
+                      << BsON + BsIdle + BsSleep + BsOFF
+                      << ") is different to the total number of BS in the scenario ("
+                      << nMmWaveEnbNodes << ")");
+    }
+  int BShighestValues[BsON];
+  int BStoTurnON[BsON];
+  for (int i = 0; i < BsON; i++)
+    {
+      BShighestValues[i] = -1;
+    }
+  for (int j = 0; j < nMmWaveEnbNodes; j++)
+    {
+      //get the mmwave BS
+      Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
+
+      for (int i = 0; i < BsON; i++)
+        {
+          //save the bests (number equal to BsON) BSs with highest NUeGoodSINR
+          if (BShighestValues[i] < mmdev->GetNUeGoodSINR ())
+            {
+              BShighestValues[i] = mmdev->GetNUeGoodSINR (); // save N UEs value
+              BStoTurnON[i] = j; //save BS index
+              break; //if this value is the highest exit the loop and check next BS
+            }
+        }
+    }
+
+  //turn on first N BSs
+  for (int j = 0; j < BsON; j++)
+    {
+      Ptr<MmWaveEnbNetDevice> mmdev =
+          DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (BStoTurnON[j]));
+      NS_LOG_DEBUG ("BS to turn on ID: " << mmdev->GetCellId ());
+      mmdev->TurnON (mmdev->GetCellId ());
+    }
+
+  //for others BS get position of closest UE
+  for (int j = 0; j < nMmWaveEnbNodes; j++)
+    {
+      //if BS is already turned ON (from previous piece of code) skip this BS
+      bool found = false;
+      for (int i = 0; i < BsON; i++)
+        {
+          if (BStoTurnON[i] == j)
+            {
+              found = true;
+              break;
+            }
+        }
+      if (found)
+        {
+          continue;
+        }
+      //otherwise
+      Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
+      ns3::Ptr<ns3::LteEnbRrc> m_rrc = mmdev->GetRrc ();
+      std::map<uint16_t, ns3::Ptr<ns3::UeManager>> ue_attached =
+          m_rrc->GetUeMap (); //list of attached UEs
+      NS_LOG_DEBUG ("N ues attached: " << ue_attached.size ());
+      uint64_t ListConnectedIMSI[ue_attached.size ()];
+      int index = 0;
+      //save IMSI of connected UE to the BS into ListConnectedIMSI array
+      for (auto it = ue_attached.cbegin (); it != ue_attached.cend (); ++it)
+        {
+          ListConnectedIMSI[index] = it->second->GetImsi ();
+          index++;
+        }
+
+      for (NodeList::Iterator it = NodeList::Begin (); it != NodeList::End ();
+           ++it) //get an iterator on the list of all the nodes deployed in the scenario
+        {
+          Ptr<Node> node = *it;
+          int nDevs = node->GetNDevices ();
+          for (int jDevs = 0; jDevs < nDevs; jDevs++)
+            {
+              Ptr<McUeNetDevice> mcuedev =
+                  node->GetDevice (jDevs)->GetObject<McUeNetDevice> (); //get UE device
+
+              if (mcuedev)
+                {
+                  uint64_t nodeIMSI = mcuedev->GetImsi ();
+                  for (uint64_t iarray = 0; iarray < ue_attached.size (); iarray++)
+                    {
+                      //save the UE closest position of this BS (index j)
+                      if (ListConnectedIMSI[iarray] ==
+                          nodeIMSI) //if the jDevs node is one of the connected UEs for this BS (index j)
+                        {
+                          //get scenario ue pos
+                          Vector pos = node->GetObject<MobilityModel> ()->GetPosition ();
+                          //get the position of the GnB
+                          Vector posGnB =
+                              mmdev->GetNode ()->GetObject<MobilityModel> ()->GetPosition ();
+                          //getDistance between BS and UE
+                          double ueDist =
+                              sqrt (pow (pos.x - posGnB.x, 2) +
+                                    pow (pos.y - posGnB.y,
+                                         2)); //distance between UE (index iarray) and BS
+                          std::pair<double, double> ClosestUepos =
+                              mmdev
+                                  ->GetClosestUEPos (); // get the attribute where is saved the closest attached UE position
+                          double ClosestUeposDist =
+                              sqrt (pow (ClosestUepos.first - posGnB.x, 2) +
+                                    pow (ClosestUepos.second - posGnB.y,
+                                         2)); // actual distance (BS-UE) of the closest saved UE
+                          //if the ue in the scenario (index iarray) is closer compared to the one already saved, save it
+                          if (ueDist < ClosestUeposDist)
+                            {
+                              std::pair<double, double> uePos = {pos.x, pos.y};
+                              mmdev->SetClosestUEPos (uePos);
+                            }
+                          NS_LOG_DEBUG ("BS: " << m_rrc->GetCellId () << " UE:" << nodeIMSI
+                                               << " distance:" << ueDist << " pos: " << pos);
+                        }
+                    }
+                }
+            }
+        }
+      NS_LOG_DEBUG ("The closest for BS: " << m_rrc->GetCellId ()
+                                           << " is pos: " << mmdev->GetClosestUEPos ());
+    }
+  //save all closest UEs of all the BS in the scenario into a Map
+  std::vector<std::pair<Ptr<MmWaveEnbNetDevice>, double>> UeDistances; //cellID, UEdistance
+  for (int j = 0; j < nMmWaveEnbNodes; j++)
+    {
+      //if BS is already turned ON skip this BS
+      bool found = false;
+      for (int i = 0; i < BsON; i++)
+        {
+          if (j == BStoTurnON[i])
+            {
+              found = true;
+              break;
+            }
+        }
+      if (found)
+        {
+          continue;
+        }
+      Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
+      std::pair<double, double> ClosestUepos = mmdev->GetClosestUEPos (); // get the saved UE pos
+      Vector posGnB = mmdev->GetNode ()->GetObject<MobilityModel> ()->GetPosition ();
+      double ClosestUeposDist =
+          sqrt (pow (ClosestUepos.first - posGnB.x, 2) + pow (ClosestUepos.second - posGnB.y, 2));
+      UeDistances.push_back (std::pair<Ptr<MmWaveEnbNetDevice>, double> (mmdev, ClosestUeposDist));
+    }
+
+  //order the vector or pairs
+  std::sort (UeDistances.begin (), UeDistances.end (),
+             [] (const std::pair<Ptr<MmWaveEnbNetDevice>, double> &left,
+                 const std::pair<Ptr<MmWaveEnbNetDevice>, double> &right) {
+               return left.second < right.second;
+             });
+
+  NS_LOG_DEBUG ("Print the map of BS-distances ordered");
+  for (std::pair<Ptr<MmWaveEnbNetDevice>, double> i : UeDistances)
+    NS_LOG_DEBUG ("BS " << i.first->GetCellId () << " with distance " << i.second);
+
+  //turn idle first N BSs
+  for (int j = 0; j < BsIdle; j++)
+    {
+      Ptr<MmWaveEnbNetDevice> mmdev = UeDistances[j].first;
+      NS_LOG_DEBUG ("BS to turn Idle ID: " << UeDistances[j].first->GetCellId ());
+      mmdev->TurnIdle (mmdev->GetCellId ());
+      //UeDistances.erase(std::remove(UeDistances.begin(), UeDistances.end(), UeDistances[j]), UeDistances.end());
+    }
+
+  //turn sleep first N BSs
+  for (int j = BsIdle; j < BsIdle + BsSleep; j++)
+    {
+      Ptr<MmWaveEnbNetDevice> mmdev = UeDistances[j].first;
+      NS_LOG_DEBUG ("BS to turn sleep ID: " << UeDistances[j].first->GetCellId ());
+      mmdev->TurnSleep (mmdev->GetCellId ());
+      //UeDistances.erase(std::remove(UeDistances.begin(), UeDistances.end(), UeDistances[j]), UeDistances.end());
+    }
+
+  //turn off first N BSs
+  for (int j = BsIdle + BsSleep; j < BsIdle + BsSleep + BsOFF; j++)
+    {
+      Ptr<MmWaveEnbNetDevice> mmdev = UeDistances[j].first;
+      NS_LOG_DEBUG ("BS to turn off ID: " << UeDistances[j].first->GetCellId ());
+      mmdev->TurnOFF (mmdev->GetCellId ());
+      //UeDistances.erase(std::remove(UeDistances.begin(), UeDistances.end(), UeDistances[j]), UeDistances.end());
+    }
+}
 
 void
 PrintGnuplottableUeListToFile (std::string filename)
@@ -54,7 +248,7 @@ PrintGnuplottableUeListToFile (std::string filename)
       Ptr<Node> node = *it;
       int nDevs = node->GetNDevices ();
       for (int j = 0; j < nDevs; j++)
-        {
+        {       
           Ptr<LteUeNetDevice> uedev = node->GetDevice (j)->GetObject<LteUeNetDevice> ();
           Ptr<MmWaveUeNetDevice> mmuedev = node->GetDevice (j)->GetObject<MmWaveUeNetDevice> ();
           Ptr<McUeNetDevice> mcuedev = node->GetDevice (j)->GetObject<McUeNetDevice> ();
@@ -131,25 +325,6 @@ PrintPosition (Ptr<Node> node)
   NS_LOG_UNCOND ("Position +****************************** " << model->GetPosition () << " at time "
                                                              << Simulator::Now ().GetSeconds ());
 }
-
-// void set_state(double p1,double p2, double p3, double p4, Ptr<LteEnbNetDevice> mmdev){
-//     std::cout << " Sim time " << Simulator::Now().GetSeconds ()<<std::endl;
-//     std::cout << " Enb name " << mmdev->GetCellId ()<<std::endl;
-//     std::random_device rd;
-//     std::default_random_engine eng(rd());
-//     std::uniform_real_distribution<double> distr(0, 1);
-//     double r= distr(eng);
-//     std::cout<<"Prob"<< r << "\n";
-//     if (r<=p1){
-//       std::cout << " BS state" << "ON"<<std::endl;
-//       mmdev->m_rrc->SetSecondaryCellHandoverAllowedStatus(mmdev->GetCellId (), 1);
-//     }
-//     else if (r>p1 && r <=(p1+p2)) std::cout << " BS state" << "Idle"<<std::endl;
-//     else if (r>(p1+p2) && r <=(p1+p2+p3)) std::cout << " BS state" << "Sleep"<<std::endl;
-//     else if (r>(p1+p2+p3) && r <=1) std::cout << " BS state" << "OFF"<<std::endl;
-//     else std::cout << " BS state" << "ERROR"<<std::endl;
-
-// }
 
 static ns3::GlobalValue g_bufferSize ("bufferSize", "RLC tx buffer size (MB)",
                                       ns3::UintegerValue (10),
@@ -806,40 +981,30 @@ main (int argc, char *argv[])
   clientApp.Start (MilliSeconds (100));
   clientApp.Stop (Seconds (simTime - 0.1));
 
-  // int numPrints = 5;
-  // for (int i = 0; i < numPrints; i++)
-  //   {
-  //     Ptr<LteEnbNetDevice> eNBDevice = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
-  //     for (uint32_t j = 0; j < ueNodes.GetN (); j++)
-  //       {
-  //         Simulator::Schedule (Seconds (i * simTime / numPrints), &LteEnbNetDevice::Probability_state, eNBDevice);
-  //       }
-  //   }
-
   //static sleeping
+  for (double i = 0.0; i < simTime; i = i + cellUpdateTime - 0.01)
+    {
+      for (int j = 0; j < nMmWaveEnbNodes; j++)
+        {
+          Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
+          Simulator::Schedule (Seconds (i), &MmWaveEnbNetDevice::CountBestUesSINR, mmdev);
+        }
+      i = i + 0.01; //making sure to execute the next function after the previous one
+      Simulator::Schedule (Seconds (i), TurnOnBSSinrPos, nMmWaveEnbNodes, mmWaveEnbDevs);
+    }
+
+  //random sleeping
   for (double i = 0.0; i < simTime; i = i + cellUpdateTime)
     {
       for (int j = 0; j < nMmWaveEnbNodes; j++)
         {
           Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
-          Simulator::Schedule (Seconds (i), &MmWaveEnbNetDevice::BestUesSINR, mmdev);
-          //std::cout <<"before function " << "\n";
+          Simulator::Schedule (Seconds (i), &MmWaveEnbNetDevice::Probability_state, mmdev, prob_ON,
+                               prob_Idle, prob_Sleep, prob_OFF, mmdev->GetCellId ());
+          NS_LOG_DEBUG ("BS with id " << mmdev->GetCellId () << " has the following state "
+                                      << mmdev->GetBsState ());
         }
     }
-
-  //random sleeping
-  // for (double i = 0.0; i < simTime; i = i + cellUpdateTime)
-  //   {
-  //     for (int j = 0; j < nMmWaveEnbNodes; j++)
-  //       {
-  //         Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
-  //         Simulator::Schedule (Seconds (i), &MmWaveEnbNetDevice::Probability_state, mmdev, prob_ON,
-  //                              prob_Idle, prob_Sleep, prob_OFF, mmdev->GetCellId ());
-  //         NS_LOG_DEBUG ("BS with id " << mmdev->GetCellId () << " has the following state "
-  //                                     << mmdev->GetBsState ());
-  //       }
-  //   }
-
 
   if (enableTraces)
     {
