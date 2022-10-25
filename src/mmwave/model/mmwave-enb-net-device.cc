@@ -419,7 +419,9 @@ MmWaveEnbNetDevice::UpdateConfig (void)
                        "L3 neigh Id 3 (cellId),L3 neigh SINR 3,L3 neigh SINR 3gpp 3 (convertedSinr),"
                        "L3 neigh Id 4 (cellId),L3 neigh SINR 4,L3 neigh SINR 3gpp 4 (convertedSinr),"
                        "L3 neigh Id 5 (cellId),L3 neigh SINR 5,L3 neigh SINR 3gpp 5 (convertedSinr),"
-                       "L3 neigh Id 6 (cellId),L3 neigh SINR 6,L3 neigh SINR 3gpp 6 (convertedSinr)"
+                       "L3 neigh Id 6 (cellId),L3 neigh SINR 6,L3 neigh SINR 3gpp 6 (convertedSinr),"
+                       "L3 neigh Id 7 (cellId),L3 neigh SINR 7,L3 neigh SINR 3gpp 7 (convertedSinr),"
+                       "L3 neigh Id 8 (cellId),L3 neigh SINR 8,L3 neigh SINR 3gpp 8 (convertedSinr)"
                        "\n";
                 csv.close();
 
@@ -767,18 +769,16 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
     double sinr;
     std::string neighStr;
 
-    // TODO relax this assumption
-    // the assumption is that the scenario has 8 cells, cellIds [basicCellId + 1, basicCellId + 7] are for
-    // NR base stations, cellId basicCellId is for the LTE cell
-    std::multimap<long double, uint16_t> sortFlipMap = flip_map(m_l3sinrMap[imsi]);
-    // sortFlipMap is now sorted by what used to be the value in m_l3sinrMap[imsi] but key and values are inverted
-    //sortFlipMap < sinr, cellId >  
-    //save only the first 8 sinr between the UE we are iterating and each neighbour cellID
+    //invert key and value in sortFlipMap, then sort by value
+    std::multimap<long double, uint16_t> sortFlipMap = flip_map (m_l3sinrMap[imsi]);
+    //new sortFlipMap structure sortFlipMap < sinr, cellId >
+    //The assumption is that the first cell in the scenario is always LTE and the rest NR
     if (m_l3sinrMap[imsi].size () < 8)
       {
         nNeighbours = m_l3sinrMap[imsi].size () - 1;
       }
     int itIndex = 0;
+    // Save only the first 8 SINR for each UE which represent the best values among all the SINRs detected by all the cells
     for (std::map<long double, uint16_t>::iterator it = --sortFlipMap.end ();
          it != --sortFlipMap.begin (); it--)
       {
