@@ -179,20 +179,20 @@ void MmWaveEnbNetDevice::CountBestUesSINR(){
   NUeGoodSINR=0;
   //get connected UEs from BS
   std::map<uint16_t, ns3::Ptr<ns3::UeManager>>ue_attached= m_rrc->GetUeMap(); //list of attached UEs
-  std::cout <<"N ues attached: "<<ue_attached.size()<< "\n";
+  NS_LOG_DEBUG ("N ues attached: "<<ue_attached.size());
   for(auto it = ue_attached.cbegin(); it != ue_attached.cend(); ++it)
   {
     //yes, UEs are attached during simulation
     ImsiCellIdPair_t cid {it->second->GetImsi(), m_cellId};
     double sinrThisCell = 10 * std::log10(m_l3sinrMap[cid]);
     double convertedSinr = L3RrcMeasurements::ThreeGppMapSinr (sinrThisCell);
-    std::cout<< "sinrThisCell: "<< convertedSinr<<std::endl;
+    NS_LOG_DEBUG ( "sinrThisCell: "<< convertedSinr);
     if (convertedSinr > 73.0)//over 13 is a good SINR range = over 73 convertedSinr
     {
       NUeGoodSINR++;
     }   
   }
-  std::cout<< "NUeGoodSINR for BS "<< m_rrc->GetCellId()<<" is: "<< NUeGoodSINR<<std::endl; //number of UEs with a good SINR value
+  NS_LOG_DEBUG ( "NUeGoodSINR for BS "<< m_rrc->GetCellId()<<" is: "<< NUeGoodSINR); //number of UEs with a good SINR value
 }
 
   std::pair<double, double> MmWaveEnbNetDevice::GetClosestUEPos(){
@@ -201,6 +201,14 @@ void MmWaveEnbNetDevice::CountBestUesSINR(){
 
   void MmWaveEnbNetDevice::SetClosestUEPos(std::pair<double, double> pos){
     ClosestUEPos=pos;
+  }
+
+  double MmWaveEnbNetDevice::GetClosestUETime(){
+    return ClosestUETime; 
+  }
+
+  void MmWaveEnbNetDevice::SetClosestUETime(double time){
+    ClosestUETime=time;
   }
 
 TypeId MmWaveEnbNetDevice::GetTypeId ()
