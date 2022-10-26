@@ -132,6 +132,10 @@ public:
 
   void SetClosestUEPos(std::pair<double, double>);
 
+  double GetClosestUETime();
+
+  void SetClosestUETime(double);
+
 protected:
   virtual void DoInitialize (void) override;
   void UpdateConfig ();
@@ -191,6 +195,7 @@ private:
 
   uint16_t NUeGoodSINR=0;
   std::pair<double, double> ClosestUEPos={10000.0,10000.0};
+  double ClosestUETime=10000.0;
 };
 }
 }
