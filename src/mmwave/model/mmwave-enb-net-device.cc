@@ -773,40 +773,38 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
     std::multimap<long double, uint16_t> sortFlipMap = flip_map (m_l3sinrMap[imsi]);
     //new sortFlipMap structure sortFlipMap < sinr, cellId >
     //The assumption is that the first cell in the scenario is always LTE and the rest NR
-    if (m_l3sinrMap[imsi].size () < 8)
+    uint16_t nNeighbours = E2SM_REPORT_MAX_NEIGH;
+    if (m_l3sinrMap[imsi].size () < nNeighbours)
       {
         nNeighbours = m_l3sinrMap[imsi].size () - 1;
       }
     int itIndex = 0;
-    // Save only the first 8 SINR for each UE which represent the best values among all the SINRs detected by all the cells
+    // Save only the first E2SM_REPORT_MAX_NEIGH SINR for each UE which represent the best values among all the SINRs detected by all the cells
     for (std::map<long double, uint16_t>::iterator it = --sortFlipMap.end ();
-         it != --sortFlipMap.begin (); it--)
+         it != --sortFlipMap.begin () && itIndex < nNeighbours; it--)
       {
-        if (itIndex > nNeighbours)
-          {
-            break;
-          }
         uint16_t cellId = it->second;
         if (cellId != m_cellId)
           {
             sinr = 10 * std::log10 (it->first); // now SINR is a key due to the sort of the map
             convertedSinr = L3RrcMeasurements::ThreeGppMapSinr (sinr);
-
             if (!indicationMessageHelper->IsOffline ())
               {
                 l3RrcMeasurementNeigh->AddNeighbourCellMeasurement (cellId, convertedSinr);
               }
-
-            NS_LOG_DEBUG ( Simulator::Now ().GetSeconds ()
-                           << " enbdev " << m_cellId << " UE " << imsi << " L3 neigh " << cellId
-                           << " SINR " << sinr << " sinr encoded " << convertedSinr
-                           << " first insert");
-
+            NS_LOG_DEBUG (Simulator::Now ().GetSeconds ()
+                          << " enbdev " << m_cellId << " UE " << imsi << " L3 neigh " << cellId
+                          << " SINR " << sinr << " sinr encoded " << convertedSinr
+                          << " first insert");
             neighStr += "," + std::to_string (cellId) + "," + std::to_string (sinr) + "," +
                         std::to_string (convertedSinr);
+            itIndex++;
           }
-        itIndex++;
       }
+      for (int i =nNeighbours; i< E2SM_REPORT_MAX_NEIGH; i++){
+        neighStr += ",,,";
+      }
+    
 
     uePmString.insert (std::make_pair (imsi, servingStr + neighStr));
 
