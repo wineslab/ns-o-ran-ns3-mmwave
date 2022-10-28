@@ -68,6 +68,8 @@ typedef std::pair<uint64_t, uint16_t> ImsiCellIdPair_t;
 class MmWaveEnbNetDevice : public MmWaveNetDevice
 {
 public:
+  const static uint16_t E2SM_REPORT_MAX_NEIGH = 8;
+
   static TypeId GetTypeId (void);
 
   MmWaveEnbNetDevice ();
@@ -164,7 +166,6 @@ private:
   std::string m_cuUpFileName;
   std::string m_cuCpFileName;
   std::string m_duFileName;
-  int nNeighbours = 8;
 
 };
 }
