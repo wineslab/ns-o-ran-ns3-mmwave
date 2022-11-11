@@ -108,7 +108,7 @@ LteEnbNetDevice::ReadControlFile ()
       std::string line;
 
       if (m_controlFilename.find ("ts_actions_for_ns3.csv") != std::string::npos)
-        {
+        {// TODO adapt to the scheduling of the messages
 
           long long timestamp{};
 
@@ -149,7 +149,6 @@ LteEnbNetDevice::ReadControlFile ()
         {
           long long timestamp{};
           uint8_t counter = 0;
-
           while (std::getline (csv, line))
             {
               if (line == "")
@@ -175,16 +174,39 @@ LteEnbNetDevice::ReadControlFile ()
               std::getline (lineStream, cell, ',');
               hoAllowed = std::stoi (cell);
 
-              NS_LOG_INFO ("Set allowed command with timestamp " << timestamp << " cellId " << cellId << "hoAllowed" << hoAllowed);
+              NS_LOG_INFO ("Set allowed command with timestamp " << timestamp << " cellId " << cellId << " hoAllowed " << hoAllowed);
 
-              m_rrc->SetSecondaryCellHandoverAllowedStatus (cellId, hoAllowed); // set the status of the cell (On/Off)
+              // set the status of the cell (On/Off)
+              if (!m_scheduleControlMessages)
+                {
+                  m_rrc->SetSecondaryCellHandoverAllowedStatus (cellId, hoAllowed);
+                }
+              else
+                {
+                  Simulator::Schedule (MilliSeconds (timestamp),
+                                       &LteEnbRrc::SetSecondaryCellHandoverAllowedStatus, m_rrc,
+                                       cellId, hoAllowed);
+                }
             }
 
-          if (counter > 0) // we want this to be triggered only when we have some new data in the dale
-            m_rrc->EvictUsersFromSecondaryCell (); // Triggers the handovers for UEs in the Off cells
+          if (counter > 0)
+            { // we want this to be triggered only when we have some new data in the dale
+              // Triggers (or schedules) the handovers for UEs in the Off cells
+              if (!m_scheduleControlMessages)
+                {
+                  m_rrc->EvictUsersFromSecondaryCell ();
+                }
+              else
+                {
+                  // we introduce a minimum offset of 0.001 to make sure that this is scheduled after.
+                  // This may be unnecessary according to the internal working of ns-3
+                  Simulator::Schedule (MilliSeconds (timestamp + 0.001),
+                                       &LteEnbRrc::EvictUsersFromSecondaryCell, m_rrc);
+                }
+            }
         }
       else if (m_controlFilename == "qos_actions.csv")
-        {
+        { // TODO adapt to the scheduling of the messages
           long long timestamp{};
           std::unordered_map<uint16_t, double> uePercentages{};
           while (std::getline (csv, line))
@@ -230,7 +252,6 @@ LteEnbNetDevice::ReadControlFile ()
           auto ueMap = m_rrc->GetUeMap ();
           for (std::pair<uint16_t, double> uePercentage : uePercentages)
             {
-              // uint64_t ueId = m_rrc->GetImsiFromRnti (uePercentage.first); // TODO check if we need this
               uint16_t ueId = uePercentage.first;
               double percentage = uePercentage.second;
               this->SetUeQoS (ueId, percentage);
@@ -244,16 +265,24 @@ LteEnbNetDevice::ReadControlFile ()
 
       csv.close ();
 
-      std::ofstream csvDelete{};
-      csvDelete.open (m_controlFilename.c_str ());
+      if (!m_scheduleControlMessages)
+        { // no need to delete stuff in this mode
+          std::ofstream csvDelete{};
+          csvDelete.open (m_controlFilename.c_str ());
 
-      NS_LOG_INFO ("File flushed");
+          NS_LOG_INFO ("File flushed");
+        }
     }
 
-  // TODO check if we need to run multiple times in a m_e2Periodicity time delta,
-  // to catch commands that are late
-  // We can run every ms, if the file is empty, do not do anything
-  Simulator::Schedule (Seconds (0.001), &LteEnbNetDevice::ReadControlFile, this);
+  // Since the message digestion and the control are mutually exclusive,
+  // there is no need to reschedule this action again in the first case.
+  if (!m_scheduleControlMessages)
+    {
+      // TODO check if we need to run multiple times in a m_e2Periodicity time delta,
+      // to catch commands that are late
+      // We can run every ms, if the file is empty, do not do anything
+      Simulator::Schedule (Seconds (0.001), &LteEnbNetDevice::ReadControlFile, this);
+    }
 }
 
 void
@@ -455,6 +484,12 @@ TypeId LteEnbNetDevice::GetTypeId (void)
                    StringValue(""),
                    MakeStringAccessor (&LteEnbNetDevice::m_controlFilename),
                    MakeStringChecker())
+    .AddAttribute ("ScheduleControlMessages",
+                   "If true, the control action will be scheduled at the given timestamp in milliseconds.\n"
+                   "If false, the control action will be executed when parsed.\n",
+                   BooleanValue(false),
+                   MakeBooleanAccessor (&LteEnbNetDevice::m_scheduleControlMessages),
+                   MakeBooleanChecker())
   ;
   return tid;
 }
@@ -506,8 +541,6 @@ LteEnbNetDevice::DoDispose ()
 
   LteNetDevice::DoDispose ();
 }
-
-
 
 Ptr<LteEnbMac>
 LteEnbNetDevice::GetMac () const

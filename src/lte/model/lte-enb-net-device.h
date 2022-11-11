@@ -301,6 +301,7 @@ private:
   std::string m_cuCpFileName;
 
   std::string m_controlFilename;
+  bool m_scheduleControlMessages;
   int m_lastValidTimestamp {0};
 
 

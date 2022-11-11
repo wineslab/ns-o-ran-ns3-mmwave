@@ -214,6 +214,12 @@ static ns3::GlobalValue
 static ns3::GlobalValue g_controlFileName ("controlFileName", "The path to the control file (can be absolute)",
                                      ns3::StringValue ("es_actions_for_ns3.csv"), ns3::MakeStringChecker ());
 
+static ns3::GlobalValue g_digestControlMessages ("scheduleControlMessages",
+                                                 "If true, read the whole control file at the beginning "
+                                                 "of the simulation and schedules all the control actions events in advance",
+                                                 ns3::BooleanValue (false),
+                                                 ns3::MakeBooleanChecker ());
+
 static ns3::GlobalValue g_minSpeed ("minSpeed",
                                            "minimum UE speed in m/s",
                                            ns3::DoubleValue (2.0),
@@ -325,6 +331,9 @@ main (int argc, char *argv[])
   GlobalValue::GetValueByName ("controlFileName", stringValue);
   std::string controlFilename = stringValue.Get ();
 
+  GlobalValue::GetValueByName ("scheduleControlMessages", booleanValue);
+  bool scheduleControlMessages = booleanValue.Get ();
+
   NS_LOG_UNCOND("e2lteEnabled " << e2lteEnabled 
     << " e2nrEnabled " << e2nrEnabled
     << " e2du " << e2du
@@ -333,6 +342,7 @@ main (int argc, char *argv[])
     << " reducedPmValues " << reducedPmValues
     << " controlFilename " << controlFilename
     << " indicationPeriodicity " << indicationPeriodicity
+    << " ScheduleControlMessages " << scheduleControlMessages
   );
 
   Config::SetDefault ("ns3::LteEnbNetDevice::ControlFileName", StringValue(controlFilename));
@@ -362,6 +372,8 @@ main (int argc, char *argv[])
 
   Config::SetDefault ("ns3::LteEnbNetDevice::EnableE2FileLogging", BooleanValue (enableE2FileLogging));
   Config::SetDefault ("ns3::MmWaveEnbNetDevice::EnableE2FileLogging", BooleanValue (enableE2FileLogging));
+
+  Config::SetDefault ("ns3::LteEnbNetDevice::ScheduleControlMessages", BooleanValue (scheduleControlMessages));
 
   Config::SetDefault ("ns3::MmWaveEnbMac::NumberOfRaPreambles", UintegerValue (numberOfRaPreambles));
   Config::SetDefault ("ns3::LteEnbMac::NumberOfRaPreambles", UintegerValue (numberOfRaPreambles));

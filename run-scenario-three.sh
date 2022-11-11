@@ -10,7 +10,7 @@ e2cuCp=1 # enable reporting of CU CP PM containers
 configuration=0 # 0: NR carrier at 850 MHz, low traffic | 1: NR carrier at 3.5 GHz, low traffic | 2: NR carrier at 28 GHz, high traffic
 minSpeed=2.0 # minimum UE speed in m/s
 maxSpeed=4.0 # maximum UE speed in m/s
-simTime=1 # simulation time
+simTime=1.5 # simulation time
 e2TermIp="10.102.157.65" # actual E2term IP interface
 
 # Useful parameters to be configured
@@ -33,14 +33,15 @@ else
     ./waf -optimized
 fi
 
-# Remember to create an empty version of the control file before the start of this script, otherwise it would lead to premature crashes.
-
 ## Energy Efficiency use case
 echo "Energy Efficiency use case"
 outageThreshold=-5.0 # use -5.0 when handover is not in NoAuto 
 handoverMode="DynamicTtt"
 indicationPeriodicity=0.02 # value in seconds (20 ms)
 controlFileName="es_actions_for_ns3.csv" # ES control file path
+
+scheduleControlMessages=1 # if the control message shall be read at the beginning of the simulation and the events scheduled
+# If scheduleControlMessages is 0, remember to create an empty version of the control file before the start of this script, otherwise it would lead to premature crashes.
 
 # NS_LOG="KpmIndication"
 # NS_LOG="RicControlMessage" 
@@ -67,6 +68,7 @@ for i in $(seq 1 $N); do
                                     --minSpeed=$minSpeed\
                                     --maxSpeed=$maxSpeed\
                                     --indicationPeriodicity=$indicationPeriodicity\
-                                    --controlFileName=$controlFileName";
+                                    --controlFileName=$controlFileName\
+                                    --scheduleControlMessages=$scheduleControlMessages";
   sleep 1;
 done
