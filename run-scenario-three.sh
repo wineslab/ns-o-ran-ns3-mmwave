@@ -25,6 +25,18 @@ BsIdle=3
 BsSleep=3
 BsOFF=3
 
+heuristicType=1 # Type of heuristic for managing BS status: Random sleeping (0), Static sleeping (1), Dynamic sleeping (2)
+#heuristic parameters
+prob_ON=0.6038
+prob_Idle=0.3854
+prob_Sleep=0.0107
+prob_OFF=0.0
+SINRth=73.0
+BsON=4
+BsIdle=3
+BsSleep=3
+BsOFF=3
+
 # Useful parameters to be configured
 N=1 # number of simulations
 basicCellId=1 # The next value will be the first cellId
