@@ -87,9 +87,9 @@ void EnergyHeuristic::CountBestUesSINR(double SINRth, Ptr<MmWaveEnbNetDevice> mm
   for(auto it = ue_attached.cbegin(); it != ue_attached.cend(); ++it)
   {
     //yes, UEs are attached during simulation
-    ImsiCellIdPair_t cid {it->second->GetImsi(), mmdev->GetCellId()};
-    std::map<ImsiCellIdPair_t, long double> m_l3sinrMap=mmdev->getl3sinrMap();
-    double sinrThisCell = 10 * std::log10(m_l3sinrMap[cid]);
+    //std::map<uint64_t, std::map<uint16_t, long double>> -- <imsi, <cellid, sinr>
+    std::map<uint64_t, std::map<uint16_t, long double>> m_l3sinrMap=mmdev->getl3sinrMap();
+    double sinrThisCell = 10 * std::log10(m_l3sinrMap[it->second->GetImsi()][mmdev->GetCellId()]);
     double convertedSinr = L3RrcMeasurements::ThreeGppMapSinr (sinrThisCell);
     NS_LOG_DEBUG ( "sinrThisCell: "<< convertedSinr);
     if (convertedSinr > SINRth)//over 13 is a good SINR range = over 73 convertedSinr
@@ -177,8 +177,6 @@ std::vector<std::pair<Ptr<MmWaveEnbNetDevice>, double>> EnergyHeuristic::Heurist
           ListConnectedIMSI[index] = it->second->GetImsi ();
           index++;
         }
-      //reset closest UE time
-      mmdev->SetClosestUETime(10000.0);
       for (NodeList::Iterator it = NodeList::Begin (); it != NodeList::End ();
            ++it) //get an iterator on the list of all the nodes deployed in the scenario
         {
@@ -300,8 +298,6 @@ std::vector<std::pair<Ptr<MmWaveEnbNetDevice>, double>> EnergyHeuristic::Heurist
           ListConnectedIMSI[index] = it->second->GetImsi ();
           index++;
         }
-      //reset position of closest UE
-      mmdev->SetClosestUEPos({10000.0,10000.0});
       for (NodeList::Iterator it = NodeList::Begin (); it != NodeList::End ();
            ++it) //get an iterator on the list of all the nodes deployed in the scenario
         {
@@ -717,19 +713,19 @@ static ns3::GlobalValue g_heuristic (
     ns3::UintegerValue (0), ns3::MakeUintegerChecker<uint8_t> ());
 static ns3::GlobalValue g_prob_ON (
     "prob_ON",
-    "Probabilities for eachy that BS in turning ON for the random sleeping heuristic",
+    "Probability to turn BS ON for the random sleeping heuristic",
     ns3::DoubleValue (0.6038), ns3::MakeDoubleChecker<double> ());
 static ns3::GlobalValue g_prob_Idle (
     "prob_Idle",
-    "Probabilities for eachy that BS in turning Idle for the random sleeping heuristic",
+    "Probability to turn BS Idle for the random sleeping heuristic",
     ns3::DoubleValue (0.3854), ns3::MakeDoubleChecker<double> ());
 static ns3::GlobalValue g_prob_Sleep (
     "prob_Sleep",
-    "Probabilities for eachy that BS in turning Sleep for the random sleeping heuristic",
+    "Probability to turn BS Sleep for the random sleeping heuristic",
     ns3::DoubleValue (0.0107), ns3::MakeDoubleChecker<double> ());
 static ns3::GlobalValue g_prob_OFF (
     "prob_OFF",
-    "Probabilities for eachy that BS in turning Off for the random sleeping heuristic",
+    "Probability to turn BS Off for the random sleeping heuristic",
     ns3::DoubleValue (0.0), ns3::MakeDoubleChecker<double> ());
 static ns3::GlobalValue g_SINRth (
     "SINRth",

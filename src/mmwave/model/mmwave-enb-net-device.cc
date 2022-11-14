@@ -153,7 +153,7 @@ void MmWaveEnbNetDevice::SetClosestUETime(double time){
   ClosestUETime=time;
 }
 
-std::map<ImsiCellIdPair_t, long double> MmWaveEnbNetDevice::getl3sinrMap(){
+std::map<uint64_t, std::map<uint16_t, long double>> MmWaveEnbNetDevice::getl3sinrMap(){
   return m_l3sinrMap;
 }
 

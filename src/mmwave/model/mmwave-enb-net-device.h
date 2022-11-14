@@ -134,7 +134,7 @@ public:
 
   void SetClosestUETime(double);
 
-  std::map<ImsiCellIdPair_t, long double> getl3sinrMap();
+  std::map<uint64_t, std::map<uint16_t, long double>> getl3sinrMap();
 
   enum enum_state_BS { ON = 1, Idle = 1, Sleep = 0, OFF = 0 };
 
