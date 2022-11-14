@@ -106,8 +106,6 @@ public:
 
   void KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu);
 
-  void Probability_state(double p1, double p2, double p3, double p4, uint16_t nodeId);
-
   void TurnON(uint16_t nodeId);
 
   void TurnIdle(uint16_t nodeId);
@@ -116,8 +114,6 @@ public:
 
   void TurnOFF(uint16_t nodeId);
   
-  void CountBestUesSINR();
-
   bool GetBsState ();
   
   void ControlMessageReceivedCallback (E2AP_PDU_t* sub_req_pdu);
@@ -125,6 +121,8 @@ public:
   void SetStartTime (uint64_t);
 
   uint16_t GetNUeGoodSINR();
+
+  void SetNUeGoodSINR(uint16_t value);
 
   std::pair<double, double> GetClosestUEPos();
 
@@ -134,6 +132,16 @@ public:
 
   void SetClosestUETime(double);
 
+  std::map<ImsiCellIdPair_t, long double> getl3sinrMap();
+
+  enum enum_state_BS { ON = 1, Idle = 1, Sleep = 0, OFF = 0 };
+
+  void setCellState(enum_state_BS value);
+
+  uint32_t GetmacPduInitialCellSpecificAttr(); 
+
+  double GetprbUtilizationDlAttr();
+
 protected:
   virtual void DoInitialize (void) override;
   void UpdateConfig ();
@@ -141,8 +149,7 @@ protected:
   void GetPeriodicPdcpStats();
 
 private:
-  enum enum_state_BS { ON = 1, Idle = 1, Sleep = 0, OFF = 0 };
-
+  
   enum_state_BS m_CellState = enum_state_BS::ON;
 
   Ptr<MmWaveMacScheduler> m_scheduler;
@@ -195,6 +202,9 @@ private:
   uint16_t NUeGoodSINR=0;
   std::pair<double, double> ClosestUEPos={10000.0,10000.0};
   double ClosestUETime=10000.0;
+  uint32_t macPduInitialCellSpecificAttr = 0;
+  double prbUtilizationDlAttr =0;
+  double eekpi=0;
 };
 }
 }

@@ -107,46 +107,6 @@ MmWaveEnbNetDevice::KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu)
   }
 }
 
-void
-MmWaveEnbNetDevice::Probability_state (double p1, double p2, double p3, double p4, uint16_t nodeId)
-{
-  NS_LOG_DEBUG ("Sim time " << Simulator::Now ().GetSeconds ());
-  NS_LOG_DEBUG ("Enb name " << nodeId);
-  std::random_device rd;
-  std::default_random_engine eng (rd ());
-  std::uniform_real_distribution<double> distr (0, 1);
-  double r = distr (eng);
-  NS_LOG_DEBUG ("Prob " << r << "\n");
-  if (r <= p1)
-    {
-      NS_LOG_DEBUG ("BS state " << enum_state_BS::ON);
-      m_rrc->SetSecondaryCellHandoverAllowedStatus (nodeId, enum_state_BS::ON);
-      m_CellState = enum_state_BS::ON;
-    }
-  else if (r > p1 && r <= (p1 + p2))
-    {
-      NS_LOG_DEBUG ("BS state " << enum_state_BS::Idle);
-      m_rrc->SetSecondaryCellHandoverAllowedStatus (nodeId, enum_state_BS::Idle);
-      m_CellState = enum_state_BS::Idle;
-    }
-  else if (r > (p1 + p2) && r <= (p1 + p2 + p3))
-    {
-      NS_LOG_DEBUG ("BS state " << enum_state_BS::Sleep);
-      m_rrc->SetSecondaryCellHandoverAllowedStatus (nodeId, enum_state_BS::Sleep);
-      m_rrc->EvictUsersFromSecondaryCell ();
-      m_CellState = enum_state_BS::Sleep;
-    }
-  else if (r > (p1 + p2 + p3) && r <= 1)
-    {
-      NS_LOG_DEBUG ("BS state " << enum_state_BS::OFF);
-      m_rrc->SetSecondaryCellHandoverAllowedStatus (nodeId, enum_state_BS::OFF);
-      m_rrc->EvictUsersFromSecondaryCell ();
-      m_CellState = enum_state_BS::OFF;
-    }
-  else
-    NS_LOG_DEBUG ("BS state"
-                  << " keep same state");
-}
 
 void MmWaveEnbNetDevice::TurnON(uint16_t nodeId){
   m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enum_state_BS::ON);
@@ -174,42 +134,45 @@ uint16_t MmWaveEnbNetDevice::GetNUeGoodSINR(){
   return NUeGoodSINR;
 }
 
-void MmWaveEnbNetDevice::CountBestUesSINR(){
-  //reset parameter
-  NUeGoodSINR=0;
-  //get connected UEs from BS
-  std::map<uint16_t, ns3::Ptr<ns3::UeManager>>ue_attached= m_rrc->GetUeMap(); //list of attached UEs
-  NS_LOG_DEBUG ("N ues attached: "<<ue_attached.size());
-  for(auto it = ue_attached.cbegin(); it != ue_attached.cend(); ++it)
-  {
-    //yes, UEs are attached during simulation
-    ImsiCellIdPair_t cid {it->second->GetImsi(), m_cellId};
-    double sinrThisCell = 10 * std::log10(m_l3sinrMap[cid]);
-    double convertedSinr = L3RrcMeasurements::ThreeGppMapSinr (sinrThisCell);
-    NS_LOG_DEBUG ( "sinrThisCell: "<< convertedSinr);
-    if (convertedSinr > 73.0)//over 13 is a good SINR range = over 73 convertedSinr
-    {
-      NUeGoodSINR++;
-    }   
-  }
-  NS_LOG_DEBUG ( "NUeGoodSINR for BS "<< m_rrc->GetCellId()<<" is: "<< NUeGoodSINR); //number of UEs with a good SINR value
+void MmWaveEnbNetDevice::SetNUeGoodSINR(uint16_t value){
+  NUeGoodSINR=value;
 }
 
-  std::pair<double, double> MmWaveEnbNetDevice::GetClosestUEPos(){
-    return ClosestUEPos; 
-  }
+std::pair<double, double> MmWaveEnbNetDevice::GetClosestUEPos(){
+  return ClosestUEPos; 
+}
 
-  void MmWaveEnbNetDevice::SetClosestUEPos(std::pair<double, double> pos){
-    ClosestUEPos=pos;
-  }
+void MmWaveEnbNetDevice::SetClosestUEPos(std::pair<double, double> pos){
+  ClosestUEPos=pos;
+}
 
-  double MmWaveEnbNetDevice::GetClosestUETime(){
-    return ClosestUETime; 
-  }
+double MmWaveEnbNetDevice::GetClosestUETime(){
+  return ClosestUETime; 
+}
 
-  void MmWaveEnbNetDevice::SetClosestUETime(double time){
-    ClosestUETime=time;
-  }
+void MmWaveEnbNetDevice::SetClosestUETime(double time){
+  ClosestUETime=time;
+}
+
+std::map<ImsiCellIdPair_t, long double> MmWaveEnbNetDevice::getl3sinrMap(){
+  return m_l3sinrMap;
+}
+
+void MmWaveEnbNetDevice::setCellState(enum_state_BS value){
+  m_CellState= value;
+}
+
+  // uint32_t MmWaveEnbNetDevice::GetmacPduInitialCellSpecificAttr(){
+  //   return macPduInitialCellSpecificAttr;
+  // }
+
+  // double MmWaveEnbNetDevice::GetprbUtilizationDlAttr(){
+  //   return prbUtilizationDlAttr;
+  // }
+
+  // void MmWaveEnbNetDevice::Seteekpi(double value){
+  //   return eekpi=value;
+  // }
 
 TypeId MmWaveEnbNetDevice::GetTypeId ()
 {
@@ -1017,6 +980,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCe
  
     uint32_t macPduInitialUe = m_e2DuCalculator->GetMacPduInitialTransmissionUeSpecific(rnti, m_cellId);
     macPduInitialCellSpecific += macPduInitialUe;
+    //macPduInitialCellSpecificAttr=macPduInitialCellSpecific;
 
     uint32_t macVolume = m_e2DuCalculator->GetMacVolumeUeSpecific(rnti, m_cellId);
     macVolumeCellSpecific += macVolume;
@@ -1175,6 +1139,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCe
     // reset UE
     m_e2DuCalculator->ResetPhyTracesForRntiCellId(rnti, m_cellId);
   }
+
   m_drbThrDlPdcpBasedComputationUeid.clear ();
   m_drbThrDlUeid.clear ();
 
@@ -1182,6 +1147,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCe
   // Numerator = (Sum of number of symbols across all rows (TTIs) group by cell ID within a given time window) * 139
   // Average Number of PRBs allocated for the UE = (NR/DR) (where 139 is the total number of PRBs available per NR cell, given numerology 2 with 60 kHz SCS)
   double prbUtilizationDl = macPrbsCellSpecific;
+  //double prbUtilizationDlAttr = prbUtilizationDl;
 
   NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << m_cellId << " cell, connected UEs number " << ueMap.size() 
       << " macPduCellSpecific " << macPduCellSpecific

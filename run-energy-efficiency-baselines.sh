@@ -7,14 +7,23 @@ e2nrEnabled=1 # enable e2 reports from nr secondary cells
 e2du=1 # enable reporting of DU PM containers
 e2cuUp=1 # enable reporting of CU UP PM containers
 e2cuCp=1 # enable reporting of CU CP PM containers
-trafficModel=3 # Type of the traffic model at the transport layer [0,3], can generate full buffer traffic (0), half nodes in full buffer and half nodes in bursty (1), bursty traffic (2), mixed setup (3)
-heuristicType=0 # Type of heuristic for managing BS status: Random sleeping (0), Static sleeping (1), Dynamic sleeping (2)
 configuration=0 # 0: NR carrier at 850 MHz, low traffic | 1: NR carrier at 3.5 GHz, low traffic | 2: NR carrier at 28 GHz, high traffic
 minSpeed=2.0 # minimum UE speed in m/s
 maxSpeed=4.0 # maximum UE speed in m/s
-simTime=1.0 # simulation time
+simTime=1 # simulation time
 e2TermIp="10.102.157.65" # actual E2term IP interface
-ueZeroPercentage=-1 # PDCP split for UE RNTI 0 on eNB
+
+heuristicType=0 # Type of heuristic for managing BS status: Random sleeping (0), Static sleeping (1), Dynamic sleeping (2)
+prob_ON=0.6038
+prob_Idle=0.3854
+prob_Sleep=0.0107
+prob_OFF=0.0
+cellUpdateTime=0.1
+SINRth=73.0
+BsON=2
+BsIdle=2
+BsSleep=2
+BsOFF=1
 
 # Useful parameters to be configured
 N=1 # number of simulations
@@ -22,38 +31,37 @@ basicCellId=1 # The next value will be the first cellId
 reducedPmValues=0 # use reduced subset of pmValues
 EnableE2FileLogging=1 # enable offline generation of data
 ues=3 # Number of UEs for each mmWave ENB
+dataRate=0
 
 # Select 0 or 1 to switch between the optimized or debug build
-build=0
-builf_conf=0
-
+build=1
 if [[ build -eq 0 ]];then
-  if [[ build_conf -eq 0 ]];then
-    # Debug build
-    echo "Build ns-3 in debug mode"
-    ./waf configure --build-profile=debug --out=build/debug
-  else
-      # Optimized build
-    echo "Build ns-3 in optimized mode"
-      ./waf configure --build-profile=optimized --out=build/optimized
-  fi
+  # Debug build
+   echo "Build ns-3 in debug mode"
+   ./waf -debug
+else
+    # Optimized build
+   echo "Build ns-3 in optimized mode"
+    ./waf -optimized
 fi
 
+# Remember to create an empty version of the control file before the start of this script, otherwise it would lead to premature crashes.
 
 ## Energy Efficiency use case
 echo "Energy Efficiency use case"
 outageThreshold=-5.0 # use -5.0 when handover is not in NoAuto 
 handoverMode="DynamicTtt"
 indicationPeriodicity=0.02 # value in seconds (20 ms)
-controlPath="es_actions_for_ns3.csv" # EE control file path
-numberOfRaPreambles=20
+controlFileName="es_actions_for_ns3.csv" # ES control file path
 
+# NS_LOG="KpmIndication"
+# NS_LOG="RicControlMessage" 
 
 for i in $(seq 1 $N); do
   echo "Running simulation $i out of $N";
-  ./waf --run "scratch/scenario-one --RngRun=$i \
+  ./waf --run "scratch/energy_efficiency_baselines --RngRun=$i \
                                     --configuration=$configuration \
-                                    --trafficModel=$trafficModel \
+                                    --dataRate=$dataRate \
                                     --enableTraces=$enableTraces \
                                     --e2lteEnabled=$e2lteEnabled \
                                     --e2nrEnabled=$e2nrEnabled \
@@ -70,8 +78,18 @@ for i in $(seq 1 $N); do
                                     --enableE2FileLogging=$EnableE2FileLogging \
                                     --minSpeed=$minSpeed\
                                     --maxSpeed=$maxSpeed\
-                                    --numberOfRaPreambles=$numberOfRaPreambles\
                                     --indicationPeriodicity=$indicationPeriodicity\
-                                    --controlFileName=$controlFileName";
+                                    --controlFileName=$controlFileName\
+                                    --heuristicType=$heuristicType\
+                                    --prob_ON=$prob_ON\
+                                    --prob_Idle=$prob_Idle\
+                                    --prob_Sleep=$prob_Sleep\
+                                    --prob_OFF=$prob_OFF\
+                                    --cellUpdateTime=$cellUpdateTime\
+                                    --SINRth=$SINRth\
+                                    --BsON=$BsON\
+                                    --BsIdle=$BsIdle\
+                                    --BsSleep=$BsSleep\
+                                    --BsOFF=$BsOFF";
   sleep 1;
 done
