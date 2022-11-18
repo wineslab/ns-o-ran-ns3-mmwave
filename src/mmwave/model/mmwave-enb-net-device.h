@@ -108,13 +108,13 @@ public:
 
   void KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu);
 
-  void TurnON(uint16_t nodeId);
+  void TurnOn(uint16_t nodeId);
 
   void TurnIdle(uint16_t nodeId);
 
   void TurnSleep(uint16_t nodeId);
 
-  void TurnOFF(uint16_t nodeId);
+  void TurnOff(uint16_t nodeId);
   
   bool GetBsState ();
   
@@ -122,27 +122,27 @@ public:
   
   void SetStartTime (uint64_t);
 
-  uint16_t GetNUeGoodSINR();
+  uint16_t GetNUeGoodSinr ();
 
-  void SetNUeGoodSINR(uint16_t value);
+  void SetNUeGoodSinr (uint16_t value);
 
-  std::pair<double, double> GetClosestUEPos();
+  std::pair<double, double> GetClosestUePos ();
 
-  void SetClosestUEPos(std::pair<double, double>);
+  void SetClosestUePos (std::pair<double, double>);
 
-  double GetClosestUETime();
+  double GetClosestUeTime ();
 
-  void SetClosestUETime(double);
+  void SetClosestUeTime (double);
 
-  std::map<uint64_t, std::map<uint16_t, long double>> getl3sinrMap();
+  std::map<uint64_t, std::map<uint16_t, long double>> Getl3sinrMap ();
 
   enum enum_state_BS { ON = 1, Idle = 1, Sleep = 0, OFF = 0 };
 
-  void setCellState(enum_state_BS value);
+  void SetCellState (enum_state_BS value);
 
-  uint32_t GetmacPduInitialCellSpecificAttr(); 
+  uint32_t GetmacPduInitialCellSpecificAttr ();
 
-  double GetprbUtilizationDlAttr();
+  double GetprbUtilizationDlAttr ();
 
 protected:
   virtual void DoInitialize (void) override;
@@ -200,12 +200,12 @@ private:
   std::string m_cuCpFileName;
   std::string m_duFileName;
 
-  uint16_t NUeGoodSINR=0;
-  std::pair<double, double> ClosestUEPos={10000.0,10000.0};
-  double ClosestUETime=10000.0;
-  uint32_t macPduInitialCellSpecificAttr = 0;
-  double prbUtilizationDlAttr =0;
-  double eekpi=0;
+  uint16_t m_nUeGoodSinr = 0;
+  std::pair<double, double> m_closestUEPos = {10000.0, 10000.0};
+  double m_closestUETime = 10000.0;
+  uint32_t m_macPduInitialCellSpecificAttr = 0;
+  double m_prbUtilizationDlAttr = 0;
+  double m_eekpi = 0;
 };
 }
 }

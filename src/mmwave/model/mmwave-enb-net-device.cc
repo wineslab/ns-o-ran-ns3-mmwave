@@ -59,18 +59,6 @@
 #include <random>
 #include <ns3/mmwave-indication-message-helper.h>
 #include <utility>
-
-// #include "ns3/core-module.h"
-// #include "ns3/network-module.h"
-// #include "ns3/internet-module.h"
-// #include "ns3/mobility-module.h"
-// #include "ns3/applications-module.h"
-// #include "ns3/point-to-point-helper.h"
-// #include <ns3/lte-ue-net-device.h>
-// #include "ns3/mmwave-helper.h"
-// #include "ns3/mmwave-point-to-point-epc-helper.h"
-// #include "ns3/lte-helper.h"
-
 #include "encode_e2apv1.hpp"
 namespace ns3 {
 
@@ -107,7 +95,7 @@ MmWaveEnbNetDevice::KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu)
 }
 
 
-void MmWaveEnbNetDevice::TurnON(uint16_t nodeId){
+void MmWaveEnbNetDevice::TurnOn(uint16_t nodeId){
   m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enum_state_BS::ON);
 }
 
@@ -120,7 +108,7 @@ void MmWaveEnbNetDevice::TurnSleep(uint16_t nodeId){
     m_rrc->EvictUsersFromSecondaryCell ();
 }
 
-void MmWaveEnbNetDevice::TurnOFF(uint16_t nodeId){
+void MmWaveEnbNetDevice::TurnOff(uint16_t nodeId){
     m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enum_state_BS::OFF);
     m_rrc->EvictUsersFromSecondaryCell ();
 }
@@ -129,49 +117,37 @@ bool MmWaveEnbNetDevice::GetBsState (){
   return m_CellState;
 }
 
-uint16_t MmWaveEnbNetDevice::GetNUeGoodSINR(){
-  return NUeGoodSINR;
+uint16_t MmWaveEnbNetDevice::GetNUeGoodSinr(){
+  return m_nUeGoodSinr;
 }
 
-void MmWaveEnbNetDevice::SetNUeGoodSINR(uint16_t value){
-  NUeGoodSINR=value;
+void MmWaveEnbNetDevice::SetNUeGoodSinr(uint16_t value){
+  m_nUeGoodSinr=value;
 }
 
-std::pair<double, double> MmWaveEnbNetDevice::GetClosestUEPos(){
-  return ClosestUEPos; 
+std::pair<double, double> MmWaveEnbNetDevice::GetClosestUePos(){
+  return m_closestUEPos; 
 }
 
-void MmWaveEnbNetDevice::SetClosestUEPos(std::pair<double, double> pos){
-  ClosestUEPos=pos;
+void MmWaveEnbNetDevice::SetClosestUePos(std::pair<double, double> pos){
+  m_closestUEPos=pos;
 }
 
-double MmWaveEnbNetDevice::GetClosestUETime(){
-  return ClosestUETime; 
+double MmWaveEnbNetDevice::GetClosestUeTime(){
+  return m_closestUETime; 
 }
 
-void MmWaveEnbNetDevice::SetClosestUETime(double time){
-  ClosestUETime=time;
+void MmWaveEnbNetDevice::SetClosestUeTime(double time){
+  m_closestUETime=time;
 }
 
-std::map<uint64_t, std::map<uint16_t, long double>> MmWaveEnbNetDevice::getl3sinrMap(){
+std::map<uint64_t, std::map<uint16_t, long double>> MmWaveEnbNetDevice::Getl3sinrMap(){
   return m_l3sinrMap;
 }
 
-void MmWaveEnbNetDevice::setCellState(enum_state_BS value){
+void MmWaveEnbNetDevice::SetCellState(enum_state_BS value){
   m_CellState= value;
 }
-
-  // uint32_t MmWaveEnbNetDevice::GetmacPduInitialCellSpecificAttr(){
-  //   return macPduInitialCellSpecificAttr;
-  // }
-
-  // double MmWaveEnbNetDevice::GetprbUtilizationDlAttr(){
-  //   return prbUtilizationDlAttr;
-  // }
-
-  // void MmWaveEnbNetDevice::Seteekpi(double value){
-  //   return eekpi=value;
-  // }
 
 TypeId MmWaveEnbNetDevice::GetTypeId ()
 {
@@ -1010,7 +986,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCe
  
     uint32_t macPduInitialUe = m_e2DuCalculator->GetMacPduInitialTransmissionUeSpecific(rnti, m_cellId);
     macPduInitialCellSpecific += macPduInitialUe;
-    //macPduInitialCellSpecificAttr=macPduInitialCellSpecific;
+    //m_macPduInitialCellSpecificAttr=macPduInitialCellSpecific;
 
     uint32_t macVolume = m_e2DuCalculator->GetMacVolumeUeSpecific(rnti, m_cellId);
     macVolumeCellSpecific += macVolume;
@@ -1176,7 +1152,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCe
   // Numerator = (Sum of number of symbols across all rows (TTIs) group by cell ID within a given time window) * 139
   // Average Number of PRBs allocated for the UE = (NR/DR) (where 139 is the total number of PRBs available per NR cell, given numerology 2 with 60 kHz SCS)
   double prbUtilizationDl = macPrbsCellSpecific;
-  //double prbUtilizationDlAttr = prbUtilizationDl;
+  //double m_prbUtilizationDlAttr = prbUtilizationDl;
 
   NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << m_cellId << " cell, connected UEs number " << ueMap.size() 
       << " macPduCellSpecific " << macPduCellSpecific
