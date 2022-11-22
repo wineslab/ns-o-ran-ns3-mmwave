@@ -136,13 +136,11 @@ public:
 
   std::map<uint64_t, std::map<uint16_t, long double>> Getl3sinrMap ();
 
-  enum enum_state_BS { ON = 1, Idle = 1, Sleep = 0, OFF = 0 };
+  enum enumModeEnergyBs{ ON = 1, Idle = 1, Sleep = 0, OFF = 0 };
 
-  void SetCellState (enum_state_BS value);
+  void SetCellState (enumModeEnergyBs value);
 
   uint32_t GetmacPduInitialCellSpecificAttr ();
-
-  double GetprbUtilizationDlAttr ();
 
 protected:
   virtual void DoInitialize (void) override;
@@ -152,7 +150,7 @@ protected:
 
 private:
   
-  enum_state_BS m_CellState = enum_state_BS::ON;
+  enumModeEnergyBs m_CellState = enumModeEnergyBs::ON;
 
   Ptr<MmWaveMacScheduler> m_scheduler;
 

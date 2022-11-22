@@ -111,8 +111,6 @@ public:
     NUM_STATES
   };
 
-
-
   UeManager ();
 
   /**
@@ -134,9 +132,6 @@ protected:
   virtual void DoInitialize ();
   virtual void DoDispose ();
 public:
-
-
-
   /**
    * \brief Get the type ID.
    * \return the object TypeId
@@ -1542,7 +1537,6 @@ private:
 
 public:
 
-
   /**
    * Get the UE map
    *
@@ -1995,10 +1989,6 @@ private:
   std::map<uint8_t, MmWaveComponentCarrierConf> m_mmWaveComponentCarrierPhyConf; ///< mmWave component carrier phy configuration
   
   std::set<uint64_t> m_e2ControlledUes; ///< contains a list of UEs for which HO is controlled externally 
-
-public:
-  std::map<uint8_t, ImsiSinrMap> GetM_ueImsiSinrMap();
-
 
 }; // end of `class LteEnbRrc`
 

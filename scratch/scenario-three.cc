@@ -238,40 +238,52 @@ static ns3::GlobalValue g_heuristic (
     " Static sleeping (1),"
     " Dynamic sleeping (2)",
     ns3::UintegerValue (0), ns3::MakeUintegerChecker<uint8_t> ());
-static ns3::GlobalValue g_prob_ON (
-    "prob_ON",
-    "Probability to turn BS ON for the random sleeping heuristic",
+static ns3::GlobalValue g_probOn (
+    "probOn",
+    "Probability to turn BS ON for the random sleeping heuristic"
+    "the value is proposed on the paper 'Small Cell Base Station Sleep"
+    "Strategies for Energy Efficiency' in order to obtain an overall "
+    "small average cell wake up time",
     ns3::DoubleValue (0.6038), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue g_prob_Idle (
-    "prob_Idle",
-    "Probability to turn BS Idle for the random sleeping heuristic",
+static ns3::GlobalValue g_probIdle (
+    "probIdle",
+    "Probability to turn BS Idle for the random sleeping heuristic"
+    "the value is proposed on the paper 'Small Cell Base Station Sleep"
+    "Strategies for 'Energy Efficiency' in order to obtain an overall" 
+    "small average cell wake up time",
     ns3::DoubleValue (0.3854), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue g_prob_Sleep (
-    "prob_Sleep",
-    "Probability to turn BS Sleep for the random sleeping heuristic",
+static ns3::GlobalValue g_probSleep (
+    "probSleep",
+    "Probability to turn BS Sleep for the random sleeping heuristic"
+    "the value is proposed on the paper 'Small Cell Base Station Sleep"
+    "Strategies for Energy Efficiency' in order to obtain an overall" 
+    "small average cell wake up time",
     ns3::DoubleValue (0.0107), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue g_prob_OFF (
-    "prob_OFF",
-    "Probability to turn BS Off for the random sleeping heuristic",
+static ns3::GlobalValue g_probOff (
+    "probOff",
+    "Probability to turn BS Off for the random sleeping heuristic"
+    "the value is proposed on the paper 'Small Cell Base Station Sleep"
+    "Strategies for Energy Efficiency' in order to obtain an overall" 
+    "small average cell wake up time",
     ns3::DoubleValue (0.0), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue g_SINRth (
-    "SINRth",
+static ns3::GlobalValue g_sinrTh (
+    "sinrTh",
     "SINR threshold for static and dynamic sleeping heuristic",
     ns3::DoubleValue (73.0), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue g_BsON (
-    "BsON",
+static ns3::GlobalValue g_bsOn (
+    "bsOn",
     "number of BS to turn ON for static and dynamic sleeping heuristic",
     ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
-static ns3::GlobalValue BsIdle (
-    "BsIdle",
+static ns3::GlobalValue g_bsIdle (
+    "bsIdle",
     "number of BS to turn IDLE for static and dynamic sleeping heuristic",
     ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
-static ns3::GlobalValue BsSleep (
-    "BsSleep",
+static ns3::GlobalValue g_bsSleep (
+    "bsSleep",
     "number of BS to turn Sleep for static and dynamic sleeping heuristic",
     ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
-static ns3::GlobalValue BsOFF (
-    "BsOFF",
+static ns3::GlobalValue g_bsOff (
+    "bsOff",
     "number of BS to turn Off for static and dynamic sleeping heuristic",
     ns3::UintegerValue (1), ns3::MakeUintegerChecker<uint8_t> ());
 
@@ -346,24 +358,24 @@ main (int argc, char *argv[])
   //heuristic parameters
   GlobalValue::GetValueByName ("heuristicType", uintegerValue);
   uint8_t heuristicType = uintegerValue.Get ();
-  GlobalValue::GetValueByName ("prob_ON", doubleValue);
-  double prob_ON = doubleValue.Get ();
-  GlobalValue::GetValueByName ("prob_Idle", doubleValue);
-  double prob_Idle = doubleValue.Get ();
-  GlobalValue::GetValueByName ("prob_Sleep", doubleValue);
-  double prob_Sleep = doubleValue.Get ();
-  GlobalValue::GetValueByName ("prob_OFF", doubleValue);
-  double prob_OFF = doubleValue.Get ();
-  GlobalValue::GetValueByName ("SINRth", doubleValue);
-  double SINRth = doubleValue.Get ();
-  GlobalValue::GetValueByName ("BsON", uintegerValue);
-  int BsON = uintegerValue.Get ();
-  GlobalValue::GetValueByName ("BsIdle", uintegerValue);
-  int BsIdle = uintegerValue.Get ();
-  GlobalValue::GetValueByName ("BsSleep", uintegerValue);
-  int BsSleep = uintegerValue.Get ();
-  GlobalValue::GetValueByName ("BsOFF", uintegerValue);
-  int BsOFF = uintegerValue.Get ();
+  GlobalValue::GetValueByName ("probOn", doubleValue);
+  double probOn = doubleValue.Get ();
+  GlobalValue::GetValueByName ("probIdle", doubleValue);
+  double probIdle = doubleValue.Get ();
+  GlobalValue::GetValueByName ("probSleep", doubleValue);
+  double probSleep = doubleValue.Get ();
+  GlobalValue::GetValueByName ("probOff", doubleValue);
+  double probOff = doubleValue.Get ();
+  GlobalValue::GetValueByName ("sinrTh", doubleValue);
+  double sinrTh = doubleValue.Get ();
+  GlobalValue::GetValueByName ("bsOn", uintegerValue);
+  int bsOn = uintegerValue.Get ();
+  GlobalValue::GetValueByName ("bsIdle", uintegerValue);
+  int bsIdle = uintegerValue.Get ();
+  GlobalValue::GetValueByName ("bsSleep", uintegerValue);
+  int bsSleep = uintegerValue.Get ();
+  GlobalValue::GetValueByName ("bsOff", uintegerValue);
+  int bsOff = uintegerValue.Get ();
 
   NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << unsigned(bufferSize)
                                  << " OutageThreshold " << outageThreshold << " HandoverMode " << handoverMode
@@ -809,7 +821,7 @@ main (int argc, char *argv[])
   clientApp.Start (MilliSeconds (100));
   clientApp.Stop (Seconds (simTime - 0.1));
 
-int BSstatus[4]={BsON, BsIdle, BsSleep, BsOFF};
+int BsStatus[4]={bsOn, bsIdle, bsSleep, bsOff};
 
   EnergyHeuristic energyheur;
 
@@ -822,8 +834,8 @@ int BSstatus[4]={BsON, BsIdle, BsSleep, BsOFF};
       for (int j = 0; j < nMmWaveEnbNodes; j++)
         {
           Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
-          Simulator::Schedule (Seconds (i), &EnergyHeuristic::ProbabilityState, &energyheur, prob_ON,
-                               prob_Idle, prob_Sleep, prob_OFF, mmdev->GetCellId (), mmdev);
+          Simulator::Schedule (Seconds (i), &EnergyHeuristic::ProbabilityState, &energyheur, probOn,
+                               probIdle, probSleep, probOff, mmdev->GetCellId (), mmdev);
         }
     }
   break;
@@ -835,10 +847,10 @@ int BSstatus[4]={BsON, BsIdle, BsSleep, BsOFF};
       for (int j = 0; j < nMmWaveEnbNodes; j++)
         {
           Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
-          Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, &energyheur, SINRth, mmdev);
+          Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, &energyheur, sinrTh, mmdev);
         }
       i = i + 0.01; //making sure to execute the next function after the previous one
-      Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, &energyheur, nMmWaveEnbNodes, mmWaveEnbDevs, "static", BSstatus);
+      Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, &energyheur, nMmWaveEnbNodes, mmWaveEnbDevs, "static", BsStatus);
     }
   break;
 
@@ -849,10 +861,10 @@ int BSstatus[4]={BsON, BsIdle, BsSleep, BsOFF};
       for (int j = 0; j < nMmWaveEnbNodes; j++)
         {
           Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
-          Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, &energyheur, SINRth, mmdev);
+          Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, &energyheur, sinrTh, mmdev);
         }
       i = i + 0.01; //making sure to execute the next function after the previous one
-      Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, &energyheur, nMmWaveEnbNodes, mmWaveEnbDevs, "dynamic", BSstatus);
+      Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, &energyheur, nMmWaveEnbNodes, mmWaveEnbDevs, "dynamic", BsStatus);
     }
   break;
 

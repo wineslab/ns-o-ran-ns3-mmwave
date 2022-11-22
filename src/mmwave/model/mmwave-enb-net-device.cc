@@ -56,10 +56,9 @@
 #include <ns3/lte-rlc-um.h>
 #include <ns3/lte-rlc-um-lowlat.h>
 #include <ns3/lte-rlc-am.h>
-#include <random>
 #include <ns3/mmwave-indication-message-helper.h>
-#include <utility>
 #include "encode_e2apv1.hpp"
+
 namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("MmWaveEnbNetDevice");
@@ -96,20 +95,20 @@ MmWaveEnbNetDevice::KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu)
 
 
 void MmWaveEnbNetDevice::TurnOn(uint16_t nodeId){
-  m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enum_state_BS::ON);
+  m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enumModeEnergyBs::ON);
 }
 
 void MmWaveEnbNetDevice::TurnIdle(uint16_t nodeId){
-    m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enum_state_BS::Idle);
+    m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enumModeEnergyBs::Idle);
 }
 
 void MmWaveEnbNetDevice::TurnSleep(uint16_t nodeId){
-    m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enum_state_BS::Sleep);
+    m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enumModeEnergyBs::Sleep);
     m_rrc->EvictUsersFromSecondaryCell ();
 }
 
 void MmWaveEnbNetDevice::TurnOff(uint16_t nodeId){
-    m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enum_state_BS::OFF);
+    m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enumModeEnergyBs::OFF);
     m_rrc->EvictUsersFromSecondaryCell ();
 }
 
@@ -145,7 +144,7 @@ std::map<uint64_t, std::map<uint16_t, long double>> MmWaveEnbNetDevice::Getl3sin
   return m_l3sinrMap;
 }
 
-void MmWaveEnbNetDevice::SetCellState(enum_state_BS value){
+void MmWaveEnbNetDevice::SetCellState(enumModeEnergyBs value){
   m_CellState= value;
 }
 

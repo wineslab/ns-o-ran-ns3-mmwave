@@ -15,15 +15,15 @@ e2TermIp="10.102.157.65" # actual E2term IP interface
 
 heuristicType=2 # Type of heuristic for managing BS status: Random sleeping (0), Static sleeping (1), Dynamic sleeping (2)
 #heuristic parameters
-prob_ON=0.6038
-prob_Idle=0.3854
-prob_Sleep=0.0107
-prob_OFF=0.0
-SINRth=73.0
-BsON=4
-BsIdle=3
-BsSleep=3
-BsOFF=3
+probOn=0.6038
+probIdle=0.3854
+probSleep=0.0107
+probOff=0.0
+sinrTh=73.0
+bsOn=4
+bsIdle=3
+bsSleep=3
+bsOff=3
 
 # Useful parameters to be configured
 N=1 # number of simulations
@@ -82,15 +82,15 @@ for i in $(seq 1 $N); do
                                     --indicationPeriodicity=$indicationPeriodicity\
                                     --controlFileName=$controlFileName\
                                     --heuristicType=$heuristicType\
-                                    --prob_ON=$prob_ON\
-                                    --prob_Idle=$prob_Idle\
-                                    --prob_Sleep=$prob_Sleep\
-                                    --prob_OFF=$prob_OFF\
-                                    --SINRth=$SINRth\
-                                    --BsON=$BsON\
-                                    --BsIdle=$BsIdle\
-                                    --BsSleep=$BsSleep\
-                                    --BsOFF=$BsOFF\
+                                    --probOn=$probOn\
+                                    --probIdle=$probIdle\
+                                    --probSleep=$probSleep\
+                                    --probOff=$probOff\
+                                    --sinrTh=$sinrTh\
+                                    --bsOn=$bsOn\
+                                    --bsIdle=$bsIdle\
+                                    --bsSleep=$bsSleep\
+                                    --bsOff=$bsOff\
                                     --scheduleControlMessages=$scheduleControlMessages";
   sleep 1;
 done
