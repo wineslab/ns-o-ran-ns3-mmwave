@@ -1,0 +1,13 @@
+void
+PrintTime ()
+{
+  NS_LOG_UNCOND ("Time is " << Simulator::Now ().GetMilliSeconds ());
+}
+
+   int numPrints = 12;
+   for (int i = 0; i < numPrints; i++)
+     {
+
+           Simulator::Schedule (Seconds (i * simTime / numPrints), &PrintTime);
+         
+     }
