@@ -243,28 +243,32 @@ static ns3::GlobalValue g_probOn (
     "Probability to turn BS ON for the random sleeping heuristic"
     "the value is proposed on the paper 'Small Cell Base Station Sleep"
     "Strategies for Energy Efficiency' in order to obtain an overall "
-    "small average cell wake up time",
+    "small average cell wake up time"
+    "https://ieeexplore.ieee.org/abstract/document/7060678",
     ns3::DoubleValue (0.6038), ns3::MakeDoubleChecker<double> ());
 static ns3::GlobalValue g_probIdle (
     "probIdle",
     "Probability to turn BS Idle for the random sleeping heuristic"
     "the value is proposed on the paper 'Small Cell Base Station Sleep"
     "Strategies for 'Energy Efficiency' in order to obtain an overall" 
-    "small average cell wake up time",
+    "small average cell wake up time"
+    "https://ieeexplore.ieee.org/abstract/document/7060678",
     ns3::DoubleValue (0.3854), ns3::MakeDoubleChecker<double> ());
 static ns3::GlobalValue g_probSleep (
     "probSleep",
     "Probability to turn BS Sleep for the random sleeping heuristic"
     "the value is proposed on the paper 'Small Cell Base Station Sleep"
     "Strategies for Energy Efficiency' in order to obtain an overall" 
-    "small average cell wake up time",
+    "small average cell wake up time"
+    "https://ieeexplore.ieee.org/abstract/document/7060678",
     ns3::DoubleValue (0.0107), ns3::MakeDoubleChecker<double> ());
 static ns3::GlobalValue g_probOff (
     "probOff",
     "Probability to turn BS Off for the random sleeping heuristic"
     "the value is proposed on the paper 'Small Cell Base Station Sleep"
     "Strategies for Energy Efficiency' in order to obtain an overall" 
-    "small average cell wake up time",
+    "small average cell wake up time"
+    "https://ieeexplore.ieee.org/abstract/document/7060678",
     ns3::DoubleValue (0.0), ns3::MakeDoubleChecker<double> ());
 static ns3::GlobalValue g_sinrTh (
     "sinrTh",
