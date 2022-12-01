@@ -985,7 +985,6 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCe
  
     uint32_t macPduInitialUe = m_e2DuCalculator->GetMacPduInitialTransmissionUeSpecific(rnti, m_cellId);
     macPduInitialCellSpecific += macPduInitialUe;
-    //m_macPduInitialCellSpecificAttr=macPduInitialCellSpecific;
 
     uint32_t macVolume = m_e2DuCalculator->GetMacVolumeUeSpecific(rnti, m_cellId);
     macVolumeCellSpecific += macVolume;

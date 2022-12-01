@@ -108,12 +108,29 @@ public:
 
   void KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu);
 
+  /**
+   * @brief Turn the Cell On
+   * 
+   * @param nodeId 
+   */
   void TurnOn(uint16_t nodeId);
-
+  /**
+   * @brief Turn the cell Idle
+   * 
+   * @param nodeId 
+   */
   void TurnIdle(uint16_t nodeId);
-
+  /**
+   * @brief Turn the cell Sleep
+   * 
+   * @param nodeId 
+   */
   void TurnSleep(uint16_t nodeId);
-
+  /**
+   * @brief Turn the cell Off
+   * 
+   * @param nodeId 
+   */
   void TurnOff(uint16_t nodeId);
   
   bool GetBsState ();
@@ -135,7 +152,10 @@ public:
   void SetClosestUeTime (double);
 
   std::map<uint64_t, std::map<uint16_t, long double>> Getl3sinrMap ();
-
+  /**
+   * @brief All the possible energy mode for the cell
+   * 
+   */
   enum enumModeEnergyBs{ ON = 1, Idle = 1, Sleep = 0, OFF = 0 };
 
   void SetCellState (enumModeEnergyBs value);
@@ -149,7 +169,10 @@ protected:
   void GetPeriodicPdcpStats();
 
 private:
-  
+  /**
+   * @brief Identify the state of the cell: ON, Idle, Sleep, OFF
+   * 
+   */
   enumModeEnergyBs m_CellState = enumModeEnergyBs::ON;
 
   Ptr<MmWaveMacScheduler> m_scheduler;
@@ -198,12 +221,21 @@ private:
   std::string m_cuCpFileName;
   std::string m_duFileName;
 
+  /**
+   * @brief The number of connected UEs that have a good SINR value, higher than a certain threshold
+   * 
+   */
   uint16_t m_nUeGoodSinr = 0;
+  /**
+   * @brief The position of the closet UE to the cell
+   * 
+   */
   std::pair<double, double> m_closestUEPos = {10000.0, 10000.0};
+  /**
+   * @brief The smallest time for a connected UE to reach the cell
+   * 
+   */
   double m_closestUETime = 10000.0;
-  uint32_t m_macPduInitialCellSpecificAttr = 0;
-  double m_prbUtilizationDlAttr = 0;
-  double m_eekpi = 0;
 };
 }
 }
