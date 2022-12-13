@@ -56,10 +56,9 @@
 #include <ns3/lte-rlc-um.h>
 #include <ns3/lte-rlc-um-lowlat.h>
 #include <ns3/lte-rlc-am.h>
-
 #include <ns3/mmwave-indication-message-helper.h>
-
 #include "encode_e2apv1.hpp"
+
 namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("MmWaveEnbNetDevice");
@@ -92,7 +91,61 @@ MmWaveEnbNetDevice::KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu)
     BuildAndSendReportMessage (params);
     m_isReportingEnabled = true; 
   }
-    
+}
+
+
+void MmWaveEnbNetDevice::TurnOn(uint16_t nodeId){
+  m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enumModeEnergyBs::ON);
+}
+
+void MmWaveEnbNetDevice::TurnIdle(uint16_t nodeId){
+    m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enumModeEnergyBs::Idle);
+}
+
+void MmWaveEnbNetDevice::TurnSleep(uint16_t nodeId){
+    m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enumModeEnergyBs::Sleep);
+    m_rrc->EvictUsersFromSecondaryCell ();
+}
+
+void MmWaveEnbNetDevice::TurnOff(uint16_t nodeId){
+    m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enumModeEnergyBs::OFF);
+    m_rrc->EvictUsersFromSecondaryCell ();
+}
+
+bool MmWaveEnbNetDevice::GetBsState (){
+  return m_CellState;
+}
+
+uint16_t MmWaveEnbNetDevice::GetNUeGoodSinr(){
+  return m_nUeGoodSinr;
+}
+
+void MmWaveEnbNetDevice::SetNUeGoodSinr(uint16_t value){
+  m_nUeGoodSinr=value;
+}
+
+std::pair<double, double> MmWaveEnbNetDevice::GetClosestUePos(){
+  return m_closestUEPos; 
+}
+
+void MmWaveEnbNetDevice::SetClosestUePos(std::pair<double, double> pos){
+  m_closestUEPos=pos;
+}
+
+double MmWaveEnbNetDevice::GetClosestUeTime(){
+  return m_closestUETime; 
+}
+
+void MmWaveEnbNetDevice::SetClosestUeTime(double time){
+  m_closestUETime=time;
+}
+
+std::map<uint64_t, std::map<uint16_t, long double>> MmWaveEnbNetDevice::Getl3sinrMap(){
+  return m_l3sinrMap;
+}
+
+void MmWaveEnbNetDevice::SetCellState(enumModeEnergyBs value){
+  m_CellState= value;
 }
 
 TypeId MmWaveEnbNetDevice::GetTypeId ()
@@ -1089,6 +1142,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCe
     // reset UE
     m_e2DuCalculator->ResetPhyTracesForRntiCellId(rnti, m_cellId);
   }
+
   m_drbThrDlPdcpBasedComputationUeid.clear ();
   m_drbThrDlUeid.clear ();
 
@@ -1096,6 +1150,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCe
   // Numerator = (Sum of number of symbols across all rows (TTIs) group by cell ID within a given time window) * 139
   // Average Number of PRBs allocated for the UE = (NR/DR) (where 139 is the total number of PRBs available per NR cell, given numerology 2 with 60 kHz SCS)
   double prbUtilizationDl = macPrbsCellSpecific;
+  //double m_prbUtilizationDlAttr = prbUtilizationDl;
 
   NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << m_cellId << " cell, connected UEs number " << ueMap.size() 
       << " macPduCellSpecific " << macPduCellSpecific

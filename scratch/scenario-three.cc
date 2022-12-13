@@ -29,6 +29,7 @@
 #include "ns3/epc-helper.h"
 #include "ns3/mmwave-point-to-point-epc-helper.h"
 #include "ns3/lte-helper.h"
+#include "ns3/energy-heuristic.h"
 
 using namespace ns3;
 using namespace mmwave;
@@ -230,10 +231,73 @@ static ns3::GlobalValue g_maxSpeed ("maxSpeed",
                                            ns3::DoubleValue (4.0),
                                            ns3::MakeDoubleChecker<double> ());
 
+static ns3::GlobalValue g_heuristic (
+    "heuristicType",
+    "Type of heuristic for managing BS status,"
+    " Random sleeping (0),"
+    " Static sleeping (1),"
+    " Dynamic sleeping (2)",
+    ns3::UintegerValue (0), ns3::MakeUintegerChecker<uint8_t> ());
+static ns3::GlobalValue g_probOn (
+    "probOn",
+    "Probability to turn BS ON for the random sleeping heuristic"
+    "the value is proposed on the paper 'Small Cell Base Station Sleep"
+    "Strategies for Energy Efficiency' in order to obtain an overall "
+    "small average cell wake up time"
+    "https://ieeexplore.ieee.org/abstract/document/7060678",
+    ns3::DoubleValue (0.6038), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_probIdle (
+    "probIdle",
+    "Probability to turn BS Idle for the random sleeping heuristic"
+    "the value is proposed on the paper 'Small Cell Base Station Sleep"
+    "Strategies for 'Energy Efficiency' in order to obtain an overall" 
+    "small average cell wake up time"
+    "https://ieeexplore.ieee.org/abstract/document/7060678",
+    ns3::DoubleValue (0.3854), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_probSleep (
+    "probSleep",
+    "Probability to turn BS Sleep for the random sleeping heuristic"
+    "the value is proposed on the paper 'Small Cell Base Station Sleep"
+    "Strategies for Energy Efficiency' in order to obtain an overall" 
+    "small average cell wake up time"
+    "https://ieeexplore.ieee.org/abstract/document/7060678",
+    ns3::DoubleValue (0.0107), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_probOff (
+    "probOff",
+    "Probability to turn BS Off for the random sleeping heuristic"
+    "the value is proposed on the paper 'Small Cell Base Station Sleep"
+    "Strategies for Energy Efficiency' in order to obtain an overall" 
+    "small average cell wake up time"
+    "https://ieeexplore.ieee.org/abstract/document/7060678",
+    ns3::DoubleValue (0.0), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_sinrTh (
+    "sinrTh",
+    "SINR threshold for static and dynamic sleeping heuristic",
+    ns3::DoubleValue (73.0), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_bsOn (
+    "bsOn",
+    "number of BS to turn ON for static and dynamic sleeping heuristic",
+    ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
+static ns3::GlobalValue g_bsIdle (
+    "bsIdle",
+    "number of BS to turn IDLE for static and dynamic sleeping heuristic",
+    ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
+static ns3::GlobalValue g_bsSleep (
+    "bsSleep",
+    "number of BS to turn Sleep for static and dynamic sleeping heuristic",
+    ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
+static ns3::GlobalValue g_bsOff (
+    "bsOff",
+    "number of BS to turn Off for static and dynamic sleeping heuristic",
+    ns3::UintegerValue (1), ns3::MakeUintegerChecker<uint8_t> ());
+
 int
 main (int argc, char *argv[])
 {
   LogComponentEnableAll (LOG_PREFIX_ALL);
+  LogComponentEnable ("ScenarioThree", LOG_LEVEL_DEBUG);
+  LogComponentEnable ("EnergyHeuristic", LOG_LEVEL_DEBUG);
+  //LogComponentEnable ("EnergyHeuristic", LOG_LEVEL_DEBUG);
   // LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
   // LogComponentEnable ("OnOffApplication", LOG_LEVEL_ALL);
   // LogComponentEnable ("LtePdcp", LOG_LEVEL_ALL);
@@ -295,7 +359,27 @@ main (int argc, char *argv[])
   double maxSpeed = doubleValue.Get ();
   GlobalValue::GetValueByName ("numberOfRaPreambles", uintegerValue);
   uint8_t numberOfRaPreambles = uintegerValue.Get ();
-
+  //heuristic parameters
+  GlobalValue::GetValueByName ("heuristicType", uintegerValue);
+  uint8_t heuristicType = uintegerValue.Get ();
+  GlobalValue::GetValueByName ("probOn", doubleValue);
+  double probOn = doubleValue.Get ();
+  GlobalValue::GetValueByName ("probIdle", doubleValue);
+  double probIdle = doubleValue.Get ();
+  GlobalValue::GetValueByName ("probSleep", doubleValue);
+  double probSleep = doubleValue.Get ();
+  GlobalValue::GetValueByName ("probOff", doubleValue);
+  double probOff = doubleValue.Get ();
+  GlobalValue::GetValueByName ("sinrTh", doubleValue);
+  double sinrTh = doubleValue.Get ();
+  GlobalValue::GetValueByName ("bsOn", uintegerValue);
+  int bsOn = uintegerValue.Get ();
+  GlobalValue::GetValueByName ("bsIdle", uintegerValue);
+  int bsIdle = uintegerValue.Get ();
+  GlobalValue::GetValueByName ("bsSleep", uintegerValue);
+  int bsSleep = uintegerValue.Get ();
+  GlobalValue::GetValueByName ("bsOff", uintegerValue);
+  int bsOff = uintegerValue.Get ();
 
   NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << unsigned(bufferSize)
                                  << " OutageThreshold " << outageThreshold << " HandoverMode " << handoverMode
@@ -557,7 +641,7 @@ main (int argc, char *argv[])
       float y= pow(-1,i)*isd*2/sqrt(2);
       enbPositionAlloc->Add (Vector (centerPosition.x + x, centerPosition.y + y, 3));
     }
-
+    
   MobilityHelper enbmobility;
   enbmobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
   enbmobility.SetPositionAllocator (enbPositionAlloc);
@@ -741,14 +825,60 @@ main (int argc, char *argv[])
   clientApp.Start (MilliSeconds (100));
   clientApp.Stop (Seconds (simTime - 0.1));
 
-  // int numPrints = 5;
-  // for (int i = 0; i < numPrints; i++)
-  //   {
-  //     for (uint32_t j = 0; j < ueNodes.GetN (); j++)
-  //       {
-  //         Simulator::Schedule (Seconds (i * simTime / numPrints), &PrintPosition, ueNodes.Get (j));
-  //       }
-  //   }
+int BsStatus[4]={bsOn, bsIdle, bsSleep, bsOff};
+
+  EnergyHeuristic energyheur;
+
+  switch (heuristicType)
+  {
+  case 0:
+  //random sleeping
+  for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
+    {
+      for (int j = 0; j < nMmWaveEnbNodes; j++)
+        {
+          Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
+          Simulator::Schedule (Seconds (i), &EnergyHeuristic::ProbabilityState, &energyheur, probOn,
+                               probIdle, probSleep, probOff, mmdev->GetCellId (), mmdev);
+        }
+    }
+  break;
+  
+  case 1:
+  //static sleeping
+  for (double i = 0.0; i < simTime; i = i + indicationPeriodicity - 0.01)
+    {
+      for (int j = 0; j < nMmWaveEnbNodes; j++)
+        {
+          Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
+          Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, &energyheur, sinrTh, mmdev);
+        }
+      i = i + 0.01; //making sure to execute the next function after the previous one
+      Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, &energyheur, nMmWaveEnbNodes, mmWaveEnbDevs, "static", BsStatus);
+    }
+  break;
+
+  case 2:
+  //dynamic sleeping
+  for (double i = 0.0; i < simTime; i = i + indicationPeriodicity - 0.01)
+    {
+      for (int j = 0; j < nMmWaveEnbNodes; j++)
+        {
+          Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
+          Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, &energyheur, sinrTh, mmdev);
+        }
+      i = i + 0.01; //making sure to execute the next function after the previous one
+      Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, &energyheur, nMmWaveEnbNodes, mmWaveEnbDevs, "dynamic", BsStatus);
+    }
+  break;
+
+  
+  default:
+  NS_FATAL_ERROR (
+          "Heuristic type not recognized, the only possible values are [0,1,2]. Value passed: "
+          << heuristicType);
+    break;
+  }
 
   if (enableTraces)
   {

@@ -13,12 +13,24 @@ maxSpeed=4.0 # maximum UE speed in m/s
 simTime=1.5 # simulation time
 e2TermIp="10.102.157.65" # actual E2term IP interface
 
+heuristicType=2 # Type of heuristic for managing BS status: Random sleeping (0), Static sleeping (1), Dynamic sleeping (2)
+#heuristic parameters
+probOn=0.6038
+probIdle=0.3854
+probSleep=0.0107
+probOff=0.0
+sinrTh=73.0
+bsOn=4
+bsIdle=3
+bsSleep=3
+bsOff=3
+
 # Useful parameters to be configured
 N=1 # number of simulations
 basicCellId=1 # The next value will be the first cellId
 reducedPmValues=0 # use reduced subset of pmValues
 EnableE2FileLogging=1 # enable offline generation of data
-ues=3 # Number of UEs for each mmWave ENB
+ues=2 # Number of UEs for each mmWave ENB
 dataRate=0
 
 # Select 0 or 1 to switch between the optimized or debug build
@@ -69,6 +81,16 @@ for i in $(seq 1 $N); do
                                     --maxSpeed=$maxSpeed\
                                     --indicationPeriodicity=$indicationPeriodicity\
                                     --controlFileName=$controlFileName\
+                                    --heuristicType=$heuristicType\
+                                    --probOn=$probOn\
+                                    --probIdle=$probIdle\
+                                    --probSleep=$probSleep\
+                                    --probOff=$probOff\
+                                    --sinrTh=$sinrTh\
+                                    --bsOn=$bsOn\
+                                    --bsIdle=$bsIdle\
+                                    --bsSleep=$bsSleep\
+                                    --bsOff=$bsOff\
                                     --scheduleControlMessages=$scheduleControlMessages";
   sleep 1;
 done
