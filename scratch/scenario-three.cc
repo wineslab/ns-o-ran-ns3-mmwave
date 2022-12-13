@@ -318,9 +318,9 @@ main (int argc, char *argv[])
   // LogComponentEnable ("MmWaveSpectrumPhy", LOG_LEVEL_ALL);
 
   // The maximum X coordinate of the scenario
-  double maxXAxis = 4300;
+  double maxXAxis = 4000;
   // The maximum Y coordinate of the scenario
-  double maxYAxis = 4300;
+  double maxYAxis = 4000;
 
   // Command line arguments
   CommandLine cmd;
@@ -621,24 +621,24 @@ main (int argc, char *argv[])
   //Smaller square
   for (int8_t i = 0; i < 4; ++i)
     {
-      float x= pow(-1,floor(i/2))*isd;
-      float y= pow(-1,i)*isd;
+      float x= pow(-1,floor(i/2))*isd/sqrt(2);
+      float y= pow(-1,i)*isd/sqrt(2);
       enbPositionAlloc->Add (Vector (centerPosition.x + x, centerPosition.y + y, 3));
     }
 
   // Square rotated by 90 degrees
   for (int8_t i = 0; i < 4; ++i)
     {
-      x = isd*2 * cos ((2 * M_PI * i) / (4));
-      y = isd*2 * sin ((2 * M_PI * i) / (4));
+      x = isd/sqrt(2)*2 * cos ((2 * M_PI * i) / (4));
+      y = isd/sqrt(2)*2 * sin ((2 * M_PI * i) / (4));
       enbPositionAlloc->Add (Vector (centerPosition.x + x, centerPosition.y + y, 3));
     }
 
   // Bigger square
   for (int8_t i = 0; i < 4; ++i)
     {
-      float x= pow(-1,floor(i/2))*isd*2;
-      float y= pow(-1,i)*isd*2;
+      float x= pow(-1,floor(i/2))*isd*2/sqrt(2);
+      float y= pow(-1,i)*isd*2/sqrt(2);
       enbPositionAlloc->Add (Vector (centerPosition.x + x, centerPosition.y + y, 3));
     }
     
