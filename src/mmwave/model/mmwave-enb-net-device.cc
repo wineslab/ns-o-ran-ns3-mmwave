@@ -58,6 +58,7 @@
 #include <ns3/lte-rlc-am.h>
 #include <ns3/mmwave-indication-message-helper.h>
 #include "encode_e2apv1.hpp"
+#include <numeric>
 
 namespace ns3 {
 
@@ -464,7 +465,7 @@ MmWaveEnbNetDevice::UpdateConfig (void)
 
                 m_cuCpFileName = "cu-cp-cell-" + std::to_string(m_cellId) + ".txt";
                 csv.open (m_cuCpFileName.c_str ());
-                csv << "timestamp,ueImsiComplete,numActiveUes,DRB.EstabSucc.5QI.UEID (numDrb),"
+                csv << "timestamp,ueImsiComplete,numActiveUes,RRC.ConnMean,DRB.EstabSucc.5QI.UEID (numDrb),"
                        "DRB.RelActNbr.5QI.UEID (0),L3 serving Id(m_cellId),UE (imsi),L3 serving SINR,"
                        "L3 serving SINR 3gpp,"
                        "L3 neigh Id 1 (cellId),L3 neigh SINR 1,L3 neigh SINR 3gpp 1 (convertedSinr),"
@@ -516,6 +517,8 @@ MmWaveEnbNetDevice::UpdateConfig (void)
                 Simulator::Schedule(MicroSeconds(500), &MmWaveEnbNetDevice::BuildAndSendReportMessage, this, E2Termination::RicSubscriptionRequest_rval_s{});
               }
 
+              // Regardless the offline or online mode for reporting the files, we always want to register the mean of RRC UEs
+              Simulator::Schedule(MilliSeconds(10), &MmWaveEnbNetDevice::SaveActiveUes, this);
             }
           m_isConfigured = true;
         }
@@ -764,6 +767,32 @@ flip_map (const std::map<A, B> &src)
   return dst;
 }
 
+void
+MmWaveEnbNetDevice::SaveActiveUes (void)
+{
+  NS_LOG_FUNCTION (this);
+  m_ueRrcMean.push_back (m_rrc->GetUeMap ().size ());
+
+  // We register this every 10 ms
+  Simulator::Schedule(MilliSeconds(10), &MmWaveEnbNetDevice::SaveActiveUes, this);
+}
+
+long
+MmWaveEnbNetDevice::ComputeMeanUes (void)
+{
+  NS_LOG_FUNCTION (this);
+  if (m_ueRrcMean.size () == 0)
+    {
+      return 0;
+    }
+  // result is an integer according to the standard
+  long meanUes = std::round (std::accumulate (m_ueRrcMean.begin (), m_ueRrcMean.end (), 0) /
+                             m_ueRrcMean.size ());
+
+  m_ueRrcMean.clear ();
+  return meanUes;
+}
+
 Ptr<KpmIndicationMessage>
 MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
 {
@@ -772,6 +801,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
                                              m_forceE2FileLogging, m_reducedPmValues);
 
   auto ueMap = m_rrc->GetUeMap();
+  long meanRrcUes = ComputeMeanUes ();
 
   std::unordered_map<uint64_t, std::string> uePmString {};
 
@@ -885,7 +915,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
 
       NS_LOG_DEBUG ("m_cuCpFileName open " << m_cuCpFileName);
 
-      // the string is timestamp, ueImsiComplete, numActiveUes, DRB.EstabSucc.5QI.UEID (numDrb), DRB.RelActNbr.5QI.UEID (0), L3 serving Id (m_cellId), UE (imsi), L3 serving SINR, L3 serving SINR 3gpp, L3 neigh Id (cellId), L3 neigh Sinr, L3 neigh SINR 3gpp (convertedSinr)
+      // the string is timestamp, ueImsiComplete, numActiveUes,RRC.ConnMean, DRB.EstabSucc.5QI.UEID (numDrb), DRB.RelActNbr.5QI.UEID (0), L3 serving Id (m_cellId), UE (imsi), L3 serving SINR, L3 serving SINR 3gpp, L3 neigh Id (cellId), L3 neigh Sinr, L3 neigh SINR 3gpp (convertedSinr)
       // The values for L3 neighbour cells are repeated for each neighbour (7 times in this implementation)
 
       uint64_t timestamp = m_startTime + (uint64_t) Simulator::Now ().GetMilliSeconds ();
@@ -898,7 +928,8 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
           auto uePms = uePmString.find (imsi)->second;
 
           std::string to_print = std::to_string (timestamp) + "," + ueImsiComplete + "," +
-                                 std::to_string (ueMap.size()) + "," + uePms + "\n";
+                                 std::to_string (ueMap.size ()) + "," +
+                                 std::to_string (meanRrcUes) + "," + uePms + "\n";
 
           NS_LOG_DEBUG (to_print);
 

@@ -60,7 +60,7 @@
 #include <fstream>
 #include <sstream>
 #include <ns3/lte-indication-message-helper.h>
-
+#include <numeric>
 
 namespace ns3 {
 
@@ -797,7 +797,7 @@ LteEnbNetDevice::UpdateConfig (void)
 
           m_cuCpFileName = "cu-cp-cell-" + std::to_string(m_cellId) + ".txt";
           csv.open (m_cuCpFileName.c_str ());
-          csv << "timestamp,ueImsiComplete,numActiveUes,DRB.EstabSucc.5QI.UEID (numDrb),"
+          csv << "timestamp,ueImsiComplete,numActiveUes,RRC.ConnMean,DRB.EstabSucc.5QI.UEID (numDrb),"
                  "DRB.RelActNbr.5QI.UEID (0),enbdev (m_cellId),UE (imsi),sameCellSinr,"
                  "sameCellSinr 3gpp encoded,L3 neigh Id (cellId),"
                  "sinr,3gpp encoded sinr (convertedSinr)\n";
@@ -806,6 +806,9 @@ LteEnbNetDevice::UpdateConfig (void)
 
           Simulator::Schedule(MicroSeconds(1000), &LteEnbNetDevice::ReadControlFile, this);
         }
+      
+        // Regardless the offline or online mode for reporting the files, we always want to register the mean of RRC UEs
+        Simulator::Schedule(MilliSeconds(10), &LteEnbNetDevice::SaveActiveUes, this);
       }
     }
   else
@@ -1031,6 +1034,32 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
     }
 }
 
+void
+LteEnbNetDevice::SaveActiveUes (void)
+{
+  NS_LOG_FUNCTION (this);
+  m_ueRrcMean.push_back (m_rrc->GetUeMap ().size ());
+
+  // We register this every 10 ms
+  Simulator::Schedule(MilliSeconds(10), &LteEnbNetDevice::SaveActiveUes, this);
+}
+
+long
+LteEnbNetDevice::ComputeMeanUes (void)
+{
+  NS_LOG_FUNCTION (this);
+  if (m_ueRrcMean.size () == 0)
+    {
+      return 0;
+    }
+  // result is an integer according to the standard
+  long meanUes = std::round (std::accumulate (m_ueRrcMean.begin (), m_ueRrcMean.end (), 0) /
+                             m_ueRrcMean.size ());
+
+  m_ueRrcMean.clear ();
+  return meanUes;
+}
+
 Ptr<KpmIndicationMessage>
 LteEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
 {
@@ -1040,6 +1069,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
 
   auto ueMap = m_rrc->GetUeMap();
   auto ueMapSize = ueMap.size ();
+  long meanRrcUes = ComputeMeanUes ();
 
   std::unordered_map<uint64_t, std::string> uePmString {};
 
@@ -1074,7 +1104,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
 
     NS_LOG_DEBUG ("m_cuCpFileName open " << m_cuCpFileName);
 
-    // the string is timestamp, ueImsiComplete, numActiveUes, DRB.EstabSucc.5QI.UEID (numDrb), DRB.RelActNbr.5QI.UEID (0)
+    // the string is timestamp, ueImsiComplete, numActiveUes,RRC.ConnMean, DRB.EstabSucc.5QI.UEID (numDrb), DRB.RelActNbr.5QI.UEID (0)
 
     uint64_t timestamp = m_startTime + (uint64_t) Simulator::Now ().GetMilliSeconds ();
 
@@ -1086,8 +1116,8 @@ LteEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
       auto uePms = uePmString.find(imsi)->second;
 
       std::string to_print = std::to_string (timestamp) + "," + ueImsiComplete + "," +
-                             std::to_string (ueMapSize) + "," + uePms + ",,,,,,," +
-                             "\n";
+                             std::to_string (ueMapSize) + "," + std::to_string (meanRrcUes) + "," +
+                             uePms + ",,,,,,," + "\n";
 
       NS_LOG_DEBUG(to_print);
 

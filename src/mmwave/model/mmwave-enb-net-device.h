@@ -201,6 +201,19 @@ private:
   std::string GetImsiString(uint64_t imsi);
   uint32_t GetRlcBufferOccupancy(Ptr<LteRlc> rlc) const;
 
+
+  /**
+   * @brief Save at each granularity period of 10 ms the number of UEs connected to the cell
+   * 
+   */
+  void SaveActiveUes ();
+  /**
+   * @brief Compute the RRC.ConnMean KPM from 3GGP TR xxxx
+   * 
+   * @return long 
+   */
+  long ComputeMeanUes ();
+
   bool m_sendCuUp;
   bool m_sendCuCp;
   bool m_sendDu;
@@ -220,6 +233,8 @@ private:
   std::string m_cuUpFileName;
   std::string m_cuCpFileName;
   std::string m_duFileName;
+
+  std::vector<size_t> m_ueRrcMean;
 
   /**
    * @brief The number of connected UEs that have a good SINR value, higher than a certain threshold

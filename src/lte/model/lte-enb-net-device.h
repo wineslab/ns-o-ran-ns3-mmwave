@@ -260,6 +260,18 @@ private:
   std::string GetImsiString(uint64_t imsi);
   void ReadControlFile ();
 
+  /**
+   * @brief Save at each granularity period of 10 ms the number of UEs connected to the cell
+   * 
+   */
+  void SaveActiveUes ();
+  /**
+   * @brief Compute the RRC.ConnMean KPM from 3GGP TR xxxx
+   * 
+   * @return long 
+   */
+  long ComputeMeanUes ();
+
   Ptr<LteEnbRrc> m_rrc; ///< the RRC
 
   Ptr<LteHandoverAlgorithm> m_handoverAlgorithm; ///< the handover algorithm
@@ -296,6 +308,8 @@ private:
 
   bool m_reducedPmValues; //< if true use a reduced subset of pmvalues
   bool m_forceE2FileLogging; //< if true log PMs to files
+
+  std::vector<size_t> m_ueRrcMean;
 
   std::string m_cuUpFileName;
   std::string m_cuCpFileName;
