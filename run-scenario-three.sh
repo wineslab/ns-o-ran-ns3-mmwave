@@ -34,25 +34,25 @@ ues=2 # Number of UEs for each mmWave ENB
 dataRate=0
 
 # Select 0 or 1 to switch between the optimized or debug build
-build=1
-if [[ build -eq 0 ]];then
-  # Debug build
-   echo "Build ns-3 in debug mode"
-   ./waf -debug
-else
-    # Optimized build
-   echo "Build ns-3 in optimized mode"
-    ./waf -optimized
-fi
+# build=0
+# if [[ build -eq 0 ]];then
+# # Debug build
+#     echo "Build ns-3 in debug mode"
+#     ./waf configure --build-profile=debug --out=build/debug
+#   else
+#       # Optimized build
+#     echo "Build ns-3 in optimized mode"
+#       ./waf configure --build-profile=optimized --out=build/optimized  
+# fi
 
 ## Energy Efficiency use case
 echo "Energy Efficiency use case"
 outageThreshold=-5.0 # use -5.0 when handover is not in NoAuto 
 handoverMode="DynamicTtt"
 indicationPeriodicity=0.02 # value in seconds (20 ms)
-controlFileName="es_actions_for_ns3.csv" # ES control file path
+controlFileName="" # ES control file path
 
-scheduleControlMessages=1 # if the control message shall be read at the beginning of the simulation and the events scheduled
+scheduleControlMessages=0 # if the control message shall be read at the beginning of the simulation and the events scheduled
 # If scheduleControlMessages is 0, remember to create an empty version of the control file before the start of this script, otherwise it would lead to premature crashes.
 
 # NS_LOG="KpmIndication"
