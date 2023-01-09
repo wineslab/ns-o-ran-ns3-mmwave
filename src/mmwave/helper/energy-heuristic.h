@@ -70,7 +70,7 @@ class EnergyHeuristic : public Object{
    * @param heuristic Type of heuristic, Dynamic or Static 
    * @param BsStatus Array of 4 elements: each cell contains the number of BS we want to: BsStatus[0]=turn on, BsStatus[1]=turn idle, BsStatus[2]=turn sleep, BsStatus[3]=turn off
    */
-  void TurnOnBsSinrPos (uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs, std::string heuristic, int BsStatus[]);
+  void TurnOnBsSinrPos (uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs, std::string heuristic, int BsStatus[], Ptr<LteEnbNetDevice> ltedev);
   /**
    * @brief Turn on, idle, sleep and off Bss with a certain probability
    * 
@@ -81,7 +81,7 @@ class EnergyHeuristic : public Object{
    * @param nodeId id of the node to apply the action
    * @param mmDev 
    */
-  void ProbabilityState (double p1, double p2, double p3, double p4, uint16_t nodeId, Ptr<MmWaveEnbNetDevice> mmDev);
+  void ProbabilityState (double p1, double p2, double p3, double p4, Ptr<MmWaveEnbNetDevice> mmDev, Ptr<LteEnbNetDevice> ltedev);
   /**
    * @brief Count the number of ues with a good SINR
    * 

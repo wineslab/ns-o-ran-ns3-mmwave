@@ -95,22 +95,28 @@ MmWaveEnbNetDevice::KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu)
 }
 
 
-void MmWaveEnbNetDevice::TurnOn(uint16_t nodeId){
-  m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enumModeEnergyBs::ON);
+void MmWaveEnbNetDevice::TurnOn(uint16_t nodeId, Ptr<LteEnbRrc> m_rrc){
+  m_rrc->SetSecondaryCellHandoverAllowedStatus(nodeId, enumModeEnergyBs::ON);
+  SetCellState(enumModeEnergyBs::ON);
 }
 
-void MmWaveEnbNetDevice::TurnIdle(uint16_t nodeId){
+void MmWaveEnbNetDevice::TurnIdle(uint16_t nodeId, Ptr<LteEnbRrc> m_rrc){
     m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enumModeEnergyBs::Idle);
+    SetCellState(enumModeEnergyBs::Idle);
 }
 
-void MmWaveEnbNetDevice::TurnSleep(uint16_t nodeId){
+void MmWaveEnbNetDevice::TurnSleep(uint16_t nodeId, Ptr<LteEnbRrc> m_rrc){
     m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enumModeEnergyBs::Sleep);
     m_rrc->EvictUsersFromSecondaryCell ();
+    SetCellState(enumModeEnergyBs::Sleep);
 }
 
-void MmWaveEnbNetDevice::TurnOff(uint16_t nodeId){
-    m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enumModeEnergyBs::OFF);
+void MmWaveEnbNetDevice::TurnOff(uint16_t nodeId, Ptr<LteEnbRrc> m_rrc){
+    bool a;
+    a = m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enumModeEnergyBs::OFF);
+    std::cout<<"handover: "<< a <<std::endl;
     m_rrc->EvictUsersFromSecondaryCell ();
+    SetCellState(enumModeEnergyBs::OFF);
 }
 
 bool MmWaveEnbNetDevice::GetBsState (){

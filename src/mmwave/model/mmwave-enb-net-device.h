@@ -113,25 +113,25 @@ public:
    * 
    * @param nodeId 
    */
-  void TurnOn(uint16_t nodeId);
+  void TurnOn(uint16_t nodeId, Ptr<LteEnbRrc> m_rrc);
   /**
    * @brief Turn the cell Idle
    * 
    * @param nodeId 
    */
-  void TurnIdle(uint16_t nodeId);
+  void TurnIdle(uint16_t nodeId, Ptr<LteEnbRrc> m_rrc);
   /**
    * @brief Turn the cell Sleep
    * 
    * @param nodeId 
    */
-  void TurnSleep(uint16_t nodeId);
+  void TurnSleep(uint16_t nodeId, Ptr<LteEnbRrc> m_rrc);
   /**
    * @brief Turn the cell Off
    * 
    * @param nodeId 
    */
-  void TurnOff(uint16_t nodeId);
+  void TurnOff(uint16_t nodeId, Ptr<LteEnbRrc> m_rrc);
   
   bool GetBsState ();
   

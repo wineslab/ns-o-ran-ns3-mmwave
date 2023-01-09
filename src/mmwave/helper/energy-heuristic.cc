@@ -60,29 +60,31 @@ void EnergyHeuristic::CountBestUesSinr(double sinrTh, Ptr<MmWaveEnbNetDevice> mm
   std::map<uint16_t, Ptr<UeManager>>ue_attached= m_rrc->GetUeMap(); //list of attached UEs
   NS_LOG_DEBUG ("N ues attached: "<<ue_attached.size());
   for(auto it = ue_attached.cbegin(); it != ue_attached.cend(); ++it)
-  {
-    //yes, UEs are attached during simulation
-    //std::map<uint64_t, std::map<uint16_t, long double>> -- <imsi, <cellid, sinr>
+    {
+      //yes, UEs are attached during simulation
+      //std::map<uint64_t, std::map<uint16_t, long double>> -- <imsi, <cellid, sinr>
     std::map<uint64_t, std::map<uint16_t, long double>> m_l3sinrMap=mmDev->Getl3sinrMap();
     double sinrThisCell = 10 * std::log10(m_l3sinrMap[it->second->GetImsi()][mmDev->GetCellId()]);
-    double convertedSinr = L3RrcMeasurements::ThreeGppMapSinr (sinrThisCell);
+      double convertedSinr = L3RrcMeasurements::ThreeGppMapSinr (sinrThisCell);
     NS_LOG_DEBUG ( "sinrThisCell: "<< convertedSinr);
     if (convertedSinr > sinrTh)//over 13 is a good SINR range = over 73 convertedSinr
-    {
+        {
       uint16_t NUeGoodSinr =  mmDev->GetNUeGoodSinr();
-      NUeGoodSinr++;
+          NUeGoodSinr++;
       mmDev->SetNUeGoodSinr(NUeGoodSinr);
-    }   
-  }
+        }
+    }
   NS_LOG_DEBUG ( "NUeGoodSinr for BS "<< mmDev->GetCellId()<<" is: "<< mmDev->GetNUeGoodSinr()); //number of UEs with a good SINR value
 }
 
 void
-EnergyHeuristic::ProbabilityState (double p1, double p2, double p3, double p4, uint16_t nodeId, Ptr<MmWaveEnbNetDevice> mmDev)
+EnergyHeuristic::ProbabilityState (double p1, double p2, double p3, double p4,
+                                   Ptr<MmWaveEnbNetDevice> mmDev, Ptr<LteEnbNetDevice> ltedev)
 {
+  uint16_t nodeId = mmDev->GetCellId ();
   NS_LOG_DEBUG ("Sim time " << Simulator::Now ().GetSeconds ());
   NS_LOG_DEBUG ("Enb name " << nodeId);
-  Ptr<LteEnbRrc> m_rrc = mmDev->GetRrc();
+  Ptr<LteEnbRrc> m_rrc = ltedev->GetRrc ();
   Ptr<UniformRandomVariable> x = CreateObject<UniformRandomVariable> ();
   double r = x->GetValue();
   NS_LOG_DEBUG ("Prob " << r);
@@ -117,7 +119,9 @@ EnergyHeuristic::ProbabilityState (double p1, double p2, double p3, double p4, u
                   << " keep same state");
 }
 
-std::vector<std::pair<Ptr<MmWaveEnbNetDevice>, double>> EnergyHeuristic::HeuristicDynamic(int bsToTurnOn[], int bsOn, int bsIdle, int bsSleep, int bsOff, int nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs)
+std::vector<std::pair<Ptr<MmWaveEnbNetDevice>, double>>
+EnergyHeuristic::HeuristicDynamic (int bsToTurnOn[], int bsOn, int bsIdle, int bsSleep, int bsOff,
+                                   int nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs)
 {
   //for others BS get position of closest UE
   for (int j = 0; j < nMmWaveEnbNodes; j++)
@@ -184,14 +188,14 @@ std::vector<std::pair<Ptr<MmWaveEnbNetDevice>, double>> EnergyHeuristic::Heurist
                                          2)); //distance between UE (index iarray) and BS
                           double time = ueDist / relativeSpeed;
                           double ClosestUeTime =
-                              mmDev->GetClosestUeTime (); // get the attribute where is saved the closest attached UE position
+                              mmDev
+                                  ->GetClosestUeTime (); // get the attribute where is saved the closest attached UE position
                           //if the ue in the scenario (index iarray) is closer compared to the one already saved, save it
                           if (time < ClosestUeTime)
                             {
-                              mmDev->SetClosestUeTime( time);
-
+                              mmDev->SetClosestUeTime (time);
                             }
-                          NS_LOG_DEBUG ( "BS: " << m_rrc->GetCellId () << " UE:" << nodeIMSI
+                          NS_LOG_DEBUG ("BS: " << m_rrc->GetCellId () << " UE:" << nodeIMSI
                                                << " distance:" << ueDist << " relativeSpeed: "
                                                << relativeSpeed << " time: " << time);
                         }
@@ -219,7 +223,8 @@ std::vector<std::pair<Ptr<MmWaveEnbNetDevice>, double>> EnergyHeuristic::Heurist
           continue;
         }
       Ptr<MmWaveEnbNetDevice> mmDev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
-      UeTime.push_back (std::pair<Ptr<MmWaveEnbNetDevice>, double> (mmDev, mmDev->GetClosestUeTime ()));
+      UeTime.push_back (
+          std::pair<Ptr<MmWaveEnbNetDevice>, double> (mmDev, mmDev->GetClosestUeTime ()));
       //reset attribute position of closest UE
       mmDev->SetClosestUeTime (10000.0);
     }
@@ -231,14 +236,16 @@ std::vector<std::pair<Ptr<MmWaveEnbNetDevice>, double>> EnergyHeuristic::Heurist
                return left.second < right.second;
              });
 
-  NS_LOG_DEBUG ( "Print the map of BS-time ordered");
+  NS_LOG_DEBUG ("Print the map of BS-time ordered");
   for (std::pair<Ptr<MmWaveEnbNetDevice>, double> i : UeTime)
-    NS_LOG_DEBUG ( "BS " << i.first->GetCellId () << " with time " << i.second);
+    NS_LOG_DEBUG ("BS " << i.first->GetCellId () << " with time " << i.second);
 
   return UeTime;
 }
 
-std::vector<std::pair<Ptr<MmWaveEnbNetDevice>, double>> EnergyHeuristic::HeuristicStatic (int bsToTurnOn[], int bsOn, int bsIdle, int bsSleep, int bsOff, int nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs)
+std::vector<std::pair<Ptr<MmWaveEnbNetDevice>, double>>
+EnergyHeuristic::HeuristicStatic (int bsToTurnOn[], int bsOn, int bsIdle, int bsSleep, int bsOff,
+                                  int nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs)
 {
   //for others BS get position of closest UE
   for (int j = 0; j < nMmWaveEnbNodes; j++)
@@ -260,8 +267,7 @@ std::vector<std::pair<Ptr<MmWaveEnbNetDevice>, double>> EnergyHeuristic::Heurist
       //otherwise
       Ptr<MmWaveEnbNetDevice> mmDev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
       Ptr<LteEnbRrc> m_rrc = mmDev->GetRrc ();
-      std::map<uint16_t, Ptr<UeManager>> ue_attached =
-          m_rrc->GetUeMap (); //list of attached UEs
+      std::map<uint16_t, Ptr<UeManager>> ue_attached = m_rrc->GetUeMap (); //list of attached UEs
       NS_LOG_DEBUG ("N ues attached: " << ue_attached.size ());
       uint64_t ListConnectedIMSI[ue_attached.size ()];
       int index = 0;
@@ -301,7 +307,8 @@ std::vector<std::pair<Ptr<MmWaveEnbNetDevice>, double>> EnergyHeuristic::Heurist
                                     pow (pos.y - posGnB.y,
                                          2)); //distance between UE (index iarray) and BS
                           std::pair<double, double> ClosestUepos =
-                              mmDev->GetClosestUePos (); // get the attribute where is saved the closest attached UE position
+                              mmDev
+                                  ->GetClosestUePos (); // get the attribute where is saved the closest attached UE position
                           double ClosestUeposDist =
                               sqrt (pow (ClosestUepos.first - posGnB.x, 2) +
                                     pow (ClosestUepos.second - posGnB.y,
@@ -347,7 +354,7 @@ std::vector<std::pair<Ptr<MmWaveEnbNetDevice>, double>> EnergyHeuristic::Heurist
           sqrt (pow (ClosestUepos.first - posGnB.x, 2) + pow (ClosestUepos.second - posGnB.y, 2));
       UeDistances.push_back (std::pair<Ptr<MmWaveEnbNetDevice>, double> (mmDev, ClosestUeposDist));
       //reset attribute position of closest UE
-      std::pair<double, double> uePos = {10000.0,10000.0};
+      std::pair<double, double> uePos = {10000.0, 10000.0};
       mmDev->SetClosestUePos (uePos);
     }
 
@@ -365,12 +372,16 @@ std::vector<std::pair<Ptr<MmWaveEnbNetDevice>, double>> EnergyHeuristic::Heurist
   return UeDistances;
 }
 
-void EnergyHeuristic::TurnOnBsSinrPos (uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs, std::string heuristic, int BsStatus[])
+void
+EnergyHeuristic::TurnOnBsSinrPos (uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs,
+                                  std::string heuristic, int BsStatus[],
+                                  Ptr<LteEnbNetDevice> ltedev)
 {
   int bsOn = BsStatus[0];
   int bsIdle = BsStatus[1];
   int bsSleep = BsStatus[2];
-  int bsOff= BsStatus[3];
+  int bsOff = BsStatus[3];
+  Ptr<LteEnbRrc> m_rrc = ltedev->GetRrc ();
   if (bsOn + bsIdle + bsSleep + bsOff != nMmWaveEnbNodes)
     {
       NS_FATAL_ERROR ("ERROR: number of BS we interact with( "
@@ -407,42 +418,46 @@ void EnergyHeuristic::TurnOnBsSinrPos (uint8_t nMmWaveEnbNodes, NetDeviceContain
       Ptr<MmWaveEnbNetDevice> mmDev =
           DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (bsToTurnOn[j]));
       NS_LOG_DEBUG ("BS to turn on ID: " << mmDev->GetCellId ());
-      mmDev->TurnOn (mmDev->GetCellId ());
+      mmDev->TurnOn (mmDev->GetCellId (), m_rrc);
     }
 
   std::vector<std::pair<Ptr<MmWaveEnbNetDevice>, double>> UEVectorPairs;
-  if (heuristic=="static"){
-    UEVectorPairs=HeuristicStatic(bsToTurnOn, bsOn, bsIdle, bsSleep, bsOff, nMmWaveEnbNodes, mmWaveEnbDevs);
-  }
-  else if (heuristic=="dynamic"){
-    UEVectorPairs=HeuristicDynamic(bsToTurnOn, bsOn, bsIdle, bsSleep, bsOff, nMmWaveEnbNodes, mmWaveEnbDevs);
-  }
+  if (heuristic == "static")
+    {
+      UEVectorPairs = HeuristicStatic (bsToTurnOn, bsOn, bsIdle, bsSleep, bsOff, nMmWaveEnbNodes,
+                                       mmWaveEnbDevs);
+    }
+  else if (heuristic == "dynamic")
+    {
+      UEVectorPairs = HeuristicDynamic (bsToTurnOn, bsOn, bsIdle, bsSleep, bsOff, nMmWaveEnbNodes,
+                                        mmWaveEnbDevs);
+    }
 
-    //turn idle first N BSs
+  //turn idle first N BSs
   for (int j = 0; j < bsIdle; j++)
     {
       Ptr<MmWaveEnbNetDevice> mmDev = UEVectorPairs[j].first;
-      NS_LOG_DEBUG ( "BS to turn Idle ID: " << UEVectorPairs[j].first->GetCellId ());
-      mmDev->TurnIdle (mmDev->GetCellId ());
+      NS_LOG_DEBUG ("BS to turn Idle ID: " << UEVectorPairs[j].first->GetCellId ());
+      mmDev->TurnIdle (mmDev->GetCellId (), m_rrc);
     }
 
   //turn sleep first N BSs
   for (int j = bsIdle; j < bsIdle + bsSleep; j++)
     {
       Ptr<MmWaveEnbNetDevice> mmDev = UEVectorPairs[j].first;
-      NS_LOG_DEBUG ( "BS to turn sleep ID: " << UEVectorPairs[j].first->GetCellId ());
-      mmDev->TurnSleep (mmDev->GetCellId ());
+      NS_LOG_DEBUG ("BS to turn sleep ID: " << UEVectorPairs[j].first->GetCellId ());
+      mmDev->TurnSleep (mmDev->GetCellId (), m_rrc);
     }
 
   //turn off first N BSs
   for (int j = bsIdle + bsSleep; j < bsIdle + bsSleep + bsOff; j++)
     {
       Ptr<MmWaveEnbNetDevice> mmDev = UEVectorPairs[j].first;
-      NS_LOG_DEBUG ( "BS to turn off ID: " << UEVectorPairs[j].first->GetCellId ());
-      mmDev->TurnOff (mmDev->GetCellId ());
+      NS_LOG_DEBUG ("BS to turn off ID: " << UEVectorPairs[j].first->GetCellId ());
+      mmDev->TurnOff (mmDev->GetCellId (), m_rrc);
     }
 }
 
-}
+} // namespace mmwave
 
-}
+} // namespace ns3
