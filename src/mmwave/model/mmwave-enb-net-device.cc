@@ -114,7 +114,6 @@ void MmWaveEnbNetDevice::TurnSleep(uint16_t nodeId, Ptr<LteEnbRrc> m_rrc){
 void MmWaveEnbNetDevice::TurnOff(uint16_t nodeId, Ptr<LteEnbRrc> m_rrc){
     bool a;
     a = m_rrc->SetSecondaryCellHandoverAllowedStatus( nodeId, enumModeEnergyBs::OFF);
-    std::cout<<"handover: "<< a <<std::endl;
     m_rrc->EvictUsersFromSecondaryCell ();
     SetCellState(enumModeEnergyBs::OFF);
 }
