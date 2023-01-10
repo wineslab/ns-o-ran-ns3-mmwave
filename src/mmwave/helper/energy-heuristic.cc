@@ -143,17 +143,7 @@ EnergyHeuristic::HeuristicDynamic (int bsToTurnOn[], int bsOn, int bsIdle, int b
       //otherwise
       Ptr<MmWaveEnbNetDevice> mmDev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
       Ptr<LteEnbRrc> m_rrc = mmDev->GetRrc ();
-      std::map<uint16_t, Ptr<UeManager>> ue_attached =
-          m_rrc->GetUeMap (); //list of attached UEs
-      NS_LOG_DEBUG ("N ues attached: " << ue_attached.size ());
-      uint64_t ListConnectedIMSI[ue_attached.size ()];
-      int index = 0;
-      //save IMSI of connected UE to the BS into ListConnectedIMSI array
-      for (auto it = ue_attached.cbegin (); it != ue_attached.cend (); ++it)
-        {
-          ListConnectedIMSI[index] = it->second->GetImsi ();
-          index++;
-        }
+      NS_LOG_DEBUG ("UEs time distances from cell " << m_rrc->GetCellId ());
       for (NodeList::Iterator it = NodeList::Begin (); it != NodeList::End ();
            ++it) //get an iterator on the list of all the nodes deployed in the scenario
         {
@@ -163,43 +153,33 @@ EnergyHeuristic::HeuristicDynamic (int bsToTurnOn[], int bsOn, int bsIdle, int b
             {
               Ptr<McUeNetDevice> mcuedev =
                   node->GetDevice (jDevs)->GetObject<McUeNetDevice> (); //get UE device
-
               if (mcuedev)
                 {
                   uint64_t nodeIMSI = mcuedev->GetImsi ();
-                  for (uint64_t iarray = 0; iarray < ue_attached.size (); iarray++)
+                  //save the UE closest position of this BS (index j)
+                  double relativeSpeed =
+                      node->GetObject<MobilityModel> ()->GetRelativeSpeed (
+                          mmDev->GetNode ()->GetObject<MobilityModel> ());
+                  //get scenario ue pos
+                  Vector pos = node->GetObject<MobilityModel> ()->GetPosition ();
+                  //get the position of the GnB
+                  Vector posGnB =
+                      mmDev->GetNode ()->GetObject<MobilityModel> ()->GetPosition ();
+                  //getDistance between BS and UE
+                  double ueDist =
+                      sqrt (pow (pos.x - posGnB.x, 2) +
+                            pow (pos.y - posGnB.y,
+                                  2)); //distance between UE (nodeIMSI) and BS
+                  double time = ueDist / relativeSpeed;
+                  double ClosestUeTime = mmDev->GetClosestUeTime (); // get the attribute where is saved the closest attached UE position
+                  //if the ue in the scenario (nodeIMSI) is closer compared to the one already saved, save it
+                  if (time < ClosestUeTime)
                     {
-                      //save the UE closest position of this BS (index j)
-                      if (ListConnectedIMSI[iarray] ==
-                          nodeIMSI) //if the jDevs node is one of the connected UEs for this BS (index j)
-                        {
-                          double relativeSpeed =
-                              node->GetObject<MobilityModel> ()->GetRelativeSpeed (
-                                  mmDev->GetNode ()->GetObject<MobilityModel> ());
-                          //get scenario ue pos
-                          Vector pos = node->GetObject<MobilityModel> ()->GetPosition ();
-                          //get the position of the GnB
-                          Vector posGnB =
-                              mmDev->GetNode ()->GetObject<MobilityModel> ()->GetPosition ();
-                          //getDistance between BS and UE
-                          double ueDist =
-                              sqrt (pow (pos.x - posGnB.x, 2) +
-                                    pow (pos.y - posGnB.y,
-                                         2)); //distance between UE (index iarray) and BS
-                          double time = ueDist / relativeSpeed;
-                          double ClosestUeTime =
-                              mmDev
-                                  ->GetClosestUeTime (); // get the attribute where is saved the closest attached UE position
-                          //if the ue in the scenario (index iarray) is closer compared to the one already saved, save it
-                          if (time < ClosestUeTime)
-                            {
-                              mmDev->SetClosestUeTime (time);
-                            }
-                          NS_LOG_DEBUG ("BS: " << m_rrc->GetCellId () << " UE:" << nodeIMSI
-                                               << " distance:" << ueDist << " relativeSpeed: "
-                                               << relativeSpeed << " time: " << time);
-                        }
+                      mmDev->SetClosestUeTime (time);
                     }
+                  NS_LOG_DEBUG ("BS: " << m_rrc->GetCellId () << " UE:" << nodeIMSI
+                                        << " distance:" << ueDist << " relativeSpeed: "
+                                        << relativeSpeed << " time: " << time);
                 }
             }
         }
@@ -267,16 +247,7 @@ EnergyHeuristic::HeuristicStatic (int bsToTurnOn[], int bsOn, int bsIdle, int bs
       //otherwise
       Ptr<MmWaveEnbNetDevice> mmDev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
       Ptr<LteEnbRrc> m_rrc = mmDev->GetRrc ();
-      std::map<uint16_t, Ptr<UeManager>> ue_attached = m_rrc->GetUeMap (); //list of attached UEs
-      NS_LOG_DEBUG ("N ues attached: " << ue_attached.size ());
-      uint64_t ListConnectedIMSI[ue_attached.size ()];
-      int index = 0;
-      //save IMSI of connected UE to the BS into ListConnectedIMSI array
-      for (auto it = ue_attached.cbegin (); it != ue_attached.cend (); ++it)
-        {
-          ListConnectedIMSI[index] = it->second->GetImsi ();
-          index++;
-        }
+      NS_LOG_DEBUG ("UEs distances from cell " << m_rrc->GetCellId ());
       for (NodeList::Iterator it = NodeList::Begin (); it != NodeList::End ();
            ++it) //get an iterator on the list of all the nodes deployed in the scenario
         {
@@ -286,43 +257,32 @@ EnergyHeuristic::HeuristicStatic (int bsToTurnOn[], int bsOn, int bsIdle, int bs
             {
               Ptr<McUeNetDevice> mcuedev =
                   node->GetDevice (jDevs)->GetObject<McUeNetDevice> (); //get UE device
-
               if (mcuedev)
                 {
                   uint64_t nodeIMSI = mcuedev->GetImsi ();
-                  for (uint64_t iarray = 0; iarray < ue_attached.size (); iarray++)
+                  //get scenario ue pos
+                  Vector pos = node->GetObject<MobilityModel> ()->GetPosition ();
+                  //get the position of the GnB
+                  Vector posGnB =
+                      mmDev->GetNode ()->GetObject<MobilityModel> ()->GetPosition ();
+                  //getDistance between BS and UE
+                  double ueDist =
+                      sqrt (pow (pos.x - posGnB.x, 2) +
+                            pow (pos.y - posGnB.y,
+                                  2)); //distance between UE (nodeIMSI) and BS
+                  std::pair<double, double> ClosestUepos = mmDev->GetClosestUePos (); // get the attribute where is saved the closest attached UE position
+                  double ClosestUeposDist =
+                      sqrt (pow (ClosestUepos.first - posGnB.x, 2) +
+                            pow (ClosestUepos.second - posGnB.y,
+                                  2)); // actual distance (BS-UE) of the closest saved UE
+                  //if the ue in the scenario (nodeIMSI) is closer compared to the one already saved, save it
+                  if (ueDist < ClosestUeposDist)
                     {
-                      //save the UE closest position of this BS (index j)
-                      if (ListConnectedIMSI[iarray] ==
-                          nodeIMSI) //if the jDevs node is one of the connected UEs for this BS (index j)
-                        {
-                          //get scenario ue pos
-                          Vector pos = node->GetObject<MobilityModel> ()->GetPosition ();
-                          //get the position of the GnB
-                          Vector posGnB =
-                              mmDev->GetNode ()->GetObject<MobilityModel> ()->GetPosition ();
-                          //getDistance between BS and UE
-                          double ueDist =
-                              sqrt (pow (pos.x - posGnB.x, 2) +
-                                    pow (pos.y - posGnB.y,
-                                         2)); //distance between UE (index iarray) and BS
-                          std::pair<double, double> ClosestUepos =
-                              mmDev
-                                  ->GetClosestUePos (); // get the attribute where is saved the closest attached UE position
-                          double ClosestUeposDist =
-                              sqrt (pow (ClosestUepos.first - posGnB.x, 2) +
-                                    pow (ClosestUepos.second - posGnB.y,
-                                         2)); // actual distance (BS-UE) of the closest saved UE
-                          //if the ue in the scenario (index iarray) is closer compared to the one already saved, save it
-                          if (ueDist < ClosestUeposDist)
-                            {
-                              std::pair<double, double> uePos = {pos.x, pos.y};
-                              mmDev->SetClosestUePos (uePos);
-                            }
-                          NS_LOG_DEBUG ("BS: " << m_rrc->GetCellId () << " UE:" << nodeIMSI
-                                               << " distance:" << ueDist << " pos: " << pos);
-                        }
+                      std::pair<double, double> uePos = {pos.x, pos.y};
+                      mmDev->SetClosestUePos (uePos);
                     }
+                  NS_LOG_DEBUG ("BS: " << m_rrc->GetCellId () << " UE:" << nodeIMSI
+                                        << " distance:" << ueDist << " pos: " << pos);
                 }
             }
         }

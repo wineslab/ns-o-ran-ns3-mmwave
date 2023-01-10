@@ -302,7 +302,7 @@ main (int argc, char *argv[])
 {
   // LogComponentEnableAll (LOG_PREFIX_ALL);
   // LogComponentEnable ("ScenarioOneEs", LOG_LEVEL_DEBUG);
-  // LogComponentEnable ("EnergyHeuristic", LOG_LEVEL_DEBUG);
+  LogComponentEnable ("EnergyHeuristic", LOG_LEVEL_DEBUG);
   // LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
   // LogComponentEnable ("OnOffApplication", LOG_LEVEL_ALL);
   // LogComponentEnable ("LtePdcp", LOG_LEVEL_ALL);
@@ -890,7 +890,7 @@ main (int argc, char *argv[])
   
   case 1:
   //static sleeping
-  for (double i = 0.0; i < simTime; i = i + indicationPeriodicity - 0.01)
+  for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
     {
       for (int j = 0; j < nMmWaveEnbNodes; j++)
         {
@@ -905,7 +905,7 @@ main (int argc, char *argv[])
 
   case 2:
   //dynamic sleeping
-  for (double i = 0.0; i < simTime; i = i + indicationPeriodicity - 0.01)
+  for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
     {
       for (int j = 0; j < nMmWaveEnbNodes; j++)
         {
