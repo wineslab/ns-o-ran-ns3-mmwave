@@ -45,11 +45,43 @@ EnergyHeuristic::~EnergyHeuristic ()
   m_enHeuristicFile.close();
 }
 
+
+void
+EnergyHeuristic::EnHeuristicTrace(Ptr<MmWaveEnbNetDevice> mmDev)
+{
+  NS_LOG_LOGIC("EnHeuristicSizeTrace " << Simulator::Now().GetSeconds() << " " << mmDev->GetCellId() << " " << mmDev->GetBsState());
+  // write to file
+  if (!m_enHeuristicFile.is_open ())
+    {
+      NS_LOG_DEBUG(GetEnHeuristicFilename ().c_str ());
+      m_enHeuristicFile.open (GetEnHeuristicFilename ().c_str (), std::ofstream::app);
+      NS_LOG_LOGIC ("File opened");
+      m_enHeuristicFile << "Timestamp" << " " << "cellId" << " " << "CellModeEnergy" << std::endl;
+    }
+  m_enHeuristicFile << Simulator::Now ().GetSeconds () << " " << mmDev->GetCellId() << " " << mmDev->GetBsState() << std::endl;
+}
+
+std::string EnergyHeuristic::GetEnHeuristicFilename()
+{
+  return m_enHeuristicFilename;
+}
+
+void EnergyHeuristic::SetEnHeuristicFilename(std::string filename)
+{
+  m_enHeuristicFilename = filename;
+}
+
 TypeId EnergyHeuristic::GetTypeId ()
 {
   static TypeId tid = TypeId ("ns3::EnergyHeuristic")
     .SetParent<Object>()
-    .AddConstructor<EnergyHeuristic>();
+    .AddConstructor<EnergyHeuristic>()
+    .AddAttribute ("EnHeuristicFilename",
+                "Name of the file where the energy heuristic information will be periodically written.",
+                StringValue ("EnergyHeuristic.txt"),
+                MakeStringAccessor (&EnergyHeuristic::SetEnHeuristicFilename),
+                MakeStringChecker ())
+    ;
   return tid;
 }
 
@@ -425,20 +457,6 @@ EnergyHeuristic::TurnOnBsSinrPos (uint8_t nMmWaveEnbNodes, NetDeviceContainer mm
       mmDev->TurnOff (mmDev->GetCellId (), m_rrc);
       EnHeuristicTrace(mmDev);
     }
-}
-
-void
-EnergyHeuristic::EnHeuristicTrace(Ptr<MmWaveEnbNetDevice> mmDev)
-{
-  NS_LOG_LOGIC("EnHeuristicSizeTrace " << Simulator::Now().GetSeconds() << " " << mmDev->GetCellId() << " " << mmDev->GetBsState());
-  // write to file
-  if (!m_enHeuristicFile.is_open ())
-    {
-      m_enHeuristicFile.open (m_enHeuristicFilename);
-      NS_LOG_LOGIC ("File opened");
-      m_enHeuristicFile << "Timestamp" << " " << "cellId" << " " << "CellModeEnergy" << std::endl;
-    }
-  m_enHeuristicFile << Simulator::Now ().GetSeconds () << " " << mmDev->GetCellId() << " " << mmDev->GetBsState() << std::endl;
 }
 
 } // namespace mmwave
