@@ -654,8 +654,8 @@ main (int argc, char *argv[])
   speed->SetAttribute ("Max", DoubleValue (maxSpeed));
 
   Ptr<UniformRandomVariable> puntTimeDirection = CreateObject<UniformRandomVariable> ();
-  puntTimeDirection->SetAttribute ("Min", DoubleValue (20));
-  puntTimeDirection->SetAttribute ("Max", DoubleValue (20));
+  puntTimeDirection->SetAttribute ("Min", DoubleValue (10));
+  puntTimeDirection->SetAttribute ("Max", DoubleValue (15));
   double timeDirection=puntTimeDirection->GetValue();
   // uemobility.SetMobilityModel ("ns3::RandomWalk2dOutdoorMobilityModel", "Speed",
   //                              PointerValue (speed), "Bounds",

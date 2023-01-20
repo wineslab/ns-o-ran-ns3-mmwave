@@ -10,7 +10,7 @@ e2cuCp=1 # enable reporting of CU CP PM containers
 configuration=0 # 0: NR carrier at 850 MHz, low traffic | 1: NR carrier at 3.5 GHz, low traffic | 2: NR carrier at 28 GHz, high traffic
 minSpeed=2.0 # minimum UE speed in m/s
 maxSpeed=4.0 # maximum UE speed in m/s
-simTime=3.0 # simulation time
+simTime=20.0 # simulation time
 e2TermIp="10.102.157.65" # actual E2term IP interface
 perPckToLTE=-1
 ueZeroPercentage=-1
@@ -21,10 +21,10 @@ numberOfRaPreambles=40
 
 heuristicType=2 # Type of heuristic for managing BS status: Random sleeping (0), Static sleeping (1), Dynamic sleeping (2)
 #heuristic parameters
-probOn=0.6038
-probIdle=0.3854
-probSleep=0.0107
-probOff=0.0
+probOn=0.8
+probIdle=0.0
+probSleep=0.0
+probOff=0.2
 sinrTh=73.0
 bsOn=2
 bsIdle=2
@@ -41,7 +41,7 @@ dataRate=0
 hoSinrDifference=3
 
 # Select 0 or 1 to switch between the optimized or debug build
-build=1
+build=0
 if [[ build -eq 0 ]];then
   # Debug build
    echo "Build ns-3 in debug mode"
@@ -56,7 +56,7 @@ fi
 echo "Energy Efficiency use case"
 outageThreshold=-5.0 # use -5.0 when handover is not in NoAuto 
 handoverMode="DynamicTtt"
-indicationPeriodicity=0.02 # value in seconds (20 ms)
+indicationPeriodicity=0.2 #0.02 value in seconds (20 ms)
 controlFileName="es_actions_for_ns3.csv" # ES control file path
 
 #scheduleControlMessages=1 # if the control message shall be read at the beginning of the simulation and the events scheduled
@@ -104,6 +104,6 @@ for i in $(seq 1 $N); do
                                     --bsOn=$bsOn\
                                     --bsIdle=$bsIdle\
                                     --bsSleep=$bsSleep\
-                                    --bsOff=$bsOff";
+                                    --bsOff=$bsOff"> log.out 2>&1 ;
   sleep 1;
 done

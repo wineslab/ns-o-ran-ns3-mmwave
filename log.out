@@ -1,0 +1,4308 @@
+Waf: Entering directory `/home/matteo/Desktop/scenario-one/ns3-mmwave-oran/build'
+[2947/2997] Compiling scratch/scenario-one-es.cc
+[2956/2997] Linking build/scratch/scenario-one-es
+Waf: Leaving directory `/home/matteo/Desktop/scenario-one/ns3-mmwave-oran/build'
+Build commands will be stored in build/compile_commands.json
+'build' finished successfully (5.037s)
+rlcAmEnabled 1 bufferSize 10 traffic Model 0 OutageThreshold -5 HandoverMode DynamicTtt BasicCellId 1 e2TermIp 10.102.157.65 enableE2FileLogging 1 minSpeed 2 maxSpeed 4
+e2lteEnabled 1 e2nrEnabled 1 e2du 1 e2cuCp 1 e2cuUp 1 reducedPmValues 0 perPckToLTE -1 ueZeroPercentage -1 controlFilename es_actions_for_ns3.csv indicationPeriodicity 0.2
+Simulation time is 20 seconds 
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1458.31 pos: 2082.42:1468.78:0 relativeSpeed: 3.33203 time: 437.662
+The closest for BS: 4 is time: 437.662
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1513.77 pos: 2082.42:1468.78:0 relativeSpeed: 3.33203 time: 454.308
+The closest for BS: 5 is time: 454.308
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1205.75 pos: 2082.42:1468.78:0 relativeSpeed: 3.33203 time: 361.865
+The closest for BS: 6 is time: 361.865
+UEs time distances from cell 7
+BS: 7 UE:1 distance:671.795 pos: 2082.42:1468.78:0 relativeSpeed: 3.33203 time: 201.617
+The closest for BS: 7 is time: 201.617
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.23 pos: 2082.42:1468.78:0 relativeSpeed: 3.33203 time: 160.632
+The closest for BS: 8 is time: 160.632
+Print the map of BS-time ordered
+BS 8 with time 160.632
+BS 7 with time 201.617
+BS 6 with time 361.865
+BS 4 with time 437.662
+BS 5 with time 454.308
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 58
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1458.92 pos: 2081.99:1468.27:0 relativeSpeed: 3.33203 time: 437.847
+The closest for BS: 4 is time: 437.847
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1514.08 pos: 2081.99:1468.27:0 relativeSpeed: 3.33203 time: 454.401
+The closest for BS: 5 is time: 454.401
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1205.59 pos: 2081.99:1468.27:0 relativeSpeed: 3.33203 time: 361.817
+The closest for BS: 6 is time: 361.817
+UEs time distances from cell 7
+BS: 7 UE:1 distance:671.168 pos: 2081.99:1468.27:0 relativeSpeed: 3.33203 time: 201.429
+The closest for BS: 7 is time: 201.429
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.242 pos: 2081.99:1468.27:0 relativeSpeed: 3.33203 time: 160.635
+The closest for BS: 8 is time: 160.635
+Print the map of BS-time ordered
+BS 8 with time 160.635
+BS 7 with time 201.429
+BS 6 with time 361.817
+BS 4 with time 437.847
+BS 5 with time 454.401
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 54
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1459.54 pos: 2081.56:1467.75:0 relativeSpeed: 3.33203 time: 438.032
+The closest for BS: 4 is time: 438.032
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1514.39 pos: 2081.56:1467.75:0 relativeSpeed: 3.33203 time: 454.494
+The closest for BS: 5 is time: 454.494
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1205.43 pos: 2081.56:1467.75:0 relativeSpeed: 3.33203 time: 361.77
+The closest for BS: 6 is time: 361.77
+UEs time distances from cell 7
+BS: 7 UE:1 distance:670.54 pos: 2081.56:1467.75:0 relativeSpeed: 3.33203 time: 201.24
+The closest for BS: 7 is time: 201.24
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.255 pos: 2081.56:1467.75:0 relativeSpeed: 3.33203 time: 160.639
+The closest for BS: 8 is time: 160.639
+Print the map of BS-time ordered
+BS 8 with time 160.639
+BS 7 with time 201.24
+BS 6 with time 361.77
+BS 4 with time 438.032
+BS 5 with time 454.494
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 61
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1460.15 pos: 2081.13:1467.24:0 relativeSpeed: 3.33203 time: 438.217
+The closest for BS: 4 is time: 438.217
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1514.7 pos: 2081.13:1467.24:0 relativeSpeed: 3.33203 time: 454.588
+The closest for BS: 5 is time: 454.588
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1205.27 pos: 2081.13:1467.24:0 relativeSpeed: 3.33203 time: 361.723
+The closest for BS: 6 is time: 361.723
+UEs time distances from cell 7
+BS: 7 UE:1 distance:669.912 pos: 2081.13:1467.24:0 relativeSpeed: 3.33203 time: 201.052
+The closest for BS: 7 is time: 201.052
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.269 pos: 2081.13:1467.24:0 relativeSpeed: 3.33203 time: 160.643
+The closest for BS: 8 is time: 160.643
+Print the map of BS-time ordered
+BS 8 with time 160.643
+BS 7 with time 201.052
+BS 6 with time 361.723
+BS 4 with time 438.217
+BS 5 with time 454.588
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 54
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1460.77 pos: 2080.71:1466.72:0 relativeSpeed: 3.33203 time: 438.402
+The closest for BS: 4 is time: 438.402
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1515.01 pos: 2080.71:1466.72:0 relativeSpeed: 3.33203 time: 454.681
+The closest for BS: 5 is time: 454.681
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1205.12 pos: 2080.71:1466.72:0 relativeSpeed: 3.33203 time: 361.676
+The closest for BS: 6 is time: 361.676
+UEs time distances from cell 7
+BS: 7 UE:1 distance:669.285 pos: 2080.71:1466.72:0 relativeSpeed: 3.33203 time: 200.864
+The closest for BS: 7 is time: 200.864
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.284 pos: 2080.71:1466.72:0 relativeSpeed: 3.33203 time: 160.648
+The closest for BS: 8 is time: 160.648
+Print the map of BS-time ordered
+BS 8 with time 160.648
+BS 7 with time 200.864
+BS 6 with time 361.676
+BS 4 with time 438.402
+BS 5 with time 454.681
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 51
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1461.39 pos: 2080.28:1466.21:0 relativeSpeed: 3.33203 time: 438.587
+The closest for BS: 4 is time: 438.587
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1515.33 pos: 2080.28:1466.21:0 relativeSpeed: 3.33203 time: 454.775
+The closest for BS: 5 is time: 454.775
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1204.96 pos: 2080.28:1466.21:0 relativeSpeed: 3.33203 time: 361.63
+The closest for BS: 6 is time: 361.63
+UEs time distances from cell 7
+BS: 7 UE:1 distance:668.657 pos: 2080.28:1466.21:0 relativeSpeed: 3.33203 time: 200.675
+The closest for BS: 7 is time: 200.675
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.299 pos: 2080.28:1466.21:0 relativeSpeed: 3.33203 time: 160.652
+The closest for BS: 8 is time: 160.652
+Print the map of BS-time ordered
+BS 8 with time 160.652
+BS 7 with time 200.675
+BS 6 with time 361.63
+BS 4 with time 438.587
+BS 5 with time 454.775
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 52
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1462 pos: 2079.85:1465.69:0 relativeSpeed: 3.33203 time: 438.772
+The closest for BS: 4 is time: 438.772
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1515.64 pos: 2079.85:1465.69:0 relativeSpeed: 3.33203 time: 454.868
+The closest for BS: 5 is time: 454.868
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1204.81 pos: 2079.85:1465.69:0 relativeSpeed: 3.33203 time: 361.583
+The closest for BS: 6 is time: 361.583
+UEs time distances from cell 7
+BS: 7 UE:1 distance:668.03 pos: 2079.85:1465.69:0 relativeSpeed: 3.33203 time: 200.487
+The closest for BS: 7 is time: 200.487
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.316 pos: 2079.85:1465.69:0 relativeSpeed: 3.33203 time: 160.657
+The closest for BS: 8 is time: 160.657
+Print the map of BS-time ordered
+BS 8 with time 160.657
+BS 7 with time 200.487
+BS 6 with time 361.583
+BS 4 with time 438.772
+BS 5 with time 454.868
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 61
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1462.62 pos: 2079.42:1465.18:0 relativeSpeed: 3.33203 time: 438.957
+The closest for BS: 4 is time: 438.957
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1515.95 pos: 2079.42:1465.18:0 relativeSpeed: 3.33203 time: 454.962
+The closest for BS: 5 is time: 454.962
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1204.65 pos: 2079.42:1465.18:0 relativeSpeed: 3.33203 time: 361.537
+The closest for BS: 6 is time: 361.537
+UEs time distances from cell 7
+BS: 7 UE:1 distance:667.403 pos: 2079.42:1465.18:0 relativeSpeed: 3.33203 time: 200.299
+The closest for BS: 7 is time: 200.299
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.333 pos: 2079.42:1465.18:0 relativeSpeed: 3.33203 time: 160.663
+The closest for BS: 8 is time: 160.663
+Print the map of BS-time ordered
+BS 8 with time 160.663
+BS 7 with time 200.299
+BS 6 with time 361.537
+BS 4 with time 438.957
+BS 5 with time 454.962
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 63
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1463.24 pos: 2078.99:1464.66:0 relativeSpeed: 3.33203 time: 439.142
+The closest for BS: 4 is time: 439.142
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1516.26 pos: 2078.99:1464.66:0 relativeSpeed: 3.33203 time: 455.056
+The closest for BS: 5 is time: 455.056
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1204.5 pos: 2078.99:1464.66:0 relativeSpeed: 3.33203 time: 361.49
+The closest for BS: 6 is time: 361.49
+UEs time distances from cell 7
+BS: 7 UE:1 distance:666.775 pos: 2078.99:1464.66:0 relativeSpeed: 3.33203 time: 200.111
+The closest for BS: 7 is time: 200.111
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.351 pos: 2078.99:1464.66:0 relativeSpeed: 3.33203 time: 160.668
+The closest for BS: 8 is time: 160.668
+Print the map of BS-time ordered
+BS 8 with time 160.668
+BS 7 with time 200.111
+BS 6 with time 361.49
+BS 4 with time 439.142
+BS 5 with time 455.056
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 65
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1463.85 pos: 2078.57:1464.15:0 relativeSpeed: 3.33203 time: 439.327
+The closest for BS: 4 is time: 439.327
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1516.57 pos: 2078.57:1464.15:0 relativeSpeed: 3.33203 time: 455.15
+The closest for BS: 5 is time: 455.15
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1204.34 pos: 2078.57:1464.15:0 relativeSpeed: 3.33203 time: 361.444
+The closest for BS: 6 is time: 361.444
+UEs time distances from cell 7
+BS: 7 UE:1 distance:666.148 pos: 2078.57:1464.15:0 relativeSpeed: 3.33203 time: 199.922
+The closest for BS: 7 is time: 199.922
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.37 pos: 2078.57:1464.15:0 relativeSpeed: 3.33203 time: 160.674
+The closest for BS: 8 is time: 160.674
+Print the map of BS-time ordered
+BS 8 with time 160.674
+BS 7 with time 199.922
+BS 6 with time 361.444
+BS 4 with time 439.327
+BS 5 with time 455.15
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 81
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:542.029 pos: 2078.14:1463.63:0 relativeSpeed: 3.33203 time: 162.672
+The closest for BS: 2 is time: 162.672
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1464.47 pos: 2078.14:1463.63:0 relativeSpeed: 3.33203 time: 439.512
+The closest for BS: 4 is time: 439.512
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1516.89 pos: 2078.14:1463.63:0 relativeSpeed: 3.33203 time: 455.244
+The closest for BS: 5 is time: 455.244
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1204.19 pos: 2078.14:1463.63:0 relativeSpeed: 3.33203 time: 361.398
+The closest for BS: 6 is time: 361.398
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.39 pos: 2078.14:1463.63:0 relativeSpeed: 3.33203 time: 160.68
+The closest for BS: 8 is time: 160.68
+Print the map of BS-time ordered
+BS 8 with time 160.68
+BS 2 with time 162.672
+BS 6 with time 361.398
+BS 4 with time 439.512
+BS 5 with time 455.244
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 62
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1465.09 pos: 2077.71:1463.12:0 relativeSpeed: 3.33203 time: 439.697
+The closest for BS: 4 is time: 439.697
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1517.2 pos: 2077.71:1463.12:0 relativeSpeed: 3.33203 time: 455.338
+The closest for BS: 5 is time: 455.338
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1204.04 pos: 2077.71:1463.12:0 relativeSpeed: 3.33203 time: 361.351
+The closest for BS: 6 is time: 361.351
+UEs time distances from cell 7
+BS: 7 UE:1 distance:664.894 pos: 2077.71:1463.12:0 relativeSpeed: 3.33203 time: 199.546
+The closest for BS: 7 is time: 199.546
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.41 pos: 2077.71:1463.12:0 relativeSpeed: 3.33203 time: 160.686
+The closest for BS: 8 is time: 160.686
+Print the map of BS-time ordered
+BS 8 with time 160.686
+BS 7 with time 199.546
+BS 6 with time 361.351
+BS 4 with time 439.697
+BS 5 with time 455.338
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 61
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1465.7 pos: 2077.28:1462.6:0 relativeSpeed: 3.33203 time: 439.882
+The closest for BS: 4 is time: 439.882
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1517.51 pos: 2077.28:1462.6:0 relativeSpeed: 3.33203 time: 455.432
+The closest for BS: 5 is time: 455.432
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1203.88 pos: 2077.28:1462.6:0 relativeSpeed: 3.33203 time: 361.305
+The closest for BS: 6 is time: 361.305
+UEs time distances from cell 7
+BS: 7 UE:1 distance:664.267 pos: 2077.28:1462.6:0 relativeSpeed: 3.33203 time: 199.358
+The closest for BS: 7 is time: 199.358
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.432 pos: 2077.28:1462.6:0 relativeSpeed: 3.33203 time: 160.692
+The closest for BS: 8 is time: 160.692
+Print the map of BS-time ordered
+BS 8 with time 160.692
+BS 7 with time 199.358
+BS 6 with time 361.305
+BS 4 with time 439.882
+BS 5 with time 455.432
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 56
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1466.32 pos: 2076.85:1462.09:0 relativeSpeed: 3.33203 time: 440.067
+The closest for BS: 4 is time: 440.067
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1517.83 pos: 2076.85:1462.09:0 relativeSpeed: 3.33203 time: 455.526
+The closest for BS: 5 is time: 455.526
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1203.73 pos: 2076.85:1462.09:0 relativeSpeed: 3.33203 time: 361.259
+The closest for BS: 6 is time: 361.259
+UEs time distances from cell 7
+BS: 7 UE:1 distance:663.641 pos: 2076.85:1462.09:0 relativeSpeed: 3.33203 time: 199.17
+The closest for BS: 7 is time: 199.17
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.454 pos: 2076.85:1462.09:0 relativeSpeed: 3.33203 time: 160.699
+The closest for BS: 8 is time: 160.699
+Print the map of BS-time ordered
+BS 8 with time 160.699
+BS 7 with time 199.17
+BS 6 with time 361.259
+BS 4 with time 440.067
+BS 5 with time 455.526
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 66
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1466.94 pos: 2076.43:1461.57:0 relativeSpeed: 3.33203 time: 440.252
+The closest for BS: 4 is time: 440.252
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1518.14 pos: 2076.43:1461.57:0 relativeSpeed: 3.33203 time: 455.62
+The closest for BS: 5 is time: 455.62
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1203.58 pos: 2076.43:1461.57:0 relativeSpeed: 3.33203 time: 361.214
+The closest for BS: 6 is time: 361.214
+UEs time distances from cell 7
+BS: 7 UE:1 distance:663.014 pos: 2076.43:1461.57:0 relativeSpeed: 3.33203 time: 198.982
+The closest for BS: 7 is time: 198.982
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.477 pos: 2076.43:1461.57:0 relativeSpeed: 3.33203 time: 160.706
+The closest for BS: 8 is time: 160.706
+Print the map of BS-time ordered
+BS 8 with time 160.706
+BS 7 with time 198.982
+BS 6 with time 361.214
+BS 4 with time 440.252
+BS 5 with time 455.62
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 60
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1467.55 pos: 2076:1461.06:0 relativeSpeed: 3.33203 time: 440.437
+The closest for BS: 4 is time: 440.437
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1518.46 pos: 2076:1461.06:0 relativeSpeed: 3.33203 time: 455.714
+The closest for BS: 5 is time: 455.714
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1203.42 pos: 2076:1461.06:0 relativeSpeed: 3.33203 time: 361.168
+The closest for BS: 6 is time: 361.168
+UEs time distances from cell 7
+BS: 7 UE:1 distance:662.387 pos: 2076:1461.06:0 relativeSpeed: 3.33203 time: 198.794
+The closest for BS: 7 is time: 198.794
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.501 pos: 2076:1461.06:0 relativeSpeed: 3.33203 time: 160.713
+The closest for BS: 8 is time: 160.713
+Print the map of BS-time ordered
+BS 8 with time 160.713
+BS 7 with time 198.794
+BS 6 with time 361.168
+BS 4 with time 440.437
+BS 5 with time 455.714
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 61
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1468.17 pos: 2075.57:1460.54:0 relativeSpeed: 3.33203 time: 440.623
+The closest for BS: 4 is time: 440.623
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1518.77 pos: 2075.57:1460.54:0 relativeSpeed: 3.33203 time: 455.809
+The closest for BS: 5 is time: 455.809
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1203.27 pos: 2075.57:1460.54:0 relativeSpeed: 3.33203 time: 361.122
+The closest for BS: 6 is time: 361.122
+UEs time distances from cell 7
+BS: 7 UE:1 distance:661.761 pos: 2075.57:1460.54:0 relativeSpeed: 3.33203 time: 198.606
+The closest for BS: 7 is time: 198.606
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.526 pos: 2075.57:1460.54:0 relativeSpeed: 3.33203 time: 160.72
+The closest for BS: 8 is time: 160.72
+Print the map of BS-time ordered
+BS 8 with time 160.72
+BS 7 with time 198.606
+BS 6 with time 361.122
+BS 4 with time 440.623
+BS 5 with time 455.809
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 1
+sinrThisCell: 55
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1468.79 pos: 2075.14:1460.03:0 relativeSpeed: 3.33203 time: 440.808
+The closest for BS: 4 is time: 440.808
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1519.08 pos: 2075.14:1460.03:0 relativeSpeed: 3.33203 time: 455.903
+The closest for BS: 5 is time: 455.903
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1203.12 pos: 2075.14:1460.03:0 relativeSpeed: 3.33203 time: 361.077
+The closest for BS: 6 is time: 361.077
+UEs time distances from cell 7
+BS: 7 UE:1 distance:661.134 pos: 2075.14:1460.03:0 relativeSpeed: 3.33203 time: 198.418
+The closest for BS: 7 is time: 198.418
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.551 pos: 2075.14:1460.03:0 relativeSpeed: 3.33203 time: 160.728
+The closest for BS: 8 is time: 160.728
+Print the map of BS-time ordered
+BS 8 with time 160.728
+BS 7 with time 198.418
+BS 6 with time 361.077
+BS 4 with time 440.808
+BS 5 with time 455.903
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 75
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:545.627 pos: 2074.71:1459.51:0 relativeSpeed: 3.33203 time: 163.752
+The closest for BS: 2 is time: 163.752
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1469.4 pos: 2074.71:1459.51:0 relativeSpeed: 3.33203 time: 440.993
+The closest for BS: 4 is time: 440.993
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1519.4 pos: 2074.71:1459.51:0 relativeSpeed: 3.33203 time: 455.997
+The closest for BS: 5 is time: 455.997
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1202.97 pos: 2074.71:1459.51:0 relativeSpeed: 3.33203 time: 361.032
+The closest for BS: 6 is time: 361.032
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.578 pos: 2074.71:1459.51:0 relativeSpeed: 3.33203 time: 160.736
+The closest for BS: 8 is time: 160.736
+Print the map of BS-time ordered
+BS 8 with time 160.736
+BS 2 with time 163.752
+BS 6 with time 361.032
+BS 4 with time 440.993
+BS 5 with time 455.997
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 84
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:546.079 pos: 2074.29:1459:0 relativeSpeed: 3.33203 time: 163.887
+The closest for BS: 2 is time: 163.887
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1470.02 pos: 2074.29:1459:0 relativeSpeed: 3.33203 time: 441.178
+The closest for BS: 4 is time: 441.178
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1519.71 pos: 2074.29:1459:0 relativeSpeed: 3.33203 time: 456.092
+The closest for BS: 5 is time: 456.092
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1202.82 pos: 2074.29:1459:0 relativeSpeed: 3.33203 time: 360.986
+The closest for BS: 6 is time: 360.986
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.605 pos: 2074.29:1459:0 relativeSpeed: 3.33203 time: 160.744
+The closest for BS: 8 is time: 160.744
+Print the map of BS-time ordered
+BS 8 with time 160.744
+BS 2 with time 163.887
+BS 6 with time 360.986
+BS 4 with time 441.178
+BS 5 with time 456.092
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 76
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:546.531 pos: 2073.86:1458.48:0 relativeSpeed: 3.33203 time: 164.023
+The closest for BS: 2 is time: 164.023
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1470.64 pos: 2073.86:1458.48:0 relativeSpeed: 3.33203 time: 441.363
+The closest for BS: 4 is time: 441.363
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1520.03 pos: 2073.86:1458.48:0 relativeSpeed: 3.33203 time: 456.187
+The closest for BS: 5 is time: 456.187
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1202.67 pos: 2073.86:1458.48:0 relativeSpeed: 3.33203 time: 360.941
+The closest for BS: 6 is time: 360.941
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.633 pos: 2073.86:1458.48:0 relativeSpeed: 3.33203 time: 160.753
+The closest for BS: 8 is time: 160.753
+Print the map of BS-time ordered
+BS 8 with time 160.753
+BS 2 with time 164.023
+BS 6 with time 360.941
+BS 4 with time 441.363
+BS 5 with time 456.187
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 74
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:546.984 pos: 2073.43:1457.97:0 relativeSpeed: 3.33203 time: 164.159
+The closest for BS: 2 is time: 164.159
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1471.25 pos: 2073.43:1457.97:0 relativeSpeed: 3.33203 time: 441.548
+The closest for BS: 4 is time: 441.548
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1520.34 pos: 2073.43:1457.97:0 relativeSpeed: 3.33203 time: 456.281
+The closest for BS: 5 is time: 456.281
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1202.52 pos: 2073.43:1457.97:0 relativeSpeed: 3.33203 time: 360.896
+The closest for BS: 6 is time: 360.896
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.662 pos: 2073.43:1457.97:0 relativeSpeed: 3.33203 time: 160.761
+The closest for BS: 8 is time: 160.761
+Print the map of BS-time ordered
+BS 8 with time 160.761
+BS 2 with time 164.159
+BS 6 with time 360.896
+BS 4 with time 441.548
+BS 5 with time 456.281
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 90
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:547.437 pos: 2073:1457.45:0 relativeSpeed: 3.33203 time: 164.295
+The closest for BS: 2 is time: 164.295
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1471.87 pos: 2073:1457.45:0 relativeSpeed: 3.33203 time: 441.734
+The closest for BS: 4 is time: 441.734
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1520.66 pos: 2073:1457.45:0 relativeSpeed: 3.33203 time: 456.376
+The closest for BS: 5 is time: 456.376
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1202.37 pos: 2073:1457.45:0 relativeSpeed: 3.33203 time: 360.851
+The closest for BS: 6 is time: 360.851
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.692 pos: 2073:1457.45:0 relativeSpeed: 3.33203 time: 160.77
+The closest for BS: 8 is time: 160.77
+Print the map of BS-time ordered
+BS 8 with time 160.77
+BS 2 with time 164.295
+BS 6 with time 360.851
+BS 4 with time 441.734
+BS 5 with time 456.376
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 80
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:547.891 pos: 2072.57:1456.94:0 relativeSpeed: 3.33203 time: 164.431
+The closest for BS: 2 is time: 164.431
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1472.49 pos: 2072.57:1456.94:0 relativeSpeed: 3.33203 time: 441.919
+The closest for BS: 4 is time: 441.919
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1520.98 pos: 2072.57:1456.94:0 relativeSpeed: 3.33203 time: 456.471
+The closest for BS: 5 is time: 456.471
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1202.22 pos: 2072.57:1456.94:0 relativeSpeed: 3.33203 time: 360.806
+The closest for BS: 6 is time: 360.806
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.722 pos: 2072.57:1456.94:0 relativeSpeed: 3.33203 time: 160.779
+The closest for BS: 8 is time: 160.779
+Print the map of BS-time ordered
+BS 8 with time 160.779
+BS 2 with time 164.431
+BS 6 with time 360.806
+BS 4 with time 441.919
+BS 5 with time 456.471
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 76
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:548.345 pos: 2072.15:1456.42:0 relativeSpeed: 3.33203 time: 164.567
+The closest for BS: 2 is time: 164.567
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1473.11 pos: 2072.15:1456.42:0 relativeSpeed: 3.33203 time: 442.104
+The closest for BS: 4 is time: 442.104
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1521.29 pos: 2072.15:1456.42:0 relativeSpeed: 3.33203 time: 456.566
+The closest for BS: 5 is time: 456.566
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1202.07 pos: 2072.15:1456.42:0 relativeSpeed: 3.33203 time: 360.762
+The closest for BS: 6 is time: 360.762
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.754 pos: 2072.15:1456.42:0 relativeSpeed: 3.33203 time: 160.789
+The closest for BS: 8 is time: 160.789
+Print the map of BS-time ordered
+BS 8 with time 160.789
+BS 2 with time 164.567
+BS 6 with time 360.762
+BS 4 with time 442.104
+BS 5 with time 456.566
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 79
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:548.799 pos: 2071.72:1455.91:0 relativeSpeed: 3.33203 time: 164.704
+The closest for BS: 2 is time: 164.704
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1473.72 pos: 2071.72:1455.91:0 relativeSpeed: 3.33203 time: 442.289
+The closest for BS: 4 is time: 442.289
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1521.61 pos: 2071.72:1455.91:0 relativeSpeed: 3.33203 time: 456.661
+The closest for BS: 5 is time: 456.661
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1201.92 pos: 2071.72:1455.91:0 relativeSpeed: 3.33203 time: 360.717
+The closest for BS: 6 is time: 360.717
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.786 pos: 2071.72:1455.91:0 relativeSpeed: 3.33203 time: 160.798
+The closest for BS: 8 is time: 160.798
+Print the map of BS-time ordered
+BS 8 with time 160.798
+BS 2 with time 164.704
+BS 6 with time 360.717
+BS 4 with time 442.289
+BS 5 with time 456.661
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 75
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:549.254 pos: 2071.29:1455.39:0 relativeSpeed: 3.33203 time: 164.84
+The closest for BS: 2 is time: 164.84
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1474.34 pos: 2071.29:1455.39:0 relativeSpeed: 3.33203 time: 442.475
+The closest for BS: 4 is time: 442.475
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1521.93 pos: 2071.29:1455.39:0 relativeSpeed: 3.33203 time: 456.756
+The closest for BS: 5 is time: 456.756
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1201.77 pos: 2071.29:1455.39:0 relativeSpeed: 3.33203 time: 360.672
+The closest for BS: 6 is time: 360.672
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.819 pos: 2071.29:1455.39:0 relativeSpeed: 3.33203 time: 160.808
+The closest for BS: 8 is time: 160.808
+Print the map of BS-time ordered
+BS 8 with time 160.808
+BS 2 with time 164.84
+BS 6 with time 360.672
+BS 4 with time 442.475
+BS 5 with time 456.756
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 72
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1474.96 pos: 2070.86:1454.88:0 relativeSpeed: 3.33203 time: 442.66
+The closest for BS: 4 is time: 442.66
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1522.24 pos: 2070.86:1454.88:0 relativeSpeed: 3.33203 time: 456.851
+The closest for BS: 5 is time: 456.851
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1201.62 pos: 2070.86:1454.88:0 relativeSpeed: 3.33203 time: 360.628
+The closest for BS: 6 is time: 360.628
+UEs time distances from cell 7
+BS: 7 UE:1 distance:654.874 pos: 2070.86:1454.88:0 relativeSpeed: 3.33203 time: 196.539
+The closest for BS: 7 is time: 196.539
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.853 pos: 2070.86:1454.88:0 relativeSpeed: 3.33203 time: 160.819
+The closest for BS: 8 is time: 160.819
+Print the map of BS-time ordered
+BS 8 with time 160.819
+BS 7 with time 196.539
+BS 6 with time 360.628
+BS 4 with time 442.66
+BS 5 with time 456.851
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 73
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1475.58 pos: 2070.43:1454.36:0 relativeSpeed: 3.33203 time: 442.845
+The closest for BS: 4 is time: 442.845
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1522.56 pos: 2070.43:1454.36:0 relativeSpeed: 3.33203 time: 456.946
+The closest for BS: 5 is time: 456.946
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1201.48 pos: 2070.43:1454.36:0 relativeSpeed: 3.33203 time: 360.584
+The closest for BS: 6 is time: 360.584
+UEs time distances from cell 7
+BS: 7 UE:1 distance:654.249 pos: 2070.43:1454.36:0 relativeSpeed: 3.33203 time: 196.351
+The closest for BS: 7 is time: 196.351
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.888 pos: 2070.43:1454.36:0 relativeSpeed: 3.33203 time: 160.829
+The closest for BS: 8 is time: 160.829
+Print the map of BS-time ordered
+BS 8 with time 160.829
+BS 7 with time 196.351
+BS 6 with time 360.584
+BS 4 with time 442.845
+BS 5 with time 456.946
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 61
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1476.19 pos: 2070:1453.85:0 relativeSpeed: 3.33203 time: 443.03
+The closest for BS: 4 is time: 443.03
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1522.88 pos: 2070:1453.85:0 relativeSpeed: 3.33203 time: 457.041
+The closest for BS: 5 is time: 457.041
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1201.33 pos: 2070:1453.85:0 relativeSpeed: 3.33203 time: 360.539
+The closest for BS: 6 is time: 360.539
+UEs time distances from cell 7
+BS: 7 UE:1 distance:653.623 pos: 2070:1453.85:0 relativeSpeed: 3.33203 time: 196.163
+The closest for BS: 7 is time: 196.163
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.924 pos: 2070:1453.85:0 relativeSpeed: 3.33203 time: 160.84
+The closest for BS: 8 is time: 160.84
+Print the map of BS-time ordered
+BS 8 with time 160.84
+BS 7 with time 196.163
+BS 6 with time 360.539
+BS 4 with time 443.03
+BS 5 with time 457.041
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 59
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1476.81 pos: 2069.58:1453.33:0 relativeSpeed: 3.33203 time: 443.216
+The closest for BS: 4 is time: 443.216
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1523.19 pos: 2069.58:1453.33:0 relativeSpeed: 3.33203 time: 457.136
+The closest for BS: 5 is time: 457.136
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1201.18 pos: 2069.58:1453.33:0 relativeSpeed: 3.33203 time: 360.495
+The closest for BS: 6 is time: 360.495
+UEs time distances from cell 7
+BS: 7 UE:1 distance:652.998 pos: 2069.58:1453.33:0 relativeSpeed: 3.33203 time: 195.976
+The closest for BS: 7 is time: 195.976
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.96 pos: 2069.58:1453.33:0 relativeSpeed: 3.33203 time: 160.851
+The closest for BS: 8 is time: 160.851
+Print the map of BS-time ordered
+BS 8 with time 160.851
+BS 7 with time 195.976
+BS 6 with time 360.495
+BS 4 with time 443.216
+BS 5 with time 457.136
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 58
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1477.43 pos: 2069.15:1452.82:0 relativeSpeed: 3.33203 time: 443.401
+The closest for BS: 4 is time: 443.401
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1523.51 pos: 2069.15:1452.82:0 relativeSpeed: 3.33203 time: 457.232
+The closest for BS: 5 is time: 457.232
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1201.04 pos: 2069.15:1452.82:0 relativeSpeed: 3.33203 time: 360.451
+The closest for BS: 6 is time: 360.451
+UEs time distances from cell 7
+BS: 7 UE:1 distance:652.373 pos: 2069.15:1452.82:0 relativeSpeed: 3.33203 time: 195.788
+The closest for BS: 7 is time: 195.788
+UEs time distances from cell 8
+BS: 8 UE:1 distance:535.997 pos: 2069.15:1452.82:0 relativeSpeed: 3.33203 time: 160.862
+The closest for BS: 8 is time: 160.862
+Print the map of BS-time ordered
+BS 8 with time 160.862
+BS 7 with time 195.788
+BS 6 with time 360.451
+BS 4 with time 443.401
+BS 5 with time 457.232
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 57
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1478.05 pos: 2068.72:1452.3:0 relativeSpeed: 3.33203 time: 443.586
+The closest for BS: 4 is time: 443.586
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1523.83 pos: 2068.72:1452.3:0 relativeSpeed: 3.33203 time: 457.327
+The closest for BS: 5 is time: 457.327
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1200.89 pos: 2068.72:1452.3:0 relativeSpeed: 3.33203 time: 360.407
+The closest for BS: 6 is time: 360.407
+UEs time distances from cell 7
+BS: 7 UE:1 distance:651.748 pos: 2068.72:1452.3:0 relativeSpeed: 3.33203 time: 195.601
+The closest for BS: 7 is time: 195.601
+UEs time distances from cell 8
+BS: 8 UE:1 distance:536.036 pos: 2068.72:1452.3:0 relativeSpeed: 3.33203 time: 160.873
+The closest for BS: 8 is time: 160.873
+Print the map of BS-time ordered
+BS 8 with time 160.873
+BS 7 with time 195.601
+BS 6 with time 360.407
+BS 4 with time 443.586
+BS 5 with time 457.327
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 60
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1478.66 pos: 2068.29:1451.79:0 relativeSpeed: 3.33203 time: 443.772
+The closest for BS: 4 is time: 443.772
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1524.15 pos: 2068.29:1451.79:0 relativeSpeed: 3.33203 time: 457.423
+The closest for BS: 5 is time: 457.423
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1200.74 pos: 2068.29:1451.79:0 relativeSpeed: 3.33203 time: 360.364
+The closest for BS: 6 is time: 360.364
+UEs time distances from cell 7
+BS: 7 UE:1 distance:651.123 pos: 2068.29:1451.79:0 relativeSpeed: 3.33203 time: 195.413
+The closest for BS: 7 is time: 195.413
+UEs time distances from cell 8
+BS: 8 UE:1 distance:536.074 pos: 2068.29:1451.79:0 relativeSpeed: 3.33203 time: 160.885
+The closest for BS: 8 is time: 160.885
+Print the map of BS-time ordered
+BS 8 with time 160.885
+BS 7 with time 195.413
+BS 6 with time 360.364
+BS 4 with time 443.772
+BS 5 with time 457.423
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 58
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1479.28 pos: 2067.86:1451.27:0 relativeSpeed: 3.33203 time: 443.957
+The closest for BS: 4 is time: 443.957
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1524.47 pos: 2067.86:1451.27:0 relativeSpeed: 3.33203 time: 457.518
+The closest for BS: 5 is time: 457.518
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1200.6 pos: 2067.86:1451.27:0 relativeSpeed: 3.33203 time: 360.32
+The closest for BS: 6 is time: 360.32
+UEs time distances from cell 7
+BS: 7 UE:1 distance:650.498 pos: 2067.86:1451.27:0 relativeSpeed: 3.33203 time: 195.225
+The closest for BS: 7 is time: 195.225
+UEs time distances from cell 8
+BS: 8 UE:1 distance:536.114 pos: 2067.86:1451.27:0 relativeSpeed: 3.33203 time: 160.897
+The closest for BS: 8 is time: 160.897
+Print the map of BS-time ordered
+BS 8 with time 160.897
+BS 7 with time 195.225
+BS 6 with time 360.32
+BS 4 with time 443.957
+BS 5 with time 457.518
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 54
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1479.9 pos: 2067.44:1450.76:0 relativeSpeed: 3.33203 time: 444.142
+The closest for BS: 4 is time: 444.142
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1524.79 pos: 2067.44:1450.76:0 relativeSpeed: 3.33203 time: 457.614
+The closest for BS: 5 is time: 457.614
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1200.45 pos: 2067.44:1450.76:0 relativeSpeed: 3.33203 time: 360.276
+The closest for BS: 6 is time: 360.276
+UEs time distances from cell 7
+BS: 7 UE:1 distance:649.873 pos: 2067.44:1450.76:0 relativeSpeed: 3.33203 time: 195.038
+The closest for BS: 7 is time: 195.038
+UEs time distances from cell 8
+BS: 8 UE:1 distance:536.155 pos: 2067.44:1450.76:0 relativeSpeed: 3.33203 time: 160.909
+The closest for BS: 8 is time: 160.909
+Print the map of BS-time ordered
+BS 8 with time 160.909
+BS 7 with time 195.038
+BS 6 with time 360.276
+BS 4 with time 444.142
+BS 5 with time 457.614
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 64
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1480.52 pos: 2067.01:1450.24:0 relativeSpeed: 3.33203 time: 444.328
+The closest for BS: 4 is time: 444.328
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1525.1 pos: 2067.01:1450.24:0 relativeSpeed: 3.33203 time: 457.71
+The closest for BS: 5 is time: 457.71
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1200.31 pos: 2067.01:1450.24:0 relativeSpeed: 3.33203 time: 360.233
+The closest for BS: 6 is time: 360.233
+UEs time distances from cell 7
+BS: 7 UE:1 distance:649.248 pos: 2067.01:1450.24:0 relativeSpeed: 3.33203 time: 194.85
+The closest for BS: 7 is time: 194.85
+UEs time distances from cell 8
+BS: 8 UE:1 distance:536.196 pos: 2067.01:1450.24:0 relativeSpeed: 3.33203 time: 160.922
+The closest for BS: 8 is time: 160.922
+Print the map of BS-time ordered
+BS 8 with time 160.922
+BS 7 with time 194.85
+BS 6 with time 360.233
+BS 4 with time 444.328
+BS 5 with time 457.71
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 1
+sinrThisCell: 78
+NUeGoodSinr for BS 8 is: 1
+BS to turn on ID: 8
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:554.287 pos: 2066.58:1449.73:0 relativeSpeed: 3.33203 time: 166.351
+The closest for BS: 2 is time: 166.351
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1481.13 pos: 2066.58:1449.73:0 relativeSpeed: 3.33203 time: 444.513
+The closest for BS: 4 is time: 444.513
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1525.42 pos: 2066.58:1449.73:0 relativeSpeed: 3.33203 time: 457.805
+The closest for BS: 5 is time: 457.805
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1200.16 pos: 2066.58:1449.73:0 relativeSpeed: 3.33203 time: 360.19
+The closest for BS: 6 is time: 360.19
+UEs time distances from cell 7
+BS: 7 UE:1 distance:648.623 pos: 2066.58:1449.73:0 relativeSpeed: 3.33203 time: 194.663
+The closest for BS: 7 is time: 194.663
+Print the map of BS-time ordered
+BS 2 with time 166.351
+BS 7 with time 194.663
+BS 6 with time 360.19
+BS 4 with time 444.513
+BS 5 with time 457.805
+BS to turn Idle ID: 2
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 1
+sinrThisCell: 80
+NUeGoodSinr for BS 8 is: 1
+BS to turn on ID: 8
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:554.747 pos: 2066.15:1449.21:0 relativeSpeed: 3.33203 time: 166.489
+The closest for BS: 2 is time: 166.489
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1481.75 pos: 2066.15:1449.21:0 relativeSpeed: 3.33203 time: 444.699
+The closest for BS: 4 is time: 444.699
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1525.74 pos: 2066.15:1449.21:0 relativeSpeed: 3.33203 time: 457.901
+The closest for BS: 5 is time: 457.901
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1200.02 pos: 2066.15:1449.21:0 relativeSpeed: 3.33203 time: 360.146
+The closest for BS: 6 is time: 360.146
+UEs time distances from cell 7
+BS: 7 UE:1 distance:647.999 pos: 2066.15:1449.21:0 relativeSpeed: 3.33203 time: 194.475
+The closest for BS: 7 is time: 194.475
+Print the map of BS-time ordered
+BS 2 with time 166.489
+BS 7 with time 194.475
+BS 6 with time 360.146
+BS 4 with time 444.699
+BS 5 with time 457.901
+BS to turn Idle ID: 2
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 1
+sinrThisCell: 83
+NUeGoodSinr for BS 8 is: 1
+BS to turn on ID: 8
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:555.208 pos: 2065.72:1448.7:0 relativeSpeed: 3.33203 time: 166.627
+The closest for BS: 2 is time: 166.627
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1482.37 pos: 2065.72:1448.7:0 relativeSpeed: 3.33203 time: 444.884
+The closest for BS: 4 is time: 444.884
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1526.06 pos: 2065.72:1448.7:0 relativeSpeed: 3.33203 time: 457.997
+The closest for BS: 5 is time: 457.997
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1199.88 pos: 2065.72:1448.7:0 relativeSpeed: 3.33203 time: 360.103
+The closest for BS: 6 is time: 360.103
+UEs time distances from cell 7
+BS: 7 UE:1 distance:647.374 pos: 2065.72:1448.7:0 relativeSpeed: 3.33203 time: 194.288
+The closest for BS: 7 is time: 194.288
+Print the map of BS-time ordered
+BS 2 with time 166.627
+BS 7 with time 194.288
+BS 6 with time 360.103
+BS 4 with time 444.884
+BS 5 with time 457.997
+BS to turn Idle ID: 2
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 1
+sinrThisCell: 80
+NUeGoodSinr for BS 8 is: 1
+BS to turn on ID: 8
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:555.669 pos: 2065.3:1448.18:0 relativeSpeed: 3.33203 time: 166.766
+The closest for BS: 2 is time: 166.766
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1482.99 pos: 2065.3:1448.18:0 relativeSpeed: 3.33203 time: 445.069
+The closest for BS: 4 is time: 445.069
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1526.38 pos: 2065.3:1448.18:0 relativeSpeed: 3.33203 time: 458.093
+The closest for BS: 5 is time: 458.093
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1199.73 pos: 2065.3:1448.18:0 relativeSpeed: 3.33203 time: 360.06
+The closest for BS: 6 is time: 360.06
+UEs time distances from cell 7
+BS: 7 UE:1 distance:646.75 pos: 2065.3:1448.18:0 relativeSpeed: 3.33203 time: 194.101
+The closest for BS: 7 is time: 194.101
+Print the map of BS-time ordered
+BS 2 with time 166.766
+BS 7 with time 194.101
+BS 6 with time 360.06
+BS 4 with time 445.069
+BS 5 with time 458.093
+BS to turn Idle ID: 2
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 1
+sinrThisCell: 83
+NUeGoodSinr for BS 8 is: 1
+BS to turn on ID: 8
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:556.13 pos: 2064.87:1447.67:0 relativeSpeed: 3.33203 time: 166.904
+The closest for BS: 2 is time: 166.904
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1483.6 pos: 2064.87:1447.67:0 relativeSpeed: 3.33203 time: 445.255
+The closest for BS: 4 is time: 445.255
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1526.7 pos: 2064.87:1447.67:0 relativeSpeed: 3.33203 time: 458.189
+The closest for BS: 5 is time: 458.189
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1199.59 pos: 2064.87:1447.67:0 relativeSpeed: 3.33203 time: 360.017
+The closest for BS: 6 is time: 360.017
+UEs time distances from cell 7
+BS: 7 UE:1 distance:646.125 pos: 2064.87:1447.67:0 relativeSpeed: 3.33203 time: 193.913
+The closest for BS: 7 is time: 193.913
+Print the map of BS-time ordered
+BS 2 with time 166.904
+BS 7 with time 193.913
+BS 6 with time 360.017
+BS 4 with time 445.255
+BS 5 with time 458.189
+BS to turn Idle ID: 2
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 1
+sinrThisCell: 76
+NUeGoodSinr for BS 8 is: 1
+BS to turn on ID: 8
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:556.592 pos: 2064.44:1447.15:0 relativeSpeed: 3.33203 time: 167.043
+The closest for BS: 2 is time: 167.043
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1484.22 pos: 2064.44:1447.15:0 relativeSpeed: 3.33203 time: 445.44
+The closest for BS: 4 is time: 445.44
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1527.02 pos: 2064.44:1447.15:0 relativeSpeed: 3.33203 time: 458.285
+The closest for BS: 5 is time: 458.285
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1199.45 pos: 2064.44:1447.15:0 relativeSpeed: 3.33203 time: 359.974
+The closest for BS: 6 is time: 359.974
+UEs time distances from cell 7
+BS: 7 UE:1 distance:645.501 pos: 2064.44:1447.15:0 relativeSpeed: 3.33203 time: 193.726
+The closest for BS: 7 is time: 193.726
+Print the map of BS-time ordered
+BS 2 with time 167.043
+BS 7 with time 193.726
+BS 6 with time 359.974
+BS 4 with time 445.44
+BS 5 with time 458.285
+BS to turn Idle ID: 2
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 1
+sinrThisCell: 69
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1484.84 pos: 2064.01:1446.64:0 relativeSpeed: 3.33203 time: 445.626
+The closest for BS: 4 is time: 445.626
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1527.34 pos: 2064.01:1446.64:0 relativeSpeed: 3.33203 time: 458.381
+The closest for BS: 5 is time: 458.381
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1199.31 pos: 2064.01:1446.64:0 relativeSpeed: 3.33203 time: 359.932
+The closest for BS: 6 is time: 359.932
+UEs time distances from cell 7
+BS: 7 UE:1 distance:644.877 pos: 2064.01:1446.64:0 relativeSpeed: 3.33203 time: 193.538
+The closest for BS: 7 is time: 193.538
+UEs time distances from cell 8
+BS: 8 UE:1 distance:536.51 pos: 2064.01:1446.64:0 relativeSpeed: 3.33203 time: 161.016
+The closest for BS: 8 is time: 161.016
+Print the map of BS-time ordered
+BS 8 with time 161.016
+BS 7 with time 193.538
+BS 6 with time 359.932
+BS 4 with time 445.626
+BS 5 with time 458.381
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 87
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:557.517 pos: 2063.58:1446.12:0 relativeSpeed: 3.33203 time: 167.32
+The closest for BS: 2 is time: 167.32
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1485.46 pos: 2063.58:1446.12:0 relativeSpeed: 3.33203 time: 445.811
+The closest for BS: 4 is time: 445.811
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1527.66 pos: 2063.58:1446.12:0 relativeSpeed: 3.33203 time: 458.478
+The closest for BS: 5 is time: 458.478
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1199.16 pos: 2063.58:1446.12:0 relativeSpeed: 3.33203 time: 359.889
+The closest for BS: 6 is time: 359.889
+UEs time distances from cell 8
+BS: 8 UE:1 distance:536.558 pos: 2063.58:1446.12:0 relativeSpeed: 3.33203 time: 161.03
+The closest for BS: 8 is time: 161.03
+Print the map of BS-time ordered
+BS 8 with time 161.03
+BS 2 with time 167.32
+BS 6 with time 359.889
+BS 4 with time 445.811
+BS 5 with time 458.478
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 85
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:557.98 pos: 2063.16:1445.61:0 relativeSpeed: 3.33203 time: 167.459
+The closest for BS: 2 is time: 167.459
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1486.08 pos: 2063.16:1445.61:0 relativeSpeed: 3.33203 time: 445.997
+The closest for BS: 4 is time: 445.997
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1527.98 pos: 2063.16:1445.61:0 relativeSpeed: 3.33203 time: 458.574
+The closest for BS: 5 is time: 458.574
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1199.02 pos: 2063.16:1445.61:0 relativeSpeed: 3.33203 time: 359.847
+The closest for BS: 6 is time: 359.847
+UEs time distances from cell 8
+BS: 8 UE:1 distance:536.607 pos: 2063.16:1445.61:0 relativeSpeed: 3.33203 time: 161.045
+The closest for BS: 8 is time: 161.045
+Print the map of BS-time ordered
+BS 8 with time 161.045
+BS 2 with time 167.459
+BS 6 with time 359.847
+BS 4 with time 445.997
+BS 5 with time 458.574
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 88
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:558.444 pos: 2062.73:1445.09:0 relativeSpeed: 3.33203 time: 167.598
+The closest for BS: 2 is time: 167.598
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1486.7 pos: 2062.73:1445.09:0 relativeSpeed: 3.33203 time: 446.182
+The closest for BS: 4 is time: 446.182
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1528.31 pos: 2062.73:1445.09:0 relativeSpeed: 3.33203 time: 458.67
+The closest for BS: 5 is time: 458.67
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1198.88 pos: 2062.73:1445.09:0 relativeSpeed: 3.33203 time: 359.804
+The closest for BS: 6 is time: 359.804
+UEs time distances from cell 8
+BS: 8 UE:1 distance:536.657 pos: 2062.73:1445.09:0 relativeSpeed: 3.33203 time: 161.06
+The closest for BS: 8 is time: 161.06
+Print the map of BS-time ordered
+BS 8 with time 161.06
+BS 2 with time 167.598
+BS 6 with time 359.804
+BS 4 with time 446.182
+BS 5 with time 458.67
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 89
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:558.908 pos: 2062.3:1444.58:0 relativeSpeed: 3.33203 time: 167.738
+The closest for BS: 2 is time: 167.738
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1487.31 pos: 2062.3:1444.58:0 relativeSpeed: 3.33203 time: 446.368
+The closest for BS: 4 is time: 446.368
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1528.63 pos: 2062.3:1444.58:0 relativeSpeed: 3.33203 time: 458.767
+The closest for BS: 5 is time: 458.767
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1198.74 pos: 2062.3:1444.58:0 relativeSpeed: 3.33203 time: 359.762
+The closest for BS: 6 is time: 359.762
+UEs time distances from cell 8
+BS: 8 UE:1 distance:536.707 pos: 2062.3:1444.58:0 relativeSpeed: 3.33203 time: 161.075
+The closest for BS: 8 is time: 161.075
+Print the map of BS-time ordered
+BS 8 with time 161.075
+BS 2 with time 167.738
+BS 6 with time 359.762
+BS 4 with time 446.368
+BS 5 with time 458.767
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 94
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:559.372 pos: 2061.87:1444.06:0 relativeSpeed: 3.33203 time: 167.877
+The closest for BS: 2 is time: 167.877
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1487.93 pos: 2061.87:1444.06:0 relativeSpeed: 3.33203 time: 446.554
+The closest for BS: 4 is time: 446.554
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1528.95 pos: 2061.87:1444.06:0 relativeSpeed: 3.33203 time: 458.863
+The closest for BS: 5 is time: 458.863
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1198.6 pos: 2061.87:1444.06:0 relativeSpeed: 3.33203 time: 359.72
+The closest for BS: 6 is time: 359.72
+UEs time distances from cell 8
+BS: 8 UE:1 distance:536.759 pos: 2061.87:1444.06:0 relativeSpeed: 3.33203 time: 161.09
+The closest for BS: 8 is time: 161.09
+Print the map of BS-time ordered
+BS 8 with time 161.09
+BS 2 with time 167.877
+BS 6 with time 359.72
+BS 4 with time 446.554
+BS 5 with time 458.863
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 88
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:559.837 pos: 2061.44:1443.55:0 relativeSpeed: 3.33203 time: 168.016
+The closest for BS: 2 is time: 168.016
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1488.55 pos: 2061.44:1443.55:0 relativeSpeed: 3.33203 time: 446.739
+The closest for BS: 4 is time: 446.739
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1529.27 pos: 2061.44:1443.55:0 relativeSpeed: 3.33203 time: 458.96
+The closest for BS: 5 is time: 458.96
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1198.46 pos: 2061.44:1443.55:0 relativeSpeed: 3.33203 time: 359.678
+The closest for BS: 6 is time: 359.678
+UEs time distances from cell 8
+BS: 8 UE:1 distance:536.811 pos: 2061.44:1443.55:0 relativeSpeed: 3.33203 time: 161.106
+The closest for BS: 8 is time: 161.106
+Print the map of BS-time ordered
+BS 8 with time 161.106
+BS 2 with time 168.016
+BS 6 with time 359.678
+BS 4 with time 446.739
+BS 5 with time 458.96
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 91
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:560.302 pos: 2061.02:1443.03:0 relativeSpeed: 3.33203 time: 168.156
+The closest for BS: 2 is time: 168.156
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1489.17 pos: 2061.02:1443.03:0 relativeSpeed: 3.33203 time: 446.925
+The closest for BS: 4 is time: 446.925
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1529.59 pos: 2061.02:1443.03:0 relativeSpeed: 3.33203 time: 459.057
+The closest for BS: 5 is time: 459.057
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1198.32 pos: 2061.02:1443.03:0 relativeSpeed: 3.33203 time: 359.636
+The closest for BS: 6 is time: 359.636
+UEs time distances from cell 8
+BS: 8 UE:1 distance:536.864 pos: 2061.02:1443.03:0 relativeSpeed: 3.33203 time: 161.122
+The closest for BS: 8 is time: 161.122
+Print the map of BS-time ordered
+BS 8 with time 161.122
+BS 2 with time 168.156
+BS 6 with time 359.636
+BS 4 with time 446.925
+BS 5 with time 459.057
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 94
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:560.767 pos: 2060.59:1442.52:0 relativeSpeed: 3.33203 time: 168.296
+The closest for BS: 2 is time: 168.296
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1489.79 pos: 2060.59:1442.52:0 relativeSpeed: 3.33203 time: 447.11
+The closest for BS: 4 is time: 447.11
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1529.91 pos: 2060.59:1442.52:0 relativeSpeed: 3.33203 time: 459.153
+The closest for BS: 5 is time: 459.153
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1198.18 pos: 2060.59:1442.52:0 relativeSpeed: 3.33203 time: 359.594
+The closest for BS: 6 is time: 359.594
+UEs time distances from cell 8
+BS: 8 UE:1 distance:536.918 pos: 2060.59:1442.52:0 relativeSpeed: 3.33203 time: 161.138
+The closest for BS: 8 is time: 161.138
+Print the map of BS-time ordered
+BS 8 with time 161.138
+BS 2 with time 168.296
+BS 6 with time 359.594
+BS 4 with time 447.11
+BS 5 with time 459.153
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 98
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:561.233 pos: 2060.16:1442:0 relativeSpeed: 3.33203 time: 168.436
+The closest for BS: 2 is time: 168.436
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1490.41 pos: 2060.16:1442:0 relativeSpeed: 3.33203 time: 447.296
+The closest for BS: 4 is time: 447.296
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1530.24 pos: 2060.16:1442:0 relativeSpeed: 3.33203 time: 459.25
+The closest for BS: 5 is time: 459.25
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1198.04 pos: 2060.16:1442:0 relativeSpeed: 3.33203 time: 359.552
+The closest for BS: 6 is time: 359.552
+UEs time distances from cell 8
+BS: 8 UE:1 distance:536.973 pos: 2060.16:1442:0 relativeSpeed: 3.33203 time: 161.155
+The closest for BS: 8 is time: 161.155
+Print the map of BS-time ordered
+BS 8 with time 161.155
+BS 2 with time 168.436
+BS 6 with time 359.552
+BS 4 with time 447.296
+BS 5 with time 459.25
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 104
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:561.7 pos: 2059.73:1441.49:0 relativeSpeed: 3.33203 time: 168.576
+The closest for BS: 2 is time: 168.576
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1491.02 pos: 2059.73:1441.49:0 relativeSpeed: 3.33203 time: 447.481
+The closest for BS: 4 is time: 447.481
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1530.56 pos: 2059.73:1441.49:0 relativeSpeed: 3.33203 time: 459.347
+The closest for BS: 5 is time: 459.347
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1197.9 pos: 2059.73:1441.49:0 relativeSpeed: 3.33203 time: 359.511
+The closest for BS: 6 is time: 359.511
+UEs time distances from cell 8
+BS: 8 UE:1 distance:537.028 pos: 2059.73:1441.49:0 relativeSpeed: 3.33203 time: 161.171
+The closest for BS: 8 is time: 161.171
+Print the map of BS-time ordered
+BS 8 with time 161.171
+BS 2 with time 168.576
+BS 6 with time 359.511
+BS 4 with time 447.481
+BS 5 with time 459.347
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 93
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:562.167 pos: 2059.3:1440.97:0 relativeSpeed: 3.33203 time: 168.716
+The closest for BS: 2 is time: 168.716
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1491.64 pos: 2059.3:1440.97:0 relativeSpeed: 3.33203 time: 447.667
+The closest for BS: 4 is time: 447.667
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1530.88 pos: 2059.3:1440.97:0 relativeSpeed: 3.33203 time: 459.444
+The closest for BS: 5 is time: 459.444
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1197.76 pos: 2059.3:1440.97:0 relativeSpeed: 3.33203 time: 359.469
+The closest for BS: 6 is time: 359.469
+UEs time distances from cell 8
+BS: 8 UE:1 distance:537.085 pos: 2059.3:1440.97:0 relativeSpeed: 3.33203 time: 161.188
+The closest for BS: 8 is time: 161.188
+Print the map of BS-time ordered
+BS 8 with time 161.188
+BS 2 with time 168.716
+BS 6 with time 359.469
+BS 4 with time 447.667
+BS 5 with time 459.444
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 90
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:562.634 pos: 2058.87:1440.45:0 relativeSpeed: 3.33203 time: 168.856
+The closest for BS: 2 is time: 168.856
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1492.26 pos: 2058.87:1440.45:0 relativeSpeed: 3.33203 time: 447.853
+The closest for BS: 4 is time: 447.853
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1531.21 pos: 2058.87:1440.45:0 relativeSpeed: 3.33203 time: 459.541
+The closest for BS: 5 is time: 459.541
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1197.63 pos: 2058.87:1440.45:0 relativeSpeed: 3.33203 time: 359.428
+The closest for BS: 6 is time: 359.428
+UEs time distances from cell 8
+BS: 8 UE:1 distance:537.142 pos: 2058.87:1440.45:0 relativeSpeed: 3.33203 time: 161.205
+The closest for BS: 8 is time: 161.205
+Print the map of BS-time ordered
+BS 8 with time 161.205
+BS 2 with time 168.856
+BS 6 with time 359.428
+BS 4 with time 447.853
+BS 5 with time 459.541
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 96
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:563.102 pos: 2058.45:1439.94:0 relativeSpeed: 3.33203 time: 168.996
+The closest for BS: 2 is time: 168.996
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1492.88 pos: 2058.45:1439.94:0 relativeSpeed: 3.33203 time: 448.038
+The closest for BS: 4 is time: 448.038
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1531.53 pos: 2058.45:1439.94:0 relativeSpeed: 3.33203 time: 459.638
+The closest for BS: 5 is time: 459.638
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1197.49 pos: 2058.45:1439.94:0 relativeSpeed: 3.33203 time: 359.386
+The closest for BS: 6 is time: 359.386
+UEs time distances from cell 8
+BS: 8 UE:1 distance:537.2 pos: 2058.45:1439.94:0 relativeSpeed: 3.33203 time: 161.223
+The closest for BS: 8 is time: 161.223
+Print the map of BS-time ordered
+BS 8 with time 161.223
+BS 2 with time 168.996
+BS 6 with time 359.386
+BS 4 with time 448.038
+BS 5 with time 459.638
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 87
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:563.57 pos: 2058.02:1439.42:0 relativeSpeed: 3.33203 time: 169.137
+The closest for BS: 2 is time: 169.137
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1493.5 pos: 2058.02:1439.42:0 relativeSpeed: 3.33203 time: 448.224
+The closest for BS: 4 is time: 448.224
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1531.85 pos: 2058.02:1439.42:0 relativeSpeed: 3.33203 time: 459.735
+The closest for BS: 5 is time: 459.735
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1197.35 pos: 2058.02:1439.42:0 relativeSpeed: 3.33203 time: 359.345
+The closest for BS: 6 is time: 359.345
+UEs time distances from cell 8
+BS: 8 UE:1 distance:537.259 pos: 2058.02:1439.42:0 relativeSpeed: 3.33203 time: 161.241
+The closest for BS: 8 is time: 161.241
+Print the map of BS-time ordered
+BS 8 with time 161.241
+BS 2 with time 169.137
+BS 6 with time 359.345
+BS 4 with time 448.224
+BS 5 with time 459.735
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 1
+sinrThisCell: 100
+NUeGoodSinr for BS 8 is: 1
+BS to turn on ID: 8
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:564.038 pos: 2057.59:1438.91:0 relativeSpeed: 3.33203 time: 169.277
+The closest for BS: 2 is time: 169.277
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1494.12 pos: 2057.59:1438.91:0 relativeSpeed: 3.33203 time: 448.41
+The closest for BS: 4 is time: 448.41
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1532.18 pos: 2057.59:1438.91:0 relativeSpeed: 3.33203 time: 459.832
+The closest for BS: 5 is time: 459.832
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1197.21 pos: 2057.59:1438.91:0 relativeSpeed: 3.33203 time: 359.304
+The closest for BS: 6 is time: 359.304
+UEs time distances from cell 7
+BS: 7 UE:1 distance:635.525 pos: 2057.59:1438.91:0 relativeSpeed: 3.33203 time: 190.732
+The closest for BS: 7 is time: 190.732
+Print the map of BS-time ordered
+BS 2 with time 169.277
+BS 7 with time 190.732
+BS 6 with time 359.304
+BS 4 with time 448.41
+BS 5 with time 459.832
+BS to turn Idle ID: 2
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 1
+sinrThisCell: 100
+NUeGoodSinr for BS 8 is: 1
+BS to turn on ID: 8
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:564.507 pos: 2057.16:1438.39:0 relativeSpeed: 3.33203 time: 169.418
+The closest for BS: 2 is time: 169.418
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1494.74 pos: 2057.16:1438.39:0 relativeSpeed: 3.33203 time: 448.595
+The closest for BS: 4 is time: 448.595
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1532.5 pos: 2057.16:1438.39:0 relativeSpeed: 3.33203 time: 459.93
+The closest for BS: 5 is time: 459.93
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1197.08 pos: 2057.16:1438.39:0 relativeSpeed: 3.33203 time: 359.263
+The closest for BS: 6 is time: 359.263
+UEs time distances from cell 7
+BS: 7 UE:1 distance:634.903 pos: 2057.16:1438.39:0 relativeSpeed: 3.33203 time: 190.545
+The closest for BS: 7 is time: 190.545
+Print the map of BS-time ordered
+BS 2 with time 169.418
+BS 7 with time 190.545
+BS 6 with time 359.263
+BS 4 with time 448.595
+BS 5 with time 459.93
+BS to turn Idle ID: 2
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 1
+sinrThisCell: 89
+NUeGoodSinr for BS 8 is: 1
+BS to turn on ID: 8
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:564.976 pos: 2056.73:1437.88:0 relativeSpeed: 3.33203 time: 169.559
+The closest for BS: 2 is time: 169.559
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1495.35 pos: 2056.73:1437.88:0 relativeSpeed: 3.33203 time: 448.781
+The closest for BS: 4 is time: 448.781
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1532.83 pos: 2056.73:1437.88:0 relativeSpeed: 3.33203 time: 460.027
+The closest for BS: 5 is time: 460.027
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1196.94 pos: 2056.73:1437.88:0 relativeSpeed: 3.33203 time: 359.222
+The closest for BS: 6 is time: 359.222
+UEs time distances from cell 7
+BS: 7 UE:1 distance:634.28 pos: 2056.73:1437.88:0 relativeSpeed: 3.33203 time: 190.358
+The closest for BS: 7 is time: 190.358
+Print the map of BS-time ordered
+BS 2 with time 169.559
+BS 7 with time 190.358
+BS 6 with time 359.222
+BS 4 with time 448.781
+BS 5 with time 460.027
+BS to turn Idle ID: 2
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 101
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:565.446 pos: 2056.31:1437.36:0 relativeSpeed: 3.33203 time: 169.7
+The closest for BS: 2 is time: 169.7
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1495.97 pos: 2056.31:1437.36:0 relativeSpeed: 3.33203 time: 448.967
+The closest for BS: 4 is time: 448.967
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1533.15 pos: 2056.31:1437.36:0 relativeSpeed: 3.33203 time: 460.124
+The closest for BS: 5 is time: 460.124
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1196.8 pos: 2056.31:1437.36:0 relativeSpeed: 3.33203 time: 359.181
+The closest for BS: 6 is time: 359.181
+UEs time distances from cell 8
+BS: 8 UE:1 distance:537.503 pos: 2056.31:1437.36:0 relativeSpeed: 3.33203 time: 161.314
+The closest for BS: 8 is time: 161.314
+Print the map of BS-time ordered
+BS 8 with time 161.314
+BS 2 with time 169.7
+BS 6 with time 359.181
+BS 4 with time 448.967
+BS 5 with time 460.124
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 94
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:565.916 pos: 2055.88:1436.85:0 relativeSpeed: 3.33203 time: 169.841
+The closest for BS: 2 is time: 169.841
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1496.59 pos: 2055.88:1436.85:0 relativeSpeed: 3.33203 time: 449.153
+The closest for BS: 4 is time: 449.153
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1533.47 pos: 2055.88:1436.85:0 relativeSpeed: 3.33203 time: 460.222
+The closest for BS: 5 is time: 460.222
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1196.67 pos: 2055.88:1436.85:0 relativeSpeed: 3.33203 time: 359.141
+The closest for BS: 6 is time: 359.141
+UEs time distances from cell 8
+BS: 8 UE:1 distance:537.566 pos: 2055.88:1436.85:0 relativeSpeed: 3.33203 time: 161.333
+The closest for BS: 8 is time: 161.333
+Print the map of BS-time ordered
+BS 8 with time 161.333
+BS 2 with time 169.841
+BS 6 with time 359.141
+BS 4 with time 449.153
+BS 5 with time 460.222
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 94
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:566.387 pos: 2055.45:1436.33:0 relativeSpeed: 3.33203 time: 169.982
+The closest for BS: 2 is time: 169.982
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1497.21 pos: 2055.45:1436.33:0 relativeSpeed: 3.33203 time: 449.338
+The closest for BS: 4 is time: 449.338
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1533.8 pos: 2055.45:1436.33:0 relativeSpeed: 3.33203 time: 460.319
+The closest for BS: 5 is time: 460.319
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1196.53 pos: 2055.45:1436.33:0 relativeSpeed: 3.33203 time: 359.1
+The closest for BS: 6 is time: 359.1
+UEs time distances from cell 8
+BS: 8 UE:1 distance:537.63 pos: 2055.45:1436.33:0 relativeSpeed: 3.33203 time: 161.352
+The closest for BS: 8 is time: 161.352
+Print the map of BS-time ordered
+BS 8 with time 161.352
+BS 2 with time 169.982
+BS 6 with time 359.1
+BS 4 with time 449.338
+BS 5 with time 460.319
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 87
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:566.857 pos: 2055.02:1435.82:0 relativeSpeed: 3.33203 time: 170.124
+The closest for BS: 2 is time: 170.124
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1497.83 pos: 2055.02:1435.82:0 relativeSpeed: 3.33203 time: 449.524
+The closest for BS: 4 is time: 449.524
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1534.12 pos: 2055.02:1435.82:0 relativeSpeed: 3.33203 time: 460.417
+The closest for BS: 5 is time: 460.417
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1196.4 pos: 2055.02:1435.82:0 relativeSpeed: 3.33203 time: 359.06
+The closest for BS: 6 is time: 359.06
+UEs time distances from cell 8
+BS: 8 UE:1 distance:537.695 pos: 2055.02:1435.82:0 relativeSpeed: 3.33203 time: 161.371
+The closest for BS: 8 is time: 161.371
+Print the map of BS-time ordered
+BS 8 with time 161.371
+BS 2 with time 170.124
+BS 6 with time 359.06
+BS 4 with time 449.524
+BS 5 with time 460.417
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 78
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:567.329 pos: 2054.59:1435.3:0 relativeSpeed: 3.33203 time: 170.265
+The closest for BS: 2 is time: 170.265
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1498.45 pos: 2054.59:1435.3:0 relativeSpeed: 3.33203 time: 449.71
+The closest for BS: 4 is time: 449.71
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1534.45 pos: 2054.59:1435.3:0 relativeSpeed: 3.33203 time: 460.515
+The closest for BS: 5 is time: 460.515
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1196.26 pos: 2054.59:1435.3:0 relativeSpeed: 3.33203 time: 359.019
+The closest for BS: 6 is time: 359.019
+UEs time distances from cell 8
+BS: 8 UE:1 distance:537.76 pos: 2054.59:1435.3:0 relativeSpeed: 3.33203 time: 161.391
+The closest for BS: 8 is time: 161.391
+Print the map of BS-time ordered
+BS 8 with time 161.391
+BS 2 with time 170.265
+BS 6 with time 359.019
+BS 4 with time 449.71
+BS 5 with time 460.515
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 71
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1499.07 pos: 2054.17:1434.79:0 relativeSpeed: 3.33203 time: 449.896
+The closest for BS: 4 is time: 449.896
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1534.78 pos: 2054.17:1434.79:0 relativeSpeed: 3.33203 time: 460.612
+The closest for BS: 5 is time: 460.612
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1196.13 pos: 2054.17:1434.79:0 relativeSpeed: 3.33203 time: 358.979
+The closest for BS: 6 is time: 358.979
+UEs time distances from cell 7
+BS: 7 UE:1 distance:630.547 pos: 2054.17:1434.79:0 relativeSpeed: 3.33203 time: 189.238
+The closest for BS: 7 is time: 189.238
+UEs time distances from cell 8
+BS: 8 UE:1 distance:537.827 pos: 2054.17:1434.79:0 relativeSpeed: 3.33203 time: 161.411
+The closest for BS: 8 is time: 161.411
+Print the map of BS-time ordered
+BS 8 with time 161.411
+BS 7 with time 189.238
+BS 6 with time 358.979
+BS 4 with time 449.896
+BS 5 with time 460.612
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 1
+sinrThisCell: 64
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1499.69 pos: 2053.74:1434.27:0 relativeSpeed: 3.33203 time: 450.082
+The closest for BS: 4 is time: 450.082
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1535.1 pos: 2053.74:1434.27:0 relativeSpeed: 3.33203 time: 460.71
+The closest for BS: 5 is time: 460.71
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1196 pos: 2053.74:1434.27:0 relativeSpeed: 3.33203 time: 358.939
+The closest for BS: 6 is time: 358.939
+UEs time distances from cell 7
+BS: 7 UE:1 distance:629.925 pos: 2053.74:1434.27:0 relativeSpeed: 3.33203 time: 189.051
+The closest for BS: 7 is time: 189.051
+UEs time distances from cell 8
+BS: 8 UE:1 distance:537.894 pos: 2053.74:1434.27:0 relativeSpeed: 3.33203 time: 161.431
+The closest for BS: 8 is time: 161.431
+Print the map of BS-time ordered
+BS 8 with time 161.431
+BS 7 with time 189.051
+BS 6 with time 358.939
+BS 4 with time 450.082
+BS 5 with time 460.71
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 1
+sinrThisCell: 72
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1500.31 pos: 2053.31:1433.76:0 relativeSpeed: 3.33203 time: 450.267
+The closest for BS: 4 is time: 450.267
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1535.43 pos: 2053.31:1433.76:0 relativeSpeed: 3.33203 time: 460.808
+The closest for BS: 5 is time: 460.808
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1195.86 pos: 2053.31:1433.76:0 relativeSpeed: 3.33203 time: 358.899
+The closest for BS: 6 is time: 358.899
+UEs time distances from cell 7
+BS: 7 UE:1 distance:629.303 pos: 2053.31:1433.76:0 relativeSpeed: 3.33203 time: 188.864
+The closest for BS: 7 is time: 188.864
+UEs time distances from cell 8
+BS: 8 UE:1 distance:537.962 pos: 2053.31:1433.76:0 relativeSpeed: 3.33203 time: 161.451
+The closest for BS: 8 is time: 161.451
+Print the map of BS-time ordered
+BS 8 with time 161.451
+BS 7 with time 188.864
+BS 6 with time 358.899
+BS 4 with time 450.267
+BS 5 with time 460.808
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 1
+sinrThisCell: 80
+NUeGoodSinr for BS 8 is: 1
+BS to turn on ID: 8
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:569.218 pos: 2052.88:1433.24:0 relativeSpeed: 3.33203 time: 170.832
+The closest for BS: 2 is time: 170.832
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1500.93 pos: 2052.88:1433.24:0 relativeSpeed: 3.33203 time: 450.453
+The closest for BS: 4 is time: 450.453
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1535.75 pos: 2052.88:1433.24:0 relativeSpeed: 3.33203 time: 460.906
+The closest for BS: 5 is time: 460.906
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1195.73 pos: 2052.88:1433.24:0 relativeSpeed: 3.33203 time: 358.859
+The closest for BS: 6 is time: 358.859
+UEs time distances from cell 7
+BS: 7 UE:1 distance:628.681 pos: 2052.88:1433.24:0 relativeSpeed: 3.33203 time: 188.678
+The closest for BS: 7 is time: 188.678
+Print the map of BS-time ordered
+BS 2 with time 170.832
+BS 7 with time 188.678
+BS 6 with time 358.859
+BS 4 with time 450.453
+BS 5 with time 460.906
+BS to turn Idle ID: 2
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 1
+sinrThisCell: 70
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1501.54 pos: 2052.45:1432.73:0 relativeSpeed: 3.33203 time: 450.639
+The closest for BS: 4 is time: 450.639
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1536.08 pos: 2052.45:1432.73:0 relativeSpeed: 3.33203 time: 461.004
+The closest for BS: 5 is time: 461.004
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1195.6 pos: 2052.45:1432.73:0 relativeSpeed: 3.33203 time: 358.819
+The closest for BS: 6 is time: 358.819
+UEs time distances from cell 7
+BS: 7 UE:1 distance:628.06 pos: 2052.45:1432.73:0 relativeSpeed: 3.33203 time: 188.491
+The closest for BS: 7 is time: 188.491
+UEs time distances from cell 8
+BS: 8 UE:1 distance:538.1 pos: 2052.45:1432.73:0 relativeSpeed: 3.33203 time: 161.493
+The closest for BS: 8 is time: 161.493
+Print the map of BS-time ordered
+BS 8 with time 161.493
+BS 7 with time 188.491
+BS 6 with time 358.819
+BS 4 with time 450.639
+BS 5 with time 461.004
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 1
+sinrThisCell: 60
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1502.16 pos: 2052.03:1432.21:0 relativeSpeed: 3.33203 time: 450.825
+The closest for BS: 4 is time: 450.825
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1536.41 pos: 2052.03:1432.21:0 relativeSpeed: 3.33203 time: 461.102
+The closest for BS: 5 is time: 461.102
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1195.47 pos: 2052.03:1432.21:0 relativeSpeed: 3.33203 time: 358.78
+The closest for BS: 6 is time: 358.78
+UEs time distances from cell 7
+BS: 7 UE:1 distance:627.438 pos: 2052.03:1432.21:0 relativeSpeed: 3.33203 time: 188.305
+The closest for BS: 7 is time: 188.305
+UEs time distances from cell 8
+BS: 8 UE:1 distance:538.171 pos: 2052.03:1432.21:0 relativeSpeed: 3.33203 time: 161.514
+The closest for BS: 8 is time: 161.514
+Print the map of BS-time ordered
+BS 8 with time 161.514
+BS 7 with time 188.305
+BS 6 with time 358.78
+BS 4 with time 450.825
+BS 5 with time 461.102
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 65
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1502.78 pos: 2051.6:1431.7:0 relativeSpeed: 3.33203 time: 451.011
+The closest for BS: 4 is time: 451.011
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1536.73 pos: 2051.6:1431.7:0 relativeSpeed: 3.33203 time: 461.2
+The closest for BS: 5 is time: 461.2
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1195.33 pos: 2051.6:1431.7:0 relativeSpeed: 3.33203 time: 358.74
+The closest for BS: 6 is time: 358.74
+UEs time distances from cell 7
+BS: 7 UE:1 distance:626.817 pos: 2051.6:1431.7:0 relativeSpeed: 3.33203 time: 188.118
+The closest for BS: 7 is time: 188.118
+UEs time distances from cell 8
+BS: 8 UE:1 distance:538.242 pos: 2051.6:1431.7:0 relativeSpeed: 3.33203 time: 161.536
+The closest for BS: 8 is time: 161.536
+Print the map of BS-time ordered
+BS 8 with time 161.536
+BS 7 with time 188.118
+BS 6 with time 358.74
+BS 4 with time 451.011
+BS 5 with time 461.2
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 54
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1503.4 pos: 2051.17:1431.18:0 relativeSpeed: 3.33203 time: 451.197
+The closest for BS: 4 is time: 451.197
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1537.06 pos: 2051.17:1431.18:0 relativeSpeed: 3.33203 time: 461.298
+The closest for BS: 5 is time: 461.298
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1195.2 pos: 2051.17:1431.18:0 relativeSpeed: 3.33203 time: 358.701
+The closest for BS: 6 is time: 358.701
+UEs time distances from cell 7
+BS: 7 UE:1 distance:626.196 pos: 2051.17:1431.18:0 relativeSpeed: 3.33203 time: 187.932
+The closest for BS: 7 is time: 187.932
+UEs time distances from cell 8
+BS: 8 UE:1 distance:538.314 pos: 2051.17:1431.18:0 relativeSpeed: 3.33203 time: 161.557
+The closest for BS: 8 is time: 161.557
+Print the map of BS-time ordered
+BS 8 with time 161.557
+BS 7 with time 187.932
+BS 6 with time 358.701
+BS 4 with time 451.197
+BS 5 with time 461.298
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 49
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1504.02 pos: 2050.74:1430.67:0 relativeSpeed: 3.33203 time: 451.383
+The closest for BS: 4 is time: 451.383
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1537.39 pos: 2050.74:1430.67:0 relativeSpeed: 3.33203 time: 461.396
+The closest for BS: 5 is time: 461.396
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1195.07 pos: 2050.74:1430.67:0 relativeSpeed: 3.33203 time: 358.661
+The closest for BS: 6 is time: 358.661
+UEs time distances from cell 7
+BS: 7 UE:1 distance:625.574 pos: 2050.74:1430.67:0 relativeSpeed: 3.33203 time: 187.745
+The closest for BS: 7 is time: 187.745
+UEs time distances from cell 8
+BS: 8 UE:1 distance:538.387 pos: 2050.74:1430.67:0 relativeSpeed: 3.33203 time: 161.579
+The closest for BS: 8 is time: 161.579
+Print the map of BS-time ordered
+BS 8 with time 161.579
+BS 7 with time 187.745
+BS 6 with time 358.661
+BS 4 with time 451.383
+BS 5 with time 461.396
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 1
+sinrThisCell: 67
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1504.64 pos: 2050.31:1430.15:0 relativeSpeed: 3.33203 time: 451.568
+The closest for BS: 4 is time: 451.568
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1537.72 pos: 2050.31:1430.15:0 relativeSpeed: 3.33203 time: 461.495
+The closest for BS: 5 is time: 461.495
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1194.94 pos: 2050.31:1430.15:0 relativeSpeed: 3.33203 time: 358.622
+The closest for BS: 6 is time: 358.622
+UEs time distances from cell 7
+BS: 7 UE:1 distance:624.953 pos: 2050.31:1430.15:0 relativeSpeed: 3.33203 time: 187.559
+The closest for BS: 7 is time: 187.559
+UEs time distances from cell 8
+BS: 8 UE:1 distance:538.461 pos: 2050.31:1430.15:0 relativeSpeed: 3.33203 time: 161.601
+The closest for BS: 8 is time: 161.601
+Print the map of BS-time ordered
+BS 8 with time 161.601
+BS 7 with time 187.559
+BS 6 with time 358.622
+BS 4 with time 451.568
+BS 5 with time 461.495
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 1
+sinrThisCell: 63
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1505.26 pos: 2049.89:1429.64:0 relativeSpeed: 3.33203 time: 451.754
+The closest for BS: 4 is time: 451.754
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1538.04 pos: 2049.89:1429.64:0 relativeSpeed: 3.33203 time: 461.593
+The closest for BS: 5 is time: 461.593
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1194.81 pos: 2049.89:1429.64:0 relativeSpeed: 3.33203 time: 358.583
+The closest for BS: 6 is time: 358.583
+UEs time distances from cell 7
+BS: 7 UE:1 distance:624.332 pos: 2049.89:1429.64:0 relativeSpeed: 3.33203 time: 187.373
+The closest for BS: 7 is time: 187.373
+UEs time distances from cell 8
+BS: 8 UE:1 distance:538.535 pos: 2049.89:1429.64:0 relativeSpeed: 3.33203 time: 161.624
+The closest for BS: 8 is time: 161.624
+Print the map of BS-time ordered
+BS 8 with time 161.624
+BS 7 with time 187.373
+BS 6 with time 358.583
+BS 4 with time 451.754
+BS 5 with time 461.593
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 1
+sinrThisCell: 67
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1505.88 pos: 2049.46:1429.12:0 relativeSpeed: 3.33203 time: 451.94
+The closest for BS: 4 is time: 451.94
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1538.37 pos: 2049.46:1429.12:0 relativeSpeed: 3.33203 time: 461.692
+The closest for BS: 5 is time: 461.692
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1194.68 pos: 2049.46:1429.12:0 relativeSpeed: 3.33203 time: 358.544
+The closest for BS: 6 is time: 358.544
+UEs time distances from cell 7
+BS: 7 UE:1 distance:623.711 pos: 2049.46:1429.12:0 relativeSpeed: 3.33203 time: 187.186
+The closest for BS: 7 is time: 187.186
+UEs time distances from cell 8
+BS: 8 UE:1 distance:538.611 pos: 2049.46:1429.12:0 relativeSpeed: 3.33203 time: 161.646
+The closest for BS: 8 is time: 161.646
+Print the map of BS-time ordered
+BS 8 with time 161.646
+BS 7 with time 187.186
+BS 6 with time 358.544
+BS 4 with time 451.94
+BS 5 with time 461.692
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 1
+sinrThisCell: 62
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1506.5 pos: 2049.03:1428.61:0 relativeSpeed: 3.33203 time: 452.126
+The closest for BS: 4 is time: 452.126
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1538.7 pos: 2049.03:1428.61:0 relativeSpeed: 3.33203 time: 461.79
+The closest for BS: 5 is time: 461.79
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1194.55 pos: 2049.03:1428.61:0 relativeSpeed: 3.33203 time: 358.505
+The closest for BS: 6 is time: 358.505
+UEs time distances from cell 7
+BS: 7 UE:1 distance:623.091 pos: 2049.03:1428.61:0 relativeSpeed: 3.33203 time: 187
+The closest for BS: 7 is time: 187
+UEs time distances from cell 8
+BS: 8 UE:1 distance:538.687 pos: 2049.03:1428.61:0 relativeSpeed: 3.33203 time: 161.669
+The closest for BS: 8 is time: 161.669
+Print the map of BS-time ordered
+BS 8 with time 161.669
+BS 7 with time 187
+BS 6 with time 358.505
+BS 4 with time 452.126
+BS 5 with time 461.79
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 1
+sinrThisCell: 67
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1507.12 pos: 2048.6:1428.09:0 relativeSpeed: 3.33203 time: 452.312
+The closest for BS: 4 is time: 452.312
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1539.03 pos: 2048.6:1428.09:0 relativeSpeed: 3.33203 time: 461.889
+The closest for BS: 5 is time: 461.889
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1194.42 pos: 2048.6:1428.09:0 relativeSpeed: 3.33203 time: 358.466
+The closest for BS: 6 is time: 358.466
+UEs time distances from cell 7
+BS: 7 UE:1 distance:622.47 pos: 2048.6:1428.09:0 relativeSpeed: 3.33203 time: 186.814
+The closest for BS: 7 is time: 186.814
+UEs time distances from cell 8
+BS: 8 UE:1 distance:538.764 pos: 2048.6:1428.09:0 relativeSpeed: 3.33203 time: 161.692
+The closest for BS: 8 is time: 161.692
+Print the map of BS-time ordered
+BS 8 with time 161.692
+BS 7 with time 186.814
+BS 6 with time 358.466
+BS 4 with time 452.312
+BS 5 with time 461.889
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 1
+sinrThisCell: 80
+NUeGoodSinr for BS 2 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1507.74 pos: 2048.17:1427.58:0 relativeSpeed: 3.33203 time: 452.498
+The closest for BS: 4 is time: 452.498
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1539.36 pos: 2048.17:1427.58:0 relativeSpeed: 3.33203 time: 461.987
+The closest for BS: 5 is time: 461.987
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1194.29 pos: 2048.17:1427.58:0 relativeSpeed: 3.33203 time: 358.427
+The closest for BS: 6 is time: 358.427
+UEs time distances from cell 7
+BS: 7 UE:1 distance:621.849 pos: 2048.17:1427.58:0 relativeSpeed: 3.33203 time: 186.627
+The closest for BS: 7 is time: 186.627
+UEs time distances from cell 8
+BS: 8 UE:1 distance:538.842 pos: 2048.17:1427.58:0 relativeSpeed: 3.33203 time: 161.716
+The closest for BS: 8 is time: 161.716
+Print the map of BS-time ordered
+BS 8 with time 161.716
+BS 7 with time 186.627
+BS 6 with time 358.427
+BS 4 with time 452.498
+BS 5 with time 461.987
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 91
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:574.923 pos: 2047.74:1427.06:0 relativeSpeed: 3.33203 time: 172.544
+The closest for BS: 2 is time: 172.544
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1508.36 pos: 2047.74:1427.06:0 relativeSpeed: 3.33203 time: 452.684
+The closest for BS: 4 is time: 452.684
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1539.69 pos: 2047.74:1427.06:0 relativeSpeed: 3.33203 time: 462.086
+The closest for BS: 5 is time: 462.086
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1194.16 pos: 2047.74:1427.06:0 relativeSpeed: 3.33203 time: 358.389
+The closest for BS: 6 is time: 358.389
+UEs time distances from cell 8
+BS: 8 UE:1 distance:538.921 pos: 2047.74:1427.06:0 relativeSpeed: 3.33203 time: 161.739
+The closest for BS: 8 is time: 161.739
+Print the map of BS-time ordered
+BS 8 with time 161.739
+BS 2 with time 172.544
+BS 6 with time 358.389
+BS 4 with time 452.684
+BS 5 with time 462.086
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 92
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:575.401 pos: 2047.32:1426.55:0 relativeSpeed: 3.33203 time: 172.688
+The closest for BS: 2 is time: 172.688
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1508.98 pos: 2047.32:1426.55:0 relativeSpeed: 3.33203 time: 452.87
+The closest for BS: 4 is time: 452.87
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1540.02 pos: 2047.32:1426.55:0 relativeSpeed: 3.33203 time: 462.185
+The closest for BS: 5 is time: 462.185
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1194.03 pos: 2047.32:1426.55:0 relativeSpeed: 3.33203 time: 358.35
+The closest for BS: 6 is time: 358.35
+UEs time distances from cell 8
+BS: 8 UE:1 distance:539 pos: 2047.32:1426.55:0 relativeSpeed: 3.33203 time: 161.763
+The closest for BS: 8 is time: 161.763
+Print the map of BS-time ordered
+BS 8 with time 161.763
+BS 2 with time 172.688
+BS 6 with time 358.35
+BS 4 with time 452.87
+BS 5 with time 462.185
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 87
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:575.879 pos: 2046.89:1426.03:0 relativeSpeed: 3.33203 time: 172.831
+The closest for BS: 2 is time: 172.831
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1509.6 pos: 2046.89:1426.03:0 relativeSpeed: 3.33203 time: 453.056
+The closest for BS: 4 is time: 453.056
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1540.35 pos: 2046.89:1426.03:0 relativeSpeed: 3.33203 time: 462.284
+The closest for BS: 5 is time: 462.284
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1193.91 pos: 2046.89:1426.03:0 relativeSpeed: 3.33203 time: 358.312
+The closest for BS: 6 is time: 358.312
+UEs time distances from cell 8
+BS: 8 UE:1 distance:539.081 pos: 2046.89:1426.03:0 relativeSpeed: 3.33203 time: 161.787
+The closest for BS: 8 is time: 161.787
+Print the map of BS-time ordered
+BS 8 with time 161.787
+BS 2 with time 172.831
+BS 6 with time 358.312
+BS 4 with time 453.056
+BS 5 with time 462.284
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 89
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:576.358 pos: 2046.46:1425.52:0 relativeSpeed: 3.33203 time: 172.975
+The closest for BS: 2 is time: 172.975
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1510.22 pos: 2046.46:1425.52:0 relativeSpeed: 3.33203 time: 453.242
+The closest for BS: 4 is time: 453.242
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1540.68 pos: 2046.46:1425.52:0 relativeSpeed: 3.33203 time: 462.383
+The closest for BS: 5 is time: 462.383
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1193.78 pos: 2046.46:1425.52:0 relativeSpeed: 3.33203 time: 358.273
+The closest for BS: 6 is time: 358.273
+UEs time distances from cell 8
+BS: 8 UE:1 distance:539.162 pos: 2046.46:1425.52:0 relativeSpeed: 3.33203 time: 161.812
+The closest for BS: 8 is time: 161.812
+Print the map of BS-time ordered
+BS 8 with time 161.812
+BS 2 with time 172.975
+BS 6 with time 358.273
+BS 4 with time 453.242
+BS 5 with time 462.383
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 92
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:576.837 pos: 2046.03:1425:0 relativeSpeed: 3.33203 time: 173.119
+The closest for BS: 2 is time: 173.119
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1510.84 pos: 2046.03:1425:0 relativeSpeed: 3.33203 time: 453.428
+The closest for BS: 4 is time: 453.428
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1541.01 pos: 2046.03:1425:0 relativeSpeed: 3.33203 time: 462.482
+The closest for BS: 5 is time: 462.482
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1193.65 pos: 2046.03:1425:0 relativeSpeed: 3.33203 time: 358.235
+The closest for BS: 6 is time: 358.235
+UEs time distances from cell 8
+BS: 8 UE:1 distance:539.244 pos: 2046.03:1425:0 relativeSpeed: 3.33203 time: 161.836
+The closest for BS: 8 is time: 161.836
+Print the map of BS-time ordered
+BS 8 with time 161.836
+BS 2 with time 173.119
+BS 6 with time 358.235
+BS 4 with time 453.428
+BS 5 with time 462.482
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 91
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:577.316 pos: 2045.6:1424.49:0 relativeSpeed: 3.33203 time: 173.262
+The closest for BS: 2 is time: 173.262
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1511.46 pos: 2045.6:1424.49:0 relativeSpeed: 3.33203 time: 453.614
+The closest for BS: 4 is time: 453.614
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1541.34 pos: 2045.6:1424.49:0 relativeSpeed: 3.33203 time: 462.581
+The closest for BS: 5 is time: 462.581
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1193.53 pos: 2045.6:1424.49:0 relativeSpeed: 3.33203 time: 358.197
+The closest for BS: 6 is time: 358.197
+UEs time distances from cell 8
+BS: 8 UE:1 distance:539.327 pos: 2045.6:1424.49:0 relativeSpeed: 3.33203 time: 161.861
+The closest for BS: 8 is time: 161.861
+Print the map of BS-time ordered
+BS 8 with time 161.861
+BS 2 with time 173.262
+BS 6 with time 358.197
+BS 4 with time 453.614
+BS 5 with time 462.581
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 75
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:577.796 pos: 2045.18:1423.97:0 relativeSpeed: 3.33203 time: 173.406
+The closest for BS: 2 is time: 173.406
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1512.08 pos: 2045.18:1423.97:0 relativeSpeed: 3.33203 time: 453.8
+The closest for BS: 4 is time: 453.8
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1541.67 pos: 2045.18:1423.97:0 relativeSpeed: 3.33203 time: 462.68
+The closest for BS: 5 is time: 462.68
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1193.4 pos: 2045.18:1423.97:0 relativeSpeed: 3.33203 time: 358.159
+The closest for BS: 6 is time: 358.159
+UEs time distances from cell 8
+BS: 8 UE:1 distance:539.41 pos: 2045.18:1423.97:0 relativeSpeed: 3.33203 time: 161.886
+The closest for BS: 8 is time: 161.886
+Print the map of BS-time ordered
+BS 8 with time 161.886
+BS 2 with time 173.406
+BS 6 with time 358.159
+BS 4 with time 453.8
+BS 5 with time 462.68
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 85
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:578.276 pos: 2044.75:1423.46:0 relativeSpeed: 3.33203 time: 173.551
+The closest for BS: 2 is time: 173.551
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1512.7 pos: 2044.75:1423.46:0 relativeSpeed: 3.33203 time: 453.986
+The closest for BS: 4 is time: 453.986
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1542 pos: 2044.75:1423.46:0 relativeSpeed: 3.33203 time: 462.779
+The closest for BS: 5 is time: 462.779
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1193.27 pos: 2044.75:1423.46:0 relativeSpeed: 3.33203 time: 358.121
+The closest for BS: 6 is time: 358.121
+UEs time distances from cell 8
+BS: 8 UE:1 distance:539.495 pos: 2044.75:1423.46:0 relativeSpeed: 3.33203 time: 161.911
+The closest for BS: 8 is time: 161.911
+Print the map of BS-time ordered
+BS 8 with time 161.911
+BS 2 with time 173.551
+BS 6 with time 358.121
+BS 4 with time 453.986
+BS 5 with time 462.779
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 87
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:578.757 pos: 2044.32:1422.94:0 relativeSpeed: 3.33203 time: 173.695
+The closest for BS: 2 is time: 173.695
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1513.32 pos: 2044.32:1422.94:0 relativeSpeed: 3.33203 time: 454.172
+The closest for BS: 4 is time: 454.172
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1542.33 pos: 2044.32:1422.94:0 relativeSpeed: 3.33203 time: 462.878
+The closest for BS: 5 is time: 462.878
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1193.15 pos: 2044.32:1422.94:0 relativeSpeed: 3.33203 time: 358.084
+The closest for BS: 6 is time: 358.084
+UEs time distances from cell 8
+BS: 8 UE:1 distance:539.58 pos: 2044.32:1422.94:0 relativeSpeed: 3.33203 time: 161.937
+The closest for BS: 8 is time: 161.937
+Print the map of BS-time ordered
+BS 8 with time 161.937
+BS 2 with time 173.695
+BS 6 with time 358.084
+BS 4 with time 454.172
+BS 5 with time 462.878
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 91
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:579.238 pos: 2043.89:1422.43:0 relativeSpeed: 3.33203 time: 173.839
+The closest for BS: 2 is time: 173.839
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1513.94 pos: 2043.89:1422.43:0 relativeSpeed: 3.33203 time: 454.359
+The closest for BS: 4 is time: 454.359
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1542.66 pos: 2043.89:1422.43:0 relativeSpeed: 3.33203 time: 462.978
+The closest for BS: 5 is time: 462.978
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1193.02 pos: 2043.89:1422.43:0 relativeSpeed: 3.33203 time: 358.046
+The closest for BS: 6 is time: 358.046
+UEs time distances from cell 8
+BS: 8 UE:1 distance:539.666 pos: 2043.89:1422.43:0 relativeSpeed: 3.33203 time: 161.963
+The closest for BS: 8 is time: 161.963
+Print the map of BS-time ordered
+BS 8 with time 161.963
+BS 2 with time 173.839
+BS 6 with time 358.046
+BS 4 with time 454.359
+BS 5 with time 462.978
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 77
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:579.719 pos: 2043.46:1421.91:0 relativeSpeed: 3.33203 time: 173.984
+The closest for BS: 2 is time: 173.984
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1514.56 pos: 2043.46:1421.91:0 relativeSpeed: 3.33203 time: 454.545
+The closest for BS: 4 is time: 454.545
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1542.99 pos: 2043.46:1421.91:0 relativeSpeed: 3.33203 time: 463.077
+The closest for BS: 5 is time: 463.077
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1192.9 pos: 2043.46:1421.91:0 relativeSpeed: 3.33203 time: 358.008
+The closest for BS: 6 is time: 358.008
+UEs time distances from cell 8
+BS: 8 UE:1 distance:539.753 pos: 2043.46:1421.91:0 relativeSpeed: 3.33203 time: 161.989
+The closest for BS: 8 is time: 161.989
+Print the map of BS-time ordered
+BS 8 with time 161.989
+BS 2 with time 173.984
+BS 6 with time 358.008
+BS 4 with time 454.545
+BS 5 with time 463.077
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 84
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:580.201 pos: 2043.04:1421.4:0 relativeSpeed: 3.33203 time: 174.128
+The closest for BS: 2 is time: 174.128
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1515.18 pos: 2043.04:1421.4:0 relativeSpeed: 3.33203 time: 454.731
+The closest for BS: 4 is time: 454.731
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1543.32 pos: 2043.04:1421.4:0 relativeSpeed: 3.33203 time: 463.177
+The closest for BS: 5 is time: 463.177
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1192.77 pos: 2043.04:1421.4:0 relativeSpeed: 3.33203 time: 357.971
+The closest for BS: 6 is time: 357.971
+UEs time distances from cell 8
+BS: 8 UE:1 distance:539.841 pos: 2043.04:1421.4:0 relativeSpeed: 3.33203 time: 162.015
+The closest for BS: 8 is time: 162.015
+Print the map of BS-time ordered
+BS 8 with time 162.015
+BS 2 with time 174.128
+BS 6 with time 357.971
+BS 4 with time 454.731
+BS 5 with time 463.177
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 86
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:580.683 pos: 2042.61:1420.88:0 relativeSpeed: 3.33203 time: 174.273
+The closest for BS: 2 is time: 174.273
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1515.8 pos: 2042.61:1420.88:0 relativeSpeed: 3.33203 time: 454.917
+The closest for BS: 4 is time: 454.917
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1543.65 pos: 2042.61:1420.88:0 relativeSpeed: 3.33203 time: 463.276
+The closest for BS: 5 is time: 463.276
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1192.65 pos: 2042.61:1420.88:0 relativeSpeed: 3.33203 time: 357.934
+The closest for BS: 6 is time: 357.934
+UEs time distances from cell 8
+BS: 8 UE:1 distance:539.929 pos: 2042.61:1420.88:0 relativeSpeed: 3.33203 time: 162.042
+The closest for BS: 8 is time: 162.042
+Print the map of BS-time ordered
+BS 8 with time 162.042
+BS 2 with time 174.273
+BS 6 with time 357.934
+BS 4 with time 454.917
+BS 5 with time 463.276
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 84
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:581.166 pos: 2042.18:1420.37:0 relativeSpeed: 3.33203 time: 174.418
+The closest for BS: 2 is time: 174.418
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1516.42 pos: 2042.18:1420.37:0 relativeSpeed: 3.33203 time: 455.103
+The closest for BS: 4 is time: 455.103
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1543.98 pos: 2042.18:1420.37:0 relativeSpeed: 3.33203 time: 463.376
+The closest for BS: 5 is time: 463.376
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1192.52 pos: 2042.18:1420.37:0 relativeSpeed: 3.33203 time: 357.897
+The closest for BS: 6 is time: 357.897
+UEs time distances from cell 8
+BS: 8 UE:1 distance:540.019 pos: 2042.18:1420.37:0 relativeSpeed: 3.33203 time: 162.069
+The closest for BS: 8 is time: 162.069
+Print the map of BS-time ordered
+BS 8 with time 162.069
+BS 2 with time 174.418
+BS 6 with time 357.897
+BS 4 with time 455.103
+BS 5 with time 463.376
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 77
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:581.648 pos: 2041.75:1419.85:0 relativeSpeed: 3.33203 time: 174.563
+The closest for BS: 2 is time: 174.563
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1517.04 pos: 2041.75:1419.85:0 relativeSpeed: 3.33203 time: 455.289
+The closest for BS: 4 is time: 455.289
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1544.32 pos: 2041.75:1419.85:0 relativeSpeed: 3.33203 time: 463.475
+The closest for BS: 5 is time: 463.475
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1192.4 pos: 2041.75:1419.85:0 relativeSpeed: 3.33203 time: 357.859
+The closest for BS: 6 is time: 357.859
+UEs time distances from cell 8
+BS: 8 UE:1 distance:540.109 pos: 2041.75:1419.85:0 relativeSpeed: 3.33203 time: 162.096
+The closest for BS: 8 is time: 162.096
+Print the map of BS-time ordered
+BS 8 with time 162.096
+BS 2 with time 174.563
+BS 6 with time 357.859
+BS 4 with time 455.289
+BS 5 with time 463.475
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 81
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:582.132 pos: 2041.32:1419.34:0 relativeSpeed: 3.33203 time: 174.708
+The closest for BS: 2 is time: 174.708
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1517.66 pos: 2041.32:1419.34:0 relativeSpeed: 3.33203 time: 455.475
+The closest for BS: 4 is time: 455.475
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1544.65 pos: 2041.32:1419.34:0 relativeSpeed: 3.33203 time: 463.575
+The closest for BS: 5 is time: 463.575
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1192.28 pos: 2041.32:1419.34:0 relativeSpeed: 3.33203 time: 357.823
+The closest for BS: 6 is time: 357.823
+UEs time distances from cell 8
+BS: 8 UE:1 distance:540.2 pos: 2041.32:1419.34:0 relativeSpeed: 3.33203 time: 162.123
+The closest for BS: 8 is time: 162.123
+Print the map of BS-time ordered
+BS 8 with time 162.123
+BS 2 with time 174.708
+BS 6 with time 357.823
+BS 4 with time 455.475
+BS 5 with time 463.575
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 82
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:582.615 pos: 2040.9:1418.82:0 relativeSpeed: 3.33203 time: 174.853
+The closest for BS: 2 is time: 174.853
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1518.28 pos: 2040.9:1418.82:0 relativeSpeed: 3.33203 time: 455.662
+The closest for BS: 4 is time: 455.662
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1544.98 pos: 2040.9:1418.82:0 relativeSpeed: 3.33203 time: 463.675
+The closest for BS: 5 is time: 463.675
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1192.15 pos: 2040.9:1418.82:0 relativeSpeed: 3.33203 time: 357.786
+The closest for BS: 6 is time: 357.786
+UEs time distances from cell 8
+BS: 8 UE:1 distance:540.291 pos: 2040.9:1418.82:0 relativeSpeed: 3.33203 time: 162.151
+The closest for BS: 8 is time: 162.151
+Print the map of BS-time ordered
+BS 8 with time 162.151
+BS 2 with time 174.853
+BS 6 with time 357.786
+BS 4 with time 455.662
+BS 5 with time 463.675
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 76
+NUeGoodSinr for BS 7 is: 1
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 7
+BS to turn on ID: 3
+UEs time distances from cell 2
+BS: 2 UE:1 distance:583.099 pos: 2040.47:1418.31:0 relativeSpeed: 3.33203 time: 174.998
+The closest for BS: 2 is time: 174.998
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1518.9 pos: 2040.47:1418.31:0 relativeSpeed: 3.33203 time: 455.848
+The closest for BS: 4 is time: 455.848
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1545.31 pos: 2040.47:1418.31:0 relativeSpeed: 3.33203 time: 463.775
+The closest for BS: 5 is time: 463.775
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1192.03 pos: 2040.47:1418.31:0 relativeSpeed: 3.33203 time: 357.749
+The closest for BS: 6 is time: 357.749
+UEs time distances from cell 8
+BS: 8 UE:1 distance:540.384 pos: 2040.47:1418.31:0 relativeSpeed: 3.33203 time: 162.178
+The closest for BS: 8 is time: 162.178
+Print the map of BS-time ordered
+BS 8 with time 162.178
+BS 2 with time 174.998
+BS 6 with time 357.749
+BS 4 with time 455.848
+BS 5 with time 463.775
+BS to turn Idle ID: 8
+BS to turn Idle ID: 2
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
+N ues attached: 0
+NUeGoodSinr for BS 2 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 3 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 4 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 5 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 6 is: 0
+N ues attached: 1
+sinrThisCell: 71
+NUeGoodSinr for BS 7 is: 0
+N ues attached: 0
+NUeGoodSinr for BS 8 is: 0
+BS to turn on ID: 2
+BS to turn on ID: 3
+UEs time distances from cell 4
+BS: 4 UE:1 distance:1519.52 pos: 2040.04:1417.79:0 relativeSpeed: 3.33203 time: 456.034
+The closest for BS: 4 is time: 456.034
+UEs time distances from cell 5
+BS: 5 UE:1 distance:1545.65 pos: 2040.04:1417.79:0 relativeSpeed: 3.33203 time: 463.875
+The closest for BS: 5 is time: 463.875
+UEs time distances from cell 6
+BS: 6 UE:1 distance:1191.91 pos: 2040.04:1417.79:0 relativeSpeed: 3.33203 time: 357.712
+The closest for BS: 6 is time: 357.712
+UEs time distances from cell 7
+BS: 7 UE:1 distance:610.078 pos: 2040.04:1417.79:0 relativeSpeed: 3.33203 time: 183.095
+The closest for BS: 7 is time: 183.095
+UEs time distances from cell 8
+BS: 8 UE:1 distance:540.478 pos: 2040.04:1417.79:0 relativeSpeed: 3.33203 time: 162.206
+The closest for BS: 8 is time: 162.206
+Print the map of BS-time ordered
+BS 8 with time 162.206
+BS 7 with time 183.095
+BS 6 with time 357.712
+BS 4 with time 456.034
+BS 5 with time 463.875
+BS to turn Idle ID: 8
+BS to turn Idle ID: 7
+BS to turn sleep ID: 6
+BS to turn sleep ID: 4
+BS to turn off ID: 5
