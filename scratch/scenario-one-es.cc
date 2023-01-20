@@ -653,9 +653,20 @@ main (int argc, char *argv[])
   speed->SetAttribute ("Min", DoubleValue (minSpeed));
   speed->SetAttribute ("Max", DoubleValue (maxSpeed));
 
-  uemobility.SetMobilityModel ("ns3::RandomWalk2dOutdoorMobilityModel", "Speed",
-                               PointerValue (speed), "Bounds",
-                               RectangleValue (Rectangle (0, maxXAxis, 0, maxYAxis)));
+  Ptr<UniformRandomVariable> puntTimeDirection = CreateObject<UniformRandomVariable> ();
+  puntTimeDirection->SetAttribute ("Min", DoubleValue (20));
+  puntTimeDirection->SetAttribute ("Max", DoubleValue (20));
+  double timeDirection=puntTimeDirection->GetValue();
+  // uemobility.SetMobilityModel ("ns3::RandomWalk2dOutdoorMobilityModel", "Speed",
+  //                              PointerValue (speed), "Bounds",
+  //                              RectangleValue (Rectangle (0, maxXAxis, 0, maxYAxis)));
+
+  uemobility.SetMobilityModel ("ns3::RandomWalk2dMobilityModel",
+    "Mode", StringValue ("Time"),
+    "Time", StringValue( std::to_string(timeDirection)+"s"),
+    "Speed", PointerValue (speed),
+    "Bounds", RectangleValue (Rectangle (0, maxXAxis, 0, maxYAxis)));
+
   uemobility.SetPositionAllocator (uePositionAlloc);
   uemobility.Install (ueNodes);
 
@@ -897,7 +908,7 @@ main (int argc, char *argv[])
           Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
           Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, &energyheur, sinrTh, mmdev);
         }
-      i = i + 0.01; //making sure to execute the next function after the previous one
+      i = i + 0.001; //making sure to execute the next function after the previous one
       Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
       Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, &energyheur, nMmWaveEnbNodes, mmWaveEnbDevs, "static", BsStatus, ltedev);
     }
@@ -912,7 +923,7 @@ main (int argc, char *argv[])
           Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
           Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, &energyheur, sinrTh, mmdev);
         }
-      i = i + 0.01; //making sure to execute the next function after the previous one
+      i = i + 0.001; //making sure to execute the next function after the previous one
       Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
       Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, &energyheur, nMmWaveEnbNodes, mmWaveEnbDevs, "dynamic", BsStatus, ltedev);
     }
