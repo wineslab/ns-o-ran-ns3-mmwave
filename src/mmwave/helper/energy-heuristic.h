@@ -90,19 +90,23 @@ class EnergyHeuristic : public Object{
    */
   void CountBestUesSinr(double sinrTh, Ptr<MmWaveEnbNetDevice> mmDev);
   /**
-   * @brief write on m_enHeuristicFilename information regarding the state of each cell
+   * @brief write on m_energyHeuristicFilename information regarding the state of each cell
    * 
    * @param mmDev 
    */
-  void EnHeuristicTrace(Ptr<MmWaveEnbNetDevice> mmDev);
+  void EnergyHeuristicTrace(Ptr<MmWaveEnbNetDevice> mmDev);
+
+  std::string GetEnergyHeuristicFilename();
+
+  void SetEnergyHeuristicFilename(std::string filename);
 
   private:
   /**
-   * @brief name of the file to save information through the method EnHeuristicTrace()
+   * @brief name of the file to save information through the method EnergyHeuristicTrace()
    * 
    */
-  std::string m_enHeuristicFilename="EnergyHeuristic.txt";
-  std::ofstream m_enHeuristicFile;
+  std::string m_energyHeuristicFilename;
+  std::ofstream m_energyHeuristicFile;
 };
 
 }

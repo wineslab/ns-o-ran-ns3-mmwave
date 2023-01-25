@@ -42,14 +42,46 @@ EnergyHeuristic::EnergyHeuristic ()
 EnergyHeuristic::~EnergyHeuristic ()
 {
   NS_LOG_FUNCTION (this);
-  m_enHeuristicFile.close();
+  m_energyHeuristicFile.close();
+}
+
+
+void
+EnergyHeuristic::EnergyHeuristicTrace(Ptr<MmWaveEnbNetDevice> mmDev)
+{
+  NS_LOG_LOGIC("EnergyHeuristicSizeTrace " << Simulator::Now().GetSeconds() << " " << mmDev->GetCellId() << " " << mmDev->GetBsState());
+  // write to file
+  if (!m_energyHeuristicFile.is_open ())
+    {
+      NS_LOG_DEBUG(GetEnergyHeuristicFilename ().c_str ());
+      m_energyHeuristicFile.open (GetEnergyHeuristicFilename ().c_str (), std::ofstream::out | std::ofstream::trunc);
+      NS_LOG_LOGIC ("File opened");
+      m_energyHeuristicFile << "Timestamp" << " " << "cellId" << " " << "CellModeEnergy" << std::endl;
+    }
+  m_energyHeuristicFile << Simulator::Now ().GetSeconds () << " " << mmDev->GetCellId() << " " << mmDev->GetBsState() << std::endl;
+}
+
+std::string EnergyHeuristic::GetEnergyHeuristicFilename()
+{
+  return m_energyHeuristicFilename;
+}
+
+void EnergyHeuristic::SetEnergyHeuristicFilename(std::string filename)
+{
+  m_energyHeuristicFilename = filename;
 }
 
 TypeId EnergyHeuristic::GetTypeId ()
 {
   static TypeId tid = TypeId ("ns3::EnergyHeuristic")
     .SetParent<Object>()
-    .AddConstructor<EnergyHeuristic>();
+    .AddConstructor<EnergyHeuristic>()
+    .AddAttribute ("EnergyHeuristicFilename",
+                "Name of the file where the energy heuristic information will be periodically written.",
+                StringValue ("EnergyHeuristic.txt"),
+                MakeStringAccessor (&EnergyHeuristic::SetEnergyHeuristicFilename),
+                MakeStringChecker ())
+    ;
   return tid;
 }
 
@@ -94,14 +126,14 @@ EnergyHeuristic::ProbabilityState (double p1, double p2, double p3, double p4,
       NS_LOG_DEBUG ("BS state " << mmDev->enumModeEnergyBs::ON);
       m_rrc->SetSecondaryCellHandoverAllowedStatus (nodeId, mmDev->enumModeEnergyBs::ON);
       mmDev->SetCellState(mmDev->enumModeEnergyBs::ON);
-      EnHeuristicTrace(mmDev);
+      EnergyHeuristicTrace(mmDev);
     }
   else if (r > p1 && r <= (p1 + p2))
     {
       NS_LOG_DEBUG ("BS state " << mmDev->enumModeEnergyBs::Idle);
       m_rrc->SetSecondaryCellHandoverAllowedStatus (nodeId, mmDev->enumModeEnergyBs::Idle);
       mmDev->SetCellState(mmDev->enumModeEnergyBs::Idle);
-      EnHeuristicTrace(mmDev);
+      EnergyHeuristicTrace(mmDev);
     }
   else if (r > (p1 + p2) && r <= (p1 + p2 + p3))
     {
@@ -109,7 +141,7 @@ EnergyHeuristic::ProbabilityState (double p1, double p2, double p3, double p4,
       m_rrc->SetSecondaryCellHandoverAllowedStatus (nodeId, mmDev->enumModeEnergyBs::Sleep);
       m_rrc->EvictUsersFromSecondaryCell ();
       mmDev->SetCellState(mmDev->enumModeEnergyBs::Sleep);
-      EnHeuristicTrace(mmDev);
+      EnergyHeuristicTrace(mmDev);
     }
   else if (r > (p1 + p2 + p3) && r <= 1)
     {
@@ -117,7 +149,7 @@ EnergyHeuristic::ProbabilityState (double p1, double p2, double p3, double p4,
       m_rrc->SetSecondaryCellHandoverAllowedStatus (nodeId, mmDev->enumModeEnergyBs::OFF);
       m_rrc->EvictUsersFromSecondaryCell ();
       mmDev->SetCellState(mmDev->enumModeEnergyBs::OFF);
-      EnHeuristicTrace(mmDev);
+      EnergyHeuristicTrace(mmDev);
     }
   else
     NS_LOG_DEBUG ("BS state"
@@ -386,7 +418,7 @@ EnergyHeuristic::TurnOnBsSinrPos (uint8_t nMmWaveEnbNodes, NetDeviceContainer mm
           DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (bsToTurnOn[j]));
       NS_LOG_DEBUG ("BS to turn on ID: " << mmDev->GetCellId ());
       mmDev->TurnOn (mmDev->GetCellId (), m_rrc);
-      EnHeuristicTrace(mmDev);
+      EnergyHeuristicTrace(mmDev);
     }
 
   std::vector<std::pair<Ptr<MmWaveEnbNetDevice>, double>> UEVectorPairs;
@@ -407,7 +439,7 @@ EnergyHeuristic::TurnOnBsSinrPos (uint8_t nMmWaveEnbNodes, NetDeviceContainer mm
       Ptr<MmWaveEnbNetDevice> mmDev = UEVectorPairs[j].first;
       NS_LOG_DEBUG ("BS to turn Idle ID: " << UEVectorPairs[j].first->GetCellId ());
       mmDev->TurnIdle (mmDev->GetCellId (), m_rrc);
-      EnHeuristicTrace(mmDev);
+      EnergyHeuristicTrace(mmDev);
     }
 
   //turn sleep first N BSs
@@ -416,7 +448,7 @@ EnergyHeuristic::TurnOnBsSinrPos (uint8_t nMmWaveEnbNodes, NetDeviceContainer mm
       Ptr<MmWaveEnbNetDevice> mmDev = UEVectorPairs[j].first;
       NS_LOG_DEBUG ("BS to turn sleep ID: " << UEVectorPairs[j].first->GetCellId ());
       mmDev->TurnSleep (mmDev->GetCellId (), m_rrc);
-      EnHeuristicTrace(mmDev);
+      EnergyHeuristicTrace(mmDev);
     }
 
   //turn off first N BSs
@@ -425,22 +457,8 @@ EnergyHeuristic::TurnOnBsSinrPos (uint8_t nMmWaveEnbNodes, NetDeviceContainer mm
       Ptr<MmWaveEnbNetDevice> mmDev = UEVectorPairs[j].first;
       NS_LOG_DEBUG ("BS to turn off ID: " << UEVectorPairs[j].first->GetCellId ());
       mmDev->TurnOff (mmDev->GetCellId (), m_rrc);
-      EnHeuristicTrace(mmDev);
+      EnergyHeuristicTrace(mmDev);
     }
-}
-
-void
-EnergyHeuristic::EnHeuristicTrace(Ptr<MmWaveEnbNetDevice> mmDev)
-{
-  NS_LOG_LOGIC("EnHeuristicSizeTrace " << Simulator::Now().GetSeconds() << " " << mmDev->GetCellId() << " " << mmDev->GetBsState());
-  // write to file
-  if (!m_enHeuristicFile.is_open ())
-    {
-      m_enHeuristicFile.open (m_enHeuristicFilename);
-      NS_LOG_LOGIC ("File opened");
-      m_enHeuristicFile << "Timestamp" << " " << "cellId" << " " << "CellModeEnergy" << std::endl;
-    }
-  m_enHeuristicFile << Simulator::Now ().GetSeconds () << " " << mmDev->GetCellId() << " " << mmDev->GetBsState() << std::endl;
 }
 
 } // namespace mmwave
