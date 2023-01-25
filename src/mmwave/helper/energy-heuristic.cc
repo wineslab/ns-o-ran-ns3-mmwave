@@ -54,7 +54,7 @@ EnergyHeuristic::EnHeuristicTrace(Ptr<MmWaveEnbNetDevice> mmDev)
   if (!m_enHeuristicFile.is_open ())
     {
       NS_LOG_DEBUG(GetEnHeuristicFilename ().c_str ());
-      m_enHeuristicFile.open (GetEnHeuristicFilename ().c_str (), std::ofstream::app);
+      m_enHeuristicFile.open (GetEnHeuristicFilename ().c_str (), std::ofstream::out | std::ofstream::trunc);
       NS_LOG_LOGIC ("File opened");
       m_enHeuristicFile << "Timestamp" << " " << "cellId" << " " << "CellModeEnergy" << std::endl;
     }
