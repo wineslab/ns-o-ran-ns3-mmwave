@@ -215,11 +215,13 @@ EnergyHeuristic::HeuristicDynamic (int bsToTurnOn[], int bsOn, int bsIdle, int b
                       mmDev->SetClosestUeTime (time);
                     }
                   NS_LOG_DEBUG ("BS: " << m_rrc->GetCellId () << " UE:" << nodeIMSI
-                                        << " distance:" << ueDist << " relativeSpeed: "
+                                        << " distance:" << ueDist << " pos: " << pos << " relativeSpeed: "
                                         << relativeSpeed << " time: " << time);
                 }
             }
         }
+      NS_LOG_DEBUG ("The closest for BS: " << m_rrc->GetCellId ()
+                                    << " is time: " << mmDev->GetClosestUeTime());
     }
   //save all closest UEs of all the BS in the scenario into a Map
   std::vector<std::pair<Ptr<MmWaveEnbNetDevice>, double>> UeTime; //cellID, UEdistance
