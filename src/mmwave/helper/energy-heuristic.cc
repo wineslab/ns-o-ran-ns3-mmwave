@@ -42,7 +42,7 @@ EnergyHeuristic::EnergyHeuristic ()
 EnergyHeuristic::~EnergyHeuristic ()
 {
   NS_LOG_FUNCTION (this);
-  m_enHeuristicFile.close();
+  m_energyHeuristicFile.close();
 }
 
 
@@ -51,24 +51,24 @@ EnergyHeuristic::EnHeuristicTrace(Ptr<MmWaveEnbNetDevice> mmDev)
 {
   NS_LOG_LOGIC("EnHeuristicSizeTrace " << Simulator::Now().GetSeconds() << " " << mmDev->GetCellId() << " " << mmDev->GetBsState());
   // write to file
-  if (!m_enHeuristicFile.is_open ())
+  if (!m_energyHeuristicFile.is_open ())
     {
       NS_LOG_DEBUG(GetEnHeuristicFilename ().c_str ());
-      m_enHeuristicFile.open (GetEnHeuristicFilename ().c_str (), std::ofstream::out | std::ofstream::trunc);
+      m_energyHeuristicFile.open (GetEnHeuristicFilename ().c_str (), std::ofstream::out | std::ofstream::trunc);
       NS_LOG_LOGIC ("File opened");
-      m_enHeuristicFile << "Timestamp" << " " << "cellId" << " " << "CellModeEnergy" << std::endl;
+      m_energyHeuristicFile << "Timestamp" << " " << "cellId" << " " << "CellModeEnergy" << std::endl;
     }
-  m_enHeuristicFile << Simulator::Now ().GetSeconds () << " " << mmDev->GetCellId() << " " << mmDev->GetBsState() << std::endl;
+  m_energyHeuristicFile << Simulator::Now ().GetSeconds () << " " << mmDev->GetCellId() << " " << mmDev->GetBsState() << std::endl;
 }
 
 std::string EnergyHeuristic::GetEnHeuristicFilename()
 {
-  return m_enHeuristicFilename;
+  return m_energyHeuristicFilename;
 }
 
 void EnergyHeuristic::SetEnHeuristicFilename(std::string filename)
 {
-  m_enHeuristicFilename = filename;
+  m_energyHeuristicFilename = filename;
 }
 
 TypeId EnergyHeuristic::GetTypeId ()
