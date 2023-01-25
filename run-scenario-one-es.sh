@@ -104,6 +104,6 @@ for i in $(seq 1 $N); do
                                     --bsOn=$bsOn\
                                     --bsIdle=$bsIdle\
                                     --bsSleep=$bsSleep\
-                                    --bsOff=$bsOff"> log.out 2>&1 ;
+                                    --bsOff=$bsOff";
   sleep 1;
 done
