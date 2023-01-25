@@ -94,15 +94,15 @@ class EnergyHeuristic : public Object{
    * 
    * @param mmDev 
    */
-  void EnHeuristicTrace(Ptr<MmWaveEnbNetDevice> mmDev);
+  void EnergyHeuristicTrace(Ptr<MmWaveEnbNetDevice> mmDev);
 
-  std::string GetEnHeuristicFilename();
+  std::string GetEnergyHeuristicFilename();
 
-  void SetEnHeuristicFilename(std::string filename);
+  void SetEnergyHeuristicFilename(std::string filename);
 
   private:
   /**
-   * @brief name of the file to save information through the method EnHeuristicTrace()
+   * @brief name of the file to save information through the method EnergyHeuristicTrace()
    * 
    */
   std::string m_energyHeuristicFilename;

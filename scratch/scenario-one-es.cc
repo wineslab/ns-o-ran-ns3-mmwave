@@ -870,7 +870,7 @@ main (int argc, char *argv[])
 
   int BsStatus[4]={bsOn, bsIdle, bsSleep, bsOff};
 
-   Ptr<EnergyHeuristic> energyheur=CreateObject<EnergyHeuristic>();
+   Ptr<EnergyHeuristic> energyHeur=CreateObject<EnergyHeuristic>();
 
   switch (heuristicType)
   {
@@ -882,7 +882,7 @@ main (int argc, char *argv[])
         {
           Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
           Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
-          Simulator::Schedule (Seconds (i), &EnergyHeuristic::ProbabilityState, energyheur, probOn,
+          Simulator::Schedule (Seconds (i), &EnergyHeuristic::ProbabilityState, energyHeur, probOn,
                                probIdle, probSleep, probOff, mmdev, ltedev);
         }
     }
@@ -895,11 +895,11 @@ main (int argc, char *argv[])
       for (int j = 0; j < nMmWaveEnbNodes; j++)
         {
           Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
-          Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, energyheur, sinrTh, mmdev);
+          Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, energyHeur, sinrTh, mmdev);
         }
       i = i + 0.01; //making sure to execute the next function after the previous one
       Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
-      Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, energyheur, nMmWaveEnbNodes, mmWaveEnbDevs, "static", BsStatus, ltedev);
+      Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, energyHeur, nMmWaveEnbNodes, mmWaveEnbDevs, "static", BsStatus, ltedev);
     }
   break;
 
@@ -910,11 +910,11 @@ main (int argc, char *argv[])
       for (int j = 0; j < nMmWaveEnbNodes; j++)
         {
           Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
-          Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, energyheur, sinrTh, mmdev);
+          Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, energyHeur, sinrTh, mmdev);
         }
       i = i + 0.01; //making sure to execute the next function after the previous one
       Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
-      Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, energyheur, nMmWaveEnbNodes, mmWaveEnbDevs, "dynamic", BsStatus, ltedev);
+      Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, energyHeur, nMmWaveEnbNodes, mmWaveEnbDevs, "dynamic", BsStatus, ltedev);
     }
   break;
 
