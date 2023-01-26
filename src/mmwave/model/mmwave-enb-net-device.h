@@ -162,6 +162,16 @@ public:
 
   uint32_t GetmacPduInitialCellSpecificAttr ();
 
+  double GetprbUtilizationDlAttr();
+
+  void Seteekpi(double value);
+
+  double Geteekpi();
+
+  void SetturnOffTime(double value);
+
+  double GetturnOffTime();
+
 protected:
   virtual void DoInitialize (void) override;
   void UpdateConfig ();
@@ -236,6 +246,20 @@ private:
    * 
    */
   double m_closestUETime = 10000.0;
+
+  uint32_t m_macPduInitialCellSpecificAttr = 0;
+  /**
+   * @brief 
+   * 
+   */
+  double m_prbUtilizationDlAttr = 0;
+  /**
+   * @brief 
+   * 
+   */
+  double m_eekpi = 0;
+
+  double m_turnOffTime = 0; 
 };
 }
 }
