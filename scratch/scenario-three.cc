@@ -872,6 +872,11 @@ int BsStatus[4]={bsOn, bsIdle, bsSleep, bsOff};
     }
   break;
 
+  case 3:
+  //Mavenir heuristic
+
+  break;
+
   
   default:
   NS_FATAL_ERROR (

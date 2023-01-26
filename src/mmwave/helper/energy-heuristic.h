@@ -90,6 +90,9 @@ class EnergyHeuristic : public Object{
    */
   void CountBestUesSinr(double sinrTh, Ptr<MmWaveEnbNetDevice> mmDev);
 
+  void MavenirHeuristic(uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs);
+
+
 };
 
 }
