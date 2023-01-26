@@ -510,6 +510,59 @@ void EnergyHeuristic::MavenirHeuristic(uint8_t nMmWaveEnbNodes, NetDeviceContain
 
 
 
+void EnergyHeuristic::MavenirHeuristic(uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs){
+  //every time t = to the time stamp of cu_cp ----------------------------------------------------
+  Ptr<MmWaveEnbNetDevice> smallestmmDev;
+  double smalleekpi = 2300; // I set it higher than the c'threshold so in extreme cases it doesn't pass the next if control to turn off the Cell
+  for (int j = 0; j < nMmWaveEnbNodes; j++) //for every cell
+  {
+    //get the mmwave BS
+    Ptr<MmWaveEnbNetDevice> mmDev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
+     
+    if(mmDev->GetBsState()==1){//if the cell is turned ON
+      //compute eekpi and get the smallest one c'
+      double eekpi= (double)mmDev->GetmacPduInitialCellSpecificAttr()/mmDev->GetprbUtilizationDlAttr()/139;
+      mmDev->Seteekpi(eekpi); //save the eekpi for each BS to use it on the second part of the fuction
+      if(eekpi<smalleekpi){
+        smalleekpi= eekpi;
+        smallestmmDev= mmDev;
+      }
+    }
+  }
+  //if c'< threshold value (2200.0) -> turn off BS (energy saving)
+  if(smalleekpi<2200.0){
+    smallestmmDev->TurnOff(smallestmmDev->GetCellId());
+    smallestmmDev->SetturnOffTime(Simulator::Now().GetSeconds());
+  }
+
+  //for every cell turned off (except the c')
+  for (int j = 0; j < nMmWaveEnbNodes; j++) //for every cell
+  {
+    //get the mmwave BS
+    Ptr<MmWaveEnbNetDevice> mmDev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
+     
+    if(mmDev!= smallestmmDev && mmDev->GetBsState()==0){//if the cell is turned OFF (except the c', so the one just turned off)
+        //get neghbors of the subject cell that are turned ON
+        //-----
+
+        Ptr<MmWaveEnbNetDevice> neighmmDev; //mmDev of the neighbour
+
+        //calculate eekpi2 new formula for each neighbour
+        
+        double weightedEekpi=neighmmDev->Geteekpi()* 1.0* exp(-0.1*(Simulator::Now().GetSeconds() - neighmmDev->GetturnOffTime()) ); 
+        
+        //do the average and save it to the subject cell (the one turned off)
+    }
+  }
+
+
+  //obtain all the eekpi2 avg values and keep the smallest one = k'
+  //if k'< threshold value ( 1800 ) -> turn on BS
+
+}
+
+
+
 }
 
 } // namespace ns3
