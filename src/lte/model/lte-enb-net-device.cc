@@ -802,7 +802,7 @@ LteEnbNetDevice::UpdateConfig (void)
                  "sameCellSinr 3gpp encoded,L3 neigh Id (cellId),"
                  "sinr,3gpp encoded sinr (convertedSinr)\n";
           csv.close();
-          Simulator::Schedule(MicroSeconds(500), &LteEnbNetDevice::BuildAndSendReportMessage, this, E2Termination::RicSubscriptionRequest_rval_s{});
+          Simulator::Schedule(MicroSeconds(800), &LteEnbNetDevice::BuildAndSendReportMessage, this, E2Termination::RicSubscriptionRequest_rval_s{});
 
           Simulator::Schedule(MicroSeconds(1000), &LteEnbNetDevice::ReadControlFile, this);
         }
@@ -1142,13 +1142,13 @@ LteEnbNetDevice::BuildAndSendReportMessage(E2Termination::RicSubscriptionRequest
 
   // TODO here we can get something from RRC and onward
   NS_LOG_DEBUG("LteEnbNetDevice " << std::to_string(m_cellId) << " BuildAndSendMessage at time " << Simulator::Now().GetSeconds());
-  
+
   if(m_sendCuUp)
   {
     // Create CU-UP
     Ptr<KpmIndicationHeader> header = BuildRicIndicationHeader(plmId, gnbId, m_cellId);
     Ptr<KpmIndicationMessage> cuUpMsg = BuildRicIndicationMessageCuUp(plmId);
-    
+
     // Send CU-UP only if offline logging is disabled
     if (!m_forceE2FileLogging && header != nullptr && cuUpMsg != nullptr)
     {

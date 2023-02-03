@@ -60,6 +60,7 @@ enbs.txt
 EnbHandoverEndStats.txt
 EnbHandoverStartStats.txt
 EnbSchedAllocTraces.txt
+EnergyHeuristic.txt
 LteDlRsrpSinrStats.txt
 LteSwitchStats.txt
 LteUlInterferenceStats.txt

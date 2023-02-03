@@ -13,7 +13,7 @@ maxSpeed=4.0 # maximum UE speed in m/s
 simTime=1.5 # simulation time
 e2TermIp="10.102.157.65" # actual E2term IP interface
 
-heuristicType=2 # Type of heuristic for managing BS status: Random sleeping (0), Static sleeping (1), Dynamic sleeping (2)
+heuristicType=-1 # Type of heuristic for managing BS status: no heuristic (-1), Random sleeping (0), Static sleeping (1), Dynamic sleeping (2)
 #heuristic parameters
 probOn=0.6038
 probIdle=0.3854

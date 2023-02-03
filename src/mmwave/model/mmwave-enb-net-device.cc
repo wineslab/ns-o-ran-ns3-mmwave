@@ -518,7 +518,7 @@ MmWaveEnbNetDevice::UpdateConfig (void)
 
                 csv << header_csv + "," + cell_header + "," + ue_header + "\n";
                 csv.close();
-                Simulator::Schedule(MicroSeconds(500), &MmWaveEnbNetDevice::BuildAndSendReportMessage, this, E2Termination::RicSubscriptionRequest_rval_s{});
+                Simulator::Schedule(MicroSeconds(800), &MmWaveEnbNetDevice::BuildAndSendReportMessage, this, E2Termination::RicSubscriptionRequest_rval_s{});
               }
 
               // Regardless the offline or online mode for reporting the files, we always want to register the mean of RRC UEs
