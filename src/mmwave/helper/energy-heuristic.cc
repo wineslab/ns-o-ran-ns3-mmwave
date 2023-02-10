@@ -58,7 +58,8 @@ EnergyHeuristic::EnergyHeuristicTrace(Ptr<MmWaveEnbNetDevice> mmDev)
       NS_LOG_LOGIC ("File opened");
       m_energyHeuristicFile << "Timestamp" << " " << "cellId" << " " << "CellModeEnergy" << std::endl;
     }
-  m_energyHeuristicFile << Simulator::Now ().GetSeconds () << " " << mmDev->GetCellId() << " " << mmDev->GetBsState() << std::endl;
+  uint64_t timestamp = mmDev->GetStartTime() + Simulator::Now().GetMilliSeconds ();
+  m_energyHeuristicFile << timestamp << " " << mmDev->GetCellId() << " " << mmDev->GetBsState() << std::endl;
 }
 
 std::string EnergyHeuristic::GetEnergyHeuristicFilename()

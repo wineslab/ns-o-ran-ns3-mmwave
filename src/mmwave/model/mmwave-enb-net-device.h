@@ -139,6 +139,8 @@ public:
   
   void SetStartTime (uint64_t);
 
+  uint64_t GetStartTime ();
+
   uint16_t GetNUeGoodSinr ();
 
   void SetNUeGoodSinr (uint16_t value);
