@@ -69,7 +69,7 @@ controlFileName="es_actions_for_ns3.csv" # ES control file path
 
 for i in $(seq 1 $N); do
   echo "Running simulation $i out of $N";
-  ./waf --command-template="cd --leak-check=full --show-reachable=yes --track-origins=yes %s --RngRun=$i \
+  ./waf --command-template="--leak-check=full --show-reachable=yes --track-origins=yes %s --RngRun=$i \
                                     --configuration=$configuration \
                                     --trafficModel=$trafficModel \
                                     --hoSinrDifference=$hoSinrDifference \
