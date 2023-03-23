@@ -24,6 +24,9 @@
 #include "ns3/lte-ue-net-device.h"
 #include "ns3/mmwave-helper.h"
 #include "energy-heuristic.h"
+#include <vector>
+#include <iostream>
+#include <sstream>
 
 namespace ns3 {
 
@@ -457,10 +460,63 @@ EnergyHeuristic::TurnOnBsSinrPos (uint8_t nMmWaveEnbNodes, NetDeviceContainer mm
       mmDev->TurnOff (mmDev->GetCellId (), m_rrc);
     }
 }
-void EnergyHeuristic::MavenirHeuristic(uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs){
-  //every time t = to the time stamp of cu_cp ----------------------------------------------------
-  Ptr<MmWaveEnbNetDevice> smallestmmDev;
-  double smalleekpi = 2300; // I set it higher than the c'threshold so in extreme cases it doesn't pass the next if control to turn off the Cell
+
+
+//transform the input string of cluster into a vector of vector of values, substituting the id with their mmdev value
+std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> EnergyHeuristic::ReadClusters( std::string clusters, uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs){
+
+  //int n_clusters=2;
+  //std::string input = "[[5,6,7],[1],[2,3,4],[]]";
+  std::string input = clusters;
+  std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> arrays;
+  std::stringstream ss(input);
+  std::string item;
+  
+  while (getline(ss, item, ']')) {
+    if (item.empty()) {
+      continue;
+    }
+    item = item.substr(2);
+    std::vector<Ptr<MmWaveEnbNetDevice>> array;
+    std::stringstream arrayStream(item);
+    std::string arrayItem;
+    while (getline(arrayStream, arrayItem, ',')) {
+      if (!arrayItem.empty() && isdigit(arrayItem[0])) {
+        try {
+          int num = std::stoi(arrayItem);
+
+          for (int j = 0; j < nMmWaveEnbNodes; j++)
+              {
+                Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
+                if(num==mmdev->GetCellId()){
+                  array.push_back(mmdev);
+                }
+              }
+        } catch (const std::invalid_argument &e) {
+          NS_FATAL_ERROR ( "Error: " << arrayItem << " is not a valid integer.");
+        }
+      }
+    }
+    arrays.push_back(array);
+  }
+  
+  NS_LOG_DEBUG (arrays);
+  // for (const auto &array : arrays) {
+  //   for (const auto &element : array) {
+  //     std::cout << element << " ";
+  //   }
+  //   std::cout << std::endl;
+  // }
+
+  return arrays;
+}
+
+
+void EnergyHeuristic::MavenirHeuristic(uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs, Ptr<LteEnbNetDevice> ltedev, int numberOfClusters, std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> clusters){
+  //every time time periodicity
+  Ptr<MmWaveEnbNetDevice> smallestMmDev; //leaveing it empty is not a problem since in the worst case is not used
+  Ptr<LteEnbRrc> m_rrc = ltedev->GetRrc ();
+  double smallestEekpi = 2300; // I set it higher than the c'threshold so in extreme cases it doesn't pass the next if control to turn off the Cell
   for (int j = 0; j < nMmWaveEnbNodes; j++) //for every cell
   {
     //get the mmwave BS
@@ -469,99 +525,60 @@ void EnergyHeuristic::MavenirHeuristic(uint8_t nMmWaveEnbNodes, NetDeviceContain
     if(mmDev->GetBsState()==1){//if the cell is turned ON
       //compute eekpi and get the smallest one c'
       double eekpi= (double)mmDev->GetmacPduInitialCellSpecificAttr()/mmDev->GetprbUtilizationDlAttr()/139;
-      mmDev->Seteekpi(eekpi); //save the eekpi for each BS to use it on the second part of the fuction
-      if(eekpi<smalleekpi){
-        smalleekpi= eekpi;
-        smallestmmDev= mmDev;
+      //mmDev->Seteekpi(eekpi); //save the eekpi for each BS to use it on the second part of the fuction (do we really need it??)
+      if(eekpi<smallestEekpi){
+        smallestEekpi= eekpi;
+        smallestMmDev= mmDev;
       }
     }
   }
   //if c'< threshold value (2200.0) -> turn off BS (energy saving)
-  if(smalleekpi<2200.0){
-    smallestmmDev->TurnOff(smallestmmDev->GetCellId());
-    smallestmmDev->SetturnOffTime(Simulator::Now().GetSeconds());
+  if(smallestEekpi<2200.0){
+    smallestMmDev->TurnOff(smallestMmDev->GetCellId(), m_rrc);
+    smallestMmDev->SetturnOffTime(Simulator::Now().GetSeconds());
   }
-
+  double smallestEekpi2 = 1900; // I set it higher than the c' threshold so in extreme cases it doesn't pass the next if control to turn on the Cell
+  Ptr<MmWaveEnbNetDevice> smallestMmDev2; //leaveing it empty is not a problem since in the worst case is not used
   //for every cell turned off (except the c')
   for (int j = 0; j < nMmWaveEnbNodes; j++) //for every cell
   {
     //get the mmwave BS
     Ptr<MmWaveEnbNetDevice> mmDev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
      
-    if(mmDev!= smallestmmDev && mmDev->GetBsState()==0){//if the cell is turned OFF (except the c', so the one just turned off)
-        //get neghbors of the subject cell that are turned ON
-        //-----
-
-        Ptr<MmWaveEnbNetDevice> neighmmDev; //mmDev of the neighbour
-
-        //calculate eekpi2 new formula for each neighbour
-        
-        double weightedEekpi=neighmmDev->Geteekpi()* 1.0* exp(-0.1*(Simulator::Now().GetSeconds() - neighmmDev->GetturnOffTime()) ); 
-        
-        //do the average and save it to the subject cell (the one turned off)
-    }
-  }
-
-
-  //obtain all the eekpi2 avg values and keep the smallest one = k'
-  //if k'< threshold value ( 1800 ) -> turn on BS
-
-}
-
-
-
-void EnergyHeuristic::MavenirHeuristic(uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs){
-  //every time t = to the time stamp of cu_cp ----------------------------------------------------
-  Ptr<MmWaveEnbNetDevice> smallestmmDev;
-  double smalleekpi = 2300; // I set it higher than the c'threshold so in extreme cases it doesn't pass the next if control to turn off the Cell
-  for (int j = 0; j < nMmWaveEnbNodes; j++) //for every cell
-  {
-    //get the mmwave BS
-    Ptr<MmWaveEnbNetDevice> mmDev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
-     
-    if(mmDev->GetBsState()==1){//if the cell is turned ON
-      //compute eekpi and get the smallest one c'
-      double eekpi= (double)mmDev->GetmacPduInitialCellSpecificAttr()/mmDev->GetprbUtilizationDlAttr()/139;
-      mmDev->Seteekpi(eekpi); //save the eekpi for each BS to use it on the second part of the fuction
-      if(eekpi<smalleekpi){
-        smalleekpi= eekpi;
-        smallestmmDev= mmDev;
+    if(mmDev!= smallestMmDev && mmDev->GetBsState()==0){//if the cell is turned OFF (except the c', so the one just turned off)
+      //loop the list of lists to find the correct cluster
+      for(auto i1=clusters.begin();i1!=clusters.end();i1++)
+      {
+        std::list<int>& list2=*i1; 
+        //check if the subject cell is inside this cluster
+        bool found = (std::find(clusters.begin(), clusters.end(), mmDev->GetCellId()) != clusters.end());
+        if (found){ //if the cell is here, perform the operation for all the neighbors
+          double sumWeightedEekpi2=0;
+          for(auto i2=list2.begin(); i2!=list2.end(); i2++)
+            {
+              Ptr<MmWaveEnbNetDevice> neighMmDev=*i2;
+              //calculate eekpi2 new formula for each neighbour
+              double eekpi= (double)neighMmDev->GetmacPduInitialCellSpecificAttr()/neighMmDev->GetprbUtilizationDlAttr()/139;
+              double weightedEekpi2=eekpi* 1.0* exp(-0.1*(Simulator::Now().GetSeconds() - neighMmDev->GetturnOffTime()) ); 
+              sumWeightedEekpi2=sumWeightedEekpi2+weightedEekpi2;
+            }
+          //do the average and save it to the subject cell in variable "j" (the one turned off)
+          double avgEekpi2=sumWeightedEekpi2/list2.size();
+          if(avgEekpi2<smallestEekpi2){
+            smallestEekpi2=avgEekpi2;
+            smallestMmDev2=mmDev;
+          }
+        }
+        //else, move to the next cluster
       }
     }
   }
-  //if c'< threshold value (2200.0) -> turn off BS (energy saving)
-  if(smalleekpi<2200.0){
-    smallestmmDev->TurnOff(smallestmmDev->GetCellId());
-    smallestmmDev->SetturnOffTime(Simulator::Now().GetSeconds());
+  //obtain all the smallest eekpi2 avg values and if eekpi2 < threshold value ( 1800 ) -> turn on BS
+  if(smallestEekpi2<1800.0){
+    smallestMmDev2->TurnOn (mmDev->GetCellId (), m_rrc);
   }
-
-  //for every cell turned off (except the c')
-  for (int j = 0; j < nMmWaveEnbNodes; j++) //for every cell
-  {
-    //get the mmwave BS
-    Ptr<MmWaveEnbNetDevice> mmDev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
-     
-    if(mmDev!= smallestmmDev && mmDev->GetBsState()==0){//if the cell is turned OFF (except the c', so the one just turned off)
-        //get neghbors of the subject cell that are turned ON
-        //-----
-
-        Ptr<MmWaveEnbNetDevice> neighmmDev; //mmDev of the neighbour
-
-        //calculate eekpi2 new formula for each neighbour
-        
-        double weightedEekpi=neighmmDev->Geteekpi()* 1.0* exp(-0.1*(Simulator::Now().GetSeconds() - neighmmDev->GetturnOffTime()) ); 
-        
-        //do the average and save it to the subject cell (the one turned off)
-    }
-  }
-
-
-  //obtain all the eekpi2 avg values and keep the smallest one = k'
-  //if k'< threshold value ( 1800 ) -> turn on BS
 
 }
-
-
 
 }
 

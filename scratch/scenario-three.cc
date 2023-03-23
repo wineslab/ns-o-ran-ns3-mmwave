@@ -234,10 +234,11 @@ static ns3::GlobalValue g_maxSpeed ("maxSpeed",
 static ns3::GlobalValue g_heuristic (
     "heuristicType",
     "Type of heuristic for managing BS status,"
+    " No heuristic (-1),"
     " Random sleeping (0),"
     " Static sleeping (1),"
     " Dynamic sleeping (2)",
-    ns3::UintegerValue (0), ns3::MakeUintegerChecker<uint8_t> ());
+    ns3::IntegerValue (-1), ns3::MakeIntegerChecker<int8_t> ());
 static ns3::GlobalValue g_probOn (
     "probOn",
     "Probability to turn BS ON for the random sleeping heuristic"
@@ -290,13 +291,17 @@ static ns3::GlobalValue g_bsOff (
     "bsOff",
     "number of BS to turn Off for static and dynamic sleeping heuristic",
     ns3::UintegerValue (1), ns3::MakeUintegerChecker<uint8_t> ());
+static ns3::GlobalValue g_numberOfClusters ("numberOfClusters", "number of clusters of BS",
+    ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
+static ns3::GlobalValue g_clusters ("clusters", "Cluster list of cells",
+    ns3::StringValue ("[[5,6,7],[2,3,4,8]]"), ns3::MakeStringChecker ());
 
 int
 main (int argc, char *argv[])
 {
   LogComponentEnableAll (LOG_PREFIX_ALL);
   LogComponentEnable ("ScenarioThree", LOG_LEVEL_DEBUG);
-  //LogComponentEnable ("EnergyHeuristic", LOG_LEVEL_DEBUG);
+  LogComponentEnable ("EnergyHeuristic", LOG_LEVEL_DEBUG);
   // LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
   // LogComponentEnable ("OnOffApplication", LOG_LEVEL_ALL);
   // LogComponentEnable ("LtePdcp", LOG_LEVEL_ALL);
@@ -328,6 +333,7 @@ main (int argc, char *argv[])
   bool harqEnabled = true;
 
   UintegerValue uintegerValue;
+  IntegerValue integerValue;
   BooleanValue booleanValue;
   StringValue stringValue;
   DoubleValue doubleValue;
@@ -358,9 +364,9 @@ main (int argc, char *argv[])
   double maxSpeed = doubleValue.Get ();
   GlobalValue::GetValueByName ("numberOfRaPreambles", uintegerValue);
   uint8_t numberOfRaPreambles = uintegerValue.Get ();
-  //heuristic parameters
-  GlobalValue::GetValueByName ("heuristicType", uintegerValue);
-  uint8_t heuristicType = uintegerValue.Get ();
+  // Heuristic parameters
+  GlobalValue::GetValueByName ("heuristicType", integerValue);
+  int8_t heuristicType = integerValue.Get ();
   GlobalValue::GetValueByName ("probOn", doubleValue);
   double probOn = doubleValue.Get ();
   GlobalValue::GetValueByName ("probIdle", doubleValue);
@@ -379,6 +385,10 @@ main (int argc, char *argv[])
   int bsSleep = uintegerValue.Get ();
   GlobalValue::GetValueByName ("bsOff", uintegerValue);
   int bsOff = uintegerValue.Get ();
+  GlobalValue::GetValueByName ("numberOfClusters", uintegerValue);
+  int numberOfClusters = uintegerValue.Get ();
+  GlobalValue::GetValueByName ("clusters", stringValue);
+  std::string clusters = stringValue.Get ();
 
   NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << unsigned(bufferSize)
                                  << " OutageThreshold " << outageThreshold << " HandoverMode " << handoverMode
@@ -426,6 +436,7 @@ main (int argc, char *argv[])
     << " controlFilename " << controlFilename
     << " indicationPeriodicity " << indicationPeriodicity
     << " ScheduleControlMessages " << scheduleControlMessages
+    << " heuristicType " << int(heuristicType)
   );
 
   Config::SetDefault ("ns3::LteEnbNetDevice::ControlFileName", StringValue(controlFilename));
@@ -824,66 +835,91 @@ main (int argc, char *argv[])
   clientApp.Start (MilliSeconds (100));
   clientApp.Stop (Seconds (simTime - 0.1));
 
-int BsStatus[4]={bsOn, bsIdle, bsSleep, bsOff};
+  int BsStatus[4] = {bsOn, bsIdle, bsSleep, bsOff};
 
-  EnergyHeuristic energyheur;
+  Ptr<EnergyHeuristic> energyHeur=CreateObject<EnergyHeuristic>();
+  std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> bsClusters = energyHeu->ReadClusters(clusters, nMmWaveEnbNodes, mmWaveEnbDevs);
 
   switch (heuristicType)
-  {
-  case 0:
-  //random sleeping
-  for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
     {
-      for (int j = 0; j < nMmWaveEnbNodes; j++)
-        {
-          Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
-          Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
-          Simulator::Schedule (Seconds (i), &EnergyHeuristic::ProbabilityState, &energyheur, probOn,
-                               probIdle, probSleep, probOff, mmdev, ltedev);
-        }
+      // No heuristc
+      case -1: {
+        NS_LOG_UNCOND ("Running the scenario with no Energy Heuristic");
+      }
+      break;
+
+      // Random sleeping
+      case 0: {
+        for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
+          {
+            for (int j = 0; j < nMmWaveEnbNodes; j++)
+              {
+                Ptr<MmWaveEnbNetDevice> mmdev =
+                    DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
+                Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
+                Simulator::Schedule (Seconds (i), &EnergyHeuristic::ProbabilityState, energyHeur,
+                                     probOn, probIdle, probSleep, probOff, mmdev, ltedev);
+              }
+          }
+      }
+      break;
+
+      // Static sleeping
+      case 1: {
+        for (double i = 0.0; i < simTime; i = i + indicationPeriodicity - 0.01)
+          {
+            for (int j = 0; j < nMmWaveEnbNodes; j++)
+              {
+                Ptr<MmWaveEnbNetDevice> mmdev =
+                    DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
+                Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, energyHeur,
+                                     sinrTh, mmdev);
+              }
+            i = i + 0.00001; //making sure to execute the next function after the previous one
+            Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
+            Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, energyHeur,
+                                 nMmWaveEnbNodes, mmWaveEnbDevs, "static", BsStatus, ltedev);
+          }
+      }
+      break;
+
+      // Dynamic sleeping
+      case 2: {
+        for (double i = 0.0; i < simTime; i = i + indicationPeriodicity - 0.01)
+          {
+            for (int j = 0; j < nMmWaveEnbNodes; j++)
+              {
+                Ptr<MmWaveEnbNetDevice> mmdev =
+                    DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
+                Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, energyHeur,
+                                     sinrTh, mmdev);
+              }
+            i = i + 0.00001; //making sure to execute the next function after the previous one
+            Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
+            Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, energyHeur,
+                                 nMmWaveEnbNodes, mmWaveEnbDevs, "dynamic", BsStatus, ltedev);
+          }
+      }
+      break;
+
+      // Mavenir heuristic
+      case 3: {
+        for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
+          {
+            Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
+            Simulator::Schedule (Seconds (i), &EnergyHeuristic::MavenirHeuristic, energyHeur,
+                                 nMmWaveEnbNodes, mmWaveEnbDevs, ltedev, numberOfClusters, bsClusters);
+          }
+      }
+      break;
+
+      default: {
+        NS_FATAL_ERROR (
+            "Heuristic type not recognized, the only possible values are [-1,0,1,2]. Value passed: "
+            << heuristicType);
+      }
+      break;
     }
-  break;
-  
-  case 1:
-  //static sleeping
-  for (double i = 0.0; i < simTime; i = i + indicationPeriodicity - 0.01)
-    {
-      for (int j = 0; j < nMmWaveEnbNodes; j++)
-        {
-          Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
-          Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, &energyheur, sinrTh, mmdev);
-        }
-      Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
-      Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, &energyheur, nMmWaveEnbNodes, mmWaveEnbDevs, "static", BsStatus, ltedev);
-    }
-  break;
-
-  case 2:
-  //dynamic sleeping
-  for (double i = 0.0; i < simTime; i = i + indicationPeriodicity - 0.01)
-    {
-      for (int j = 0; j < nMmWaveEnbNodes; j++)
-        {
-          Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
-          Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, &energyheur, sinrTh, mmdev);
-        }
-      Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
-      Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, &energyheur, nMmWaveEnbNodes, mmWaveEnbDevs, "dynamic", BsStatus, ltedev);
-    }
-  break;
-
-  case 3:
-  //Mavenir heuristic
-
-  break;
-
-  
-  default:
-  NS_FATAL_ERROR (
-          "Heuristic type not recognized, the only possible values are [0,1,2]. Value passed: "
-          << heuristicType);
-    break;
-  }
 
   if (enableTraces)
   {

@@ -173,16 +173,6 @@ static ns3::GlobalValue g_configuration ("configuration",
                                          ns3::UintegerValue (1),
                                          ns3::MakeUintegerChecker<uint8_t> ());
 
-static ns3::GlobalValue g_perPckToLTE ("perPckToLTE",
-                                       "Percentage of packets to be directed to LTE.",
-                                       ns3::DoubleValue (-1),
-                                       ns3::MakeDoubleChecker<double> (-1, 1.0));
-
-static ns3::GlobalValue
-    g_ueZeroPercentage ("ueZeroPercentage",
-                        "Percentage of packets to be directed to LTE from UE with X.",
-                        ns3::DoubleValue (-1), ns3::MakeDoubleChecker<double> (-1, 1.0));
-
 static ns3::GlobalValue
     g_hoSinrDifference ("hoSinrDifference",
                         "The value for which an handover between MmWave eNB is triggered",
@@ -232,7 +222,7 @@ static ns3::GlobalValue
               ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
 
 static ns3::GlobalValue g_controlFileName ("controlFileName", "The path to the control file (can be absolute)",
-                                     ns3::StringValue ("qos_actions.csv"), ns3::MakeStringChecker ());
+                                     ns3::StringValue (""), ns3::MakeStringChecker ());
 
 static ns3::GlobalValue g_minSpeed ("minSpeed",
                                            "minimum UE speed in m/s",
@@ -245,10 +235,11 @@ static ns3::GlobalValue g_maxSpeed ("maxSpeed",
                                            ns3::MakeDoubleChecker<double> ());
 static ns3::GlobalValue g_heuristic ("heuristicType",
                                      "Type of heuristic for managing BS status,"
+                                     " No heuristic (-1),"
                                      " Random sleeping (0),"
                                      " Static sleeping (1),"
                                      " Dynamic sleeping (2)",
-                                     ns3::UintegerValue (0), ns3::MakeUintegerChecker<uint8_t> ());
+                                     ns3::IntegerValue (-1), ns3::MakeIntegerChecker<int8_t> ());
 static ns3::GlobalValue
     g_probOn ("probOn",
               "Probability to turn BS ON for the random sleeping heuristic"
@@ -300,9 +291,9 @@ static ns3::GlobalValue
 int
 main (int argc, char *argv[])
 {
-  // LogComponentEnableAll (LOG_PREFIX_ALL);
-  // LogComponentEnable ("ScenarioOneEs", LOG_LEVEL_DEBUG);
-  // LogComponentEnable ("EnergyHeuristic", LOG_LEVEL_DEBUG);
+  LogComponentEnableAll (LOG_PREFIX_ALL);
+  LogComponentEnable ("ScenarioOneEs", LOG_LEVEL_DEBUG);
+  LogComponentEnable ("EnergyHeuristic", LOG_LEVEL_DEBUG);
   // LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
   // LogComponentEnable ("OnOffApplication", LOG_LEVEL_ALL);
   // LogComponentEnable ("LtePdcp", LOG_LEVEL_ALL);
@@ -334,14 +325,11 @@ main (int argc, char *argv[])
   bool harqEnabled = true;
 
   UintegerValue uintegerValue;
+  IntegerValue integerValue;
   BooleanValue booleanValue;
   StringValue stringValue;
   DoubleValue doubleValue;
 
-  GlobalValue::GetValueByName ("perPckToLTE", doubleValue);
-  double perPckToLTE = doubleValue.Get ();
-  GlobalValue::GetValueByName ("ueZeroPercentage", doubleValue);
-  double ueZeroPercentage = doubleValue.Get ();
   GlobalValue::GetValueByName ("hoSinrDifference", doubleValue);
   double hoSinrDifference = doubleValue.Get ();
   GlobalValue::GetValueByName ("dataRate", doubleValue);
@@ -370,9 +358,10 @@ main (int argc, char *argv[])
   double maxSpeed = doubleValue.Get ();
   GlobalValue::GetValueByName ("numberOfRaPreambles", uintegerValue);
   uint8_t numberOfRaPreambles = uintegerValue.Get ();
-  //heuristic parameters
-  GlobalValue::GetValueByName ("heuristicType", uintegerValue);
-  uint8_t heuristicType = uintegerValue.Get ();
+
+  // Heuristic parameters
+  GlobalValue::GetValueByName ("heuristicType", integerValue);
+  int8_t heuristicType = integerValue.Get ();
   GlobalValue::GetValueByName ("probOn", doubleValue);
   double probOn = doubleValue.Get ();
   GlobalValue::GetValueByName ("probIdle", doubleValue);
@@ -401,7 +390,7 @@ main (int argc, char *argv[])
                                  << " minSpeed " << minSpeed << " maxSpeed " << maxSpeed);
 
 
-  //get current time
+  // Get current time
   time_t rawtime;
   struct tm *timeinfo;
   char buffer[80];
@@ -436,10 +425,9 @@ main (int argc, char *argv[])
     << " e2cuCp " << e2cuCp
     << " e2cuUp " << e2cuUp
     << " reducedPmValues " << reducedPmValues 
-    << " perPckToLTE " << perPckToLTE
-    << " ueZeroPercentage " << ueZeroPercentage
     << " controlFilename " << controlFilename
     << " indicationPeriodicity " << indicationPeriodicity
+    << " heuristicType " << int(heuristicType)
   );
 
   Config::SetDefault ("ns3::LteEnbNetDevice::ControlFileName", StringValue(controlFilename));
@@ -453,8 +441,6 @@ main (int argc, char *argv[])
   // since in the RLC/MAC/PHY entities are present in BOTH NR gNB as well as LTE eNB.
   // TODO DU reports from LTE eNB are not implemented yet
   Config::SetDefault ("ns3::MmWaveEnbNetDevice::EnableDuReport", BooleanValue(e2du));
-
-  // Config::SetDefault ("ns3::LteEnbNetDevice::ControlFileName", StringValue (controlFileName));
 
   // The CU-UP PM reports should only come from LTE eNB, since in the NS3 “EN-DC 
   // simulation (Option 3A)”, the PDCP is only in the LTE eNB and NOT in the NR gNB
@@ -496,7 +482,6 @@ main (int argc, char *argv[])
                       UintegerValue (bufferSize * 1024 * 1024));
   Config::SetDefault ("ns3::LteRlcAm::MaxTxBufferSize", UintegerValue (bufferSize * 1024 * 1024));
 
-  Config::SetDefault ("ns3::McEnbPdcp::perPckToLTE", DoubleValue (perPckToLTE));
   Config::SetDefault ("ns3::LteEnbRrc::OutageThreshold", DoubleValue (outageThreshold));
   Config::SetDefault ("ns3::LteEnbRrc::SecondaryCellHandoverMode", StringValue (handoverMode));
   Config::SetDefault ("ns3::LteEnbRrc::HoSinrDifference", DoubleValue (hoSinrDifference));
@@ -653,9 +638,20 @@ main (int argc, char *argv[])
   speed->SetAttribute ("Min", DoubleValue (minSpeed));
   speed->SetAttribute ("Max", DoubleValue (maxSpeed));
 
-  uemobility.SetMobilityModel ("ns3::RandomWalk2dOutdoorMobilityModel", "Speed",
-                               PointerValue (speed), "Bounds",
-                               RectangleValue (Rectangle (0, maxXAxis, 0, maxYAxis)));
+  Ptr<UniformRandomVariable> puntTimeDirection = CreateObject<UniformRandomVariable> ();
+  puntTimeDirection->SetAttribute ("Min", DoubleValue (10));
+  puntTimeDirection->SetAttribute ("Max", DoubleValue (15));
+  double timeDirection=puntTimeDirection->GetValue();
+  // uemobility.SetMobilityModel ("ns3::RandomWalk2dOutdoorMobilityModel", "Speed",
+  //                              PointerValue (speed), "Bounds",
+  //                              RectangleValue (Rectangle (0, maxXAxis, 0, maxYAxis)));
+
+  uemobility.SetMobilityModel ("ns3::RandomWalk2dMobilityModel",
+    "Mode", StringValue ("Time"),
+    "Time", StringValue( std::to_string(timeDirection)+"s"),
+    "Speed", PointerValue (speed),
+    "Bounds", RectangleValue (Rectangle (0, maxXAxis, 0, maxYAxis)));
+
   uemobility.SetPositionAllocator (uePositionAlloc);
   uemobility.Install (ueNodes);
 
@@ -870,62 +866,77 @@ main (int argc, char *argv[])
 
   int BsStatus[4]={bsOn, bsIdle, bsSleep, bsOff};
 
-  EnergyHeuristic energyheur;
+  Ptr<EnergyHeuristic> energyHeur = CreateObject<EnergyHeuristic> ();
 
   switch (heuristicType)
-  {
-  case 0:
-  //random sleeping
-  for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
     {
-      for (int j = 0; j < nMmWaveEnbNodes; j++)
-        {
-          Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
-          Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
-          Simulator::Schedule (Seconds (i), &EnergyHeuristic::ProbabilityState, &energyheur, probOn,
-                               probIdle, probSleep, probOff, mmdev, ltedev);
-        }
-    }
-  break;
-  
-  case 1:
-  //static sleeping
-  for (double i = 0.0; i < simTime; i = i + indicationPeriodicity - 0.01)
-    {
-      for (int j = 0; j < nMmWaveEnbNodes; j++)
-        {
-          Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
-          Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, &energyheur, sinrTh, mmdev);
-        }
-      i = i + 0.01; //making sure to execute the next function after the previous one
-      Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
-      Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, &energyheur, nMmWaveEnbNodes, mmWaveEnbDevs, "static", BsStatus, ltedev);
-    }
-  break;
+      // No heuristc
+      case -1: {
+        NS_LOG_UNCOND ("Running the scenario with no Energy Heuristic");
+      }
+      break;
+      // Random sleeping
+      case 0: {
+        for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
+          {
+            for (int j = 0; j < nMmWaveEnbNodes; j++)
+              {
+                Ptr<MmWaveEnbNetDevice> mmdev =
+                    DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
+                Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
+                Simulator::Schedule (Seconds (i), &EnergyHeuristic::ProbabilityState, energyHeur,
+                                     probOn, probIdle, probSleep, probOff, mmdev, ltedev);
+              }
+          }
+      }
+      break;
 
-  case 2:
-  //dynamic sleeping
-  for (double i = 0.0; i < simTime; i = i + indicationPeriodicity - 0.01)
-    {
-      for (int j = 0; j < nMmWaveEnbNodes; j++)
-        {
-          Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
-          Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, &energyheur, sinrTh, mmdev);
-        }
-      i = i + 0.01; //making sure to execute the next function after the previous one
-      Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
-      Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, &energyheur, nMmWaveEnbNodes, mmWaveEnbDevs, "dynamic", BsStatus, ltedev);
+      // Static sleeping
+      case 1: {
+        for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
+          {
+            for (int j = 0; j < nMmWaveEnbNodes; j++)
+              {
+                Ptr<MmWaveEnbNetDevice> mmdev =
+                    DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
+                Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, energyHeur,
+                                     sinrTh, mmdev);
+              }
+            i = i + 0.00001; //making sure to execute the next function after the previous one
+            Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
+            Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, energyHeur,
+                                 nMmWaveEnbNodes, mmWaveEnbDevs, "static", BsStatus, ltedev);
+          }
+      }
+      break;
+
+      // Dynamic sleeping
+      case 2: {
+
+        for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
+          {
+            for (int j = 0; j < nMmWaveEnbNodes; j++)
+              {
+                Ptr<MmWaveEnbNetDevice> mmdev =
+                    DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
+                Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, energyHeur,
+                                     sinrTh, mmdev);
+              }
+            i = i + 0.00001; //making sure to execute the next function after the previous one
+            Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
+            Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, energyHeur,
+                                 nMmWaveEnbNodes, mmWaveEnbDevs, "dynamic", BsStatus, ltedev);
+          }
+      }
+      break;
+
+      default: {
+        NS_FATAL_ERROR (
+            "Heuristic type not recognized, the only possible values are [-1,0,1,2]. Value passed: "
+            << heuristicType);
+      }
+      break;
     }
-  break;
-
-  
-  default:
-  NS_FATAL_ERROR (
-          "Heuristic type not recognized, the only possible values are [0,1,2]. Value passed: "
-          << heuristicType);
-    break;
-  }
-
 
   if (enableTraces)
   {
@@ -941,15 +952,6 @@ main (int argc, char *argv[])
   // Since nodes are randomly allocated during each run we always need to print their positions
   PrintGnuplottableUeListToFile ("ues.txt");
   PrintGnuplottableEnbListToFile ("enbs.txt");
-
-  Ptr<LteEnbNetDevice> eNBDevice = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
-  uint16_t ueIdRnti = 1; // RNTI of the UE to be controlled
-  if (ueZeroPercentage != -1)
-    {
-      NS_LOG_UNCOND ("Setting UE with RNTI " << ueIdRnti << " PDCP split to " << ueZeroPercentage);
-      Simulator::Schedule (MilliSeconds (100), &LteEnbNetDevice::SetUeQoS, eNBDevice, ueIdRnti,
-                           ueZeroPercentage);
-    }
 
   bool run = true;
   if (run)

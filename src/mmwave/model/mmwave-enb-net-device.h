@@ -164,9 +164,9 @@ public:
 
   double GetprbUtilizationDlAttr();
 
-  void Seteekpi(double value);
+  void Seteekpi2(double value);
 
-  double Geteekpi();
+  double Geteekpi2();
 
   void SetturnOffTime(double value);
 
@@ -272,7 +272,7 @@ private:
    * @brief 
    * 
    */
-  double m_eekpi = 0;
+  double m_eekpi2 = 0;
 
   double m_turnOffTime = 0; 
 };
