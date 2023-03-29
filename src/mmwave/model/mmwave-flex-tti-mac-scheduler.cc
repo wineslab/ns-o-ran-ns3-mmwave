@@ -174,7 +174,9 @@ MmWaveFlexTtiMacScheduler::MmWaveFlexTtiMacScheduler ()
   : m_nextRnti (0),
     m_tbUid (0),
     m_macSchedSapUser (0),
-    m_macCschedSapUser (0)
+    m_macCschedSapUser (0),
+    m_nextRntiUl(0),
+    m_nextRntiDl(0)
 {
   NS_LOG_FUNCTION (this);
   m_macSchedSapProvider = new MmWaveFlexTtiMacSchedSapProvider (this);

@@ -83,6 +83,7 @@ public:
   virtual uint16_t AllocateTemporaryCellRnti ();
   virtual void NotifyLcConfigResult (uint16_t rnti, uint8_t lcid, bool success);
   virtual void RrcConfigurationUpdateInd (UeConfig params);
+  virtual bool IsRandomAccessCompleted (uint16_t rnti);
 
 private:
   LteEnbRrc* m_rrc; ///< the RRC
@@ -113,6 +114,11 @@ EnbRrcMemberLteEnbCmacSapUser::RrcConfigurationUpdateInd (UeConfig params)
   m_rrc->DoRrcConfigurationUpdateInd (params);
 }
 
+bool
+EnbRrcMemberLteEnbCmacSapUser::IsRandomAccessCompleted (uint16_t rnti)
+{
+  return m_rrc->IsRandomAccessCompleted (rnti);
+}
 
 
 ///////////////////////////////////////////
@@ -4804,7 +4810,7 @@ LteEnbRrc::DoRecvHandoverRequest (EpcX2SapUser::HandoverRequestParams req)
   LteEnbCmacSapProvider::AllocateNcRaPreambleReturnValue anrcrv = m_cmacSapProvider.at (0)->AllocateNcRaPreamble (rnti);
   if (anrcrv.valid == false)
     {
-      NS_LOG_INFO (this << " failed to allocate a preamble for non-contention based RA => cannot accept HO");
+      NS_LOG_UNCOND (this << " failed to allocate a preamble for non-contention based RA => cannot accept HO");
       RemoveUe (rnti);
       NS_FATAL_ERROR ("should trigger HO Preparation Failure, but it is not implemented");
       return;
@@ -5533,6 +5539,25 @@ LteEnbRrc::SendSystemInformation ()
    * systems the periodicy of each SIBs could be different.
    */
   Simulator::Schedule (m_systemInformationPeriodicity, &LteEnbRrc::SendSystemInformation, this);
+}
+
+
+bool
+LteEnbRrc::IsRandomAccessCompleted (uint16_t rnti)
+{
+  NS_LOG_FUNCTION (this << (uint32_t) rnti);
+  Ptr<UeManager> ueManager = GetUeManager (rnti);
+  switch (ueManager->GetState ())
+    {
+    case UeManager::CONNECTED_NORMALLY:
+    case UeManager::CONNECTION_RECONFIGURATION:
+      return true;
+      break;
+    default:
+      return false;
+      break;
+
+    }
 }
 
 

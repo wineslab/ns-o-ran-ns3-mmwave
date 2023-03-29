@@ -323,7 +323,7 @@ MmWaveEnbNetDevice::RegisterNewSinrReading(uint64_t imsi, uint16_t cellId, long 
 
   if (imsiFound)
   {
-    // we only need to save the last value, so we erase if exists already a value nd save the new one
+    // we only need to save the last value, so we erase if exists already a value and save the new one
     m_l3sinrMap[imsi][cellId] = sinr;
     NS_LOG_LOGIC (Simulator::Now ().GetSeconds ()
                   << " enbdev " << m_cellId << " UE " << imsi << " report for " << cellId
@@ -814,15 +814,18 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
     uint64_t imsi = ue.second->GetImsi();
     std::string ueImsiComplete = GetImsiString(imsi);
 
-    Ptr<MeasurementItemList> ueVal = Create<MeasurementItemList> (ueImsiComplete);
+    // This shall be created in connected mode and sent through the E2 Interface
+    // Since now they are now integrated in the asn1 definiton and they are leaking
+    // I'll just comment them
+    // Ptr<MeasurementItemList> ueVal = Create<MeasurementItemList> (ueImsiComplete);
 
     long numDrb = ue.second->GetDrbMap().size();
 
-    if (!m_reducedPmValues)
-      {    
-        ueVal->AddItem<long> ("DRB.EstabSucc.5QI.UEID", numDrb);
-        ueVal->AddItem<long> ("DRB.RelActNbr.5QI.UEID", 0); // not modeled in the simulator
-      } 
+    // if (!m_reducedPmValues && !indicationMessageHelper->IsOffline ())
+    //   {    
+    //     ueVal->AddItem<long> ("DRB.EstabSucc.5QI.UEID", numDrb);
+    //     ueVal->AddItem<long> ("DRB.RelActNbr.5QI.UEID", 0); // not modeled in the simulator
+    //   } 
 
     // create L3 RRC reports
 
@@ -1142,11 +1145,14 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCe
     // UE-specific Downlink IP combined EN-DC throughput from LTE eNB. Unit is kbps. Rlc based computation
     double drbThrDlUeid = m_drbThrDlUeid.find (imsi) != m_drbThrDlUeid.end () ? m_drbThrDlUeid.at (imsi) : 0;
 
-    indicationMessageHelper->AddDuUePmItem (
-        ueImsiComplete, macPduUe, macPduInitialUe, macQpsk, mac16Qam, mac64Qam, macRetx, macVolume,
-        macPrb, macMac04, macMac59, macMac1014, macMac1519, macMac2024, macMac2529, macSinrBin1,
-        macSinrBin2, macSinrBin3, macSinrBin4, macSinrBin5, macSinrBin6, macSinrBin7,
-        rlcBufferOccup, drbThrDlUeid);
+    if (!indicationMessageHelper->IsOffline ())
+    {
+      indicationMessageHelper->AddDuUePmItem (
+          ueImsiComplete, macPduUe, macPduInitialUe, macQpsk, mac16Qam, mac64Qam, macRetx,
+          macVolume, macPrb, macMac04, macMac59, macMac1014, macMac1519, macMac2024, macMac2529,
+          macSinrBin1, macSinrBin2, macSinrBin3, macSinrBin4, macSinrBin5, macSinrBin6, macSinrBin7,
+          rlcBufferOccup, drbThrDlUeid);
+    }
 
     uePmStringDu.insert(std::make_pair(imsi, std::to_string(macPduUe) + ","
                                             + std::to_string(macPduInitialUe)+","

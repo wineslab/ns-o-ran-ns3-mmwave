@@ -248,8 +248,6 @@ private:
   std::map <uint16_t,uint32_t> m_ceBsrRxed;
 
   uint16_t m_nextRnti;
-  uint64_t m_nextRntiDl;
-  uint64_t m_nextRntiUl;
 
   uint8_t m_tbUid;
   uint32_t m_numChunks;
@@ -259,6 +257,9 @@ private:
   MmWaveMacSchedSapUser* m_macSchedSapUser;
   MmWaveMacCschedSapUser* m_macCschedSapUser;
   MmWaveMacCschedSapProvider* m_macCschedSapProvider;
+
+  uint64_t m_nextRntiUl;
+  uint64_t m_nextRntiDl;
 
   MmWaveMacCschedSapProvider::CschedCellConfigReqParameters m_cschedCellConfig;
 

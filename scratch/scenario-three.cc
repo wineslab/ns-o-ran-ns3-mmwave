@@ -130,7 +130,7 @@ void
 PrintPosition (Ptr<Node> node)
 {
   Ptr<MobilityModel> model = node->GetObject<MobilityModel> ();
-  NS_LOG_UNCOND ("Position +****************************** " << model->GetPosition () << " at time "
+  NS_LOG_UNCOND ("Position ****************************** " << model->GetPosition () << " at time "
                                                              << Simulator::Now ().GetSeconds ());
 }
 
