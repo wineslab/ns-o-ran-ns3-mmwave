@@ -838,7 +838,7 @@ main (int argc, char *argv[])
   int BsStatus[4] = {bsOn, bsIdle, bsSleep, bsOff};
 
   Ptr<EnergyHeuristic> energyHeur=CreateObject<EnergyHeuristic>();
-  std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> bsClusters = energyHeu->ReadClusters(clusters, nMmWaveEnbNodes, mmWaveEnbDevs);
+  std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> bsClusters = energyHeur->ReadClusters(clusters, nMmWaveEnbNodes, mmWaveEnbDevs);
 
   switch (heuristicType)
     {

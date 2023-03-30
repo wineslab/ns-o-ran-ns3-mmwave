@@ -10,10 +10,10 @@ e2cuCp=1 # enable reporting of CU CP PM containers
 configuration=0 # 0: NR carrier at 850 MHz, low traffic | 1: NR carrier at 3.5 GHz, low traffic | 2: NR carrier at 28 GHz, high traffic
 minSpeed=2.0 # minimum UE speed in m/s
 maxSpeed=4.0 # maximum UE speed in m/s
-simTime=1.5 # simulation time
+simTime=5 # simulation time
 e2TermIp="10.102.157.65" # actual E2term IP interface
 
-heuristicType=2 # Type of heuristic for managing BS status: Random sleeping (0), Static sleeping (1), Dynamic sleeping (2)
+heuristicType=3 # Type of heuristic for managing BS status: Random sleeping (0), Static sleeping (1), Dynamic sleeping (2)
 #heuristic parameters
 probOn=0.6038
 probIdle=0.3854
@@ -49,7 +49,7 @@ dataRate=0
 echo "Energy Efficiency use case"
 outageThreshold=-5.0 # use -5.0 when handover is not in NoAuto 
 handoverMode="DynamicTtt"
-indicationPeriodicity=0.02 # value in seconds (20 ms)
+indicationPeriodicity=0.5 # value in seconds (20 ms)
 controlFileName="" # ES control file path
 
 scheduleControlMessages=0 # if the control message shall be read at the beginning of the simulation and the events scheduled

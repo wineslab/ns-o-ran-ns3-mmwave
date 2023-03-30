@@ -468,6 +468,7 @@ std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> EnergyHeuristic::ReadClusters(
   //int n_clusters=2;
   //std::string input = "[[5,6,7],[1],[2,3,4],[]]";
   std::string input = clusters;
+  NS_LOG_DEBUG ("Input cluster as string: " << clusters);
   std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> arrays;
   std::stringstream ss(input);
   std::string item;
@@ -500,31 +501,49 @@ std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> EnergyHeuristic::ReadClusters(
     arrays.push_back(array);
   }
   
-  NS_LOG_DEBUG (arrays);
+  // NS_LOG_DEBUG ("Cluster array");
   // for (const auto &array : arrays) {
   //   for (const auto &element : array) {
-  //     std::cout << element << " ";
+  //       NS_LOG_DEBUG (element << " ");
   //   }
-  //   std::cout << std::endl;
+  //   NS_LOG_DEBUG ("/n");
   // }
+
+  for (uint i = 0; i < arrays.size(); i++)
+  {
+    for (uint j = 0; j < arrays[i].size(); j++)
+    {
+        NS_LOG_DEBUG( arrays[i][j]->GetCellId());
+    }
+  NS_LOG_DEBUG ("/n");
+  }
 
   return arrays;
 }
 
 
 void EnergyHeuristic::MavenirHeuristic(uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs, Ptr<LteEnbNetDevice> ltedev, int numberOfClusters, std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> clusters){
-  //every time time periodicity
-  Ptr<MmWaveEnbNetDevice> smallestMmDev; //leaveing it empty is not a problem since in the worst case is not used
+  //every time periodicity
+  Ptr<MmWaveEnbNetDevice> smallestMmDev; //leaving it empty is not a problem since in the worst case is not used
   Ptr<LteEnbRrc> m_rrc = ltedev->GetRrc ();
-  double smallestEekpi = 2300; // I set it higher than the c'threshold so in extreme cases it doesn't pass the next if control to turn off the Cell
+  double smallestEekpi = 2200; // I set it higher than the c'threshold so in extreme cases it doesn't pass the next if control to turn off the Cell
   for (int j = 0; j < nMmWaveEnbNodes; j++) //for every cell
   {
     //get the mmwave BS
     Ptr<MmWaveEnbNetDevice> mmDev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
-     
     if(mmDev->GetBsState()==1){//if the cell is turned ON
+      NS_LOG_DEBUG ("EEKPI1 BS ID " << mmDev->GetCellId()<<" and state (turned ON) "<< mmDev->GetBsState());
       //compute eekpi and get the smallest one c'
-      double eekpi= (double)mmDev->GetmacPduInitialCellSpecificAttr()/mmDev->GetprbUtilizationDlAttr()/139;
+      NS_LOG_DEBUG ("macPduInitialCellSpecific for EEKPI1 "<< mmDev->GetmacPduInitialCellSpecificAttr());
+      NS_LOG_DEBUG ("prbUtilizationDl for EEKPI1 "<< mmDev->GetprbUtilizationDlAttr());
+      double eekpi = 2200;
+      if(mmDev->GetprbUtilizationDlAttr()!=0){
+        eekpi= (double)mmDev->GetmacPduInitialCellSpecificAttr()/(mmDev->GetprbUtilizationDlAttr()/139);
+        NS_LOG_DEBUG ("EEKPI1 "<< eekpi << " for cell "<< mmDev->GetCellId());
+      }
+      else{
+        NS_LOG_DEBUG ("EEKPI1 "<< eekpi << " because prbUtilizationDl=0");
+      }
       //mmDev->Seteekpi(eekpi); //save the eekpi for each BS to use it on the second part of the fuction (do we really need it??)
       if(eekpi<smallestEekpi){
         smallestEekpi= eekpi;
@@ -532,12 +551,15 @@ void EnergyHeuristic::MavenirHeuristic(uint8_t nMmWaveEnbNodes, NetDeviceContain
       }
     }
   }
+  NS_LOG_DEBUG ("Smallest EEKPI1 "<< smallestEekpi);
   //if c'< threshold value (2200.0) -> turn off BS (energy saving)
   if(smallestEekpi<2200.0){
     smallestMmDev->TurnOff(smallestMmDev->GetCellId(), m_rrc);
     smallestMmDev->SetturnOffTime(Simulator::Now().GetSeconds());
+    NS_LOG_DEBUG ("Turn off the smallest EEKPI1 BS ID "<< smallestMmDev->GetCellId());
   }
-  double smallestEekpi2 = 1900; // I set it higher than the c' threshold so in extreme cases it doesn't pass the next if control to turn on the Cell
+
+  double smallestEekpi2 = 1800; // I set it higher than the c' threshold so in extreme cases it doesn't pass the next if control to turn on the Cell
   Ptr<MmWaveEnbNetDevice> smallestMmDev2; //leaveing it empty is not a problem since in the worst case is not used
   //for every cell turned off (except the c')
   for (int j = 0; j < nMmWaveEnbNodes; j++) //for every cell
@@ -546,24 +568,40 @@ void EnergyHeuristic::MavenirHeuristic(uint8_t nMmWaveEnbNodes, NetDeviceContain
     Ptr<MmWaveEnbNetDevice> mmDev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
      
     if(mmDev!= smallestMmDev && mmDev->GetBsState()==0){//if the cell is turned OFF (except the c', so the one just turned off)
-      //loop the list of lists to find the correct cluster
-      for(auto i1=clusters.begin();i1!=clusters.end();i1++)
-      {
-        std::list<int>& list2=*i1; 
+      NS_LOG_DEBUG ("EEKPI2 BS ID (except the one just turned OFF) " << mmDev->GetCellId()<<" and state (turned OFF) "<< mmDev->GetBsState());
+      
+      for (uint i1 = 0; i1 < clusters.size(); i1++) {
         //check if the subject cell is inside this cluster
-        bool found = (std::find(clusters.begin(), clusters.end(), mmDev->GetCellId()) != clusters.end());
-        if (found){ //if the cell is here, perform the operation for all the neighbors
+        if (std::find(clusters[i1].begin(), clusters[i1].end(), mmDev) != clusters[i1].end()){ //if the cell is here, perform the operation for all the neighbors
           double sumWeightedEekpi2=0;
-          for(auto i2=list2.begin(); i2!=list2.end(); i2++)
-            {
-              Ptr<MmWaveEnbNetDevice> neighMmDev=*i2;
+          int cellToCount=0; // number of cells neighbors, turned ON and prbUtilizationDl!=0 (important to compute the eekpi formula) 
+          //calculate the eekpi       
+          for (uint i2 = 0; i2 < clusters[i1].size(); i2++) {
+            Ptr<MmWaveEnbNetDevice> neighMmDev=clusters[i1][i2];
+            //skip the mmdev cell (subject cell) as neighbor
+            //moreover the neighbor cell has to be turned ON
+            if(neighMmDev != mmDev && neighMmDev->GetBsState()==1){
+              NS_LOG_DEBUG ("EEKPI2 Cell ID " << mmDev->GetCellId() << "has the following neighbor " << neighMmDev->GetCellId());
               //calculate eekpi2 new formula for each neighbour
-              double eekpi= (double)neighMmDev->GetmacPduInitialCellSpecificAttr()/neighMmDev->GetprbUtilizationDlAttr()/139;
+              NS_LOG_DEBUG ("macPduInitialCellSpecific for EEKPI2 "<< mmDev->GetmacPduInitialCellSpecificAttr());
+              NS_LOG_DEBUG ("prbUtilizationDl for EEKPI2 "<< mmDev->GetprbUtilizationDlAttr());
+              double eekpi = 0;
+              if(mmDev->GetprbUtilizationDlAttr()!=0){
+                eekpi= (double)mmDev->GetmacPduInitialCellSpecificAttr()/(mmDev->GetprbUtilizationDlAttr()/139);
+                cellToCount++;
+              }
+              else{
+                NS_LOG_DEBUG ("In EEKPI2 prbUtilizationDl=0");
+              }
+              //eekpi is about the neighbour cell
               double weightedEekpi2=eekpi* 1.0* exp(-0.1*(Simulator::Now().GetSeconds() - neighMmDev->GetturnOffTime()) ); 
               sumWeightedEekpi2=sumWeightedEekpi2+weightedEekpi2;
             }
+          }
           //do the average and save it to the subject cell in variable "j" (the one turned off)
-          double avgEekpi2=sumWeightedEekpi2/list2.size();
+          //cellToSkip is substracted in case eekpi can't be computed due to prbUtilizationDl=0
+          double avgEekpi2=sumWeightedEekpi2/cellToCount;
+          NS_LOG_DEBUG ("AVG weighted EEKPI2 "<< avgEekpi2 << " for cell "<< mmDev->GetCellId());       
           if(avgEekpi2<smallestEekpi2){
             smallestEekpi2=avgEekpi2;
             smallestMmDev2=mmDev;
@@ -573,9 +611,11 @@ void EnergyHeuristic::MavenirHeuristic(uint8_t nMmWaveEnbNodes, NetDeviceContain
       }
     }
   }
+  NS_LOG_DEBUG ("Smallest AVG weighted EEKPI2 "<< smallestEekpi2);
   //obtain all the smallest eekpi2 avg values and if eekpi2 < threshold value ( 1800 ) -> turn on BS
   if(smallestEekpi2<1800.0){
-    smallestMmDev2->TurnOn (mmDev->GetCellId (), m_rrc);
+    smallestMmDev2->TurnOn (smallestMmDev2->GetCellId (), m_rrc);
+    NS_LOG_DEBUG ("Turn on the smallest EEKPI2 BS ID "<< smallestMmDev2->GetCellId());
   }
 
 }
