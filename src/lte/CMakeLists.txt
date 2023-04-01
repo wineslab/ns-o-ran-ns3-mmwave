@@ -54,6 +54,7 @@ set(source_files
     model/lte-control-messages.cc
     helper/lte-helper.cc
     helper/lte-stats-calculator.cc
+    helper/mmwave-bearer-stats-calculator.cc
     helper/epc-helper.cc
     helper/point-to-point-epc-helper.cc
     helper/radio-bearer-stats-calculator.cc
@@ -251,6 +252,7 @@ set(header_files
     model/lte-control-messages.h
     helper/lte-helper.h
     helper/lte-stats-calculator.h
+    helper/mmwave-bearer-stats-calculator.h
     helper/epc-helper.h
     helper/point-to-point-epc-helper.h
     helper/phy-stats-calculator.h
@@ -368,6 +370,7 @@ build_lib(
     ${libinternet}
     ${libcsma}
     ${libconfig-store}
+    ${liboran-interface}
   TEST_SOURCES ${test_sources}
   MODULE_ENABLED_FEATURES ${emu_features}
 )

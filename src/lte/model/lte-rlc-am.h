@@ -77,16 +77,16 @@ class LteRlcAm : public LteRlc
 
     // LL HO
     std::vector<Ptr<Packet>> GetTxBuffer();
-    uint32_t GetTxBufferSize();
+    uint32_t GetTxBufferSize() const;
 
     std::vector<RetxPdu> GetTxedBuffer();
-    uint32_t GetTxedBufferSize();
+    uint32_t GetTxedBufferSize() const;
 
     std::vector<RetxPdu> GetRetxBuffer();
-    uint32_t GetRetxBufferSize();
+    uint32_t GetRetxBufferSize() const;
 
     std::map<uint32_t, Ptr<Packet>> GetTransmittingRlcSduBuffer();
-    uint32_t GetTransmittingRlcSduBufferSize();
+    uint32_t GetTransmittingRlcSduBufferSize() const;
 
     Ptr<Packet> GetSegmentedRlcsdu();
     ///< translate a vector of Rlc PDUs to Rlc SDUs

@@ -406,7 +406,7 @@ McUeNetDevice::Receive(Ptr<Packet> p)
     }
     else
     {
-        NS_ABORT_MSG("McUeNetDevice::Receive - Unknown IP type...");
+        NS_LOG_ERROR("McUeNetDevice::Receive - Unknown IP type, packet dropped...");
     }
 }
 

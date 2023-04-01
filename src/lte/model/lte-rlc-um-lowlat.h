@@ -88,7 +88,6 @@ class LteRlcUmLowLat : public LteRlc
 
     void DoReportBufferStatus();
 
-  private:
     uint32_t m_maxTxBufferSize;
     uint32_t m_txBufferSize;
     std::vector<Ptr<Packet>> m_txBuffer;        // Transmission buffer

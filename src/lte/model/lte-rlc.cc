@@ -27,7 +27,7 @@
 #include "ns3/log.h"
 #include "ns3/lte-rlc-tag.h"
 #include "ns3/simulator.h"
-//#include "lte-mac-sap.h"
+// #include "lte-mac-sap.h"
 #include "ns3/lte-rlc-sap.h"
 
 // #include "ff-mac-sched-sap.h"
@@ -105,7 +105,10 @@ LteRlc::LteRlc()
       m_macSapProvider(0),
       m_rnti(0),
       m_lcid(0),
-      isMc(false) // TODO refactor this!!
+      m_imsi(0),
+      isMc(false), // TODO refactor this!!
+      m_txPacketsInReportingPeriod(0),
+      m_txBytesInReportingPeriod(0)
 {
     NS_LOG_FUNCTION(this);
     m_rlcSapProvider = new LteRlcSpecificLteRlcSapProvider<LteRlc>(this);
@@ -160,6 +163,13 @@ LteRlc::SetLcId(uint8_t lcId)
 {
     NS_LOG_FUNCTION(this << (uint32_t)lcId);
     m_lcid = lcId;
+}
+
+void
+LteRlc::SetImsi(uint64_t imsi)
+{
+    NS_LOG_FUNCTION(this << imsi);
+    m_imsi = imsi;
 }
 
 void

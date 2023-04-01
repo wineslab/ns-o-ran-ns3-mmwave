@@ -280,7 +280,7 @@ LteNetDevice::Receive(Ptr<Packet> p)
     else if (ipType == 0x06)
         m_rxCallback(this, p, Ipv6L3Protocol::PROT_NUMBER, Address());
     else
-        NS_ABORT_MSG("LteNetDevice::Receive - Unknown IP type...");
+        NS_LOG_UNCOND("LteNetDevice::Receive - Unknown IP type...");
 }
 
 } // namespace ns3

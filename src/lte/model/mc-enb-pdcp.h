@@ -24,6 +24,7 @@
 #define MC_ENB_PDCP_H
 
 #include "ns3/object.h"
+#include "ns3/random-variable-stream.h"
 #include "ns3/trace-source-accessor.h"
 #include "ns3/traced-value.h"
 #include <ns3/epc-x2-sap.h>
@@ -234,6 +235,35 @@ class McEnbPdcp : public LtePdcp
     static const uint16_t m_maxPdcpSn = 4095;
 
     bool m_useMmWaveConnection;
+
+    /**
+     * Percentage of packets to be directed to LTE.
+     * Used to perform traffic split.
+     *
+     */
+    double m_perPckToLTE;
+
+    /**
+     * Uniform random variable that chooses which packet would go on LTE.
+     * Used to perform traffic split.
+     *
+     */
+
+    Ptr<UniformRandomVariable> m_uniformRNG;
+
+    /**
+     * @brief accessory function to send pdcp over LTE
+     *
+     * @param p packet to be sent
+     * @param params parameters
+     */
+    void DoTransmitPdcpSduLTE(Ptr<Packet> p, LteRlcSapProvider::TransmitPdcpPduParameters params);
+    /**
+     * @brief accessory function to send pdcp over LTE
+     *
+     * @param p packet to be sent
+     */
+    void DoTransmitPdcpSduMmWave(Ptr<Packet> p);
 };
 
 } // namespace ns3

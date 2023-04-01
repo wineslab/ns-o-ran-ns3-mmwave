@@ -365,6 +365,14 @@ class MmWaveHelper : public Object
     void EnableUlPhyTrace();
     void EnableEnbSchedTrace();
 
+    void EnableE2PdcpTraces(void);
+    Ptr<MmWaveBearerStatsCalculator> GetE2PdcpStats(void);
+    void EnableE2RlcTraces(void);
+    Ptr<MmWaveBearerStatsCalculator> GetE2RlcStats(void);
+
+    void SetBasicCellId(uint16_t basicCellId);
+    uint16_t GetBasicCellId() const;
+
   protected:
     virtual void DoInitialize();
 
@@ -397,6 +405,8 @@ class MmWaveHelper : public Object
     Ptr<MmWaveBearerStatsCalculator> GetPdcpStats(void);
     // void EnableMcTraces (void);
     Ptr<McStatsCalculator> GetMcStats(void);
+
+    uint64_t GetStartTime(void);
 
     std::map<uint8_t, Ptr<SpectrumChannel>> m_channel; // mmWave TDD channel
     Ptr<SpectrumChannel> m_downlinkChannel; /// The downlink LTE channel used in the simulation.
@@ -447,6 +457,7 @@ class MmWaveHelper : public Object
 
     uint64_t m_imsiCounter;
     uint16_t m_cellIdCounter;
+    uint16_t m_basicCellId;
 
     Ptr<MmWavePhyTrace> m_phyStats;
     Ptr<MmWaveMacTrace> m_enbStats;
@@ -479,6 +490,10 @@ class MmWaveHelper : public Object
 
     Ptr<MmWaveBearerStatsCalculator> m_rlcStats;
     Ptr<MmWaveBearerStatsCalculator> m_pdcpStats;
+    Ptr<MmWaveBearerStatsCalculator> m_e2PdcpStats;
+    Ptr<MmWaveBearerStatsCalculator> m_e2PdcpStatsLte;
+    Ptr<MmWaveBearerStatsCalculator> m_e2RlcStats;
+    Ptr<MmWaveBearerStatsCalculator> m_e2RlcStatsLte;
     Ptr<McStatsCalculator> m_mcStats;
     Ptr<MmWaveBearerStatsConnector> m_radioBearerStatsConnector;
     Ptr<CoreNetworkStatsCalculator> m_cnStats;
@@ -494,6 +509,15 @@ class MmWaveHelper : public Object
      * stack.
      */
     bool m_useCa;
+
+    /**
+     * The `E2Mode` attribute. If true, enable E2 interface
+     */
+    bool m_e2mode_nr;
+    bool m_e2mode_lte;
+    std::string m_e2ip;
+    uint16_t m_e2port;
+    uint16_t m_e2localPort;
 
     /**
      * This contains all the informations about each LTE component carrier
@@ -516,6 +540,8 @@ class MmWaveHelper : public Object
      * and UE devices.
      */
     uint16_t m_noOfCcs;
+
+    uint64_t m_startTime; //!< starting time of the MmWaveHelper life in epoch format
 };
 
 } // namespace mmwave

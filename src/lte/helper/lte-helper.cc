@@ -1601,6 +1601,10 @@ LteHelper::EnableUlTxPhyTraces(void)
     Config::ConnectFailSafe(
         "/NodeList/*/DeviceList/*/ComponentCarrierMapUe/*/LteUePhy/UlPhyTransmission",
         MakeBoundCallback(&PhyTxStatsCalculator::UlPhyTransmissionCallback, m_phyTxStats));
+
+    Config::ConnectFailSafe(
+        "/NodeList/*/DeviceList/*/LteComponentCarrierMapUe/*/LteUePhy/UlPhyTransmission",
+        MakeBoundCallback(&PhyTxStatsCalculator::UlPhyTransmissionCallback, m_phyTxStats));
 }
 
 void
@@ -1608,6 +1612,10 @@ LteHelper::EnableDlRxPhyTraces(void)
 {
     Config::ConnectFailSafe(
         "/NodeList/*/DeviceList/*/ComponentCarrierMapUe/*/LteUePhy/DlSpectrumPhy/DlPhyReception",
+        MakeBoundCallback(&PhyRxStatsCalculator::DlPhyReceptionCallback, m_phyRxStats));
+
+    Config::ConnectFailSafe(
+        "/NodeList/*/DeviceList/*/LteComponentCarrierMapUe/*/LteUePhy/DlSpectrumPhy/DlPhyReception",
         MakeBoundCallback(&PhyRxStatsCalculator::DlPhyReceptionCallback, m_phyRxStats));
 }
 
@@ -1617,6 +1625,10 @@ LteHelper::EnableUlRxPhyTraces(void)
     Config::ConnectFailSafe(
         "/NodeList/*/DeviceList/*/ComponentCarrierMap/*/LteEnbPhy/UlSpectrumPhy/UlPhyReception",
         MakeBoundCallback(&PhyRxStatsCalculator::UlPhyReceptionCallback, m_phyRxStats));
+
+    Config::ConnectFailSafe(
+        "/NodeList/*/DeviceList/*/LteComponentCarrierMapUe/*/LteUePhy/DlSpectrumPhy/DlPhyReception",
+        MakeBoundCallback(&PhyRxStatsCalculator::DlPhyReceptionCallback, m_phyRxStats));
 }
 
 void
@@ -1650,6 +1662,10 @@ LteHelper::EnableDlPhyTraces(void)
     NS_LOG_FUNCTION_NOARGS();
     Config::ConnectFailSafe(
         "/NodeList/*/DeviceList/*/ComponentCarrierMapUe/*/LteUePhy/ReportCurrentCellRsrpSinr",
+        MakeBoundCallback(&PhyStatsCalculator::ReportCurrentCellRsrpSinrCallback, m_phyStats));
+
+    Config::ConnectFailSafe(
+        "/NodeList/*/DeviceList/*/LteComponentCarrierMapUe/*/LteUePhy/ReportCurrentCellRsrpSinr",
         MakeBoundCallback(&PhyStatsCalculator::ReportCurrentCellRsrpSinrCallback, m_phyStats));
 }
 

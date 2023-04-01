@@ -30,6 +30,7 @@ foreach(
     SOURCE_FILES ${example}.cc
     LIBRARIES_TO_LINK ${liblte}
                       ${libconfig-store}
+                      ${liboran-interface}
   )
 endforeach()
 

@@ -62,9 +62,11 @@
 #include <ns3/uinteger.h>
 #include <ns3/uniform-planar-array.h>
 
+#include <ctime>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <sys/time.h>
 
 namespace ns3
 {
@@ -80,6 +82,7 @@ NS_OBJECT_ENSURE_REGISTERED(MmWaveHelper);
 MmWaveHelper::MmWaveHelper(void)
     : m_imsiCounter(0),
       m_cellIdCounter(1),
+      m_basicCellId(1),
       m_harqEnabled(false),
       m_rlcAmEnabled(false),
       m_snrTest(false),
@@ -108,6 +111,8 @@ MmWaveHelper::MmWaveHelper(void)
     m_enbBeamformingCodebookFactory.SetTypeId(FileBeamformingCodebook::GetTypeId());
 
     m_bfModelFactory.SetTypeId(MmWaveSvdBeamforming::GetTypeId());
+
+    m_startTime = GetStartTime();
 }
 
 MmWaveHelper::~MmWaveHelper(void)
@@ -208,13 +213,14 @@ MmWaveHelper::GetTypeId(void)
                           BooleanValue(false),
                           MakeBooleanAccessor(&MmWaveHelper::m_useIdealRrc),
                           MakeBooleanChecker())
-            .AddAttribute("BasicCellId",
-                          "The next value will be the first cellId",
-                          UintegerValue(1),
-                          MakeUintegerAccessor(&MmWaveHelper::m_cellIdCounter),
-                          MakeUintegerChecker<uint16_t>())
+            .AddAttribute(
+                "BasicCellId",
+                "The next value will be the first cellId",
+                UintegerValue(1),
+                MakeUintegerAccessor(&MmWaveHelper::SetBasicCellId, &MmWaveHelper::GetBasicCellId),
+                MakeUintegerChecker<uint16_t>())
             .AddAttribute("BasicImsi",
-                          "The next value will be the first  imsi",
+                          "The next value will be the first imsi",
                           UintegerValue(0),
                           MakeUintegerAccessor(&MmWaveHelper::m_imsiCounter),
                           MakeUintegerChecker<uint16_t>())
@@ -267,7 +273,32 @@ MmWaveHelper::GetTypeId(void)
                           "If it is more than one and m_lteUseCa is false, it will raise an error ",
                           UintegerValue(1),
                           MakeUintegerAccessor(&MmWaveHelper::m_noOfLteCcs),
-                          MakeUintegerChecker<uint16_t>(MIN_NO_CC, MAX_NO_CC));
+                          MakeUintegerChecker<uint16_t>(MIN_NO_CC, MAX_NO_CC))
+            .AddAttribute("E2ModeNr",
+                          "If true, enable reporting over E2 for NR cells.",
+                          BooleanValue(false),
+                          MakeBooleanAccessor(&MmWaveHelper::m_e2mode_nr),
+                          MakeBooleanChecker())
+            .AddAttribute("E2ModeLte",
+                          "If true, enable reporting over E2 for LTE cells.",
+                          BooleanValue(true),
+                          MakeBooleanAccessor(&MmWaveHelper::m_e2mode_lte),
+                          MakeBooleanChecker())
+            .AddAttribute("E2TermIp",
+                          "The IP address of the RIC E2 termination",
+                          StringValue("10.244.0.240"),
+                          MakeStringAccessor(&MmWaveHelper::m_e2ip),
+                          MakeStringChecker())
+            .AddAttribute("E2Port",
+                          "Port number for E2",
+                          UintegerValue(36422),
+                          MakeUintegerAccessor(&MmWaveHelper::m_e2port),
+                          MakeUintegerChecker<uint16_t>())
+            .AddAttribute("E2LocalPort",
+                          "The first port number for the local bind",
+                          UintegerValue(38470),
+                          MakeUintegerAccessor(&MmWaveHelper::m_e2localPort),
+                          MakeUintegerChecker<uint16_t>());
 
     return tid;
 }
@@ -312,6 +343,10 @@ MmWaveHelper::DoInitialize()
     m_radioBearerStatsConnector = CreateObject<MmWaveBearerStatsConnector>();
     m_enbStats = CreateObject<MmWaveMacTrace>();
 
+    // DoInitialize() will be called only once over the lifetime of an Object,
+    // just like DoDispose() is called only once.
+    m_basicCellId = m_cellIdCounter;
+
     // lte cc initialization
     // if m_lteUseCa=false and SetLteCcPhyParams() has not been called, setup a default LTE CC
     if (!m_lteUseCa && m_lteComponentCarrierPhyParams.size() == 0)
@@ -333,6 +368,19 @@ MmWaveHelper::DoInitialize()
     m_cnStats = 0; // core network stats calculator
 
     Object::DoInitialize();
+}
+
+void
+MmWaveHelper::SetBasicCellId(uint16_t basicCellId)
+{
+    m_cellIdCounter = basicCellId;
+    m_basicCellId = basicCellId;
+}
+
+uint16_t
+MmWaveHelper::GetBasicCellId() const
+{
+    return m_basicCellId;
 }
 
 void
@@ -1773,6 +1821,7 @@ MmWaveHelper::InstallSingleEnbDevice(Ptr<Node> n)
     NS_ASSERT_MSG(m_componentCarrierPhyParams.size() != 0,
                   "Cannot create enb ccm map. Call SetCcPhyParams first.");
     Ptr<MmWaveEnbNetDevice> device = m_enbNetDeviceFactory.Create<MmWaveEnbNetDevice>();
+    device->SetStartTime(m_startTime);
     device->SetNode(n);
 
     // create component carrier map for this eNb device
@@ -2074,6 +2123,7 @@ MmWaveHelper::InstallSingleEnbDevice(Ptr<Node> n)
     }
 
     device->SetAttribute("CellId", UintegerValue(cellId));
+    device->SetAttribute("BasicCellId", UintegerValue(m_basicCellId));
     device->SetAttribute("LteEnbComponentCarrierManager", PointerValue(ccmEnbManager));
     device->SetCcMap(ccMap);
 
@@ -2127,6 +2177,26 @@ MmWaveHelper::InstallSingleEnbDevice(Ptr<Node> n)
             }
     }*/
 
+    if (m_e2mode_nr)
+    {
+        const uint16_t local_port = m_e2localPort + (uint16_t)cellId;
+        const std::string gnb_id{std::to_string(cellId)};
+
+        std::string plmnId = "111";
+
+        NS_LOG_INFO("cell_id " << gnb_id);
+        Ptr<E2Termination> e2term =
+            CreateObject<E2Termination>(m_e2ip, m_e2port, local_port, gnb_id, plmnId);
+
+        device->SetAttribute("E2Termination", PointerValue(e2term));
+
+        EnableE2PdcpTraces();
+        EnableE2RlcTraces();
+        device->SetAttribute("E2PdcpCalculator", PointerValue(m_e2PdcpStats));
+        device->SetAttribute("E2RlcCalculator", PointerValue(m_e2RlcStats));
+        device->SetAttribute("E2DuCalculator", PointerValue(m_phyStats));
+    }
+
     device->Initialize();
     n->AddDevice(device);
 
@@ -2166,6 +2236,7 @@ MmWaveHelper::InstallSingleLteEnbDevice(Ptr<Node> n)
     uint16_t cellId = m_cellIdCounter; // \todo Remove, eNB has no cell ID
 
     Ptr<LteEnbNetDevice> dev = m_lteEnbNetDeviceFactory.Create<LteEnbNetDevice>();
+    dev->SetStartTime(m_startTime);
     Ptr<LteHandoverAlgorithm> handoverAlgorithm =
         m_lteHandoverAlgorithmFactory.Create<LteHandoverAlgorithm>();
 
@@ -2416,6 +2487,25 @@ MmWaveHelper::InstallSingleLteEnbDevice(Ptr<Node> n)
         }
     } // end for
     rrc->SetForwardUpCallback(MakeCallback(&LteEnbNetDevice::Receive, dev));
+
+    if (m_e2mode_lte)
+    {
+        const uint16_t local_port = m_e2localPort + (uint16_t)cellId;
+        const std::string enb_id{std::to_string(cellId)};
+        std::string plmnId = "111";
+
+        NS_LOG_INFO("enb_id " << enb_id);
+        Ptr<E2Termination> e2term =
+            CreateObject<E2Termination>(m_e2ip, m_e2port, local_port, enb_id, plmnId);
+
+        dev->SetAttribute("E2Termination", PointerValue(e2term));
+
+        EnableE2PdcpTraces();
+        EnableE2RlcTraces();
+        dev->SetAttribute("E2PdcpCalculator", PointerValue(m_e2PdcpStatsLte));
+        dev->SetAttribute("E2RlcCalculator", PointerValue(m_e2RlcStatsLte));
+    }
+
     dev->Initialize();
     n->AddDevice(dev);
 
@@ -3080,6 +3170,65 @@ MmWaveHelper::GetPdcpStats(void)
 }
 
 void
+MmWaveHelper::EnableE2PdcpTraces(void)
+{
+    if (!m_e2PdcpStats && (m_e2mode_nr || m_e2mode_lte))
+    {
+        m_e2PdcpStats = CreateObject<MmWaveBearerStatsCalculator>("E2PDCP");
+        m_e2PdcpStats->SetAttribute("DlPdcpOutputFilename", StringValue("DlE2PdcpStats.txt"));
+        m_e2PdcpStats->SetAttribute("UlPdcpOutputFilename", StringValue("UlE2PdcpStats.txt"));
+        m_e2PdcpStats->SetAttribute("EpochDuration", TimeValue(Seconds(1)));
+        m_radioBearerStatsConnector->EnableE2PdcpStats(m_e2PdcpStats);
+
+        m_e2PdcpStatsLte = CreateObject<MmWaveBearerStatsCalculator>("E2PDCPLTE");
+        m_e2PdcpStatsLte->SetAttribute("DlPdcpOutputFilename", StringValue("DlE2PdcpStatsLte.txt"));
+        m_e2PdcpStatsLte->SetAttribute("UlPdcpOutputFilename", StringValue("UlE2PdcpStatsLte.txt"));
+        m_e2PdcpStatsLte->SetAttribute("EpochDuration", TimeValue(Seconds(1)));
+        m_radioBearerStatsConnector->EnableE2PdcpStats(m_e2PdcpStatsLte);
+    }
+    else
+    {
+        NS_LOG_INFO("E2 PDCP stats already created");
+    }
+}
+
+Ptr<MmWaveBearerStatsCalculator>
+MmWaveHelper::GetE2PdcpStats(void)
+{
+    // TODO fix this
+    return m_e2PdcpStats;
+}
+
+void
+MmWaveHelper::EnableE2RlcTraces(void)
+{
+    if (!m_e2RlcStats && (m_e2mode_nr || m_e2mode_lte))
+    {
+        m_e2RlcStats = CreateObject<MmWaveBearerStatsCalculator>("E2RLC");
+        m_e2RlcStats->SetAttribute("DlPdcpOutputFilename", StringValue("DlE2RlcStats.txt"));
+        m_e2RlcStats->SetAttribute("UlPdcpOutputFilename", StringValue("UlE2RlcStats.txt"));
+        m_e2RlcStats->SetAttribute("EpochDuration", TimeValue(Seconds(1)));
+        m_radioBearerStatsConnector->EnableE2RlcStats(m_e2RlcStats);
+
+        m_e2RlcStatsLte = CreateObject<MmWaveBearerStatsCalculator>("E2RLCLTE");
+        m_e2RlcStatsLte->SetAttribute("DlPdcpOutputFilename", StringValue("DlE2RlcStatsLte.txt"));
+        m_e2RlcStatsLte->SetAttribute("UlPdcpOutputFilename", StringValue("UlE2RlcStatsLte.txt"));
+        m_e2RlcStatsLte->SetAttribute("EpochDuration", TimeValue(Seconds(1)));
+        m_radioBearerStatsConnector->EnableE2RlcStats(m_e2RlcStatsLte);
+    }
+    else
+    {
+        NS_LOG_INFO("E2 RLC stats already created");
+    }
+}
+
+Ptr<MmWaveBearerStatsCalculator>
+MmWaveHelper::GetE2RlcStats(void)
+{
+    return m_e2RlcStats;
+}
+
+void
 MmWaveHelper::EnableMcTraces(void)
 {
     NS_ASSERT_MSG(!m_mcStats,
@@ -3136,5 +3285,16 @@ MmWaveHelper::SetUeComponentCarrierManagerType(std::string type)
     m_ueComponentCarrierManagerFactory.SetTypeId(type);
 }
 
+uint64_t
+MmWaveHelper::GetStartTime()
+{
+    struct timeval time_now
+    {
+    };
+
+    gettimeofday(&time_now, nullptr);
+
+    return (time_now.tv_sec * 1000) + (time_now.tv_usec / 1000);
+}
 } // namespace mmwave
 } // namespace ns3

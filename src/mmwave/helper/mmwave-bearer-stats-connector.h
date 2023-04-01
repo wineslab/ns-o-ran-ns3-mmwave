@@ -29,7 +29,7 @@
  *                Dual Connectivity and Handover functionalities
  *
  * Modified by: Tommaso Zugno <tommasozugno@gmail.com>
- *                          Integration of Carrier Aggregation
+ *							Integration of Carrier Aggregation
  */
 
 #ifndef MMWAVE_BEARER_STATS_CONNECTOR_H
@@ -101,6 +101,22 @@ class MmWaveBearerStatsConnector : public Object
      * \param pdcpStats statistics calculator for PDCP layer
      */
     void EnablePdcpStats(Ptr<MmWaveBearerStatsCalculator> pdcpStats);
+
+    /**
+     * Enables trace sinks for E2 reporting of the PDCP layer.
+     * Usually, this function
+     * is called by MmWaveHelper::EnableE2PdcpTraces().
+     * \param e2PdcpStats statistics calculator for PDCP layer
+     */
+    void EnableE2PdcpStats(Ptr<MmWaveBearerStatsCalculator> e2PdcpStats);
+
+    /**
+     * Enables trace sinks for E2 reporting of the RLC layer.
+     * Usually, this function
+     * is called by MmWaveHelper::EnableE2RlcTraces().
+     * \param e2PdcpStats statistics calculator for RLC layer
+     */
+    void EnableE2RlcStats(Ptr<MmWaveBearerStatsCalculator> e2RlcStats);
 
     void EnableMcStats(Ptr<McStatsCalculator> mcStats);
 
@@ -424,7 +440,11 @@ class MmWaveBearerStatsConnector : public Object
 
     Ptr<MmWaveBearerStatsCalculator> m_rlcStats;  //!< Calculator for RLC Statistics
     Ptr<MmWaveBearerStatsCalculator> m_pdcpStats; //!< Calculator for PDCP Statistics
-    Ptr<McStatsCalculator> m_mcStats;             //!< Calculator for multi-connectivity Statistics
+    std::vector<Ptr<MmWaveBearerStatsCalculator>>
+        m_e2PdcpStatsVector; //!< Calculator for PDCP Statistics
+    std::vector<Ptr<MmWaveBearerStatsCalculator>>
+        m_e2RlcStatsVector;           //!< Calculator for PDCP Statistics
+    Ptr<McStatsCalculator> m_mcStats; //!< Calculator for multi-connectivity Statistics
 
     std::map<uint64_t, CallbackBase> m_rlcDrbDlRxCb; //!< Sinks for the received DL RLC data packets
     std::map<uint64_t, CallbackBase> m_rlcDrbUlTxCb; //!< Sinks for the sent UL RLC data packets

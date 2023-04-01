@@ -341,6 +341,8 @@ MmWaveUeMac::DoTransmitPdu(LteMacSapProvider::TransmitPduParameters params)
         if (it->second.m_size <
             (params.pdu->GetSize() + it->second.m_macHeader.GetSerializedSize()))
         {
+            m_macPduMap.erase(it); // delete map entry
+            return;
             NS_FATAL_ERROR("Maximum TB size exceeded");
         }
 
@@ -768,6 +770,11 @@ MmWaveUeMac::DoReceiveControlMessage(Ptr<MmWaveControlMessage> msg)
                                       << statusPduMinSize);
                     if (dciInfoElem.m_tbSize < statusPduMinSize)
                     {
+                        // erase the entry in the mac pdu map
+                        auto it = m_macPduMap.find(dciInfoElem.m_harqProcess);
+                        m_macPduMap.erase(it);
+
+                        return;
                         NS_FATAL_ERROR("Insufficient Tx Opportunity for sending a status message");
                     }
                 }

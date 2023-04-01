@@ -174,6 +174,10 @@ class UeManager : public Object
                               uint32_t gtpTeid,
                               Ipv4Address transportLayerAddress);
 
+    // TODO doxy
+    std::map<uint8_t, Ptr<LteDataRadioBearerInfo>> GetDrbMap() const;
+    std::map<uint8_t, Ptr<RlcBearerInfo>> GetRlcMap() const;
+
     /**
      * Start all configured data radio bearers. It is safe to call this
      * method if any bearer had been already started previously.
@@ -1253,7 +1257,8 @@ class LteEnbRrc : public Object
     {
         FIXED_TTT = 1,
         DYNAMIC_TTT = 2,
-        THRESHOLD = 3
+        THRESHOLD = 3,
+        NO_AUTOMATIC_HANDOVER = 4,
     };
 
     struct HandoverEventInfo
@@ -1548,7 +1553,28 @@ class LteEnbRrc : public Object
      */
     TypeId GetRlcType(EpsBearer bearer);
 
+    /**
+     * \brief Is random access completed function
+     *
+     * This method is executed to decide if the non contention based
+     * preamble has to reused or not upon preamble expiry. If the random access
+     * in connected mode is completed, then the preamble can be reused by other UEs.
+     * If not, the same UE retains the preamble and other available preambles is
+     * assigned to the required UEs.
+     *
+     * \param rnti the C-RNTI identifying the user
+     * \return true if the random access in connected mode is completed
+     */
+    bool IsRandomAccessCompleted(uint16_t rnti);
+
   public:
+    /**
+     * Get the UE map
+     *
+     * \return the map of rnti and UeManager
+     */
+    std::map<uint16_t, Ptr<UeManager>> GetUeMap() const;
+
     /**
      * Add a neighbour with an X2 interface
      *
@@ -1588,6 +1614,32 @@ class LteEnbRrc : public Object
      * simulation.
      */
     void SetCsgId(uint32_t csgId, bool csgIndication);
+
+    /**
+     * Take the HO control for a certain UE
+     * @params imsi UE
+     */
+    void TakeUeHoControl(uint64_t imsi);
+
+    /**
+     * Triggers an handover between secondary cells
+     * @params imsi UE
+     * @params targetCellId target cell
+     */
+    void PerformHandoverToTargetCell(uint64_t imsi, uint16_t targetCellId);
+
+    /**
+     * Set mmWave/NR BS handover status (allowed or not)
+     * @params cellId
+     * @params a boolean that is true if the cell can accept handovers, false otherwise
+     * @returns false if the cell is not in the list of known cells
+     */
+    bool SetSecondaryCellHandoverAllowedStatus(uint16_t cellId, bool hoAllowed);
+
+    /**
+     * Evict users from secondary cells that have deactivated forcing handover to another cell
+     */
+    void EvictUsersFromSecondaryCell();
 
   private:
     /**
@@ -1946,6 +1998,9 @@ class LteEnbRrc : public Object
     std::map<uint64_t, uint16_t> m_imsiRntiMap;
     std::map<uint16_t, uint64_t> m_rntiImsiMap;
 
+    // sleep mode for mmWave/NR BSs controlled by the LTE eNB
+    std::map<uint16_t, bool> m_allowHandoverTo; // cellId, true if HO is allowed, false if not
+
     HandoverMode m_handoverMode;
 
     // TTT based handover management
@@ -1975,6 +2030,9 @@ class LteEnbRrc : public Object
 
     std::map<uint8_t, MmWaveComponentCarrierConf>
         m_mmWaveComponentCarrierPhyConf; ///< mmWave component carrier phy configuration
+
+    std::set<uint64_t>
+        m_e2ControlledUes; ///< contains a list of UEs for which HO is controlled externally
 
 }; // end of `class LteEnbRrc`
 
