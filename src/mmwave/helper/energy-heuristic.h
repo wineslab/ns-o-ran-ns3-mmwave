@@ -89,11 +89,6 @@ class EnergyHeuristic : public Object{
    * @param mmDev 
    */
   void CountBestUesSinr(double sinrTh, Ptr<MmWaveEnbNetDevice> mmDev);
-
-  void MavenirHeuristic(uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs, Ptr<LteEnbNetDevice> ltedev, int numberOfClusters, std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> clusters);
-
-  std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> ReadClusters(std::string clusters, uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs);
-
 };
 
 }

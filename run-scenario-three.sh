@@ -59,7 +59,6 @@ scheduleControlMessages=0 # if the control message shall be read at the beginnin
 # NS_LOG="RicControlMessage" 
 
 for i in $(seq 1 $N); do
-  echo "Running simulation $i out of $N";
   ./waf --run "scratch/scenario-three --RngRun=$i \
                                     --configuration=$configuration \
                                     --dataRate=$dataRate \

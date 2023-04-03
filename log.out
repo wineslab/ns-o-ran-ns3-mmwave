@@ -1,0 +1,100 @@
+Energy Efficiency use case
+Waf: Entering directory `/home/matteo/Desktop/ns3-mmwave-oran/build'
+[2003/2999] Compiling src/mmwave/helper/mavenir-heuristic.cc
+[2933/2999] Linking build/lib/libns3.33-mmwave-debug.so
+[2934/2999] Linking build/lib/libns3.33-mmwave-test-debug.so
+[2935/2999] Linking build/src/mmwave/examples/ns3.33-mmwave-example-debug
+[2936/2999] Linking build/src/mmwave/examples/ns3.33-mmwave-tcp-example-debug
+[2937/2999] Linking build/src/mmwave/examples/ns3.33-mmwave-simple-epc-debug
+[2938/2999] Linking build/src/mmwave/examples/ns3.33-mmwave-simple-epc-ipv6-debug
+[2939/2999] Linking build/src/mmwave/examples/ns3.33-mmwave-epc-tdma-debug
+[2940/2999] Linking build/src/mmwave/examples/ns3.33-mmwave-tdma-debug
+[2941/2999] Linking build/src/mmwave/examples/ns3.33-mmwave-simple-building-obstacle-debug
+[2942/2999] Linking build/src/mmwave/examples/ns3.33-mmwave-tcp-building-example-debug
+[2943/2999] Linking build/src/mmwave/examples/ns3.33-mmwave-amc-test-debug
+[2944/2999] Linking build/src/mmwave/examples/ns3.33-mmwave-amc-test2-debug
+[2945/2999] Linking build/src/mmwave/examples/ns3.33-mmwave-epc-amc-test-debug
+[2946/2999] Linking build/src/mmwave/examples/ns3.33-mc-twoenbs-debug
+[2947/2999] Linking build/src/mmwave/examples/ns3.33-mc-twoenbs-ipv6-debug
+[2948/2999] Linking build/src/mmwave/examples/ns3.33-mmwave-ca-diff-bandwidth-debug
+[2949/2999] Linking build/src/mmwave/examples/ns3.33-mmwave-ca-same-bandwidth-debug
+[2950/2999] Linking build/scratch/scenario-three
+[2951/2999] Linking build/scratch/scenario-one
+[2952/2999] Linking build/scratch/scenario-one-es
+[2953/2999] Linking build/scratch/scenario-zero
+[2954/2999] Linking build/scratch/scratch-simulator
+[2955/2999] Linking build/scratch/subdir/subdir
+[2956/2999] Linking build/scratch/scenario-two
+[2957/2999] Linking build/utils/ns3.33-print-introspected-doxygen-debug
+[2958/2999] Linking build/utils/ns3.33-test-runner-debug
+Waf: Leaving directory `/home/matteo/Desktop/ns3-mmwave-oran/build'
+Build commands will be stored in build/compile_commands.json
+'build' finished successfully (8.560s)
+rlcAmEnabled 1 bufferSize 10 OutageThreshold -5 HandoverMode DynamicTtt BasicCellId 1 e2TermIp 10.102.157.65 enableE2FileLogging 1 minSpeed 2 maxSpeed 4 numberofRaPreambles 40
+e2lteEnabled 1 e2nrEnabled 1 e2du 1 e2cuCp 1 e2cuUp 1 reducedPmValues 0 controlFilename  indicationPeriodicity 0.5 ScheduleControlMessages 0 heuristicType 3
++0.000000000s -1 MavenirHeuristic:ReadClusters(): [DEBUG] Input cluster as string: [[5,6,7],[2,3,4,8]]
++0.000000000s -1 MavenirHeuristic:ReadClusters(): [DEBUG] 5
++0.000000000s -1 MavenirHeuristic:ReadClusters(): [DEBUG] 6
++0.000000000s -1 MavenirHeuristic:ReadClusters(): [DEBUG] 7
++0.000000000s -1 MavenirHeuristic:ReadClusters(): [DEBUG] /n
++0.000000000s -1 MavenirHeuristic:ReadClusters(): [DEBUG] 2
++0.000000000s -1 MavenirHeuristic:ReadClusters(): [DEBUG] 3
++0.000000000s -1 MavenirHeuristic:ReadClusters(): [DEBUG] 4
++0.000000000s -1 MavenirHeuristic:ReadClusters(): [DEBUG] 8
++0.000000000s -1 MavenirHeuristic:ReadClusters(): [DEBUG] /n
+Simulation time is 5 seconds 
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 BS ID 2 and state (turned ON) 1
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] macPduInitialCellSpecific for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] prbUtilizationDl for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 2200 because prbUtilizationDl=0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 BS ID 3 and state (turned ON) 1
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] macPduInitialCellSpecific for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] prbUtilizationDl for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 2200 because prbUtilizationDl=0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 BS ID 4 and state (turned ON) 1
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] macPduInitialCellSpecific for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] prbUtilizationDl for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 2200 because prbUtilizationDl=0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 BS ID 5 and state (turned ON) 1
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] macPduInitialCellSpecific for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] prbUtilizationDl for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 2200 because prbUtilizationDl=0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 BS ID 6 and state (turned ON) 1
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] macPduInitialCellSpecific for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] prbUtilizationDl for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 2200 because prbUtilizationDl=0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 BS ID 7 and state (turned ON) 1
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] macPduInitialCellSpecific for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] prbUtilizationDl for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 2200 because prbUtilizationDl=0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 BS ID 8 and state (turned ON) 1
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] macPduInitialCellSpecific for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] prbUtilizationDl for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 2200 because prbUtilizationDl=0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 BS ID 9 and state (turned ON) 1
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] macPduInitialCellSpecific for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] prbUtilizationDl for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 2200 because prbUtilizationDl=0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 BS ID 10 and state (turned ON) 1
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] macPduInitialCellSpecific for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] prbUtilizationDl for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 2200 because prbUtilizationDl=0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 BS ID 11 and state (turned ON) 1
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] macPduInitialCellSpecific for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] prbUtilizationDl for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 2200 because prbUtilizationDl=0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 BS ID 12 and state (turned ON) 1
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] macPduInitialCellSpecific for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] prbUtilizationDl for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 2200 because prbUtilizationDl=0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 BS ID 13 and state (turned ON) 1
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] macPduInitialCellSpecific for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] prbUtilizationDl for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 2200 because prbUtilizationDl=0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 BS ID 14 and state (turned ON) 1
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] macPduInitialCellSpecific for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] prbUtilizationDl for EEKPI1 0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] EEKPI1 2200 because prbUtilizationDl=0
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] Smallest EEKPI1 2200
++0.000000000s -1 MavenirHeuristic:MavenirHeur(): [DEBUG] Smallest AVG weighted EEKPI2 1800
+Interrupted 

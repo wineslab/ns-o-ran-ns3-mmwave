@@ -30,6 +30,7 @@
 #include "ns3/mmwave-point-to-point-epc-helper.h"
 #include "ns3/lte-helper.h"
 #include "ns3/energy-heuristic.h"
+#include "ns3/mavenir-heuristic.h"
 
 using namespace ns3;
 using namespace mmwave;
@@ -302,6 +303,7 @@ main (int argc, char *argv[])
   LogComponentEnableAll (LOG_PREFIX_ALL);
   LogComponentEnable ("ScenarioThree", LOG_LEVEL_DEBUG);
   LogComponentEnable ("EnergyHeuristic", LOG_LEVEL_DEBUG);
+  LogComponentEnable ("MavenirHeuristic", LOG_LEVEL_DEBUG);
   // LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
   // LogComponentEnable ("OnOffApplication", LOG_LEVEL_ALL);
   // LogComponentEnable ("LtePdcp", LOG_LEVEL_ALL);
@@ -838,7 +840,8 @@ main (int argc, char *argv[])
   int BsStatus[4] = {bsOn, bsIdle, bsSleep, bsOff};
 
   Ptr<EnergyHeuristic> energyHeur=CreateObject<EnergyHeuristic>();
-  std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> bsClusters = energyHeur->ReadClusters(clusters, nMmWaveEnbNodes, mmWaveEnbDevs);
+  Ptr<MavenirHeuristic> mavenirHeur=CreateObject<MavenirHeuristic>();
+  std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> bsClusters = mavenirHeur->ReadClusters(clusters, nMmWaveEnbNodes, mmWaveEnbDevs);
 
   switch (heuristicType)
     {
@@ -907,7 +910,7 @@ main (int argc, char *argv[])
         for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
           {
             Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
-            Simulator::Schedule (Seconds (i), &EnergyHeuristic::MavenirHeuristic, energyHeur,
+            Simulator::Schedule (Seconds (i), &MavenirHeuristic::MavenirHeur, mavenirHeur,
                                  nMmWaveEnbNodes, mmWaveEnbDevs, ltedev, numberOfClusters, bsClusters);
           }
       }
