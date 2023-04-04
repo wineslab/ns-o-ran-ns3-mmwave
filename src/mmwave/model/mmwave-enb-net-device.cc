@@ -161,14 +161,6 @@ uint32_t MmWaveEnbNetDevice::GetmacPduCellSpecific(){
   return m_macPduCellSpecific;
 }
 
-void MmWaveEnbNetDevice::Seteekpi2(double value){
-  m_eekpi2=value;
-}
-
-double MmWaveEnbNetDevice::Geteekpi2(){
-  return m_eekpi2;
-}
-
 void  MmWaveEnbNetDevice::SetturnOffTime(double value){
   m_turnOffTime=value;
 }

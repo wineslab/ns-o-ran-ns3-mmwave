@@ -126,10 +126,11 @@ void MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes, NetDeviceContainer m
     if(mmDev->GetBsState()==1){//if the cell is turned ON
       NS_LOG_DEBUG ("EEKPI1 BS ID " << mmDev->GetCellId()<<" and state (turned ON) "<< mmDev->GetBsState());
       //compute eekpi and get the smallest one c'
+      double txPowerWatts=pow(10,mmDev->GetPhy()->GetTxPower()/10)/1000;
       NS_LOG_DEBUG ("macVolumeCellSpecific for EEKPI1 "<< mmDev->GetmacVolumeCellSpecific());
       NS_LOG_DEBUG ("macPduCellSpecific for EEKPI1 "<< mmDev->GetmacPduCellSpecific());
+      NS_LOG_DEBUG ("txPowerWatts for EEKPI1 "<< txPowerWatts);
       double eekpi = 2200;
-      double txPowerWatts=pow(10,mmDev->GetPhy()->GetTxPower()/10)/1000;
       if((mmDev->GetmacPduCellSpecific()*txPowerWatts)!=0 ){
         eekpi= (double)mmDev->GetmacVolumeCellSpecific()/(mmDev->GetmacPduCellSpecific()*txPowerWatts);
         NS_LOG_DEBUG ("EEKPI1 "<< eekpi << " for cell "<< mmDev->GetCellId());
@@ -174,12 +175,13 @@ void MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes, NetDeviceContainer m
             //skip the mmdev cell (subject cell) as neighbor
             //moreover the neighbor cell has to be turned ON
             if(neighMmDev != mmDev && neighMmDev->GetBsState()==1){
-              NS_LOG_DEBUG ("EEKPI2 Cell ID " << mmDev->GetCellId() << " has the following neighbor " << neighMmDev->GetCellId());
+              NS_LOG_DEBUG ("EEKPI2 Cell ID " << mmDev->GetCellId() << " has the following neighbor turned ON " << neighMmDev->GetCellId());
               //calculate eekpi2 new formula for each neighbour
+              double txPowerWatts=pow(10,neighMmDev->GetPhy()->GetTxPower()/10)/1000;
               NS_LOG_DEBUG ("macVolumeCellSpecific for EEKPI2 "<< neighMmDev->GetmacVolumeCellSpecific());
               NS_LOG_DEBUG ("macPduCellSpecific for EEKPI2 "<< neighMmDev->GetmacPduCellSpecific());
+              NS_LOG_DEBUG ("txPowerWatts for EEKPI2 "<< txPowerWatts);
               double eekpi = 0;
-              double txPowerWatts=pow(10,neighMmDev->GetPhy()->GetTxPower()/10)/1000;
               if((neighMmDev->GetmacPduCellSpecific()*txPowerWatts)!=0 ){
                 eekpi= (double)neighMmDev->GetmacVolumeCellSpecific()/(neighMmDev->GetmacPduCellSpecific()*txPowerWatts);
                 cellToCount++;

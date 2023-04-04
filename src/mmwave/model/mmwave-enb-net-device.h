@@ -164,10 +164,6 @@ public:
 
   uint32_t GetmacPduCellSpecific();
 
-  void Seteekpi2(double value);
-
-  double Geteekpi2();
-
   void SetturnOffTime(double value);
 
   double GetturnOffTime();
@@ -272,8 +268,6 @@ private:
    * @brief 
    * 
    */
-  double m_eekpi2 = 0;
-
   double m_turnOffTime = 0; 
 };
 }
