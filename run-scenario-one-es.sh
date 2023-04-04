@@ -12,14 +12,12 @@ minSpeed=2.0 # minimum UE speed in m/s
 maxSpeed=4.0 # maximum UE speed in m/s
 simTime=3.0 # simulation time
 e2TermIp="10.102.157.65" # actual E2term IP interface
-perPckToLTE=-1
-ueZeroPercentage=-1
 rlcAmEnabled="true"
 bufferSize=10
 trafficModel=0
 numberOfRaPreambles=40
 
-heuristicType=2 # Type of heuristic for managing BS status: Random sleeping (0), Static sleeping (1), Dynamic sleeping (2)
+heuristicType=3 # Type of heuristic for managing BS status: Random sleeping (0), Static sleeping (1), Dynamic sleeping (2)
 #heuristic parameters
 probOn=0.6038
 probIdle=0.3854
@@ -30,6 +28,8 @@ bsOn=2
 bsIdle=2
 bsSleep=2
 bsOff=1
+numberOfClusters=2
+clusters=[[5,6,7],[2,3,4,8]]
 
 # Useful parameters to be configured
 N=1 # number of simulations
@@ -57,7 +57,7 @@ echo "Energy Efficiency use case"
 outageThreshold=-5.0 # use -5.0 when handover is not in NoAuto 
 handoverMode="DynamicTtt"
 indicationPeriodicity=0.02 # value in seconds (20 ms)
-controlFileName="es_actions_for_ns3.csv" # ES control file path
+controlFileName="" # ES control file path
 
 #scheduleControlMessages=1 # if the control message shall be read at the beginning of the simulation and the events scheduled
 # If scheduleControlMessages is 0, remember to create an empty version of the control file before the start of this script, otherwise it would lead to premature crashes.
@@ -70,8 +70,6 @@ for i in $(seq 1 $N); do
   ./waf --run "scratch/scenario-one-es --RngRun=$i \
                                     --configuration=$configuration \
                                     --trafficModel=$trafficModel \
-                                    --perPckToLTE=$perPckToLTE \
-                                    --ueZeroPercentage=$ueZeroPercentage \
                                     --hoSinrDifference=$hoSinrDifference \
                                     --rlcAmEnabled=$rlcAmEnabled \
                                     --bufferSize=$bufferSize \
@@ -104,6 +102,8 @@ for i in $(seq 1 $N); do
                                     --bsOn=$bsOn\
                                     --bsIdle=$bsIdle\
                                     --bsSleep=$bsSleep\
-                                    --bsOff=$bsOff";
+                                    --bsOff=$bsOff\
+                                    --numberOfClusters=$numberOfClusters\
+                                    --clusters=$clusters";
   sleep 1;
 done

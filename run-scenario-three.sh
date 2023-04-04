@@ -24,6 +24,8 @@ bsOn=4
 bsIdle=3
 bsSleep=3
 bsOff=3
+numberOfClusters=2
+clusters=[[5,6,7],[2,3,4,8]]
 
 # Useful parameters to be configured
 N=1 # number of simulations
@@ -90,6 +92,8 @@ for i in $(seq 1 $N); do
                                     --bsIdle=$bsIdle\
                                     --bsSleep=$bsSleep\
                                     --bsOff=$bsOff\
+                                    --numberOfClusters=$numberOfClusters\
+                                    --clusters=$clusters\
                                     --scheduleControlMessages=$scheduleControlMessages";
   sleep 1;
 done

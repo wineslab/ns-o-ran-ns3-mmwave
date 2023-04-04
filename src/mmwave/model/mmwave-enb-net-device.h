@@ -160,9 +160,9 @@ public:
 
   void SetCellState (enumModeEnergyBs value);
 
-  uint32_t GetmacPduInitialCellSpecificAttr ();
+  uint32_t GetmacVolumeCellSpecific ();
 
-  double GetprbUtilizationDlAttr();
+  uint32_t GetmacPduCellSpecific();
 
   void Seteekpi2(double value);
 
@@ -262,12 +262,12 @@ private:
    */
   double m_closestUETime = 10000.0;
 
-  uint32_t m_macPduInitialCellSpecificAttr = 0;
+  uint32_t m_macPduCellSpecific = 0;
   /**
    * @brief 
    * 
    */
-  double m_prbUtilizationDlAttr = 0;
+  uint32_t m_macVolumeCellSpecific = 0;
   /**
    * @brief 
    * 

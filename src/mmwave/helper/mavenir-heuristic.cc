@@ -126,15 +126,16 @@ void MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes, NetDeviceContainer m
     if(mmDev->GetBsState()==1){//if the cell is turned ON
       NS_LOG_DEBUG ("EEKPI1 BS ID " << mmDev->GetCellId()<<" and state (turned ON) "<< mmDev->GetBsState());
       //compute eekpi and get the smallest one c'
-      NS_LOG_DEBUG ("macPduInitialCellSpecific for EEKPI1 "<< mmDev->GetmacPduInitialCellSpecificAttr());
-      NS_LOG_DEBUG ("prbUtilizationDl for EEKPI1 "<< mmDev->GetprbUtilizationDlAttr());
+      NS_LOG_DEBUG ("macVolumeCellSpecific for EEKPI1 "<< mmDev->GetmacVolumeCellSpecific());
+      NS_LOG_DEBUG ("macPduCellSpecific for EEKPI1 "<< mmDev->GetmacPduCellSpecific());
       double eekpi = 2200;
-      if(mmDev->GetprbUtilizationDlAttr()!=0){
-        eekpi= (double)mmDev->GetmacPduInitialCellSpecificAttr()/(mmDev->GetprbUtilizationDlAttr()/139);
+      double txPowerWatts=pow(10,mmDev->GetPhy()->GetTxPower()/10)/1000;
+      if((mmDev->GetmacPduCellSpecific()*txPowerWatts)!=0 ){
+        eekpi= (double)mmDev->GetmacVolumeCellSpecific()/(mmDev->GetmacPduCellSpecific()*txPowerWatts);
         NS_LOG_DEBUG ("EEKPI1 "<< eekpi << " for cell "<< mmDev->GetCellId());
       }
       else{
-        NS_LOG_DEBUG ("EEKPI1 "<< eekpi << " because prbUtilizationDl=0");
+        NS_LOG_DEBUG ("EEKPI1 "<< eekpi << " because macPduCellSpecific*txPowerWatts=0");
       }
       //mmDev->Seteekpi(eekpi); //save the eekpi for each BS to use it on the second part of the fuction (do we really need it??)
       if(eekpi<smallestEekpi){
@@ -175,15 +176,16 @@ void MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes, NetDeviceContainer m
             if(neighMmDev != mmDev && neighMmDev->GetBsState()==1){
               NS_LOG_DEBUG ("EEKPI2 Cell ID " << mmDev->GetCellId() << " has the following neighbor " << neighMmDev->GetCellId());
               //calculate eekpi2 new formula for each neighbour
-              NS_LOG_DEBUG ("macPduInitialCellSpecific for EEKPI2 "<< neighMmDev->GetmacPduInitialCellSpecificAttr());
-              NS_LOG_DEBUG ("prbUtilizationDl for EEKPI2 "<< neighMmDev->GetprbUtilizationDlAttr());
+              NS_LOG_DEBUG ("macVolumeCellSpecific for EEKPI2 "<< neighMmDev->GetmacVolumeCellSpecific());
+              NS_LOG_DEBUG ("macPduCellSpecific for EEKPI2 "<< neighMmDev->GetmacPduCellSpecific());
               double eekpi = 0;
-              if(mmDev->GetprbUtilizationDlAttr()!=0){
-                eekpi= (double)neighMmDev->GetmacPduInitialCellSpecificAttr()/(neighMmDev->GetprbUtilizationDlAttr()/139);
+              double txPowerWatts=pow(10,neighMmDev->GetPhy()->GetTxPower()/10)/1000;
+              if((neighMmDev->GetmacPduCellSpecific()*txPowerWatts)!=0 ){
+                eekpi= (double)neighMmDev->GetmacVolumeCellSpecific()/(neighMmDev->GetmacPduCellSpecific()*txPowerWatts);
                 cellToCount++;
               }
               else{
-                NS_LOG_DEBUG ("In EEKPI2 prbUtilizationDl=0");
+                NS_LOG_DEBUG ("In EEKPI2 macPduCellSpecific*txPowerWatts=0");
               }
               //eekpi is about the neighbour cell
               double weightedEekpi2=eekpi* 1.0* exp(-0.1*(Simulator::Now().GetSeconds() - mmDev->GetturnOffTime()) ); 

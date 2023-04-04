@@ -238,7 +238,8 @@ static ns3::GlobalValue g_heuristic (
     " No heuristic (-1),"
     " Random sleeping (0),"
     " Static sleeping (1),"
-    " Dynamic sleeping (2)",
+    " Dynamic sleeping (2),"
+    " Mavenir heuristic (3)",
     ns3::IntegerValue (-1), ns3::MakeIntegerChecker<int8_t> ());
 static ns3::GlobalValue g_probOn (
     "probOn",

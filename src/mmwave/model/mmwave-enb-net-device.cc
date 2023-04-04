@@ -153,12 +153,12 @@ void MmWaveEnbNetDevice::SetCellState(enumModeEnergyBs value){
   m_CellState= value;
 }
 
-uint32_t MmWaveEnbNetDevice::GetmacPduInitialCellSpecificAttr(){
-  return m_macPduInitialCellSpecificAttr;
+uint32_t MmWaveEnbNetDevice::GetmacVolumeCellSpecific(){
+  return m_macVolumeCellSpecific;
 }
 
-double MmWaveEnbNetDevice::GetprbUtilizationDlAttr(){
-  return m_prbUtilizationDlAttr;
+uint32_t MmWaveEnbNetDevice::GetmacPduCellSpecific(){
+  return m_macPduCellSpecific;
 }
 
 void MmWaveEnbNetDevice::Seteekpi2(double value){
@@ -1041,13 +1041,14 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCe
     uint32_t macPduUe = m_e2DuCalculator->GetMacPduUeSpecific(rnti, m_cellId);
 
     macPduCellSpecific += macPduUe;
- 
+    m_macPduCellSpecific=macPduCellSpecific;
+
     uint32_t macPduInitialUe = m_e2DuCalculator->GetMacPduInitialTransmissionUeSpecific(rnti, m_cellId);
     macPduInitialCellSpecific += macPduInitialUe;
-    m_macPduInitialCellSpecificAttr=macPduInitialCellSpecific;
 
     uint32_t macVolume = m_e2DuCalculator->GetMacVolumeUeSpecific(rnti, m_cellId);
     macVolumeCellSpecific += macVolume;
+    m_macVolumeCellSpecific=macVolumeCellSpecific;
 
     uint32_t macQpsk = m_e2DuCalculator->GetMacPduQpskUeSpecific(rnti, m_cellId);
     macQpskCellSpecific += macQpsk;
@@ -1210,7 +1211,6 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCe
   // Numerator = (Sum of number of symbols across all rows (TTIs) group by cell ID within a given time window) * 139
   // Average Number of PRBs allocated for the UE = (NR/DR) (where 139 is the total number of PRBs available per NR cell, given numerology 2 with 60 kHz SCS)
   double prbUtilizationDl = macPrbsCellSpecific;
-  m_prbUtilizationDlAttr = prbUtilizationDl;
 
   NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << m_cellId << " cell, connected UEs number " << ueMap.size() 
       << " macPduCellSpecific " << macPduCellSpecific

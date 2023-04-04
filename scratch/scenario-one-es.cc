@@ -29,6 +29,7 @@
 #include "ns3/mmwave-point-to-point-epc-helper.h"
 #include "ns3/lte-helper.h"
 #include "ns3/energy-heuristic.h"
+#include "ns3/mavenir-heuristic.h"
 
 
 using namespace ns3;
@@ -238,7 +239,8 @@ static ns3::GlobalValue g_heuristic ("heuristicType",
                                      " No heuristic (-1),"
                                      " Random sleeping (0),"
                                      " Static sleeping (1),"
-                                     " Dynamic sleeping (2)",
+                                     " Dynamic sleeping (2)"
+                                     " Mavenir heuristic (3)",
                                      ns3::IntegerValue (-1), ns3::MakeIntegerChecker<int8_t> ());
 static ns3::GlobalValue
     g_probOn ("probOn",
@@ -287,6 +289,10 @@ static ns3::GlobalValue
 static ns3::GlobalValue
     g_bsOff ("bsOff", "number of BS to turn Off for static and dynamic sleeping heuristic",
              ns3::UintegerValue (1), ns3::MakeUintegerChecker<uint8_t> ());
+static ns3::GlobalValue g_numberOfClusters ("numberOfClusters", "number of clusters of BS",
+  ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
+static ns3::GlobalValue g_clusters ("clusters", "Cluster list of cells",
+  ns3::StringValue ("[[5,6,7],[2,3,4,8]]"), ns3::MakeStringChecker ());
 
 int
 main (int argc, char *argv[])
@@ -294,6 +300,7 @@ main (int argc, char *argv[])
   LogComponentEnableAll (LOG_PREFIX_ALL);
   LogComponentEnable ("ScenarioOneEs", LOG_LEVEL_DEBUG);
   LogComponentEnable ("EnergyHeuristic", LOG_LEVEL_DEBUG);
+  LogComponentEnable ("MavenirHeuristic", LOG_LEVEL_DEBUG);
   // LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
   // LogComponentEnable ("OnOffApplication", LOG_LEVEL_ALL);
   // LogComponentEnable ("LtePdcp", LOG_LEVEL_ALL);
@@ -380,6 +387,10 @@ main (int argc, char *argv[])
   int bsSleep = uintegerValue.Get ();
   GlobalValue::GetValueByName ("bsOff", uintegerValue);
   int bsOff = uintegerValue.Get ();
+  GlobalValue::GetValueByName ("numberOfClusters", uintegerValue);
+  int numberOfClusters = uintegerValue.Get ();
+  GlobalValue::GetValueByName ("clusters", stringValue);
+  std::string clusters = stringValue.Get ();
 
 
   NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << bufferSize
@@ -867,6 +878,9 @@ main (int argc, char *argv[])
   int BsStatus[4]={bsOn, bsIdle, bsSleep, bsOff};
 
   Ptr<EnergyHeuristic> energyHeur = CreateObject<EnergyHeuristic> ();
+  Ptr<MavenirHeuristic> mavenirHeur=CreateObject<MavenirHeuristic>();
+  std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> bsClusters = mavenirHeur->ReadClusters(clusters, nMmWaveEnbNodes, mmWaveEnbDevs);
+
 
   switch (heuristicType)
     {
@@ -926,6 +940,17 @@ main (int argc, char *argv[])
             Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
             Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, energyHeur,
                                  nMmWaveEnbNodes, mmWaveEnbDevs, "dynamic", BsStatus, ltedev);
+          }
+      }
+      break;
+
+      // Mavenir heuristic
+      case 3: {
+        for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
+          {
+            Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
+            Simulator::Schedule (Seconds (i), &MavenirHeuristic::MavenirHeur, mavenirHeur,
+                                 nMmWaveEnbNodes, mmWaveEnbDevs, ltedev, numberOfClusters, bsClusters);
           }
       }
       break;
