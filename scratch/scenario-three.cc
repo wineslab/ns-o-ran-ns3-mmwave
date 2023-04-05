@@ -294,9 +294,9 @@ static ns3::GlobalValue g_bsOff (
     "number of BS to turn Off for static and dynamic sleeping heuristic",
     ns3::UintegerValue (1), ns3::MakeUintegerChecker<uint8_t> ());
 static ns3::GlobalValue g_numberOfClusters ("numberOfClusters", "number of clusters of BS",
-    ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
+    ns3::UintegerValue (4), ns3::MakeUintegerChecker<uint8_t> ());
 static ns3::GlobalValue g_clusters ("clusters", "Cluster list of cells",
-    ns3::StringValue ("[[5,6,7],[2,3,4,8]]"), ns3::MakeStringChecker ());
+    ns3::StringValue ("[[5,6,7],[2,3,4,8],[9,10,11,12],[13,14]]"), ns3::MakeStringChecker ());
 
 int
 main (int argc, char *argv[])
