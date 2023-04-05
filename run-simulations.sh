@@ -71,7 +71,7 @@ fi
 
 for i in $(seq 1 $N); do
   echo "Running simulation $i out of $N";
-  ./waf --run "scratch/scenario-one --RngRun=$i \
+  ./ns3 run "scratch/scenario-one --RngRun=$i \
                                     --configuration=$configuration \
                                     --trafficModel=$trafficModel \
                                     --enableTraces=$enableTraces \
