@@ -56,10 +56,8 @@ TypeId MavenirHeuristic::GetTypeId ()
 }
 
 //transform the input string of cluster into a vector of vector of values, substituting the id with their mmdev value
-std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> MavenirHeuristic::ReadClusters( std::string clustersString, uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs){
-
-  //int n_clusters=2;
-  //std::string input = "[[5,6,7],[1],[2,3,4],[]]";
+std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> MavenirHeuristic::ReadClusters( std::string clustersString, uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs)
+{
   NS_LOG_DEBUG ("Input cluster as string: " << clustersString);
   std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> clusters;
   std::stringstream ss(clustersString);
@@ -77,7 +75,6 @@ std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> MavenirHeuristic::ReadClusters
       if (!clusterItem.empty() && isdigit(clusterItem[0])) {
         try {
           int num = std::stoi(clusterItem);
-
           for (int j = 0; j < nMmWaveEnbNodes; j++)
               {
                 Ptr<MmWaveEnbNetDevice> mmdev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
@@ -92,15 +89,6 @@ std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> MavenirHeuristic::ReadClusters
     }
     clusters.push_back(cluster);
   }
-  
-  // NS_LOG_DEBUG ("Cluster cluster");
-  // for (const auto &cluster : clusters) {
-  //   for (const auto &element : cluster) {
-  //       NS_LOG_DEBUG (element << " ");
-  //   }
-  //   NS_LOG_DEBUG ("/n");
-  // }
-
   for (uint i = 0; i < clusters.size(); i++)
   {
     for (uint j = 0; j < clusters[i].size(); j++)
