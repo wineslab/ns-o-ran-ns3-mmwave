@@ -289,8 +289,6 @@ static ns3::GlobalValue
 static ns3::GlobalValue
     g_bsOff ("bsOff", "number of BS to turn Off for static and dynamic sleeping heuristic",
              ns3::UintegerValue (1), ns3::MakeUintegerChecker<uint8_t> ());
-static ns3::GlobalValue g_numberOfClusters ("numberOfClusters", "number of clusters of BS",
-  ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
 static ns3::GlobalValue g_clusters ("clusters", "Cluster list of cells",
   ns3::StringValue ("[[5,6,7],[2,3,4,8]]"), ns3::MakeStringChecker ());
 static ns3::GlobalValue g_eekpiTh ("eekpiTh", "threshold for the first eekpi",
@@ -390,8 +388,6 @@ main (int argc, char *argv[])
   int bsSleep = uintegerValue.Get ();
   GlobalValue::GetValueByName ("bsOff", uintegerValue);
   int bsOff = uintegerValue.Get ();
-  GlobalValue::GetValueByName ("numberOfClusters", uintegerValue);
-  int numberOfClusters = uintegerValue.Get ();
   GlobalValue::GetValueByName ("clusters", stringValue);
   std::string clusters = stringValue.Get ();
   GlobalValue::GetValueByName ("eekpiTh", doubleValue);
@@ -955,15 +951,14 @@ main (int argc, char *argv[])
         for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
           {
             Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
-            Simulator::Schedule (Seconds (i), &MavenirHeuristic::MavenirHeur, mavenirHeur,
-                                 nMmWaveEnbNodes, mmWaveEnbDevs, ltedev, numberOfClusters, bsClusters, eekpiTh, avgWeightedEekpiTh);
+            Simulator::Schedule (Seconds (i), &MavenirHeuristic::MavenirHeur, mavenirHeur, nMmWaveEnbNodes, mmWaveEnbDevs, ltedev, bsClusters, eekpiTh, avgWeightedEekpiTh);
           }
       }
       break;
 
       default: {
         NS_FATAL_ERROR (
-            "Heuristic type not recognized, the only possible values are [-1,0,1,2]. Value passed: "
+            "Heuristic type not recognized, the only possible values are [-1,0,1,2,3]. Value passed: "
             << heuristicType);
       }
       break;

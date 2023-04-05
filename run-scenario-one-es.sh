@@ -28,10 +28,9 @@ bsOn=2
 bsIdle=2
 bsSleep=2
 bsOff=1
-numberOfClusters=2
 clusters=[[5,6,7],[2,3,4,8]]
-eekpiTh=60
-avgWeightedEekpiTh=60
+eekpiTh=60.0
+avgWeightedEekpiTh=60.0
 
 # Useful parameters to be configured
 N=1 # number of simulations
@@ -105,7 +104,6 @@ for i in $(seq 1 $N); do
                                     --bsIdle=$bsIdle\
                                     --bsSleep=$bsSleep\
                                     --bsOff=$bsOff\
-                                    --numberOfClusters=$numberOfClusters\
                                     --clusters=$clusters";
   sleep 1;
 done

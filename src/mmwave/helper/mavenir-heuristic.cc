@@ -114,7 +114,7 @@ std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> MavenirHeuristic::ReadClusters
 }
 
 
-void MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs, Ptr<LteEnbNetDevice> ltedev, int numberOfClusters, std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> clusters, double eekpiTh, double avgWeightedEekpiTh){
+void MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs, Ptr<LteEnbNetDevice> ltedev, std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> clusters, double eekpiTh,double avgWeightedEekpiTh){
   //every time periodicity
   Ptr<MmWaveEnbNetDevice> smallestMmDev; //leaving it empty is not a problem since in the worst case is not used
   Ptr<LteEnbRrc> m_rrc = ltedev->GetRrc ();

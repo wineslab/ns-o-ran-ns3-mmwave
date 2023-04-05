@@ -24,10 +24,9 @@ bsOn=4
 bsIdle=3
 bsSleep=3
 bsOff=3
-numberOfClusters=4
 clusters=[[5,6,7],[2,3,4,8],[9,10,11,12],[13,14]]
-eekpiTh=60
-avgWeightedEekpiTh=60
+eekpiTh=60.0
+avgWeightedEekpiTh=60.0
 
 # Useful parameters to be configured
 N=1 # number of simulations
@@ -63,7 +62,7 @@ scheduleControlMessages=0 # if the control message shall be read at the beginnin
 # NS_LOG="RicControlMessage" 
 
 for i in $(seq 1 $N); do
-  ./waf --run "scratch/scenario-three --RngRun=$i \
+  ./waf --run "scratch/scenario-three --RngRun=123 \
                                     --configuration=$configuration \
                                     --dataRate=$dataRate \
                                     --enableTraces=$enableTraces \
@@ -94,7 +93,6 @@ for i in $(seq 1 $N); do
                                     --bsIdle=$bsIdle\
                                     --bsSleep=$bsSleep\
                                     --bsOff=$bsOff\
-                                    --numberOfClusters=$numberOfClusters\
                                     --clusters=$clusters\
                                     --scheduleControlMessages=$scheduleControlMessages";
   sleep 1;
