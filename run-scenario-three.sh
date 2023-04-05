@@ -26,6 +26,8 @@ bsSleep=3
 bsOff=3
 numberOfClusters=4
 clusters=[[5,6,7],[2,3,4,8],[9,10,11,12],[13,14]]
+eekpiTh=60
+avgWeightedEekpiTh=60
 
 # Useful parameters to be configured
 N=1 # number of simulations

@@ -114,11 +114,11 @@ std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> MavenirHeuristic::ReadClusters
 }
 
 
-void MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs, Ptr<LteEnbNetDevice> ltedev, int numberOfClusters, std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> clusters){
+void MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs, Ptr<LteEnbNetDevice> ltedev, int numberOfClusters, std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> clusters, double eekpiTh, double avgWeightedEekpiTh){
   //every time periodicity
   Ptr<MmWaveEnbNetDevice> smallestMmDev; //leaving it empty is not a problem since in the worst case is not used
   Ptr<LteEnbRrc> m_rrc = ltedev->GetRrc ();
-  double smallestEekpi = 2200; // I set it higher than the c'threshold so in extreme cases it doesn't pass the next if control to turn off the Cell
+  double smallestEekpi = eekpiTh; // I set it higher than the c'threshold so in extreme cases it doesn't pass the next if control to turn off the Cell
   for (int j = 0; j < nMmWaveEnbNodes; j++) //for every cell
   {
     //get the mmwave BS
@@ -130,7 +130,7 @@ void MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes, NetDeviceContainer m
       NS_LOG_DEBUG ("macVolumeCellSpecific for EEKPI1 "<< mmDev->GetmacVolumeCellSpecific());
       NS_LOG_DEBUG ("macPduCellSpecific for EEKPI1 "<< mmDev->GetmacPduCellSpecific());
       NS_LOG_DEBUG ("txPowerWatts for EEKPI1 "<< txPowerWatts);
-      double eekpi = 2200;
+      double eekpi = eekpiTh;
       if((mmDev->GetmacPduCellSpecific()*txPowerWatts)!=0 ){
         eekpi= (double)mmDev->GetmacVolumeCellSpecific()/(mmDev->GetmacPduCellSpecific()*txPowerWatts);
         NS_LOG_DEBUG ("EEKPI1 "<< eekpi << " for cell "<< mmDev->GetCellId());
@@ -146,14 +146,14 @@ void MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes, NetDeviceContainer m
     }
   }
   NS_LOG_DEBUG ("Smallest EEKPI1 "<< smallestEekpi);
-  //if c'< threshold value (2200.0) -> turn off BS (energy saving)
-  if(smallestEekpi<2200.0){
+  //if c'< threshold value (eekpiTh) -> turn off BS (energy saving)
+  if(smallestEekpi<eekpiTh){
     smallestMmDev->TurnOff(smallestMmDev->GetCellId(), m_rrc);
     smallestMmDev->SetturnOffTime(Simulator::Now().GetSeconds());
     NS_LOG_DEBUG ("Turn off the smallest EEKPI1 BS ID "<< smallestMmDev->GetCellId());
   }
 
-  double smallestEekpi2 = 1800; // I set it higher than the c' threshold so in extreme cases it doesn't pass the next if control to turn on the Cell
+  double smallestEekpi2 = avgWeightedEekpiTh; // I set it higher than the c' threshold so in extreme cases it doesn't pass the next if control to turn on the Cell
   Ptr<MmWaveEnbNetDevice> smallestMmDev2; //leaveing it empty is not a problem since in the worst case is not used
   //for every cell turned off (except the c')
   for (int j = 0; j < nMmWaveEnbNodes; j++) //for every cell
@@ -208,8 +208,8 @@ void MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes, NetDeviceContainer m
     }
   }
   NS_LOG_DEBUG ("Smallest AVG weighted EEKPI2 "<< smallestEekpi2);
-  //obtain all the smallest eekpi2 avg values and if eekpi2 < threshold value ( 1800 ) -> turn on BS
-  if(smallestEekpi2<1800.0){
+  //obtain all the smallest eekpi2 avg values and if eekpi2 < threshold value ( avgWeightedEekpiTh ) -> turn on BS
+  if(smallestEekpi2<avgWeightedEekpiTh){
     smallestMmDev2->TurnOn (smallestMmDev2->GetCellId (), m_rrc);
     NS_LOG_DEBUG ("Turn on the smallest EEKPI2 BS ID "<< smallestMmDev2->GetCellId());
   }

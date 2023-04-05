@@ -45,7 +45,7 @@ class MavenirHeuristic : public Object{
    * @param numberOfClusters Number of clusters in the scenario
    * @param clusters The vector of clusters
    */
-  void MavenirHeur(uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs, Ptr<LteEnbNetDevice> ltedev, int numberOfClusters, std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> clusters);
+  void MavenirHeur(uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs, Ptr<LteEnbNetDevice> ltedev, int numberOfClusters, std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> clusters, double eekpiTh, double avgWeightedEekpiTh);
 
   /**
    * @brief it read an string that represent a cluster in the form [[1,2,3],[4,5,6]] where [1,2,3] 

@@ -293,7 +293,10 @@ static ns3::GlobalValue g_numberOfClusters ("numberOfClusters", "number of clust
   ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
 static ns3::GlobalValue g_clusters ("clusters", "Cluster list of cells",
   ns3::StringValue ("[[5,6,7],[2,3,4,8]]"), ns3::MakeStringChecker ());
-
+static ns3::GlobalValue g_eekpiTh ("eekpiTh", "threshold for the first eekpi",
+    ns3::DoubleValue (60), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_avgWeightedEekpiTh ("avgWeightedEekpiTh", "threshold for the average weighted eekpi",
+    ns3::DoubleValue (60), ns3::MakeDoubleChecker<double> ());
 int
 main (int argc, char *argv[])
 {
@@ -391,7 +394,10 @@ main (int argc, char *argv[])
   int numberOfClusters = uintegerValue.Get ();
   GlobalValue::GetValueByName ("clusters", stringValue);
   std::string clusters = stringValue.Get ();
-
+  GlobalValue::GetValueByName ("eekpiTh", doubleValue);
+  double eekpiTh = doubleValue.Get ();
+  GlobalValue::GetValueByName ("avgWeightedEekpiTh", doubleValue);
+  double avgWeightedEekpiTh = doubleValue.Get ();
 
   NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << bufferSize
                                  << " traffic Model " << unsigned (trafficModel)
@@ -950,7 +956,7 @@ main (int argc, char *argv[])
           {
             Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
             Simulator::Schedule (Seconds (i), &MavenirHeuristic::MavenirHeur, mavenirHeur,
-                                 nMmWaveEnbNodes, mmWaveEnbDevs, ltedev, numberOfClusters, bsClusters);
+                                 nMmWaveEnbNodes, mmWaveEnbDevs, ltedev, numberOfClusters, bsClusters, eekpiTh, avgWeightedEekpiTh);
           }
       }
       break;
