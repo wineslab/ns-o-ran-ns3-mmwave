@@ -34,6 +34,56 @@ NS_LOG_COMPONENT_DEFINE ("MavenirHeuristic");
 
 namespace mmwave {
 
+//NS_OBJECT_ENSURE_REGISTERED (MavHeurParameters);
+
+MavHeurParameters::MavHeurParameters ()
+{
+  NS_LOG_FUNCTION (this);
+}
+
+
+MavHeurParameters::~MavHeurParameters ()
+{
+  NS_LOG_FUNCTION (this);
+}
+
+TypeId MavHeurParameters::GetTypeId ()
+{
+  static TypeId tid = TypeId ("ns3::MavHeurParameters")
+    .SetParent<Object>()
+    .AddConstructor<MavHeurParameters>();
+  return tid;
+}
+
+MavHeurParameters::MavHeurParameters(double a, double b, int c, double d, double e){  
+  eekpiTh=a;  
+  avgWeightedEekpiTh=b;  
+  kCells=c;
+  eekpiB=d;
+  eekpiLambda=e;
+}; 
+
+double MavHeurParameters::getEekpiTh(){
+  return eekpiTh;
+}
+
+double MavHeurParameters::getAvgWeightedEekpiTh(){
+  return avgWeightedEekpiTh;
+}
+
+int MavHeurParameters::getKCells(){
+  return kCells;
+}
+
+double MavHeurParameters::getEekpiB(){
+  return eekpiB;
+}
+
+double MavHeurParameters::getEekpiLambda(){
+  return eekpiLambda;
+}
+
+
 //NS_OBJECT_ENSURE_REGISTERED (MavenirHeuristic);
 
 MavenirHeuristic::MavenirHeuristic ()
@@ -102,11 +152,21 @@ std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> MavenirHeuristic::ReadClusters
 }
 
 
-void MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs, Ptr<LteEnbNetDevice> ltedev, std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> clusters, double eekpiTh,double avgWeightedEekpiTh){
+void MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs, Ptr<LteEnbNetDevice> ltedev, std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> clusters, Ptr<MavHeurParameters> mavenirHeurPar){
   //every time periodicity
-  Ptr<MmWaveEnbNetDevice> smallestMmDev; //leaving it empty is not a problem since in the worst case is not used
+  //get attributes from the object
+  double eekpiTh=mavenirHeurPar->getEekpiTh();
+  double avgWeightedEekpiTh=mavenirHeurPar->getAvgWeightedEekpiTh();
+  int kCells=mavenirHeurPar->getKCells();
+  double eekpiB=mavenirHeurPar->getEekpiB();
+  double eekpiLambda=mavenirHeurPar->getEekpiLambda();
+  //initialize basic parameters
   Ptr<LteEnbRrc> m_rrc = ltedev->GetRrc ();
-  double smallestEekpi = eekpiTh; // I set it higher than the c'threshold so in extreme cases it doesn't pass the next if control to turn off the Cell
+  Ptr<MmWaveEnbNetDevice> smallestMmDev[kCells]={}; //leaving it empty is not a problem since in the worst case is not used
+  double smallestEekpi [kCells]= {};
+  for (int i=0; i<kCells; i++){
+    smallestEekpi[i]=eekpiTh; // I initialize it equal to the c' threshold so in extreme cases it doesn't pass the next IF control to turn off the Cell
+  }
   for (int j = 0; j < nMmWaveEnbNodes; j++) //for every cell
   {
     //get the mmwave BS
@@ -126,37 +186,65 @@ void MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes, NetDeviceContainer m
       else{
         NS_LOG_DEBUG ("EEKPI1 "<< eekpi << " because macPduCellSpecific*txPowerWatts=0");
       }
-      //mmDev->Seteekpi(eekpi); //save the eekpi for each BS to use it on the second part of the fuction (do we really need it??)
-      if(eekpi<smallestEekpi){
-        smallestEekpi= eekpi;
-        smallestMmDev= mmDev;
+      //we want to keep n (kCells variable) smallest eekpi values inside the array (smallestEekpi)
+      //find the highest value in array smallestEekpi[]
+      double highestValueEekpiArray=0;
+      int indexhighestValueEekpiArray=0;
+      for (int i=0; i<kCells; i++){
+        if(smallestEekpi[i]>highestValueEekpiArray){
+          highestValueEekpiArray=smallestEekpi[i];
+          indexhighestValueEekpiArray=i;
+        }
+      }
+      //check if the actual eekpi is smaller than the bigger eekpi saved in the array and in case substitute it
+      if(eekpi<highestValueEekpiArray){
+        smallestEekpi[indexhighestValueEekpiArray]= eekpi;
+        smallestMmDev[indexhighestValueEekpiArray]= mmDev;
       }
     }
   }
-  NS_LOG_DEBUG ("Smallest EEKPI1 "<< smallestEekpi);
-  //if c'< threshold value (eekpiTh) -> turn off BS (energy saving)
-  if(smallestEekpi<eekpiTh){
-    smallestMmDev->TurnOff(smallestMmDev->GetCellId(), m_rrc);
-    smallestMmDev->SetturnOffTime(Simulator::Now().GetSeconds());
-    NS_LOG_DEBUG ("Turn off the smallest EEKPI1 BS ID "<< smallestMmDev->GetCellId());
+  NS_LOG_DEBUG ("The smallest "<< kCells<<" EEKPI1 values are ");
+  for (int i=0; i<kCells; i++){
+    NS_LOG_DEBUG ("   "<<smallestEekpi[i]);
+  }
+  
+  for (int i=0; i<kCells; i++){
+    //if c'< threshold value (eekpiTh) -> turn off BS (energy saving)
+    if(smallestEekpi[i]<eekpiTh){
+      smallestMmDev[i]->TurnOff(smallestMmDev[i]->GetCellId(), m_rrc);
+      smallestMmDev[i]->SetturnOffTime(Simulator::Now().GetSeconds());
+      NS_LOG_DEBUG ("Turn off the smallest EEKPI1 BS ID "<< smallestMmDev[i]->GetCellId());
+    }
   }
 
-  double smallestEekpi2 = avgWeightedEekpiTh; // I set it higher than the c' threshold so in extreme cases it doesn't pass the next if control to turn on the Cell
-  Ptr<MmWaveEnbNetDevice> smallestMmDev2; //leaveing it empty is not a problem since in the worst case is not used
+  //SECOND part of the heuristic
+
+  double smallestEekpi2[kCells]= {};
+  for (int i=0; i<kCells; i++){
+    smallestEekpi2 [i]= avgWeightedEekpiTh; // I set it higher than the c' threshold so in extreme cases it doesn't pass the next IF control to turn on the Cell
+  }
+  Ptr<MmWaveEnbNetDevice> smallestMmDev2[kCells]= {}; //leaveing it empty is not a problem since in the worst case is not used
   //for every cell turned off (except the c')
   for (int j = 0; j < nMmWaveEnbNodes; j++) //for every cell
   {
     //get the mmwave BS
     Ptr<MmWaveEnbNetDevice> mmDev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
-     
-    if(mmDev!= smallestMmDev && mmDev->GetBsState()==0){//if the cell is turned OFF (except the c', so the one just turned off)
+    //check if the cell is just turned OFF, if yes skip it
+    bool justTurnedOff=false;
+    for (int i=0; i<kCells; i++){
+      if ( smallestMmDev [i]== mmDev){
+        justTurnedOff=true;
+        break; //if found (just turned off) exit
+      } 
+    }
+    if(justTurnedOff==false && mmDev->GetBsState()==0){//if the cell is turned OFF (except the c', so the one just turned off)
       NS_LOG_DEBUG ("EEKPI2 BS ID (except the one just turned OFF) " << mmDev->GetCellId()<<" and state (turned OFF) "<< mmDev->GetBsState());
       
       for (uint i1 = 0; i1 < clusters.size(); i1++) {
         //check if the subject cell is inside this cluster
         if (std::find(clusters[i1].begin(), clusters[i1].end(), mmDev) != clusters[i1].end()){ //if the cell is here, perform the operation for all the neighbors
           double sumWeightedEekpi2=0;
-          int cellToCount=0; // number of cells neighbors, turned ON and prbUtilizationDl!=0 (important to compute the eekpi formula) 
+          int cellToCount=0; // number of cells neighbors turned ON and prbUtilizationDl!=0 (important variable to compute the eekpi formula) 
           //calculate the eekpi       
           for (uint i2 = 0; i2 < clusters[i1].size(); i2++) {
             Ptr<MmWaveEnbNetDevice> neighMmDev=clusters[i1][i2];
@@ -178,28 +266,49 @@ void MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes, NetDeviceContainer m
                 NS_LOG_DEBUG ("In EEKPI2 macPduCellSpecific*txPowerWatts=0");
               }
               //eekpi is about the neighbour cell
-              double weightedEekpi2=eekpi* 1.0* exp(-0.1*(Simulator::Now().GetSeconds() - mmDev->GetturnOffTime()) ); 
+              double weightedEekpi2=eekpi* eekpiB* exp(-eekpiLambda*(Simulator::Now().GetSeconds() - mmDev->GetturnOffTime()) ); 
               sumWeightedEekpi2=sumWeightedEekpi2+weightedEekpi2;
             }
           }
           //do the average and save it to the subject cell in variable "j" (the one turned off)
-          //cellToSkip is substracted in case eekpi can't be computed due to prbUtilizationDl=0
-          double avgEekpi2=sumWeightedEekpi2/cellToCount;
-          NS_LOG_DEBUG ("AVG weighted EEKPI2 "<< avgEekpi2 << " for cell "<< mmDev->GetCellId());       
-          if(avgEekpi2<smallestEekpi2){
-            smallestEekpi2=avgEekpi2;
-            smallestMmDev2=mmDev;
+          double avgEekpi2=avgWeightedEekpiTh;
+          if(cellToCount==0){
+            NS_LOG_DEBUG ("AVG weighted EEKPI2 "<< avgEekpi2 << " because no neighbours ON");  
+          }
+          else{
+            avgEekpi2=sumWeightedEekpi2/cellToCount;
+            NS_LOG_DEBUG ("AVG weighted EEKPI2 "<< avgEekpi2 << " for cell "<< mmDev->GetCellId());  
+          }
+
+          //find the highest value in array smallestEekpi2[]
+          double highestValueEekpi2Array=0;
+          int indexhighestValueEekpi2Array=0;
+          for (int i=0; i<kCells; i++){
+            if(smallestEekpi2[i]>highestValueEekpi2Array){
+              highestValueEekpi2Array=smallestEekpi2[i];
+              indexhighestValueEekpi2Array=i;
+            }
+          }
+          //check if the actual eekpi2 is smaller than the bigger eekpi2 saved in the array and in case substitute it
+          if(avgEekpi2<highestValueEekpi2Array){
+            smallestEekpi2[indexhighestValueEekpi2Array]= avgEekpi2;
+            smallestMmDev2[indexhighestValueEekpi2Array]= mmDev;
           }
         }
         //else, move to the next cluster
       }
     }
   }
-  NS_LOG_DEBUG ("Smallest AVG weighted EEKPI2 "<< smallestEekpi2);
-  //obtain all the smallest eekpi2 avg values and if eekpi2 < threshold value ( avgWeightedEekpiTh ) -> turn on BS
-  if(smallestEekpi2<avgWeightedEekpiTh){
-    smallestMmDev2->TurnOn (smallestMmDev2->GetCellId (), m_rrc);
-    NS_LOG_DEBUG ("Turn on the smallest EEKPI2 BS ID "<< smallestMmDev2->GetCellId());
+  NS_LOG_DEBUG ("The smallest "<< kCells<<" AVG weighted EEKPI2 are ");
+  for (int i=0; i<kCells; i++){
+    NS_LOG_DEBUG ("   "<<smallestEekpi2[i]);
+  }
+  for (int i=0; i<kCells; i++){     
+    //obtain all the smallest eekpi2 avg values and if eekpi2 < threshold value ( avgWeightedEekpiTh ) -> turn on BS
+    if(smallestEekpi2[i]<avgWeightedEekpiTh){
+      smallestMmDev2[i]->TurnOn (smallestMmDev2[i]->GetCellId (), m_rrc);
+      NS_LOG_DEBUG ("Turn on the smallest EEKPI2 BS ID "<< smallestMmDev2[i]->GetCellId());
+    }
   }
 
 }

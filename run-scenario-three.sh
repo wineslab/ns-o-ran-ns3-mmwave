@@ -27,6 +27,9 @@ bsOff=3
 clusters=[[5,6,7],[2,3,4,8],[9,10,11,12],[13,14]]
 eekpiTh=60.0
 avgWeightedEekpiTh=60.0
+kCells=2
+eekpiB=1
+eekpiLambda=0.1
 
 # Useful parameters to be configured
 N=1 # number of simulations
@@ -94,6 +97,11 @@ for i in $(seq 1 $N); do
                                     --bsSleep=$bsSleep\
                                     --bsOff=$bsOff\
                                     --clusters=$clusters\
+                                    --eekpiTh=$eekpiTh\
+                                    --avgWeightedEekpiTh=$avgWeightedEekpiTh\
+                                    --kCells=$kCells\
+                                    --eekpiB=$eekpiB\
+                                    --eekpiLambda=$eekpiLambda\
                                     --scheduleControlMessages=$scheduleControlMessages";
   sleep 1;
 done

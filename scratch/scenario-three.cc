@@ -299,6 +299,12 @@ static ns3::GlobalValue g_eekpiTh ("eekpiTh", "threshold for the first eekpi",
     ns3::DoubleValue (60.0), ns3::MakeDoubleChecker<double> ());
 static ns3::GlobalValue g_avgWeightedEekpiTh ("avgWeightedEekpiTh", "threshold for the average weighted eekpi",
     ns3::DoubleValue (60.0), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_kCells ("kCells", "max number of k cells to turn OFF and ON every periodicity time",
+    ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
+static ns3::GlobalValue g_eekpiB ("eekpiB", "B value for weighted eekpi formula",
+    ns3::DoubleValue (1.0), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_eekpiLambda ("eekpiLambda", "lambda value for weighted eekpi formula",
+    ns3::DoubleValue (0.1), ns3::MakeDoubleChecker<double> ());
 int
 main (int argc, char *argv[])
 {
@@ -395,6 +401,12 @@ main (int argc, char *argv[])
   double eekpiTh = doubleValue.Get ();
   GlobalValue::GetValueByName ("avgWeightedEekpiTh", doubleValue);
   double avgWeightedEekpiTh = doubleValue.Get ();
+  GlobalValue::GetValueByName ("kCells", uintegerValue);
+  int kCells = uintegerValue.Get ();
+  GlobalValue::GetValueByName ("eekpiB", doubleValue);
+  double eekpiB = doubleValue.Get ();
+  GlobalValue::GetValueByName ("eekpiLambda", doubleValue);
+  double eekpiLambda = doubleValue.Get ();
 
   NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << unsigned(bufferSize)
                                  << " OutageThreshold " << outageThreshold << " HandoverMode " << handoverMode
@@ -911,10 +923,12 @@ main (int argc, char *argv[])
 
       // Mavenir heuristic
       case 3: {
+        Ptr<MavHeurParameters> mavenirHeurPar=CreateObject<MavHeurParameters>(eekpiTh, avgWeightedEekpiTh, kCells, eekpiB, eekpiLambda);
         for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
           {
             Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
-            Simulator::Schedule (Seconds (i), &MavenirHeuristic::MavenirHeur, mavenirHeur, nMmWaveEnbNodes, mmWaveEnbDevs, ltedev, bsClusters, eekpiTh, avgWeightedEekpiTh);
+            Simulator::Schedule (Seconds (i), &MavenirHeuristic::MavenirHeur, mavenirHeur, 
+                                nMmWaveEnbNodes, mmWaveEnbDevs, ltedev, bsClusters, mavenirHeurPar);
           }
       }
       break;

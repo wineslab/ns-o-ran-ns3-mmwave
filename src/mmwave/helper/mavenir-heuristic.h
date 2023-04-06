@@ -24,6 +24,26 @@
 
 namespace ns3 {
 namespace mmwave {
+
+class MavHeurParameters : public Object{  
+  public:
+    static TypeId GetTypeId (void);
+    MavHeurParameters();
+    MavHeurParameters(double a, double b, int c, double d, double e);   
+    virtual ~MavHeurParameters (void);
+    double getEekpiTh();
+    double getAvgWeightedEekpiTh();
+    int getKCells();
+    double getEekpiB();
+    double getEekpiLambda();
+  private:             
+    double eekpiTh;       
+    double avgWeightedEekpiTh;  
+    int kCells;
+    double eekpiB;
+    double eekpiLambda;
+};
+
  /**
   * @brief Class that contains all methods related to heuristics on energy efficiency simulations
   * 
@@ -45,7 +65,7 @@ class MavenirHeuristic : public Object{
    * @param numberOfClusters Number of clusters in the scenario
    * @param clusters The vector of clusters
    */
-  void MavenirHeur(uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs, Ptr<LteEnbNetDevice> ltedev, std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> clusters, double eekpiTh, double avgWeightedEekpiTh);
+  void MavenirHeur(uint8_t nMmWaveEnbNodes, NetDeviceContainer mmWaveEnbDevs, Ptr<LteEnbNetDevice> ltedev, std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> clusters, Ptr<MavHeurParameters> mavenirHeurPar);
 
   /**
    * @brief it read an string that represent a cluster in the form [[1,2,3],[4,5,6]] where [1,2,3] 
