@@ -292,9 +292,9 @@ static ns3::GlobalValue
 static ns3::GlobalValue g_clusters ("clusters", "Cluster list of cells",
   ns3::StringValue ("[[5,6,7],[2,3,4,8]]"), ns3::MakeStringChecker ());
 static ns3::GlobalValue g_eekpiTh ("eekpiTh", "threshold for the first eekpi",
-    ns3::DoubleValue (60), ns3::MakeDoubleChecker<double> ());
+    ns3::DoubleValue (60.0), ns3::MakeDoubleChecker<double> ());
 static ns3::GlobalValue g_avgWeightedEekpiTh ("avgWeightedEekpiTh", "threshold for the average weighted eekpi",
-    ns3::DoubleValue (60), ns3::MakeDoubleChecker<double> ());
+    ns3::DoubleValue (60.0), ns3::MakeDoubleChecker<double> ());
 int
 main (int argc, char *argv[])
 {
