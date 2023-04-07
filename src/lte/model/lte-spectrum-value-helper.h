@@ -24,6 +24,7 @@
 #include <ns3/spectrum-value.h>
 
 #include <vector>
+#include <map>
 
 namespace ns3
 {
