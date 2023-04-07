@@ -66,7 +66,7 @@ controlFileName="es_actions_for_ns3.csv" # ES control file path
 # NS_LOG="KpmIndication"
 # NS_LOG="RicControlMessage" 
 
-./ns3 --command-template="valgrind --leak-check=full --show-reachable=yes --track-origins=yes --xml=yes --xml-file=valgrind_output.xml %s \
+./ns3 run --command-template="valgrind --leak-check=full --show-reachable=yes --track-origins=yes --xml=yes --xml-file=valgrind_output.xml %s \
                                     --configuration=$configuration \
                                     --trafficModel=$trafficModel \
                                     --hoSinrDifference=$hoSinrDifference \
@@ -101,4 +101,4 @@ controlFileName="es_actions_for_ns3.csv" # ES control file path
                                     --bsOn=$bsOn\
                                     --bsIdle=$bsIdle\
                                     --bsSleep=$bsSleep\
-                                    --bsOff=$bsOff" run scenario-one-es > log.out 2>&1;
+                                    --bsOff=$bsOff" scenario-one-es > log.out 2>&1;
