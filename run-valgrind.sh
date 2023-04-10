@@ -10,7 +10,7 @@ e2cuCp=1 # enable reporting of CU CP PM containers
 configuration=0 # 0: NR carrier at 850 MHz, low traffic | 1: NR carrier at 3.5 GHz, low traffic | 2: NR carrier at 28 GHz, high traffic
 minSpeed=2.0 # minimum UE speed in m/s
 maxSpeed=4.0 # maximum UE speed in m/s
-simTime=0.3 # simulation time
+simTime=5 # simulation time
 e2TermIp="10.102.157.65" # actual E2term IP interface
 rlcAmEnabled="true"
 bufferSize=10
@@ -66,9 +66,8 @@ controlFileName="es_actions_for_ns3.csv" # ES control file path
 # NS_LOG="KpmIndication"
 # NS_LOG="RicControlMessage" 
 
-./waf --command-template="valgrind --leak-check=full --show-reachable=yes --track-origins=yes --xml=yes --xml-file=valgrind_output.xml %s \
+./ns3 run --command-template="valgrind --leak-check=full --show-reachable=yes --track-origins=yes --xml=yes --xml-file=valgrind_output.xml %s \
                                     --configuration=$configuration \
-                                    --trafficModel=$trafficModel \
                                     --hoSinrDifference=$hoSinrDifference \
                                     --rlcAmEnabled=$rlcAmEnabled \
                                     --bufferSize=$bufferSize \
@@ -101,4 +100,4 @@ controlFileName="es_actions_for_ns3.csv" # ES control file path
                                     --bsOn=$bsOn\
                                     --bsIdle=$bsIdle\
                                     --bsSleep=$bsSleep\
-                                    --bsOff=$bsOff" --run scenario-one-es > log.out 2>&1;
+                                    --bsOff=$bsOff" scenario-three > log.out 2>&1;

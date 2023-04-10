@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2006, 2009 INRIA
  * Copyright (c) 2009 MIRKO BANCHI
@@ -23,36 +22,36 @@
 #ifndef ADHOC_WIFI_MAC_H
 #define ADHOC_WIFI_MAC_H
 
-#include "regular-wifi-mac.h"
+#include "wifi-mac.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup wifi
  *
  * \brief Wifi MAC high model for an ad-hoc Wifi MAC
  */
-class AdhocWifiMac : public RegularWifiMac
+class AdhocWifiMac : public WifiMac
 {
-public:
-  /**
-   * \brief Get the type ID.
-   * \return the object TypeId
-   */
-  static TypeId GetTypeId (void);
+  public:
+    /**
+     * \brief Get the type ID.
+     * \return the object TypeId
+     */
+    static TypeId GetTypeId();
 
-  AdhocWifiMac ();
-  virtual ~AdhocWifiMac ();
+    AdhocWifiMac();
+    ~AdhocWifiMac() override;
 
-  // Implementations of pure virtual methods, or overridden from base class.
-  void SetAddress (Mac48Address address);
-  void SetLinkUpCallback (Callback<void> linkUp);
-  void Enqueue (Ptr<Packet> packet, Mac48Address to);
+    void SetLinkUpCallback(Callback<void> linkUp) override;
+    void Enqueue(Ptr<Packet> packet, Mac48Address to) override;
+    bool CanForwardPacketsTo(Mac48Address to) const override;
 
-private:
-  void Receive (Ptr<WifiMacQueueItem> mpdu);
+  private:
+    void Receive(Ptr<const WifiMpdu> mpdu, uint8_t linkId) override;
 };
 
-} //namespace ns3
+} // namespace ns3
 
 #endif /* ADHOC_WIFI_MAC_H */

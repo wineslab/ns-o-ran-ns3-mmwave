@@ -10,14 +10,14 @@ e2cuCp=1 # enable reporting of CU CP PM containers
 configuration=0 # 0: NR carrier at 850 MHz, low traffic | 1: NR carrier at 3.5 GHz, low traffic | 2: NR carrier at 28 GHz, high traffic
 minSpeed=2.0 # minimum UE speed in m/s
 maxSpeed=4.0 # maximum UE speed in m/s
-simTime=20.0 # simulation time
+simTime=10.0 # simulation time
 e2TermIp="10.102.157.65" # actual E2term IP interface
 rlcAmEnabled="true"
 bufferSize=10
 trafficModel=0
 numberOfRaPreambles=40
 
-heuristicType=-1 # Type of heuristic for managing BS status: no heuristic (-1), Random sleeping (0), Static sleeping (1), Dynamic sleeping (2)
+heuristicType=1 # Type of heuristic for managing BS status: no heuristic (-1), Random sleeping (0), Static sleeping (1), Dynamic sleeping (2)
 #heuristic parameters
 probOn=0.8
 probIdle=0.0
@@ -69,7 +69,7 @@ controlFileName="es_actions_for_ns3.csv" # ES control file path
 
 for i in $(seq 1 $N); do
   echo "Running simulation $i out of $N";
-  ./waf --run "scratch/scenario-one-es --RngRun=$i \
+  ./ns3 run "scratch/scenario-one-es --RngRun=$i \
                                     --configuration=$configuration \
                                     --trafficModel=$trafficModel \
                                     --hoSinrDifference=$hoSinrDifference \

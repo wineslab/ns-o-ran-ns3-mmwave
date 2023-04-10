@@ -25,7 +25,7 @@ handoverMode="DynamicTtt"
 # NS_LOG="RicControlMessage" 
 
 
-./waf --run "scratch/scenario-one-es --RngRun=18813 \
+./ns3 run "scratch/scenario-one-es --RngRun=18813 \
                                     --configuration=0 \
                                     --enableTraces=1 \
                                     --e2lteEnabled=1 \

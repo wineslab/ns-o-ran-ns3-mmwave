@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016
  *
@@ -18,58 +17,103 @@
  * Author: Sébastien Deronne <sebastien.deronne@gmail.com>
  */
 
-#include "ns3/net-device.h"
 #include "wifi-mac-helper.h"
-#include "ns3/wifi-mac.h"
+
 #include "ns3/boolean.h"
+#include "ns3/frame-exchange-manager.h"
+#include "ns3/multi-user-scheduler.h"
+#include "ns3/wifi-ack-manager.h"
+#include "ns3/wifi-assoc-manager.h"
+#include "ns3/wifi-mac-queue-scheduler.h"
+#include "ns3/wifi-net-device.h"
+#include "ns3/wifi-protection-manager.h"
 
-namespace ns3 {
-
-WifiMacHelper::WifiMacHelper ()
+namespace ns3
 {
-  //By default, we create an AdHoc MAC layer without QoS.
-  SetType ("ns3::AdhocWifiMac",
-           "QosSupported", BooleanValue (false));
+
+WifiMacHelper::WifiMacHelper()
+{
+    // By default, we create an AdHoc MAC layer (without QoS).
+    SetType("ns3::AdhocWifiMac");
+
+    m_assocManager.SetTypeId("ns3::WifiDefaultAssocManager");
+    m_queueScheduler.SetTypeId("ns3::FcfsWifiQueueScheduler");
+    m_protectionManager.SetTypeId("ns3::WifiDefaultProtectionManager");
+    m_ackManager.SetTypeId("ns3::WifiDefaultAckManager");
 }
 
-WifiMacHelper::~WifiMacHelper ()
+WifiMacHelper::~WifiMacHelper()
 {
-}
-
-void
-WifiMacHelper::SetType (std::string type,
-                        std::string n0, const AttributeValue &v0,
-                        std::string n1, const AttributeValue &v1,
-                        std::string n2, const AttributeValue &v2,
-                        std::string n3, const AttributeValue &v3,
-                        std::string n4, const AttributeValue &v4,
-                        std::string n5, const AttributeValue &v5,
-                        std::string n6, const AttributeValue &v6,
-                        std::string n7, const AttributeValue &v7,
-                        std::string n8, const AttributeValue &v8,
-                        std::string n9, const AttributeValue &v9,
-                        std::string n10, const AttributeValue &v10)
-{
-  m_mac.SetTypeId (type);
-  m_mac.Set (n0, v0);
-  m_mac.Set (n1, v1);
-  m_mac.Set (n2, v2);
-  m_mac.Set (n3, v3);
-  m_mac.Set (n4, v4);
-  m_mac.Set (n5, v5);
-  m_mac.Set (n6, v6);
-  m_mac.Set (n7, v7);
-  m_mac.Set (n8, v8);
-  m_mac.Set (n9, v9);
-  m_mac.Set (n10, v10);
 }
 
 Ptr<WifiMac>
-WifiMacHelper::Create (Ptr<NetDevice> device) const
+WifiMacHelper::Create(Ptr<WifiNetDevice> device, WifiStandard standard) const
 {
-  Ptr<WifiMac> mac = m_mac.Create<WifiMac> ();
-  mac->SetDevice (device);
-  return mac;
+    NS_ABORT_MSG_IF(standard == WIFI_STANDARD_UNSPECIFIED, "No standard specified!");
+
+    // this is a const method, but we need to force the correct QoS setting
+    ObjectFactory macObjectFactory = m_mac;
+    if (standard >= WIFI_STANDARD_80211n)
+    {
+        macObjectFactory.Set("QosSupported", BooleanValue(true));
+    }
+
+    Ptr<WifiMac> mac = macObjectFactory.Create<WifiMac>();
+    mac->SetDevice(device);
+    mac->SetAddress(Mac48Address::Allocate());
+    device->SetMac(mac);
+    mac->ConfigureStandard(standard);
+
+    Ptr<WifiMacQueueScheduler> queueScheduler = m_queueScheduler.Create<WifiMacQueueScheduler>();
+    mac->SetMacQueueScheduler(queueScheduler);
+
+    // WaveNetDevice stores PHY entities in a different member than WifiNetDevice, hence
+    // GetNPhys() would return 0. We have to attach a protection manager and an ack manager
+    // to the unique instance of frame exchange manager anyway
+    for (uint8_t linkId = 0; linkId < std::max<uint8_t>(device->GetNPhys(), 1); ++linkId)
+    {
+        auto fem = mac->GetFrameExchangeManager(linkId);
+
+        Ptr<WifiProtectionManager> protectionManager =
+            m_protectionManager.Create<WifiProtectionManager>();
+        protectionManager->SetWifiMac(mac);
+        protectionManager->SetLinkId(linkId);
+        fem->SetProtectionManager(protectionManager);
+
+        Ptr<WifiAckManager> ackManager = m_ackManager.Create<WifiAckManager>();
+        ackManager->SetWifiMac(mac);
+        ackManager->SetLinkId(linkId);
+        fem->SetAckManager(ackManager);
+
+        // 11be MLDs require a MAC address to be assigned to each STA. Note that
+        // FrameExchangeManager objects are created by WifiMac::SetupFrameExchangeManager
+        // (which is invoked by WifiMac::ConfigureStandard, which is called above),
+        // which sets the FrameExchangeManager's address to the address held by WifiMac.
+        // Hence, in case the number of PHY objects is 1, the FrameExchangeManager's
+        // address equals the WifiMac's address.
+        if (device->GetNPhys() > 1)
+        {
+            fem->SetAddress(Mac48Address::Allocate());
+        }
+    }
+
+    // create and install the Multi User Scheduler if this is an HE AP
+    Ptr<ApWifiMac> apMac;
+    if (standard >= WIFI_STANDARD_80211ax && m_muScheduler.IsTypeIdSet() &&
+        (apMac = DynamicCast<ApWifiMac>(mac)))
+    {
+        Ptr<MultiUserScheduler> muScheduler = m_muScheduler.Create<MultiUserScheduler>();
+        apMac->AggregateObject(muScheduler);
+    }
+
+    // create and install the Association Manager if this is a STA
+    if (auto staMac = DynamicCast<StaWifiMac>(mac); staMac != nullptr)
+    {
+        Ptr<WifiAssocManager> assocManager = m_assocManager.Create<WifiAssocManager>();
+        staMac->SetAssocManager(assocManager);
+    }
+
+    return mac;
 }
 
-} //namespace ns3
+} // namespace ns3

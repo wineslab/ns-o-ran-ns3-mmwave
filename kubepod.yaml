@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ns-3-pod
+  namespace: ricplt
+spec:
+  containers:
+  - name: ns-3-pod
+    image: ns3
+    imagePullPolicy: Never
+    command: ["sleep", "infinity"]
+    #ports:
+    #  - containerPort: 3000

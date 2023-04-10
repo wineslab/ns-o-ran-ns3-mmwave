@@ -24,7 +24,7 @@ One of the use-cases we want to support is that of a testbed. A concrete example
 of an environment of this kind is the ORBIT testbed. ORBIT is a laboratory
 emulator/field trial network arranged as a two dimensional grid of 400 802.11
 radio nodes. We integrate with ORBIT by using their "imaging" process to load
-and run |ns3| simulations on the ORBIT array. We can use our 
+and run |ns3| simulations on the ORBIT array. We can use our
 ``EmuFdNetDevice``
 to drive the hardware in the testbed and we can accumulate results either using
 the |ns3| tracing and logging functions, or the native ORBIT data gathering
@@ -36,7 +36,7 @@ A simulation of this kind is shown in the following figure:
 .. _testbed:
 
 .. figure:: figures/testbed.*
-   
+
    Example Implementation of Testbed Emulation.
 
 You can see that there are separate hosts, each running a subset of a "global"
@@ -87,8 +87,9 @@ directly-mapped memory capabilities to improve packet processing efficiency.
 
 For more details:
 
-* :doc:`FdNetDevice <fd-net-device>` chapter.
-* :doc:`NetmapNetDevice <netmap-net-device>` chapter.
-* :doc:`DpdkNetDevice <netmap-net-device>` chapter.
-* :doc:`TapBridge <tap>` chapter.
+.. toctree::
 
+   fd-net-device
+   netmap-net-device
+   dpdk-net-device
+   tap

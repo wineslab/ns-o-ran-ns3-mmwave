@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Telum (www.telum.ru)
  *
@@ -20,9 +19,9 @@
 #ifndef JAKES_STATIONARY_LOSS_MODEL_H
 #define JAKES_STATIONARY_LOSS_MODEL_H
 
-#include "ns3/propagation-loss-model.h"
-#include "ns3/propagation-cache.h"
 #include "ns3/jakes-process.h"
+#include "ns3/propagation-cache.h"
+#include "ns3/propagation-loss-model.h"
 
 namespace ns3
 {
@@ -35,47 +34,41 @@ namespace ns3
 
 class JakesPropagationLossModel : public PropagationLossModel
 {
-public:
-  /**
-   * \brief Get the type ID.
-   * \return the object TypeId
-   */
-  static TypeId GetTypeId ();
-  JakesPropagationLossModel ();
-  virtual ~JakesPropagationLossModel ();
-  
-private:
-  friend class JakesProcess;
+  public:
+    /**
+     * \brief Get the type ID.
+     * \return the object TypeId
+     */
+    static TypeId GetTypeId();
+    JakesPropagationLossModel();
+    ~JakesPropagationLossModel() override;
 
-  /**
-   * \brief Copy constructor
-   *
-   * Defined and unimplemented to avoid misuse
-   */
-  JakesPropagationLossModel (const JakesPropagationLossModel &);
-  /**
-   * \brief Copy constructor
-   *
-   * Defined and unimplemented to avoid misuse
-   * \returns
-   */
-  JakesPropagationLossModel & operator = (const JakesPropagationLossModel &);
-  double DoCalcRxPower (double txPowerDbm,
-                        Ptr<MobilityModel> a,
-                        Ptr<MobilityModel> b) const;
-  virtual int64_t DoAssignStreams (int64_t stream);
+    // Delete copy constructor and assignment operator to avoid misuse
+    JakesPropagationLossModel(const JakesPropagationLossModel&) = delete;
+    JakesPropagationLossModel& operator=(const JakesPropagationLossModel&) = delete;
 
-  /**
-   * Get the underlying RNG stream
-   * \return the RNG stream
-   */
-  Ptr<UniformRandomVariable> GetUniformRandomVariable () const;
+  protected:
+    void DoDispose() override;
 
-  Ptr<UniformRandomVariable> m_uniformVariable; //!< random stream
-  mutable PropagationCache<JakesProcess> m_propagationCache; //!< Propagation cache
+  private:
+    friend class JakesProcess;
+
+    double DoCalcRxPower(double txPowerDbm,
+                         Ptr<MobilityModel> a,
+                         Ptr<MobilityModel> b) const override;
+
+    int64_t DoAssignStreams(int64_t stream) override;
+
+    /**
+     * Get the underlying RNG stream
+     * \return the RNG stream
+     */
+    Ptr<UniformRandomVariable> GetUniformRandomVariable() const;
+
+    Ptr<UniformRandomVariable> m_uniformVariable;              //!< random stream
+    mutable PropagationCache<JakesProcess> m_propagationCache; //!< Propagation cache
 };
 
 } // namespace ns3
 
 #endif /* JAKES_STATIONARY_LOSS_MODEL_H */
-

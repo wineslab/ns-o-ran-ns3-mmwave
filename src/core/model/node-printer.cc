@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2018 Lawrence Livermore National Laboratory
  *
@@ -18,9 +17,10 @@
  * Author: Peter D. Barnes, Jr. <pdbarnes@llnl.gov>
  */
 
-#include "log.h"
 #include "node-printer.h"
-#include "simulator.h"  // GetContext()
+
+#include "log.h"
+#include "simulator.h" // GetContext()
 
 #include <iomanip>
 
@@ -30,29 +30,22 @@
  * ns3::DefaultNodePrinter implementation.
  */
 
-namespace ns3 {
-
-NS_LOG_COMPONENT_DEFINE ("NodePrinter");
-
-/**
- * \ingroup logging
- * Default node id printer implementation.
- *
- * \param [in,out] os The output stream to print the node id on.
- */
-void
-DefaultNodePrinter (std::ostream &os)
+namespace ns3
 {
-  if (Simulator::GetContext () == Simulator::NO_CONTEXT)
+
+NS_LOG_COMPONENT_DEFINE("NodePrinter");
+
+void
+DefaultNodePrinter(std::ostream& os)
+{
+    if (Simulator::GetContext() == Simulator::NO_CONTEXT)
     {
-      os << "-1";
+        os << "-1";
     }
-  else
+    else
     {
-      os << Simulator::GetContext ();
+        os << Simulator::GetContext();
     }
 }
 
-
 } // namespace ns3
-

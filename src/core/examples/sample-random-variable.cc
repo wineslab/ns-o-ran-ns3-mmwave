@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -13,10 +12,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#include "ns3/simulator.h"
-#include "ns3/nstime.h"
 #include "ns3/command-line.h"
+#include "ns3/nstime.h"
 #include "ns3/random-variable-stream.h"
+#include "ns3/simulator.h"
+
 #include <iostream>
 
 /**
@@ -29,8 +29,8 @@
 using namespace ns3;
 
 /**
- * This program can be run from waf such as
- * `./waf --run sample-random-variable`
+ * This program can be run from ns3 such as
+ * `./ns3 run sample-random-variable`
  *
  * This program is about as simple as possible to display the use of ns-3
  * to generate random numbers.  By default, the uniform random variate that
@@ -46,9 +46,9 @@ using namespace ns3;
  * 1. Through explicit call of SeedManager::SetSeed () and
  *    SeedManager::SetRun () (commented out below)
  * 2. Through the passing of command line arguments such as:
- *    ./waf --command-template="%s --RngRun=<value>" --run program-name`
+ *    ./ns3 run program-name --command-template="%s --RngRun=<value>"`
  * 3. Through the use of the NS_GLOBAL_VALUE environment variable, such as:
- *    `$ NS_GLOBAL_VALUE="RngRun=<value>" ./waf --run program-name`
+ *    `$ NS_GLOBAL_VALUE="RngRun=<value>" ./ns3 run program-name`
  *
  * For instance, setting the run number to 3 will change the program output to
  * 0.775417
@@ -57,15 +57,17 @@ using namespace ns3;
  * random number generator
  */
 
-int main (int argc, char *argv[])
+int
+main(int argc, char* argv[])
 {
-  CommandLine cmd (__FILE__);
-  cmd.Parse (argc, argv);
+    CommandLine cmd(__FILE__);
+    cmd.Parse(argc, argv);
 
-  // SeedManager::SetRun (3);
+    // SeedManager::SetRun (3);
 
-  Ptr<UniformRandomVariable> uv = CreateObject<UniformRandomVariable> ();
+    Ptr<UniformRandomVariable> uv = CreateObject<UniformRandomVariable>();
 
-  std::cout << uv->GetValue () << std::endl;
+    std::cout << uv->GetValue() << std::endl;
 
+    return 0;
 }

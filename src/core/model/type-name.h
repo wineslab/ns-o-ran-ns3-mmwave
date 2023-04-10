@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 Georgia Tech Research Corporation
  *
@@ -20,7 +19,8 @@
 #ifndef TYPE_NAME_H
 #define TYPE_NAME_H
 
-#include <stdint.h>
+#include "fatal-error.h"
+
 #include <string>
 
 /**
@@ -29,38 +29,60 @@
  * ns3::TypeNameGet() function declarations.
  */
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup attributeimpl
- * Type name strings for numeric AttributeValue types.
  *
- * \tparam T \explicit The numeric type.
- * \returns The numeric type name as a string.
+ * Type name strings for AttributeValue types.
+ * Custom classes should add a template specialization of this function
+ * using the macro \c TYPE_NAME_GET_DEFINE(T).
+ *
+ * \tparam T \explicit The type.
+ * \returns The type name as a string.
  */
 template <typename T>
-std::string TypeNameGet (void)
+std::string
+TypeNameGet()
 {
-  return "unknown";
+    NS_FATAL_ERROR("Type name not defined.");
+    return "unknown";
 }
 
 /**
  * \ingroup attributeimpl
- * ns3::TypeNameGet(void) specializaton.
+ *
+ * Macro that defines a template specialization for \c TypeNameGet<T>() .
+ *
+ * \param T The type.
+ */
+#define TYPENAMEGET_DEFINE(T)                                                                      \
+    template <>                                                                                    \
+    inline std::string TypeNameGet<T>()                                                            \
+    {                                                                                              \
+        return #T;                                                                                 \
+    }
+
+/**
+ * \ingroup attributeimpl
+ * ns3::TypeNameGet() specialization for numeric types.
  * \returns The numeric type name as a string.
  * @{
  */
-template <> std::string TypeNameGet< int8_t  > (void);
-template <> std::string TypeNameGet< int16_t > (void);
-template <> std::string TypeNameGet< int32_t > (void);
-template <> std::string TypeNameGet< int64_t > (void);
-template <> std::string TypeNameGet< uint8_t > (void);
-template <> std::string TypeNameGet< uint16_t> (void);
-template <> std::string TypeNameGet< uint32_t> (void);
-template <> std::string TypeNameGet< uint64_t> (void);
-template <> std::string TypeNameGet< float   > (void);
-template <> std::string TypeNameGet< double  > (void);
-/**@}*/
+TYPENAMEGET_DEFINE(bool);
+TYPENAMEGET_DEFINE(int8_t);
+TYPENAMEGET_DEFINE(int16_t);
+TYPENAMEGET_DEFINE(int32_t);
+TYPENAMEGET_DEFINE(int64_t);
+TYPENAMEGET_DEFINE(uint8_t);
+TYPENAMEGET_DEFINE(uint16_t);
+TYPENAMEGET_DEFINE(uint32_t);
+TYPENAMEGET_DEFINE(uint64_t);
+TYPENAMEGET_DEFINE(float);
+TYPENAMEGET_DEFINE(double);
+TYPENAMEGET_DEFINE(long double);
+/** @} */
 
 } // namespace ns3
 
