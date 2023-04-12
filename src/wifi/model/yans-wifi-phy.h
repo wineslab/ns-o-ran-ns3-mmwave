@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005,2006 INRIA
  *
@@ -25,10 +24,10 @@
 
 #include "wifi-phy.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 class YansWifiChannel;
-class WifiPpdu;
 
 /**
  * \brief 802.11 PHY layer model
@@ -36,9 +35,9 @@ class WifiPpdu;
  *
  * This PHY implements a model of 802.11a. The model
  * implemented here is based on the model described
- * in "Yet Another Network Simulator",
- * (http://cutebugs.net/files/wns2-yans.pdf).
- *
+ * in "Yet Another Network Simulator" published in WNS2 2006;
+ * an author-prepared version of this paper is at:
+ * https://hal.inria.fr/file/index/docid/78318/filename/yans-rr.pdf
  *
  * This PHY model depends on a channel loss and delay
  * model as provided by the ns3::PropagationLossModel
@@ -47,36 +46,36 @@ class WifiPpdu;
  */
 class YansWifiPhy : public WifiPhy
 {
-public:
-  /**
-   * \brief Get the type ID.
-   * \return the object TypeId
-   */
-  static TypeId GetTypeId (void);
+  public:
+    /**
+     * \brief Get the type ID.
+     * \return the object TypeId
+     */
+    static TypeId GetTypeId();
 
-  YansWifiPhy ();
-  virtual ~YansWifiPhy ();
+    YansWifiPhy();
+    ~YansWifiPhy() override;
 
-  // Implementation of pure virtual method.
-  void StartTx (Ptr<WifiPpdu> ppdu);
-  virtual Ptr<Channel> GetChannel (void) const;
+    void SetInterferenceHelper(const Ptr<InterferenceHelper> helper) override;
+    void StartTx(Ptr<const WifiPpdu> ppdu) override;
+    Ptr<Channel> GetChannel() const override;
+    uint16_t GetGuardBandwidth(uint16_t currentChannelWidth) const override;
+    std::tuple<double, double, double> GetTxMaskRejectionParams() const override;
 
-  /**
-   * Set the YansWifiChannel this YansWifiPhy is to be connected to.
-   *
-   * \param channel the YansWifiChannel this YansWifiPhy is to be connected to
-   */
-  void SetChannel (const Ptr<YansWifiChannel> channel);
+    /**
+     * Set the YansWifiChannel this YansWifiPhy is to be connected to.
+     *
+     * \param channel the YansWifiChannel this YansWifiPhy is to be connected to
+     */
+    void SetChannel(const Ptr<YansWifiChannel> channel);
 
-protected:
-  // Inherited
-  virtual void DoDispose (void);
+  protected:
+    void DoDispose() override;
 
-
-private:
-  Ptr<YansWifiChannel> m_channel; //!< YansWifiChannel that this YansWifiPhy is connected to
+  private:
+    Ptr<YansWifiChannel> m_channel; //!< YansWifiChannel that this YansWifiPhy is connected to
 };
 
-} //namespace ns3
+} // namespace ns3
 
 #endif /* YANS_WIFI_PHY_H */

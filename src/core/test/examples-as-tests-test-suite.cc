@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Lawrence Livermore National Laboratory
  *
@@ -27,7 +26,6 @@ using namespace ns3;
 
 /**
  * \file
- * \ingroup core-tests
  * \ingroup examples-as-tests
  * Examples-as-tests test suite
  */
@@ -38,9 +36,11 @@ using namespace ns3;
  *
  * Runs several examples as tests in order to test ExampleAsTestSuite and ExampleAsTestCase.
  */
-namespace ns3 {
+namespace ns3
+{
 
-namespace tests {
+namespace tests
+{
 
 /**
  * \ingroup examples-as-tests
@@ -48,41 +48,46 @@ namespace tests {
  */
 class CommandLineExampleTestCase : public ExampleAsTestCase
 {
-public:
-  /**
-   * Default constructor
-   */
-  CommandLineExampleTestCase();
+  public:
+    /**
+     * Default constructor
+     */
+    CommandLineExampleTestCase();
 
-  /**
-   * Destructor
-   */
-  virtual ~CommandLineExampleTestCase();
+    /**
+     * Destructor
+     */
+    ~CommandLineExampleTestCase() override;
 
-  //Inherited function
-  virtual std::string GetPostProcessingCommand (void) const;
+    /**
+     * Override this function to filter the version string from
+     * the command-line-example output.
+     * Since the version changes each time a commit is made it shouldn't
+     * be tested as part of the command-line-example output.
+     *
+     * \returns The string of post-processing commands.
+     */
+    std::string GetPostProcessingCommand() const override;
 };
 
-CommandLineExampleTestCase::CommandLineExampleTestCase ()
-    :   ExampleAsTestCase ("core-example-command-line", 
-                           "command-line-example",
-                           NS_TEST_SOURCEDIR)
-{}
-
-CommandLineExampleTestCase::~CommandLineExampleTestCase ()
-{}
-
-/**
- * Override this function to filter the version string from
- * the command-line-example output.
- * Since the version changes each time a commit is made it shouldn't
- * be tested as part of the command-line-example output
- */
-std::string
-CommandLineExampleTestCase::GetPostProcessingCommand (void) const
+CommandLineExampleTestCase::CommandLineExampleTestCase()
+    : ExampleAsTestCase("core-example-command-line",
+                        "command-line-example",
+                        NS_TEST_SOURCEDIR,
+                        "--intArg=2 --boolArg --strArg=deadbeef --anti=t "
+                        "--cbArg=beefstew --charbuf=stewmeat 3 4 extraOne extraTwo")
 {
-  //Delete the line that starts with Program Version: 
-  return std::string(R"__(| sed -e "/^Program Version:.*$/d")__");
+}
+
+CommandLineExampleTestCase::~CommandLineExampleTestCase()
+{
+}
+
+std::string
+CommandLineExampleTestCase::GetPostProcessingCommand() const
+{
+    // Delete the line that starts with Program Version:
+    return std::string(R"__(| sed -e "/^Program Version:.*$/d")__");
 }
 
 /**
@@ -91,19 +96,21 @@ CommandLineExampleTestCase::GetPostProcessingCommand (void) const
  */
 class ExamplesAsTestsTestSuite : public TestSuite
 {
-public:
-  ExamplesAsTestsTestSuite ();
+  public:
+    ExamplesAsTestsTestSuite();
 };
 
-
-ExamplesAsTestsTestSuite::ExamplesAsTestsTestSuite ()
-  : TestSuite ("examples-as-tests-test-suite", UNIT)
+ExamplesAsTestsTestSuite::ExamplesAsTestsTestSuite()
+    : TestSuite("examples-as-tests-test-suite", UNIT)
 {
-  AddTestCase (new ExampleAsTestCase ("core-example-simulator", "sample-simulator", NS_TEST_SOURCEDIR));
+    AddTestCase(
+        new ExampleAsTestCase("core-example-simulator", "sample-simulator", NS_TEST_SOURCEDIR));
 
-  AddTestCase (new ExampleAsTestCase ("core-example-sample-random-variable", "sample-random-variable", NS_TEST_SOURCEDIR));
+    AddTestCase(new ExampleAsTestCase("core-example-sample-random-variable",
+                                      "sample-random-variable",
+                                      NS_TEST_SOURCEDIR));
 
-  AddTestCase (new CommandLineExampleTestCase ());
+    AddTestCase(new CommandLineExampleTestCase());
 }
 
 /**
@@ -117,16 +124,14 @@ static ExamplesAsTestsTestSuite g_examplesAsTestsTestSuite;
  * \ingroup examples-tests
  * ExampleTestSuite instance variables.
  *
- * Tests ExampleTestSuite which runs a single example as test suite as specified in constructor arguments.
+ * Tests ExampleTestSuite which runs a single example as test suite as specified in constructor
+ * arguments.
  */
 
-static ExampleAsTestSuite g_exampleCommandLineTest ("core-example-simulator", "sample-simulator", NS_TEST_SOURCEDIR);
+static ExampleAsTestSuite g_exampleCommandLineTest("core-example-simulator",
+                                                   "sample-simulator",
+                                                   NS_TEST_SOURCEDIR);
 
-}  // namespace tests
+} // namespace tests
 
-}  // namespace ns3
-
-
-
-
-
+} // namespace ns3

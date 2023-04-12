@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 The Boeing Company
  *
@@ -17,82 +16,96 @@
  *
  * Author: Gary Pei <guangyu.pei@boeing.com>
  */
-#include <ns3/log.h>
-#include <ns3/test.h>
 #include <ns3/command-line.h>
-#include <ns3/packet.h>
-#include <ns3/lr-wpan-phy.h>
+#include <ns3/constant-position-mobility-model.h>
+#include <ns3/log.h>
 #include <ns3/lr-wpan-mac.h>
+#include <ns3/lr-wpan-phy.h>
+#include <ns3/packet.h>
 #include <ns3/simulator.h>
 #include <ns3/single-model-spectrum-channel.h>
-#include <ns3/constant-position-mobility-model.h>
+#include <ns3/test.h>
 
 using namespace ns3;
 
-void GetSetTRXStateConfirm (LrWpanPhyEnumeration status)
-{
-  NS_LOG_UNCOND ("At: " << Simulator::Now ()
-                        << " Received Set TRX Confirm: " << status);
-}
-
+/**
+ * Function called when a the PHY state change is confirmed
+ * \param status PHY state
+ */
 void
-ReceivePdDataIndication (uint32_t psduLength,
-                         Ptr<Packet> p,
-                         uint8_t lqi)
+GetSetTRXStateConfirm(LrWpanPhyEnumeration status)
 {
-  NS_LOG_UNCOND ("At: " << Simulator::Now ()
-                        << " Received frame size: " << psduLength << " LQI: " <<
-                 (uint16_t) lqi);
+    NS_LOG_UNCOND("At: " << Simulator::Now() << " Received Set TRX Confirm: " << status);
 }
 
-void SendOnePacket (Ptr<LrWpanPhy> sender, Ptr<LrWpanPhy> receiver)
+/**
+ * Function called when a the PHY receives a packet
+ * \param psduLength PSDU length
+ * \param p packet
+ * \param lqi link quality indication
+ */
+void
+ReceivePdDataIndication(uint32_t psduLength, Ptr<Packet> p, uint8_t lqi)
 {
-  uint32_t n = 10;
-  Ptr<Packet> p = Create<Packet> (n);
-  sender->PdDataRequest (p->GetSize (), p);
+    NS_LOG_UNCOND("At: " << Simulator::Now() << " Received frame size: " << psduLength
+                         << " LQI: " << (uint16_t)lqi);
 }
 
-
-int main (int argc, char *argv[])
+/**
+ * Send one packet
+ * \param sender sender PHY
+ * \param receiver receiver PHY
+ */
+void
+SendOnePacket(Ptr<LrWpanPhy> sender, Ptr<LrWpanPhy> receiver)
 {
-  CommandLine cmd (__FILE__);
-  cmd.Parse (argc, argv);
-  
-  LogComponentEnableAll (LOG_PREFIX_FUNC);
-  LogComponentEnable ("LrWpanPhy", LOG_LEVEL_ALL);
-  LogComponentEnable ("SingleModelSpectrumChannel", LOG_LEVEL_ALL);
+    uint32_t n = 10;
+    Ptr<Packet> p = Create<Packet>(n);
+    sender->PdDataRequest(p->GetSize(), p);
+}
 
-  Ptr<LrWpanPhy> sender = CreateObject<LrWpanPhy> ();
-  Ptr<LrWpanPhy> receiver = CreateObject<LrWpanPhy> ();
+int
+main(int argc, char* argv[])
+{
+    CommandLine cmd(__FILE__);
+    cmd.Parse(argc, argv);
 
-  Ptr<SingleModelSpectrumChannel> channel = CreateObject<SingleModelSpectrumChannel> ();
-  sender->SetChannel (channel);
-  receiver->SetChannel (channel);
-  channel->AddRx (sender);
-  channel->AddRx (receiver);
+    LogComponentEnableAll(LOG_PREFIX_FUNC);
+    LogComponentEnable("LrWpanPhy", LOG_LEVEL_ALL);
+    LogComponentEnable("SingleModelSpectrumChannel", LOG_LEVEL_ALL);
 
-  // CONFIGURE MOBILITY
-  Ptr<ConstantPositionMobilityModel> senderMobility = CreateObject<ConstantPositionMobilityModel> ();
-  sender->SetMobility (senderMobility);
-  Ptr<ConstantPositionMobilityModel> receiverMobility = CreateObject<ConstantPositionMobilityModel> ();
-  receiver->SetMobility (receiverMobility);
+    Ptr<LrWpanPhy> sender = CreateObject<LrWpanPhy>();
+    Ptr<LrWpanPhy> receiver = CreateObject<LrWpanPhy>();
 
+    Ptr<SingleModelSpectrumChannel> channel = CreateObject<SingleModelSpectrumChannel>();
+    sender->SetChannel(channel);
+    receiver->SetChannel(channel);
+    channel->AddRx(sender);
+    channel->AddRx(receiver);
 
-  sender->SetPlmeSetTRXStateConfirmCallback (MakeCallback (&GetSetTRXStateConfirm));
-  receiver->SetPlmeSetTRXStateConfirmCallback (MakeCallback (&GetSetTRXStateConfirm));
+    // CONFIGURE MOBILITY
+    Ptr<ConstantPositionMobilityModel> senderMobility =
+        CreateObject<ConstantPositionMobilityModel>();
+    sender->SetMobility(senderMobility);
+    Ptr<ConstantPositionMobilityModel> receiverMobility =
+        CreateObject<ConstantPositionMobilityModel>();
+    receiver->SetMobility(receiverMobility);
 
-  sender->PlmeSetTRXStateRequest (IEEE_802_15_4_PHY_TX_ON);
-  receiver->PlmeSetTRXStateRequest (IEEE_802_15_4_PHY_RX_ON);
+    sender->SetPlmeSetTRXStateConfirmCallback(MakeCallback(&GetSetTRXStateConfirm));
+    receiver->SetPlmeSetTRXStateConfirmCallback(MakeCallback(&GetSetTRXStateConfirm));
 
-  receiver->SetPdDataIndicationCallback (MakeCallback (&ReceivePdDataIndication));
+    sender->PlmeSetTRXStateRequest(IEEE_802_15_4_PHY_TX_ON);
+    receiver->PlmeSetTRXStateRequest(IEEE_802_15_4_PHY_RX_ON);
 
-  Simulator::Schedule (Seconds (1.0), &SendOnePacket, sender, receiver);
+    receiver->SetPdDataIndicationCallback(MakeCallback(&ReceivePdDataIndication));
 
-  Simulator::Stop (Seconds (10.0));
+    Simulator::Schedule(Seconds(1.0), &SendOnePacket, sender, receiver);
 
-  Simulator::Run ();
+    Simulator::Stop(Seconds(10.0));
 
-  Simulator::Destroy ();
+    Simulator::Run();
 
-  return 0;
+    Simulator::Destroy();
+
+    return 0;
 }

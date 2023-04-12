@@ -317,8 +317,8 @@ main (int argc, char *argv[])
   // LogComponentEnable ("LteUeMac", LOG_LEVEL_ALL);
   // LogComponentEnable ("LteEnbMac", LOG_LEVEL_ALL);
   // LogComponentEnable ("MmWaveFlexTtiMacScheduler", LOG_LEVEL_ALL);
-  //LogComponentEnable ("LteEnbRrc", LOG_LEVEL_ALL);
-  //LogComponentEnable ("LteUeRrc", LOG_LEVEL_ALL);
+  // LogComponentEnable ("LteEnbRrc", LOG_LEVEL_ALL);
+  // LogComponentEnable ("LteUeRrc", LOG_LEVEL_ALL);
   // LogComponentEnable ("McEnbPdcp", LOG_LEVEL_ALL);
   // LogComponentEnable ("McUePdcp", LOG_LEVEL_ALL);
   // LogComponentEnable ("ScenarioOneEs``", LOG_LEVEL_ALL);
@@ -495,8 +495,6 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::MmWavePhyMacCommon::NumHarqProcess", UintegerValue (100));
   //Config::SetDefault ("ns3::MmWaveBearerStatsCalculator::EpochDuration", TimeValue (MilliSeconds (10.0)));
 
-  // set to false to use the 3GPP radiation pattern (proper configuration of the bearing and downtilt angles is needed)
-  Config::SetDefault ("ns3::ThreeGppAntennaArrayModel::IsotropicElements", BooleanValue (true));
   Config::SetDefault ("ns3::ThreeGppChannelModel::UpdatePeriod", TimeValue (MilliSeconds (100.0)));
   Config::SetDefault ("ns3::ThreeGppChannelConditionModel::UpdatePeriod", TimeValue (MilliSeconds (100)));
 
@@ -567,15 +565,18 @@ main (int argc, char *argv[])
                             << " numAntennasMmWave " << numAntennasMmWave << " dataRate "
                             << dataRate);
 
-  // Set the number of antennas in the devices
-  Config::SetDefault ("ns3::McUeNetDevice::AntennaNum", UintegerValue (numAntennasMcUe));
-  Config::SetDefault ("ns3::MmWaveNetDevice::AntennaNum", UintegerValue (numAntennasMmWave));
   Config::SetDefault ("ns3::MmWavePhyMacCommon::Bandwidth", DoubleValue (bandwidth));
   Config::SetDefault ("ns3::MmWavePhyMacCommon::CenterFreq", DoubleValue (centerFrequency));
 
   Ptr<MmWaveHelper> mmwaveHelper = CreateObject<MmWaveHelper> ();
   mmwaveHelper->SetPathlossModelType ("ns3::ThreeGppUmiStreetCanyonPropagationLossModel");
   mmwaveHelper->SetChannelConditionModelType ("ns3::ThreeGppUmiStreetCanyonChannelConditionModel");
+
+  // Set the number of antennas in the devices
+  mmwaveHelper->SetUePhasedArrayModelAttribute("NumColumns", UintegerValue(std::sqrt(numAntennasMcUe)));
+  mmwaveHelper->SetUePhasedArrayModelAttribute("NumRows", UintegerValue(std::sqrt(numAntennasMcUe)));
+  mmwaveHelper->SetEnbPhasedArrayModelAttribute("NumColumns",UintegerValue(std::sqrt(numAntennasMmWave)));
+  mmwaveHelper->SetEnbPhasedArrayModelAttribute("NumRows", UintegerValue(std::sqrt(numAntennasMmWave)));
 
   Ptr<MmWavePointToPointEpcHelper> epcHelper = CreateObject<MmWavePointToPointEpcHelper> ();
   mmwaveHelper->SetEpcHelper (epcHelper);
@@ -896,7 +897,6 @@ main (int argc, char *argv[])
   Ptr<MavenirHeuristic> mavenirHeur=CreateObject<MavenirHeuristic>();
   std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> bsClusters = mavenirHeur->ReadClusters(clusters, nMmWaveEnbNodes, mmWaveEnbDevs);
 
-
   switch (heuristicType)
     {
       // No heuristc
@@ -931,7 +931,6 @@ main (int argc, char *argv[])
                 Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, energyHeur,
                                      sinrTh, mmdev);
               }
-            i = i + 0.00001; //making sure to execute the next function after the previous one
             Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
             Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, energyHeur,
                                  nMmWaveEnbNodes, mmWaveEnbDevs, "static", BsStatus, ltedev);
@@ -951,7 +950,6 @@ main (int argc, char *argv[])
                 Simulator::Schedule (Seconds (i), &EnergyHeuristic::CountBestUesSinr, energyHeur,
                                      sinrTh, mmdev);
               }
-            i = i + 0.00001; //making sure to execute the next function after the previous one
             Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
             Simulator::Schedule (Seconds (i), &EnergyHeuristic::TurnOnBsSinrPos, energyHeur,
                                  nMmWaveEnbNodes, mmWaveEnbDevs, "dynamic", BsStatus, ltedev);

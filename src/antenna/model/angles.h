@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011, 2012 CTTC
  *
@@ -21,123 +20,209 @@
 #ifndef ANGLES_H
 #define ANGLES_H
 
-
 #include <ns3/vector.h>
 
-namespace ns3 {
+#include <vector>
 
+namespace ns3
+{
 
-/** 
+/**
  * \brief converts degrees to radians
- * 
+ *
  * \param degrees the angle in degrees
- * 
  * \return the angle in radians
  */
-double DegreesToRadians (double degrees);
+double DegreesToRadians(double degrees);
 
-/** 
+/**
+ * \brief converts degrees to radians
+ *
+ * \param degrees the angles in degrees
+ * \return the angles in radians
+ */
+std::vector<double> DegreesToRadians(const std::vector<double>& degrees);
+
+/**
  * \brief converts radians to degrees
- * 
+ *
  * \param radians the angle in radians
- * 
  * \return the angle in degrees
  */
-double RadiansToDegrees (double radians);
+double RadiansToDegrees(double radians);
 
-/** 
- * 
- * struct holding the azimuth and inclination angles of spherical
- * coordinates. The notation is the one used in  "Antenna Theory - Analysis
- * and Design", C.A. Balanis, Wiley, 2nd Ed., section 2.2 "Radiation
- * pattern".
- * This notation corresponds to the standard spherical coordinates, with phi
+/**
+ * \brief converts radians to degrees
+ *
+ * \param radians the angles in radians
+ * \return the angles in degrees
+ */
+std::vector<double> RadiansToDegrees(const std::vector<double>& radians);
+
+/**
+ * \brief Wrap angle in [0, 360)
+ *
+ * \param a the angle in degrees
+ * \return the wrapped angle in degrees
+ */
+double WrapTo360(double a);
+
+/**
+ * \brief Wrap angle in [-180, 180)
+ *
+ * \param a the angle in degrees
+ * \return the wrapped angle in degrees
+ */
+double WrapTo180(double a);
+
+/**
+ * \brief Wrap angle in [0, 2*M_PI)
+ *
+ * \param a the angle in radians
+ * \return the wrapped angle in radians
+ */
+double WrapTo2Pi(double a);
+
+/**
+ * \brief Wrap angle in [-M_PI, M_PI)
+ *
+ * \param a the angle in radians
+ * \return the wrapped angle in radians
+ */
+double WrapToPi(double a);
+
+/**
+ *
+ * Class holding the azimuth and inclination angles of spherical coordinates.
+ * The notation is the one used in  "Antenna Theory - Analysis
+ * and Design", C.A. Balanis, Wiley, 2nd Ed., section 2.2 "Radiation pattern".
+ * This notation corresponds to the standard spherical coordinates, with azimuth
  * measured counterclockwise in the x-y plane off the x-axis, and
- * theta measured off the z-axis. 
- * 
+ * inclination measured off the z-axis.
+ * Azimuth is consistently normalized to be in [-M_PI, M_PI).
+ *
  *          ^
- *        z | 
- *          |_ theta
+ *        z |
+ *          |_ inclination
  *          | \
  *          | /|
  *          |/ |   y
  *          +-------->
  *         /  \|
  *        /___/
- *     x /  phi
+ *     x /  azimuth
  *      |/
  *
  */
-struct Angles
+class Angles
 {
-  /** 
-   * default constructor, will initialize phi and theta to zero
-   * 
-   */
-  Angles ();
+  public:
+    /**
+     * This constructor allows to specify azimuth and inclination.
+     * Inclination must be in [0, M_PI], while azimuth is
+     * automatically normalized in [-M_PI, M_PI)
+     *
+     * \param azimuth the azimuth angle in radians
+     * \param inclination the inclination angle in radians
+     */
+    Angles(double azimuth, double inclination);
 
-  /** 
-   * this constructor allows to specify phi and  theta
-   * 
-   * \param phi the azimuth angle in radians
-   * \param theta the inclination angle in radians
-   * 
-   */
-  Angles (double phi, double theta);
+    /**
+     * This constructor will initialize azimuth and inclination by converting the
+     * given 3D vector from cartesian coordinates to spherical coordinates
+     * Note: azimuth and inclination angles for a zero-length vector are not defined
+     * and are thus initialized to NAN
+     *
+     * \param v the 3D vector in cartesian coordinates
+     *
+     */
+    Angles(Vector v);
 
-  /** 
-   * this constructor will initialize phi and theta by converting the
-   * given 3D vector from cartesian coordinates to spherical coordinates
-   * 
-   * \param v the 3D vector in cartesian coordinates
-   * 
-   */
-  Angles (Vector v);
+    /**
+     * This constructor initializes an Angles instance with the angles
+     * of the spherical coordinates of point v respect to point o
+     *
+     * \param v the point (in cartesian coordinates) for which the angles are determined
+     * \param o the origin (in cartesian coordinates) of the spherical coordinate system
+     *
+     */
+    Angles(Vector v, Vector o);
 
-  /** 
-   * this constructor initializes an Angles instance with the angles
-   * of the spherical coordinates of point v respect to point o 
-   * 
-   * \param v the point (in cartesian coordinates) for which the angles are determined
-   * \param o the origin (in cartesian coordinates) of the spherical coordinate system
-   * 
-   */
-  Angles (Vector v, Vector o);
+    /**
+     * Setter for azimuth angle
+     *
+     * \param azimuth angle in radians
+     */
+    void SetAzimuth(double azimuth);
 
-  /**
-   * the azimuth angle in radians
-   * 
-   */
-  double phi;
+    /**
+     * Setter for inclination angle
+     *
+     * \param inclination angle in radians. Must be in [0, M_PI]
+     */
+    void SetInclination(double inclination);
 
-  /**
-   * the inclination angle in radians
-   * 
-   */
-  double theta;
+    /**
+     * Getter for azimuth angle
+     *
+     * \return azimuth angle in radians
+     */
+    double GetAzimuth() const;
+
+    /**
+     * Getter for inclination angle
+     *
+     * \return inclination angle in radians
+     */
+    double GetInclination() const;
+
+    // friend methods
+    /**
+     * \brief Stream insertion operator.
+     *
+     * \param [in] os The reference to the output stream.
+     * \param [in] a The angle.
+     * \returns The reference to the output stream.
+     */
+    friend std::ostream& operator<<(std::ostream& os, const Angles& a);
+    /**
+     * \brief Stream extraction operator.
+     *
+     * \param [in] is The reference to the input stream.
+     * \param [out] a The angle.
+     * \returns The reference to the input stream.
+     */
+    friend std::istream& operator>>(std::istream& is, Angles& a);
+
+    static bool m_printDeg; //!< flag for printing in radians or degrees units
+
+  private:
+    /**
+     * Default constructor is disabled
+     */
+    Angles();
+
+    /**
+     * Normalize the angle azimuth angle range between in [-M_PI, M_PI)
+     * while checking if the angle is valid, i.e., finite and within
+     * the bounds.
+     *
+     * Note: while an arbitrary value for the azimuth angle is valid
+     * and can be wrapped in [-M_PI, M_PI), an inclination angle outside
+     * the [0, M_PI] range can be ambiguous and is thus not valid.
+     */
+    void NormalizeAngles();
+
+    /**
+     * Check if Angle is valid or not
+     * Warns the user if the Angle is undefined (non-finite azimuth or inclination),
+     * throws an assert if the inclination angle is invalid (not in [0, M_PI])
+     */
+    void CheckIfValid() const;
+
+    double m_azimuth;     //!< the azimuth angle in radians
+    double m_inclination; //!< the inclination angle in radians
 };
-
-
-
-/** 
- * print a struct Angles to output
- * 
- * \param os the output stream
- * \param a the Angles struct
- * 
- * \return a reference to the output stream
- */
-std::ostream& operator<< ( std::ostream& os, const Angles& a);
-
-/** 
- * initialize a struct Angles from input
- * 
- * \param is the input stream
- * \param a the Angles struct
- * 
- * \return a reference to the input stream
- */
-std::istream &operator >> (std::istream &is, Angles &a);
 
 } // namespace ns3
 

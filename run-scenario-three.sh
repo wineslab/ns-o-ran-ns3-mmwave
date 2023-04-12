@@ -13,7 +13,7 @@ maxSpeed=4.0 # maximum UE speed in m/s
 simTime=10 # simulation time
 e2TermIp="10.102.157.65" # actual E2term IP interface
 
-heuristicType=3 # Type of heuristic for managing BS status: Random sleeping (0), Static sleeping (1), Dynamic sleeping (2)
+heuristicType=1 # Type of heuristic for managing BS status: no heuristic (-1), Random sleeping (0), Static sleeping (1), Dynamic sleeping (2), Mavenir (3)
 #heuristic parameters
 probOn=0.6038
 probIdle=0.3854
@@ -65,7 +65,8 @@ scheduleControlMessages=0 # if the control message shall be read at the beginnin
 # NS_LOG="RicControlMessage" 
 
 for i in $(seq 1 $N); do
-  ./waf --run "scratch/scenario-three --RngRun=123 \
+  echo "Running simulation $i out of $N";
+  ./ns3 run "scratch/scenario-three --RngRun=$i \
                                     --configuration=$configuration \
                                     --dataRate=$dataRate \
                                     --enableTraces=$enableTraces \

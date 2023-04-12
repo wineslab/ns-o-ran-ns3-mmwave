@@ -47,22 +47,20 @@ try:
 except ImportError:
     import Queue as queue
 #
-# XXX This should really be part of a waf command to list the configuration
+# XXX This should really be part of a ns3 command to list the configuration
 # items relative to optional ns-3 pieces.
 #
-# A list of interesting configuration items in the waf configuration
+# A list of interesting configuration items in the ns3 configuration
 # cache which we may be interested in when deciding on which examples
-# to run and how to run them.  These are set by waf during the
+# to run and how to run them.  These are set by ns3 during the
 # configuration phase and the corresponding assignments are usually
-# found in the associated subdirectory wscript files.
+# found in the associated subdirectory CMakeLists.txt files.
 #
 interesting_config_items = [
     "NS3_ENABLED_MODULES",
     "NS3_ENABLED_CONTRIBUTED_MODULES",
     "NS3_MODULE_PATH",
-    "NSC_ENABLED",
     "ENABLE_REAL_TIME",
-    "ENABLE_THREADING",
     "ENABLE_EXAMPLES",
     "ENABLE_TESTS",
     "EXAMPLE_DIRECTORIES",
@@ -77,14 +75,13 @@ interesting_config_items = [
     "VALGRIND_FOUND",
 ]
 
-NSC_ENABLED = False
 ENABLE_REAL_TIME = False
-ENABLE_THREADING = False
 ENABLE_EXAMPLES = True
 ENABLE_TESTS = True
 NSCLICK = False
 ENABLE_BRITE = False
 ENABLE_OPENFLOW = False
+ENABLE_PYTHON_BINDINGS = False
 EXAMPLE_DIRECTORIES = []
 APPNAME = ""
 BUILD_PROFILE = ""
@@ -94,25 +91,21 @@ PYTHON = ""
 VALGRIND_FOUND = True
 
 #
-# This will be given a prefix and a suffix when the waf config file is
+# This will be given a prefix and a suffix when the ns3 config file is
 # read.
 #
 test_runner_name = "test-runner"
 
 #
-# If the user has constrained us to run certain kinds of tests, we can tell waf
+# If the user has constrained us to run certain kinds of tests, we can tell ns3
 # to only build
 #
 core_kinds = ["core", "performance", "system", "unit"]
 
 #
-# There are some special cases for test suites that kill valgrind.  This is
-# because NSC causes illegal instruction crashes when run under valgrind.
+# Exclude tests that are problematic for valgrind.
 #
 core_valgrind_skip_tests = [
-    "ns3-tcp-cwnd",
-    "nsc-tcp-loss",
-    "ns3-tcp-interoperability",
     "routing-click",
     "lte-rr-ff-mac-scheduler",
     "lte-tdmt-ff-mac-scheduler",
@@ -124,16 +117,6 @@ core_valgrind_skip_tests = [
     "lte-fdtbfq-ff-mac-scheduler",
     "lte-tdtbfq-ff-mac-scheduler",
     "lte-pss-ff-mac-scheduler",
-]
-
-#
-# There are some special cases for test suites that fail when NSC is
-# missing.
-#
-core_nsc_missing_skip_tests = [
-    "ns3-tcp-cwnd",
-    "nsc-tcp-loss",
-    "ns3-tcp-interoperability",
 ]
 
 #
@@ -164,7 +147,8 @@ def parse_examples_to_run_file(
         # some tests when they are run under valgrind.
         #
         # Note that the two conditions are Python statements that
-        # can depend on waf configuration variables.  For example,
+        # can depend on ns3 configuration variables.  For example,
+        # when NSC was in the codebase, we could write:
         #
         #     ("tcp-nsc-lfn", "NSC_ENABLED == True", "NSC_ENABLED == False"),
         #
@@ -182,11 +166,12 @@ def parse_examples_to_run_file(
                 example_arguments = example_name_parts[1]
 
             # Add the proper prefix and suffix to the example name to
-            # match what is done in the wscript file.
+            # match what is done in the CMakeLists.txt file.
             example_path = "%s%s-%s%s" % (APPNAME, VERSION, example_name, BUILD_PROFILE_SUFFIX)
 
             # Set the full path for the example.
             example_path = os.path.join(cpp_executable_dir, example_path)
+            example_path += '.exe' if sys.platform == 'win32' else ''
             example_name = os.path.join(
                 os.path.relpath(cpp_executable_dir, NS3_BUILDDIR),
                 example_name)
@@ -210,7 +195,7 @@ def parse_examples_to_run_file(
         # do_run is a condition under which to run the example.
         #
         # Note that the condition is a Python statement that can
-        # depend on waf configuration variables.  For example,
+        # depend on ns3 configuration variables.  For example,
         #
         #     ("realtime-udp-echo.py", "ENABLE_REAL_TIME == True"),
         #
@@ -290,23 +275,23 @@ def node_to_text(test, f, test_type='Suite'):
 def translate_to_text(results_file, text_file):
     text_file += '.txt'
     print('Writing results to text file \"%s\"...' % text_file, end='')
-    f = open(text_file, 'w')
     import xml.etree.ElementTree as ET
     et = ET.parse(results_file)
-    for test in et.findall('Test'):
-        node_to_text(test, f)
 
-    for example in et.findall('Example'):
-        result = example.find('Result').text
-        name = example.find('Name').text
-        if not example.find('Time') is None:
-            time_real = example.find('Time').get('real')
-        else:
-            time_real = ''
-        output = "%s: Example \"%s\" (%s)\n" % (result, name, time_real)
-        f.write(output)
+    with open(text_file, 'w') as f:
+        for test in et.findall('Test'):
+            node_to_text(test, f)
 
-    f.close()
+        for example in et.findall('Example'):
+            result = example.find('Result').text
+            name = example.find('Name').text
+            if not example.find('Time') is None:
+                time_real = example.find('Time').get('real')
+            else:
+                time_real = ''
+            output = "%s: Example \"%s\" (%s)\n" % (result, name, time_real)
+            f.write(output)
+
     print('done.')
 
 #
@@ -318,262 +303,263 @@ def translate_to_text(results_file, text_file):
 def translate_to_html(results_file, html_file):
     html_file += '.html'
     print('Writing results to html file %s...' % html_file, end='')
-    f = open(html_file, 'w')
-    f.write("<html>\n")
-    f.write("<body>\n")
-    f.write("<center><h1>ns-3 Test Results</h1></center>\n")
 
-    #
-    # Read and parse the whole results file.
-    #
-    import xml.etree.ElementTree as ET
-    et = ET.parse(results_file)
-
-    #
-    # Iterate through the test suites
-    #
-    f.write("<h2>Test Suites</h2>\n")
-    for suite in et.findall('Test'):
-        #
-        # For each test suite, get its name, result and execution time info
-        #
-        (result, name, reason, time) = read_test(suite)
+    with open(html_file, 'w') as f:
+        f.write("<html>\n")
+        f.write("<body>\n")
+        f.write("<center><h1>ns-3 Test Results</h1></center>\n")
 
         #
-        # Print a level three header with the result, name and time.  If the
-        # test suite passed, the header is printed in green. If the suite was
-        # skipped, print it in orange, otherwise assume something bad happened
-        # and print in red.
+        # Read and parse the whole results file.
         #
-        if result == "PASS":
-            f.write("<h3 style=\"color:green\">%s: %s (%s)</h3>\n" % (result, name, time))
-        elif result == "SKIP":
-            f.write("<h3 style=\"color:#ff6600\">%s: %s (%s) (%s)</h3>\n" % (result, name, time, reason))
-        else:
-            f.write("<h3 style=\"color:red\">%s: %s (%s)</h3>\n" % (result, name, time))
+        import xml.etree.ElementTree as ET
+        et = ET.parse(results_file)
 
         #
-        # The test case information goes in a table.
+        # Iterate through the test suites
+        #
+        f.write("<h2>Test Suites</h2>\n")
+        for suite in et.findall('Test'):
+            #
+            # For each test suite, get its name, result and execution time info
+            #
+            (result, name, reason, time) = read_test(suite)
+
+            #
+            # Print a level three header with the result, name and time.  If the
+            # test suite passed, the header is printed in green. If the suite was
+            # skipped, print it in orange, otherwise assume something bad happened
+            # and print in red.
+            #
+            if result == "PASS":
+                f.write("<h3 style=\"color:green\">%s: %s (%s)</h3>\n" % (result, name, time))
+            elif result == "SKIP":
+                f.write("<h3 style=\"color:#ff6600\">%s: %s (%s) (%s)</h3>\n" % (result, name, time, reason))
+            else:
+                f.write("<h3 style=\"color:red\">%s: %s (%s)</h3>\n" % (result, name, time))
+
+            #
+            # The test case information goes in a table.
+            #
+            f.write("<table border=\"1\">\n")
+
+            #
+            # The first column of the table has the heading Result
+            #
+            f.write("<th> Result </th>\n")
+
+            #
+            # If the suite crashed or is skipped, there is no further information, so just
+            # declare a new table row with the result (CRASH or SKIP) in it.  Looks like:
+            #
+            #   +--------+
+            #   | Result |
+            #   +--------+
+            #   | CRASH  |
+            #   +--------+
+            #
+            # Then go on to the next test suite.  Valgrind and skipped errors look the same.
+            #
+            if result in ["CRASH", "SKIP", "VALGR"]:
+                f.write("<tr>\n")
+                if result == "SKIP":
+                    f.write("<td style=\"color:#ff6600\">%s</td>\n" % result)
+                else:
+                    f.write("<td style=\"color:red\">%s</td>\n" % result)
+                f.write("</tr>\n")
+                f.write("</table>\n")
+                continue
+
+            #
+            # If the suite didn't crash, we expect more information, so fill out
+            # the table heading row.  Like,
+            #
+            #   +--------+----------------+------+
+            #   | Result | Test Case Name | Time |
+            #   +--------+----------------+------+
+            #
+            f.write("<th>Test Case Name</th>\n")
+            f.write("<th> Time </th>\n")
+
+            #
+            # If the test case failed, we need to print out some failure details
+            # so extend the heading row again.  Like,
+            #
+            #   +--------+----------------+------+-----------------+
+            #   | Result | Test Case Name | Time | Failure Details |
+            #   +--------+----------------+------+-----------------+
+            #
+            if result == "FAIL":
+                f.write("<th>Failure Details</th>\n")
+
+            #
+            # Now iterate through all of the test cases.
+            #
+            for case in suite.findall('Test'):
+
+                #
+                # Get the name, result and timing information from xml to use in
+                # printing table below.
+                #
+                (result, name, reason, time) = read_test(case)
+
+                #
+                # If the test case failed, we iterate through possibly multiple
+                # failure details
+                #
+                if result == "FAIL":
+                    #
+                    # There can be multiple failures for each test case.  The first
+                    # row always gets the result, name and timing information along
+                    # with the failure details.  Remaining failures don't duplicate
+                    # this information but just get blanks for readability.  Like,
+                    #
+                    #   +--------+----------------+------+-----------------+
+                    #   | Result | Test Case Name | Time | Failure Details |
+                    #   +--------+----------------+------+-----------------+
+                    #   |  FAIL  | The name       | time | It's busted     |
+                    #   +--------+----------------+------+-----------------+
+                    #   |        |                |      | Really broken   |
+                    #   +--------+----------------+------+-----------------+
+                    #   |        |                |      | Busted bad      |
+                    #   +--------+----------------+------+-----------------+
+                    #
+
+                    first_row = True
+                    for details in case.findall('FailureDetails'):
+
+                        #
+                        # Start a new row in the table for each possible Failure Detail
+                        #
+                        f.write("<tr>\n")
+
+                        if first_row:
+                            first_row = False
+                            f.write("<td style=\"color:red\">%s</td>\n" % result)
+                            f.write("<td>%s</td>\n" % name)
+                            f.write("<td>%s</td>\n" % time)
+                        else:
+                            f.write("<td></td>\n")
+                            f.write("<td></td>\n")
+                            f.write("<td></td>\n")
+
+                        f.write("<td>")
+                        f.write("<b>Message: </b>%s, " % details.find('Message').text)
+                        f.write("<b>Condition: </b>%s, " % details.find('Condition').text)
+                        f.write("<b>Actual: </b>%s, " % details.find('Actual').text)
+                        f.write("<b>Limit: </b>%s, " % details.find('Limit').text)
+                        f.write("<b>File: </b>%s, " % details.find('File').text)
+                        f.write("<b>Line: </b>%s" % details.find('Line').text)
+                        f.write("</td>\n")
+
+                        #
+                        # End the table row
+                        #
+                        f.write("</td>\n")
+                else:
+                    #
+                    # If this particular test case passed, then we just print the PASS
+                    # result in green, followed by the test case name and its execution
+                    # time information.  These go off in <td> ... </td> table data.
+                    # The details table entry is left blank.
+                    #
+                    #   +--------+----------------+------+---------+
+                    #   | Result | Test Case Name | Time | Details |
+                    #   +--------+----------------+------+---------+
+                    #   |  PASS  | The name       | time |         |
+                    #   +--------+----------------+------+---------+
+                    #
+                    f.write("<tr>\n")
+                    f.write("<td style=\"color:green\">%s</td>\n" % result)
+                    f.write("<td>%s</td>\n" % name)
+                    f.write("<td>%s</td>\n" % time)
+                    f.write("<td>%s</td>\n" % reason)
+                    f.write("</tr>\n")
+            #
+            # All of the rows are written, so we need to end the table.
+            #
+            f.write("</table>\n")
+
+        #
+        # That's it for all of the test suites.  Now we have to do something about
+        # our examples.
+        #
+        f.write("<h2>Examples</h2>\n")
+
+        #
+        # Example status is rendered in a table just like the suites.
         #
         f.write("<table border=\"1\">\n")
 
         #
-        # The first column of the table has the heading Result
+        # The table headings look like,
+        #
+        #   +--------+--------------+--------------+---------+
+        #   | Result | Example Name | Elapsed Time | Details |
+        #   +--------+--------------+--------------+---------+
         #
         f.write("<th> Result </th>\n")
+        f.write("<th>Example Name</th>\n")
+        f.write("<th>Elapsed Time</th>\n")
+        f.write("<th>Details</th>\n")
 
         #
-        # If the suite crashed or is skipped, there is no further information, so just
-        # declare a new table row with the result (CRASH or SKIP) in it.  Looks like:
+        # Now iterate through all of the examples
         #
-        #   +--------+
-        #   | Result |
-        #   +--------+
-        #   | CRASH  |
-        #   +--------+
-        #
-        # Then go on to the next test suite.  Valgrind and skipped errors look the same.
-        #
-        if result in ["CRASH", "SKIP", "VALGR"]:
+        for example in et.findall("Example"):
+
+            #
+            # Start a new row for each example
+            #
             f.write("<tr>\n")
-            if result == "SKIP":
-                f.write("<td style=\"color:#ff6600\">%s</td>\n" % result)
+
+            #
+            # Get the result and name of the example in question
+            #
+            (result, name, reason, time) = read_test(example)
+
+            #
+            # If the example either failed or crashed, print its result status
+            # in red; otherwise green.  This goes in a <td> ... </td> table data
+            #
+            if result == "PASS":
+                f.write("<td style=\"color:green\">%s</td>\n" % result)
+            elif result == "SKIP":
+                f.write("<td style=\"color:#ff6600\">%s</fd>\n" % result)
             else:
                 f.write("<td style=\"color:red\">%s</td>\n" % result)
+
+            #
+            # Write the example name as a new tag data.
+            #
+            f.write("<td>%s</td>\n" % name)
+
+            #
+            # Write the elapsed time as a new tag data.
+            #
+            f.write("<td>%s</td>\n" % time)
+
+            #
+            # Write the reason, if it exist
+            #
+            f.write("<td>%s</td>\n" % reason)
+
+            #
+            # That's it for the current example, so terminate the row.
+            #
             f.write("</tr>\n")
-            f.write("</table>\n")
-            continue
 
         #
-        # If the suite didn't crash, we expect more information, so fill out
-        # the table heading row.  Like,
-        #
-        #   +--------+----------------+------+
-        #   | Result | Test Case Name | Time |
-        #   +--------+----------------+------+
-        #
-        f.write("<th>Test Case Name</th>\n")
-        f.write("<th> Time </th>\n")
-
-        #
-        # If the test case failed, we need to print out some failure details
-        # so extend the heading row again.  Like,
-        #
-        #   +--------+----------------+------+-----------------+
-        #   | Result | Test Case Name | Time | Failure Details |
-        #   +--------+----------------+------+-----------------+
-        #
-        if result == "FAIL":
-            f.write("<th>Failure Details</th>\n")
-
-        #
-        # Now iterate through all of the test cases.
-        #
-        for case in suite.findall('Test'):
-
-            #
-            # Get the name, result and timing information from xml to use in
-            # printing table below.
-            #
-            (result, name, reason, time) = read_test(case)
-
-            #
-            # If the test case failed, we iterate through possibly multiple
-            # failure details
-            #
-            if result == "FAIL":
-                #
-                # There can be multiple failures for each test case.  The first
-                # row always gets the result, name and timing information along
-                # with the failure details.  Remaining failures don't duplicate
-                # this information but just get blanks for readability.  Like,
-                #
-                #   +--------+----------------+------+-----------------+
-                #   | Result | Test Case Name | Time | Failure Details |
-                #   +--------+----------------+------+-----------------+
-                #   |  FAIL  | The name       | time | It's busted     |
-                #   +--------+----------------+------+-----------------+
-                #   |        |                |      | Really broken   |
-                #   +--------+----------------+------+-----------------+
-                #   |        |                |      | Busted bad      |
-                #   +--------+----------------+------+-----------------+
-                #
-
-                first_row = True
-                for details in case.findall('FailureDetails'):
-
-                    #
-                    # Start a new row in the table for each possible Failure Detail
-                    #
-                    f.write("<tr>\n")
-
-                    if first_row:
-                        first_row = False
-                        f.write("<td style=\"color:red\">%s</td>\n" % result)
-                        f.write("<td>%s</td>\n" % name)
-                        f.write("<td>%s</td>\n" % time)
-                    else:
-                        f.write("<td></td>\n")
-                        f.write("<td></td>\n")
-                        f.write("<td></td>\n")
-
-                    f.write("<td>")
-                    f.write("<b>Message: </b>%s, " % details.find('Message').text)
-                    f.write("<b>Condition: </b>%s, " % details.find('Condition').text)
-                    f.write("<b>Actual: </b>%s, " % details.find('Actual').text)
-                    f.write("<b>Limit: </b>%s, " % details.find('Limit').text)
-                    f.write("<b>File: </b>%s, " % details.find('File').text)
-                    f.write("<b>Line: </b>%s" % details.find('Line').text)
-                    f.write("</td>\n")
-
-                    #
-                    # End the table row
-                    #
-                    f.write("</td>\n")
-            else:
-                #
-                # If this particular test case passed, then we just print the PASS
-                # result in green, followed by the test case name and its execution
-                # time information.  These go off in <td> ... </td> table data.
-                # The details table entry is left blank.
-                #
-                #   +--------+----------------+------+---------+
-                #   | Result | Test Case Name | Time | Details |
-                #   +--------+----------------+------+---------+
-                #   |  PASS  | The name       | time |         |
-                #   +--------+----------------+------+---------+
-                #
-                f.write("<tr>\n")
-                f.write("<td style=\"color:green\">%s</td>\n" % result)
-                f.write("<td>%s</td>\n" % name)
-                f.write("<td>%s</td>\n" % time)
-                f.write("<td>%s</td>\n" % reason)
-                f.write("</tr>\n")
-        #
-        # All of the rows are written, so we need to end the table.
+        # That's it for the table of examples, so terminate the table.
         #
         f.write("</table>\n")
 
-    #
-    # That's it for all of the test suites.  Now we have to do something about
-    # our examples.
-    #
-    f.write("<h2>Examples</h2>\n")
+        #
+        # And that's it for the report, so finish up.
+        #
+        f.write("</body>\n")
+        f.write("</html>\n")
 
-    #
-    # Example status is rendered in a table just like the suites.
-    #
-    f.write("<table border=\"1\">\n")
-
-    #
-    # The table headings look like,
-    #
-    #   +--------+--------------+--------------+---------+
-    #   | Result | Example Name | Elapsed Time | Details |
-    #   +--------+--------------+--------------+---------+
-    #
-    f.write("<th> Result </th>\n")
-    f.write("<th>Example Name</th>\n")
-    f.write("<th>Elapsed Time</th>\n")
-    f.write("<th>Details</th>\n")
-
-    #
-    # Now iterate through all of the examples
-    #
-    for example in et.findall("Example"):
-
-        #
-        # Start a new row for each example
-        #
-        f.write("<tr>\n")
-
-        #
-        # Get the result and name of the example in question
-        #
-        (result, name, reason, time) = read_test(example)
-
-        #
-        # If the example either failed or crashed, print its result status
-        # in red; otherwise green.  This goes in a <td> ... </td> table data
-        #
-        if result == "PASS":
-            f.write("<td style=\"color:green\">%s</td>\n" % result)
-        elif result == "SKIP":
-            f.write("<td style=\"color:#ff6600\">%s</fd>\n" % result)
-        else:
-            f.write("<td style=\"color:red\">%s</td>\n" % result)
-
-        #
-        # Write the example name as a new tag data.
-        #
-        f.write("<td>%s</td>\n" % name)
-
-        #
-        # Write the elapsed time as a new tag data.
-        #
-        f.write("<td>%s</td>\n" % time)
-
-        #
-        # Write the reason, if it exist
-        #
-        f.write("<td>%s</td>\n" % reason)
-
-        #
-        # That's it for the current example, so terminate the row.
-        #
-        f.write("</tr>\n")
-
-    #
-    # That's it for the table of examples, so terminate the table.
-    #
-    f.write("</table>\n")
-
-    #
-    # And that's it for the report, so finish up.
-    #
-    f.write("</body>\n")
-    f.write("</html>\n")
-    f.close()
     print('done.')
 
 #
@@ -592,31 +578,29 @@ def sigint_hook(signal, frame):
 
 #
 # In general, the build process itself naturally takes care of figuring out
-# which tests are built into the test runner.  For example, if waf configure
+# which tests are built into the test runner.  For example, if ns3 configure
 # determines that ENABLE_EMU is false due to some missing dependency,
 # the tests for the emu net device simply will not be built and will
 # therefore not be included in the built test runner.
 #
 # Examples, however, are a different story.  In that case, we are just given
 # a list of examples that could be run.  Instead of just failing, for example,
-# nsc-tcp-zoo if NSC is not present, we look into the waf saved configuration
-# for relevant configuration items.
+# an example if its library support is not present, we look into the ns3
+# saved configuration for relevant configuration items.
 #
-# XXX This function pokes around in the waf internal state file.  To be a
-# little less hacky, we should add a command to waf to return this info
+# XXX This function pokes around in the ns3 internal state file.  To be a
+# little less hacky, we should add a command to ns3 to return this info
 # and use that result.
 #
-def read_waf_config():
+def read_ns3_config():
+    lock_filename = ".lock-ns3_%s_build" % sys.platform
     f = None
     try:
         # sys.platform reports linux2 for python2 and linux for python3
-        f = open(".lock-waf_" + sys.platform + "_build", "rt")
+        f = open(lock_filename, "rt")
     except FileNotFoundError:
-        try:
-            f = open(".lock-waf_linux2_build", "rt")
-        except FileNotFoundError:
-            print('The .lock-waf ... directory was not found.  You must do waf build before running test.py.', file=sys.stderr)
-            sys.exit(2)
+        print('The .lock-ns3 file was not found.  You must configure before running test.py.', file=sys.stderr)
+        sys.exit(2)
 
     for line in f:
         if line.startswith("top_dir ="):
@@ -625,23 +609,28 @@ def read_waf_config():
         if line.startswith("out_dir ="):
             key, val = line.split('=')
             out_dir = eval(val.strip())
+
+    f.close()
+
     global NS3_BASEDIR
     NS3_BASEDIR = top_dir
     global NS3_BUILDDIR
     NS3_BUILDDIR = out_dir
-    for line in open("%s/c4che/_cache.py" % out_dir).readlines():
-        for item in interesting_config_items:
-            if line.startswith(item):
-                exec(line, globals())
+
+    with open(lock_filename) as f:
+        for line in f.readlines():
+            for item in interesting_config_items:
+                if line.startswith(item):
+                    exec(line, globals())
 
     if options.verbose:
         for item in interesting_config_items:
             print("%s ==" % item, eval(item))
 
 #
-# It seems pointless to fork a process to run waf to fork a process to run
+# It seems pointless to fork a process to run ns3 to fork a process to run
 # the test runner, so we just run the test runner directly.  The main thing
-# that waf would do for us would be to sort out the shared library path but
+# that ns3 would do for us would be to sort out the shared library path but
 # we can deal with that easily and do here.
 #
 # There can be many different ns-3 repositories on a system, and each has
@@ -765,7 +754,7 @@ def make_paths():
 #     ...
 #   }
 #
-# You need to add a supression name which will only be printed out by valgrind in
+# You need to add a suppression name which will only be printed out by valgrind in
 # verbose mode (but it needs to be there in any case).  The entire stack frame is
 # shown to completely characterize the error, but in most cases you won't need
 # all of that info.  For example, if you want to turn off all errors that happen
@@ -782,10 +771,18 @@ def make_paths():
 #
 # Now, when you run valgrind the error will be suppressed.
 #
-VALGRIND_SUPPRESSIONS_FILE = "testpy.supp"
+# Until ns-3.36, we used a suppression in testpy.supp in the top-level
+# ns-3 directory.   It was defined below, but commented out once it was
+# no longer needed.  If it is needed again in the future, define the
+# below variable again, and remove the alternative definition to None
+#
+# VALGRIND_SUPPRESSIONS_FILE = "testpy.supp"
+VALGRIND_SUPPRESSIONS_FILE = None
 
 def run_job_synchronously(shell_command, directory, valgrind, is_python, build_path=""):
-    suppressions_path = os.path.join(NS3_BASEDIR, VALGRIND_SUPPRESSIONS_FILE)
+
+    if VALGRIND_SUPPRESSIONS_FILE is not None:
+        suppressions_path = os.path.join(NS3_BASEDIR, VALGRIND_SUPPRESSIONS_FILE)
 
     if is_python:
         path_cmd = PYTHON[0] + " " + os.path.join(NS3_BASEDIR, shell_command)
@@ -796,8 +793,11 @@ def run_job_synchronously(shell_command, directory, valgrind, is_python, build_p
             path_cmd = os.path.join(NS3_BUILDDIR, shell_command)
 
     if valgrind:
-        cmd = "valgrind --suppressions=%s --leak-check=full --show-reachable=yes --error-exitcode=2 --errors-for-leak-kinds=all %s" % (suppressions_path,
-            path_cmd)
+        if VALGRIND_SUPPRESSIONS_FILE:
+            cmd = "valgrind --suppressions=%s --leak-check=full --show-reachable=yes --error-exitcode=2 --errors-for-leak-kinds=all %s" % (suppressions_path,
+                path_cmd)
+        else:
+            cmd = "valgrind --leak-check=full --show-reachable=yes --error-exitcode=2 --errors-for-leak-kinds=all %s" % (path_cmd)
     else:
         cmd = path_cmd
 
@@ -810,18 +810,28 @@ def run_job_synchronously(shell_command, directory, valgrind, is_python, build_p
     elapsed_time = time.time() - start_time
 
     retval = proc.returncode
-    try:
-        stdout_results = stdout_results.decode()
-    except UnicodeDecodeError:
-        print("Non-decodable character in stdout output of %s" % cmd)
-        print(stdout_results)
-        retval = 1
-    try:
-        stderr_results = stderr_results.decode()
-    except UnicodeDecodeError:
-        print("Non-decodable character in stderr output of %s" % cmd)
-        print(stderr_results)
-        retval = 1
+
+    def decode_stream_results(stream_results: bytes, stream_name: str) -> str:
+        try:
+            stream_results = stream_results.decode()
+        except UnicodeDecodeError:
+            def decode(byte_array: bytes):
+                try:
+                    byte_array.decode()
+                except UnicodeDecodeError:
+                    return byte_array
+
+            # Find lines where the decoding error happened
+            non_utf8_lines = list(map(lambda line: decode(line), stream_results.splitlines()))
+            non_utf8_lines = list(filter(lambda line: line is not None, non_utf8_lines))
+            print(f"Non-decodable characters found in {stream_name} output of {cmd}: {non_utf8_lines}")
+
+            # Continue decoding on errors
+            stream_results = stream_results.decode(errors="backslashreplace")
+        return stream_results
+
+    stdout_results = decode_stream_results(stdout_results, "stdout")
+    stderr_results = decode_stream_results(stderr_results, "stderr")
 
     if options.verbose:
         print("Return code = ", retval)
@@ -1051,12 +1061,12 @@ class worker_thread(threading.Thread):
 #
 def run_tests():
     #
-    # Pull some interesting configuration information out of waf, primarily
+    # Pull some interesting configuration information out of ns3, primarily
     # so we can know where executables can be found, but also to tell us what
     # pieces of the system have been built.  This will tell us what examples
     # are runnable.
     #
-    read_waf_config()
+    read_ns3_config()
 
     #
     # Set the proper suffix.
@@ -1069,58 +1079,39 @@ def run_tests():
 
     #
     # Add the proper prefix and suffix to the test-runner name to
-    # match what is done in the wscript file.
+    # match what is done in the CMakeLists.txt file.
     #
     test_runner_name = "%s%s-%s%s" % (APPNAME, VERSION, "test-runner", BUILD_PROFILE_SUFFIX)
+    test_runner_name += '.exe' if sys.platform == 'win32' else ''
 
     #
-    # Run waf to make sure that everything is built, configured and ready to go
+    # Run ns3 to make sure that everything is built, configured and ready to go
     # unless we are explicitly told not to.  We want to be careful about causing
     # our users pain while waiting for extraneous stuff to compile and link, so
-    # we allow users that know what they''re doing to not invoke waf at all.
+    # we allow users that know what they're doing to not invoke ns3 at all.
     #
-    if not options.nowaf:
+    if not options.no_build:
 
-        #
-        # If the user is running the "kinds" or "list" options, there is an
-        # implied dependency on the test-runner since we call that program
-        # if those options are selected.  We will exit after processing those
-        # options, so if we see them, we can safely only build the test-runner.
-        #
-        # If the user has constrained us to running only a particular type of
-        # file, we can only ask waf to build what we know will be necessary.
-        # For example, if the user only wants to run BVT tests, we only have
-        # to build the test-runner and can ignore all of the examples.
-        #
         # If the user only wants to run a single example, then we can just build
         # that example.
         #
         # If there is no constraint, then we have to build everything since the
         # user wants to run everything.
         #
-        if options.kinds or options.list or (len(options.constrain) and options.constrain in core_kinds):
-            if sys.platform == "win32":
-                waf_cmd = "./waf --target=test-runner"
-            else:
-                waf_cmd = "./waf --target=test-runner"
-        elif len(options.example):
-            if sys.platform == "win32": #Modify for windows
-                waf_cmd = "./waf --target=%s" % os.path.basename(options.example)
-            else:
-                waf_cmd = "./waf --target=%s" % os.path.basename(options.example)
+        if len(options.example):
+            build_cmd = "./ns3 build %s" % os.path.basename(options.example)
         else:
-            if sys.platform == "win32": #Modify for windows
-                waf_cmd = "./waf"
-            else:
-                waf_cmd = "./waf"
+            build_cmd = "./ns3"
+
+        if sys.platform == "win32":
+            build_cmd = sys.executable + " " + build_cmd
 
         if options.verbose:
-            print("Building: %s" % waf_cmd)
+            print("Building: %s" % build_cmd)
 
-        proc = subprocess.Popen(waf_cmd, shell = True)
-        proc.communicate()
+        proc = subprocess.run(build_cmd, shell=True)
         if proc.returncode:
-            print("Waf died. Not running tests", file=sys.stderr)
+            print("ns3 died. Not running tests", file=sys.stderr)
             return proc.returncode
 
 
@@ -1132,12 +1123,13 @@ def run_tests():
     #
     # Get the information from the build status file.
     #
-    build_status_file = os.path.join(NS3_BUILDDIR, 'build-status.py')
-    if os.path.exists(build_status_file):
-        ns3_runnable_programs = get_list_from_file(build_status_file, "ns3_runnable_programs")
-        ns3_runnable_scripts = get_list_from_file(build_status_file, "ns3_runnable_scripts")
+    lock_filename = ".lock-ns3_%s_build" % sys.platform
+    if os.path.exists(lock_filename):
+        ns3_runnable_programs = get_list_from_file(lock_filename, "ns3_runnable_programs")
+        ns3_runnable_scripts = get_list_from_file(lock_filename, "ns3_runnable_scripts")
+        ns3_runnable_scripts = [os.path.basename(script) for script in ns3_runnable_scripts]
     else:
-        print('The build status file was not found.  You must do waf build before running test.py.', file=sys.stderr)
+        print('The build status file was not found.  You must configure before running test.py.', file=sys.stderr)
         sys.exit(2)
 
     #
@@ -1230,27 +1222,39 @@ def run_tests():
         print(standard_out)
 
     if options.list:
-        if len(options.constrain):
-            path_cmd = os.path.join("utils", test_runner_name + " --print-test-name-list --print-test-types --test-type=%s" % options.constrain)
-        else:
-            path_cmd = os.path.join("utils", test_runner_name + " --print-test-name-list --print-test-types")
-        (rc, standard_out, standard_err, et) = run_job_synchronously(path_cmd, os.getcwd(), False, False)
-        if rc != 0:
-            # This is usually a sign that ns-3 crashed or exited uncleanly
-            print(('test.py error:  test-runner return code returned {}'.format(rc)))
-            print(('To debug, try running {}\n'.format('\'./waf --run \"test-runner --print-test-name-list\"\'')))
-            return
-        if isinstance(standard_out, bytes):
-            standard_out = standard_out.decode()
-        list_items = standard_out.split('\n')
-        list_items.sort()
+        list_items = []
+        if ENABLE_TESTS:
+            if len(options.constrain):
+                path_cmd = os.path.join("utils", test_runner_name + " --print-test-name-list --print-test-types --test-type=%s" % options.constrain)
+            else:
+                path_cmd = os.path.join("utils", test_runner_name + " --print-test-name-list --print-test-types")
+            (rc, standard_out, standard_err, et) = run_job_synchronously(path_cmd, os.getcwd(), False, False)
+            if rc != 0:
+                # This is usually a sign that ns-3 crashed or exited uncleanly
+                print(('test.py error:  test-runner return code returned {}'.format(rc)))
+                print(('To debug, try running {}\n'.format('\'./ns3 run \"test-runner --print-test-name-list\"\'')))
+                return
+            if isinstance(standard_out, bytes):
+                standard_out = standard_out.decode()
+            list_items = standard_out.split('\n')
+            list_items.sort()
         print("Test Type    Test Name")
         print("---------    ---------")
         for item in list_items:
             if len(item.strip()):
                 print(item)
-        example_names_original.sort()
-        for item in example_names_original:
+        examples_sorted = []
+        if ENABLE_EXAMPLES:
+            examples_sorted = example_names_original
+            examples_sorted.sort()
+        if ENABLE_PYTHON_BINDINGS:
+            python_examples_sorted = []
+            for (x,y) in python_tests:
+                if y == 'True':
+                    python_examples_sorted.append(x)
+            python_examples_sorted.sort()
+            examples_sorted.extend(python_examples_sorted)
+        for item in examples_sorted:
                 print("example     ", item)
         print()
 
@@ -1293,10 +1297,9 @@ def run_tests():
     # do this since the tests will just append individual results to this file.
     #
     xml_results_file = os.path.join(testpy_output_dir, "results.xml")
-    f = open(xml_results_file, 'w')
-    f.write('<?xml version="1.0"?>\n')
-    f.write('<Results>\n')
-    f.close()
+    with open(xml_results_file, 'w') as f:
+        f.write('<?xml version="1.0"?>\n')
+        f.write('<Results>\n')
 
     #
     # We need to figure out what test suites to execute.  We are either given one
@@ -1308,7 +1311,7 @@ def run_tests():
     # This translates into allowing the following options with respect to the
     # suites
     #
-    #  ./test,py:                                           run all of the suites and examples
+    #  ./test.py:                                           run all of the suites and examples
     #  ./test.py --constrain=core:                          run all of the suites of all kinds
     #  ./test.py --constrain=unit:                          run all unit suites
     #  ./test.py --suite=some-test-suite:                   run a single suite
@@ -1341,7 +1344,7 @@ def run_tests():
 
         suites = '\n'.join(suites_found)
 
-    elif len(options.example) == 0 and len(options.pyexample) == 0:
+    elif ENABLE_TESTS and len(options.example) == 0 and len(options.pyexample) == 0:
         if len(options.constrain):
             path_cmd = os.path.join("utils", test_runner_name + " --print-test-name-list --test-type=%s" % options.constrain)
             (rc, suites, standard_err, et) = run_job_synchronously(path_cmd, os.getcwd(), False, False)
@@ -1408,6 +1411,8 @@ def run_tests():
             stderr_results = stderr_results.decode()
             if len(stderr_results) == 0:
                 processors = int(stdout_results)
+    else:
+        processors = os.cpu_count()
 
     if (options.process_limit):
         if (processors < options.process_limit):
@@ -1471,11 +1476,6 @@ def run_tests():
                 job.set_is_skip(True)
                 job.set_skip_reason("crashes valgrind")
 
-            # Skip tests that will fail if NSC is missing.
-            if not NSC_ENABLED and test in core_nsc_missing_skip_tests:
-                job.set_is_skip(True)
-                job.set_skip_reason("requires NSC")
-
             if options.verbose:
                 print("Queue %s" % test)
 
@@ -1489,14 +1489,7 @@ def run_tests():
     # the example programs it makes sense to try and run.  Each example will
     # have a condition associated with it that must evaluate to true for us
     # to try and execute it.  This is used to determine if the example has
-    # a dependency that is not satisfied.  For example, if an example depends
-    # on NSC being configured by waf, that example should have a condition
-    # that evaluates to true if NSC is enabled.  For example,
-    #
-    #      ("tcp-nsc-zoo", "NSC_ENABLED == True"),
-    #
-    # In this case, the example "tcp-nsc-zoo" will only be run if we find the
-    # waf configuration variable "NSC_ENABLED" to be True.
+    # a dependency that is not satisfied.
     #
     # We don't care at all how the trace files come out, so we just write them
     # to a single temporary directory.
@@ -1529,6 +1522,7 @@ def run_tests():
                     # Remove any arguments and directory names from test.
                     test_name = test.split(' ', 1)[0]
                     test_name = os.path.basename(test_name)
+                    test_name = test_name[:-4] if sys.platform == 'win32' else test_name
 
                     # Don't try to run this example if it isn't runnable.
                     if test_name in ns3_runnable_programs_dictionary:
@@ -1557,7 +1551,7 @@ def run_tests():
 
     elif len(options.example):
         # Add the proper prefix and suffix to the example name to
-        # match what is done in the wscript file.
+        # match what is done in the CMakeLists.txt file.
         example_name = "%s%s-%s%s" % (APPNAME, VERSION, options.example, BUILD_PROFILE_SUFFIX)
 
         key_list = []
@@ -1615,58 +1609,66 @@ def run_tests():
     #
     if len(options.suite) == 0 and len(options.example) == 0 and len(options.pyexample) == 0:
         if len(options.constrain) == 0 or options.constrain == "pyexample":
-            if ENABLE_EXAMPLES:
-                for test, do_run in python_tests:
-                    # Remove any arguments and directory names from test.
-                    test_name = test.split(' ', 1)[0]
-                    test_name = os.path.basename(test_name)
+            for test, do_run in python_tests:
+                # Remove any arguments and directory names from test.
+                test_name = test.split(' ', 1)[0]
+                test_name = os.path.basename(test_name)
 
-                    # Don't try to run this example if it isn't runnable.
-                    if test_name in ns3_runnable_scripts:
-                        if eval(do_run):
-                            job = Job()
-                            job.set_is_example(False)
-                            job.set_is_pyexample(True)
-                            job.set_display_name(test)
-                            job.set_tmp_file_name("")
-                            job.set_cwd(testpy_output_dir)
-                            job.set_basedir(os.getcwd())
-                            job.set_tempdir(testpy_output_dir)
-                            job.set_shell_command(test)
-                            job.set_build_path("")
+                # Don't try to run this example if it isn't runnable.
+                if test_name in ns3_runnable_scripts:
+                    if eval(do_run):
+                        job = Job()
+                        job.set_is_example(False)
+                        job.set_is_pyexample(True)
+                        job.set_display_name(test)
+                        job.set_tmp_file_name("")
+                        job.set_cwd(testpy_output_dir)
+                        job.set_basedir(os.getcwd())
+                        job.set_tempdir(testpy_output_dir)
+                        job.set_shell_command(test)
+                        job.set_build_path("")
 
-                            #
-                            # Python programs and valgrind do not work and play
-                            # well together, so we skip them under valgrind.
-                            # We go through the trouble of doing all of this
-                            # work to report the skipped tests in a consistent
-                            # way through the output formatter.
-                            #
-                            if options.valgrind:
-                                job.set_is_skip(True)
-                                job.set_skip_reason("skip in valgrind runs")
+                        #
+                        # Python programs and valgrind do not work and play
+                        # well together, so we skip them under valgrind.
+                        # We go through the trouble of doing all of this
+                        # work to report the skipped tests in a consistent
+                        # way through the output formatter.
+                        #
+                        if options.valgrind:
+                            job.set_is_skip(True)
+                            job.set_skip_reason("skip in valgrind runs")
 
-                            #
-                            # The user can disable python bindings, so we need
-                            # to pay attention to that and give some feedback
-                            # that we're not testing them
-                            #
-                            if not ENABLE_PYTHON_BINDINGS:
-                                job.set_is_skip(True)
-                                job.set_skip_reason("requires Python bindings")
+                        #
+                        # The user can disable python bindings, so we need
+                        # to pay attention to that and give some feedback
+                        # that we're not testing them
+                        #
+                        if not ENABLE_PYTHON_BINDINGS:
+                            job.set_is_skip(True)
+                            job.set_skip_reason("requires Python bindings")
 
-                            if options.verbose:
-                                print("Queue %s" % test)
+                        if options.verbose:
+                            print("Queue %s" % test)
 
-                            input_queue.put(job)
-                            jobs = jobs + 1
-                            total_tests = total_tests + 1
+                        input_queue.put(job)
+                        jobs = jobs + 1
+                        total_tests = total_tests + 1
 
     elif len(options.pyexample):
+        # Find the full relative path to file if only a partial path has been given.
+        if not os.path.exists(options.pyexample):
+            import glob
+            files = glob.glob("./**/%s" % options.pyexample, recursive=True)
+            if files:
+                options.pyexample = files[0]
+
         # Don't try to run this example if it isn't runnable.
         example_name = os.path.basename(options.pyexample)
         if example_name not in ns3_runnable_scripts:
             print("Example %s is not runnable." % example_name)
+        elif not os.path.exists(options.pyexample):
+            print("Example %s does not exist." % example_name)
         else:
             #
             # If you tell me to run a python example, I will try and run the example
@@ -1767,25 +1769,24 @@ def run_tests():
             # XXX We could add some timing information to the examples, i.e. run
             # them through time and print the results here.
             #
-            f = open(xml_results_file, 'a')
-            f.write('<Example>\n')
-            example_name = "  <Name>%s</Name>\n" % job.display_name
-            f.write(example_name)
+            with open(xml_results_file, 'a') as f:
+                f.write('<Example>\n')
+                example_name = "  <Name>%s</Name>\n" % job.display_name
+                f.write(example_name)
 
-            if status == "PASS":
-                f.write('  <Result>PASS</Result>\n')
-            elif status == "FAIL":
-                f.write('  <Result>FAIL</Result>\n')
-            elif status == "VALGR":
-                f.write('  <Result>VALGR</Result>\n')
-            elif status == "SKIP":
-                f.write('  <Result>SKIP</Result>\n')
-            else:
-                f.write('  <Result>CRASH</Result>\n')
+                if status == "PASS":
+                    f.write('  <Result>PASS</Result>\n')
+                elif status == "FAIL":
+                    f.write('  <Result>FAIL</Result>\n')
+                elif status == "VALGR":
+                    f.write('  <Result>VALGR</Result>\n')
+                elif status == "SKIP":
+                    f.write('  <Result>SKIP</Result>\n')
+                else:
+                    f.write('  <Result>CRASH</Result>\n')
 
-            f.write('  <Time real="%.3f"/>\n' % job.elapsed_time)
-            f.write('</Example>\n')
-            f.close()
+                f.write('  <Time real="%.3f"/>\n' % job.elapsed_time)
+                f.write('</Example>\n')
 
         else:
             #
@@ -1833,27 +1834,22 @@ def run_tests():
             # followed by a VALGR failing test suite of the same name.
             #
             if job.is_skip:
-                f = open(xml_results_file, 'a')
-                f.write("<Test>\n")
-                f.write("  <Name>%s</Name>\n" % job.display_name)
-                f.write('  <Result>SKIP</Result>\n')
-                f.write("  <Reason>%s</Reason>\n" % job.skip_reason)
-                f.write("</Test>\n")
-                f.close()
-            else:
-                if job.returncode == 0 or job.returncode == 1 or job.returncode == 2:
-                    f_to = open(xml_results_file, 'a')
-                    f_from = open(job.tmp_file_name)
-                    f_to.write(f_from.read())
-                    f_to.close()
-                    f_from.close()
-                else:
-                    f = open(xml_results_file, 'a')
+                with open(xml_results_file, 'a') as f:
                     f.write("<Test>\n")
                     f.write("  <Name>%s</Name>\n" % job.display_name)
-                    f.write('  <Result>CRASH</Result>\n')
+                    f.write('  <Result>SKIP</Result>\n')
+                    f.write("  <Reason>%s</Reason>\n" % job.skip_reason)
                     f.write("</Test>\n")
-                    f.close()
+            else:
+                if job.returncode == 0 or job.returncode == 1 or job.returncode == 2:
+                    with open(xml_results_file, 'a') as f_to, open(job.tmp_file_name) as f_from:
+                        f_to.write(f_from.read())
+                else:
+                    with open(xml_results_file, 'a') as f:
+                        f.write("<Test>\n")
+                        f.write("  <Name>%s</Name>\n" % job.display_name)
+                        f.write('  <Result>CRASH</Result>\n')
+                        f.write("</Test>\n")
 
     #
     # We have all of the tests run and the results written out.  One final
@@ -1869,9 +1865,8 @@ def run_tests():
     # individual pieces.  So, we need to finish off and close out the XML
     # document
     #
-    f = open(xml_results_file, 'a')
-    f.write('</Results>\n')
-    f.close()
+    with open(xml_results_file, 'a') as f:
+        f.write('</Results>\n')
 
     #
     # Print a quick summary of events
@@ -1919,11 +1914,11 @@ def run_tests():
         print()
         if not ENABLE_TESTS:
             print('***  Note: ns-3 tests are currently disabled. Enable them by adding')
-            print('***  "--enable-tests" to ./waf configure or modifying your .ns3rc file.')
+            print('***  "--enable-tests" to ./ns3 configure or modifying your .ns3rc file.')
             print()
         if not ENABLE_EXAMPLES:
             print('***  Note: ns-3 examples are currently disabled. Enable them by adding')
-            print('***  "--enable-examples" to ./waf configure or modifying your .ns3rc file.')
+            print('***  "--enable-examples" to ./ns3 configure or modifying your .ns3rc file.')
             print()
 
     #
@@ -1986,8 +1981,8 @@ def main(argv):
     parser.add_option("-m", "--multiple", action="store_true", dest="multiple", default=False,
                       help="report multiple failures from test suites and test cases")
 
-    parser.add_option("-n", "--nowaf", action="store_true", dest="nowaf", default=False,
-                      help="do not run waf before starting testing")
+    parser.add_option("-n", "--no-build", action="store_true", dest="no_build", default=False,
+                      help="do not build before starting testing")
 
     parser.add_option("-p", "--pyexample", action="store", type="string", dest="pyexample", default="",
                       metavar="PYEXAMPLE",

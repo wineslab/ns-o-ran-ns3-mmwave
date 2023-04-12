@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005 INRIA
  *
@@ -21,23 +20,28 @@
 #ifndef TXOP_H
 #define TXOP_H
 
-#include "ns3/traced-value.h"
-#include "mac-low-transmission-parameters.h"
 #include "wifi-mac-header.h"
 
-namespace ns3 {
+#include "ns3/nstime.h"
+#include "ns3/object.h"
+#include "ns3/traced-value.h"
+
+#include <memory>
+#include <vector>
+
+namespace ns3
+{
 
 class Packet;
 class ChannelAccessManager;
 class MacTxMiddle;
-class MacLow;
 class WifiMode;
 class WifiMacQueue;
-class WifiMacQueueItem;
+class WifiMpdu;
 class UniformRandomVariable;
 class CtrlBAckResponseHeader;
-class WifiRemoteStationManager;
-class WifiTxVector;
+class WifiMac;
+enum WifiMacDropReason : uint8_t; // opaque enum declaration
 
 /**
  * \brief Handle packet fragmentation and retransmissions
@@ -46,9 +50,9 @@ class WifiTxVector;
  *
  * This class implements the packet fragmentation and
  * retransmission policy for data and management frames.
- * It uses the ns3::MacLow and ns3::ChannelAccessManager helper
- * classes to respectively send packets and decide when
- * to send them. Packets are stored in a ns3::WifiMacQueue
+ * It uses the ns3::ChannelAccessManager helper
+ * class to decide when to send a packet.
+ * Packets are stored in a ns3::WifiMacQueue
  * until they can be sent.
  *
  * The policy currently implemented uses a simple fragmentation
@@ -65,477 +69,472 @@ class WifiTxVector;
 
 class Txop : public Object
 {
-public:
-  /// allow MacLowTransmissionListener class access
-  friend class MacLowTransmissionListener;
+  public:
+    Txop();
 
-  Txop ();
-  virtual ~Txop ();
+    /**
+     * Constructor
+     *
+     * \param queue the wifi MAC queue
+     */
+    Txop(Ptr<WifiMacQueue> queue);
 
-  /**
-   * \brief Get the type ID.
-   * \return the object TypeId
-   */
-  static TypeId GetTypeId (void);
+    ~Txop() override;
 
-  /**
-   * typedef for a callback to invoke when a
-   * packet transmission was completed successfully.
-   */
-  typedef Callback <void, const WifiMacHeader&> TxOk;
-  /**
-   * typedef for a callback to invoke when a
-   * packet transmission was failed.
-   */
-  typedef Callback <void, const WifiMacHeader&> TxFailed;
-  /**
-   * typedef for a callback to invoke when a
-   * packet is dropped.
-   */
-  typedef Callback <void, Ptr<const Packet> > TxDropped;
+    /**
+     * \brief Get the type ID.
+     * \return the object TypeId
+     */
+    static TypeId GetTypeId();
 
-  /**
-   * Check for QoS TXOP.
-   *
-   * \returns true if QoS TXOP.
-   */
-  virtual bool IsQosTxop () const;
+    /**
+     * typedef for a callback to invoke when an MPDU is dropped.
+     */
+    typedef Callback<void, WifiMacDropReason, Ptr<const WifiMpdu>> DroppedMpdu;
 
-  /**
-   * Set MacLow associated with this Txop.
-   *
-   * \param low MacLow to associate.
-   */
-  void SetMacLow (const Ptr<MacLow> low);
-  /**
-   * Set ChannelAccessManager this Txop is associated to.
-   *
-   * \param manager ChannelAccessManager to associate.
-   */
-  void SetChannelAccessManager (const Ptr<ChannelAccessManager> manager);
-  /**
-   * Set WifiRemoteStationsManager this Txop is associated to.
-   *
-   * \param remoteManager WifiRemoteStationManager to associate.
-   */
-  virtual void SetWifiRemoteStationManager (const Ptr<WifiRemoteStationManager> remoteManager);
-  /**
-   * Set MacTxMiddle this Txop is associated to.
-   *
-   * \param txMiddle MacTxMiddle to associate.
-   */
-  void SetTxMiddle (const Ptr<MacTxMiddle> txMiddle);
+    /**
+     * Enumeration for channel access status
+     */
+    enum ChannelAccessStatus
+    {
+        NOT_REQUESTED = 0,
+        REQUESTED,
+        GRANTED
+    };
 
-  /**
-   * \param callback the callback to invoke when a
-   * packet transmission was completed successfully.
-   */
-  void SetTxOkCallback (TxOk callback);
-  /**
-   * \param callback the callback to invoke when a
-   *        packet transmission was completed unsuccessfully.
-   */
-  void SetTxFailedCallback (TxFailed callback);
-  /**
-   * \param callback the callback to invoke when a
-   *        packet is dropped.
-   */
-  void SetTxDroppedCallback (TxDropped callback);
+    /**
+     * Check for QoS TXOP.
+     *
+     * \returns true if QoS TXOP.
+     */
+    virtual bool IsQosTxop() const;
 
-  /**
-   * Return the MacLow associated with this Txop.
-   *
-   * \return the associated MacLow
-   */
-  Ptr<MacLow> GetLow (void) const;
+    /**
+     * Set the wifi MAC this Txop is associated to.
+     *
+     * \param mac associated wifi MAC
+     */
+    virtual void SetWifiMac(const Ptr<WifiMac> mac);
+    /**
+     * Set MacTxMiddle this Txop is associated to.
+     *
+     * \param txMiddle MacTxMiddle to associate.
+     */
+    void SetTxMiddle(const Ptr<MacTxMiddle> txMiddle);
 
-  /**
-   * Return the packet queue associated with this Txop.
-   *
-   * \return the associated WifiMacQueue
-   */
-  Ptr<WifiMacQueue > GetWifiMacQueue () const;
+    /**
+     * \param callback the callback to invoke when an MPDU is dropped
+     */
+    virtual void SetDroppedMpduCallback(DroppedMpdu callback);
 
-  /**
-   * Set the minimum contention window size.
-   *
-   * \param minCw the minimum contention window size.
-   */
-  void SetMinCw (uint32_t minCw);
-  /**
-   * Set the maximum contention window size.
-   *
-   * \param maxCw the maximum contention window size.
-   */
-  void SetMaxCw (uint32_t maxCw);
-  /**
-   * Set the number of slots that make up an AIFS.
-   *
-   * \param aifsn the number of slots that make up an AIFS.
-   */
-  void SetAifsn (uint8_t aifsn);
-  /**
-   * Set the TXOP limit.
-   *
-   * \param txopLimit the TXOP limit.
-   *        Value zero corresponds to default Txop.
-   */
-  void SetTxopLimit (Time txopLimit);
-  /**
-   * Return the minimum contention window size.
-   *
-   * \return the minimum contention window size.
-   */
-  uint32_t GetMinCw (void) const;
-  /**
-   * Return the maximum contention window size.
-   *
-   * \return the maximum contention window size.
-   */
-  uint32_t GetMaxCw (void) const;
-  /**
-   * Return the number of slots that make up an AIFS.
-   *
-   * \return the number of slots that make up an AIFS.
-   */
-  uint8_t GetAifsn (void) const;
-  /**
-   * Return the TXOP limit.
-   *
-   * \return the TXOP limit.
-   */
-  Time GetTxopLimit (void) const;
+    /**
+     * Return the packet queue associated with this Txop.
+     *
+     * \return the associated WifiMacQueue
+     */
+    Ptr<WifiMacQueue> GetWifiMacQueue() const;
 
-  /**
-   * When a channel switching occurs, enqueued packets are removed.
-   */
-  virtual void NotifyChannelSwitching (void);
-  /**
-   * When sleep operation occurs, if there is a pending packet transmission,
-   * it will be reinserted to the front of the queue.
-   */
-  virtual void NotifySleep (void);
-  /**
-   * When off operation occurs, the queue gets cleaned up.
-   */
-  virtual void NotifyOff (void);
-  /**
-   * When wake up operation occurs, channel access will be restarted.
-   */
-  virtual void NotifyWakeUp (void);
-  /**
-   * When on operation occurs, channel access will be started.
-   */
-  virtual void NotifyOn (void);
+    /**
+     * Set the minimum contention window size. For 11be multi-link devices,
+     * set the minimum contention window size on the first link.
+     *
+     * \param minCw the minimum contention window size.
+     */
+    void SetMinCw(uint32_t minCw);
+    /**
+     * Set the minimum contention window size for each link.
+     * Note that the size of <i>minCws</i> must match the number
+     * of links.
+     *
+     * \param minCws the minimum contention window size values.
+     */
+    void SetMinCws(std::vector<uint32_t> minCws);
+    /**
+     * Set the minimum contention window size for the given link.
+     *
+     * \param minCw the minimum contention window size.
+     * \param linkId the ID of the given link
+     */
+    void SetMinCw(uint32_t minCw, uint8_t linkId);
+    /**
+     * Set the maximum contention window size. For 11be multi-link devices,
+     * set the maximum contention window size on the first link.
+     *
+     * \param maxCw the maximum contention window size.
+     */
+    void SetMaxCw(uint32_t maxCw);
+    /**
+     * Set the maximum contention window size for each link.
+     * Note that the size of <i>maxCws</i> must match the number
+     * of links.
+     *
+     * \param maxCws the maximum contention window size values.
+     */
+    void SetMaxCws(std::vector<uint32_t> maxCws);
+    /**
+     * Set the maximum contention window size for the given link.
+     *
+     * \param maxCw the maximum contention window size.
+     * \param linkId the ID of the given link
+     */
+    void SetMaxCw(uint32_t maxCw, uint8_t linkId);
+    /**
+     * Set the number of slots that make up an AIFS. For 11be multi-link devices,
+     * set the number of slots that make up an AIFS on the first link.
+     *
+     * \param aifsn the number of slots that make up an AIFS.
+     */
+    void SetAifsn(uint8_t aifsn);
+    /**
+     * Set the number of slots that make up an AIFS for each link.
+     * Note that the size of <i>aifsns</i> must match the number
+     * of links.
+     *
+     * \param aifsns the number of slots that make up an AIFS for each link.
+     */
+    void SetAifsns(std::vector<uint8_t> aifsns);
+    /**
+     * Set the number of slots that make up an AIFS for the given link.
+     *
+     * \param aifsn the number of slots that make up an AIFS.
+     * \param linkId the ID of the given link
+     */
+    void SetAifsn(uint8_t aifsn, uint8_t linkId);
+    /**
+     * Set the TXOP limit.
+     *
+     * \param txopLimit the TXOP limit.
+     *        Value zero corresponds to default Txop.
+     */
+    void SetTxopLimit(Time txopLimit);
+    /**
+     * Set the TXOP limit for each link.
+     * Note that the size of <i>txopLimits</i> must match the number
+     * of links.
+     *
+     * \param txopLimits the TXOP limit for each link.
+     */
+    void SetTxopLimits(const std::vector<Time>& txopLimits);
+    /**
+     * Set the TXOP limit for the given link.
+     *
+     * \param txopLimit the TXOP limit.
+     *        Value zero corresponds to default Txop.
+     * \param linkId the ID of the given link
+     */
+    void SetTxopLimit(Time txopLimit, uint8_t linkId);
+    /**
+     * Return the minimum contention window size. For 11be multi-link devices,
+     * return the minimum contention window size on the first link.
+     *
+     * \return the minimum contention window size.
+     */
+    uint32_t GetMinCw() const;
+    /**
+     * Return the minimum contention window size for each link.
+     *
+     * \return the minimum contention window size values.
+     */
+    std::vector<uint32_t> GetMinCws() const;
+    /**
+     * Return the minimum contention window size for the given link.
+     *
+     * \param linkId the ID of the given link
+     * \return the minimum contention window size.
+     */
+    virtual uint32_t GetMinCw(uint8_t linkId) const;
+    /**
+     * Return the maximum contention window size. For 11be multi-link devices,
+     * return the maximum contention window size on the first link.
+     *
+     * \return the maximum contention window size.
+     */
+    uint32_t GetMaxCw() const;
+    /**
+     * Return the maximum contention window size for each link.
+     *
+     * \return the maximum contention window size values.
+     */
+    std::vector<uint32_t> GetMaxCws() const;
+    /**
+     * Return the maximum contention window size for the given link.
+     *
+     * \param linkId the ID of the given link
+     * \return the maximum contention window size.
+     */
+    virtual uint32_t GetMaxCw(uint8_t linkId) const;
+    /**
+     * Return the number of slots that make up an AIFS. For 11be multi-link devices,
+     * return the number of slots that make up an AIFS on the first link.
+     *
+     * \return the number of slots that make up an AIFS.
+     */
+    uint8_t GetAifsn() const;
+    /**
+     * Return the number of slots that make up an AIFS for each link.
+     *
+     * \return the number of slots that make up an AIFS for each link.
+     */
+    std::vector<uint8_t> GetAifsns() const;
+    /**
+     * Return the number of slots that make up an AIFS for the given link.
+     *
+     * \param linkId the ID of the given link
+     * \return the number of slots that make up an AIFS.
+     */
+    virtual uint8_t GetAifsn(uint8_t linkId) const;
+    /**
+     * Return the TXOP limit.
+     *
+     * \return the TXOP limit.
+     */
+    Time GetTxopLimit() const;
+    /**
+     * Return the TXOP limit for each link.
+     *
+     * \return the TXOP limit for each link.
+     */
+    std::vector<Time> GetTxopLimits() const;
+    /**
+     * Return the TXOP limit for the given link.
+     *
+     * \param linkId the ID of the given link
+     * \return the TXOP limit.
+     */
+    Time GetTxopLimit(uint8_t linkId) const;
+    /**
+     * Update the value of the CW variable for the given link to take into account
+     * a transmission success or a transmission abort (stop transmission
+     * of a packet after the maximum number of retransmissions has been
+     * reached). By default, this resets the CW variable to minCW.
+     *
+     * \param linkId the ID of the given link
+     */
+    void ResetCw(uint8_t linkId);
+    /**
+     * Update the value of the CW variable for the given link to take into account
+     * a transmission failure. By default, this triggers a doubling
+     * of CW (capped by maxCW).
+     *
+     * \param linkId the ID of the given link
+     */
+    void UpdateFailedCw(uint8_t linkId);
 
-  /* Event handlers */
-  /**
-   * \param packet packet to send.
-   * \param hdr header of packet to send.
-   *
-   * Store the packet in the internal queue until it
-   * can be sent safely.
-   */
-  virtual void Queue (Ptr<Packet> packet, const WifiMacHeader &hdr);
+    /**
+     * Notify that the given link switched to sleep mode.
+     *
+     * \param linkId the ID of the given link
+     */
+    virtual void NotifySleep(uint8_t linkId);
+    /**
+     * When off operation occurs, the queue gets cleaned up.
+     */
+    virtual void NotifyOff();
+    /**
+     * When wake up operation occurs on a link, channel access on that link
+     * will be restarted.
+     *
+     * \param linkId the ID of the link
+     */
+    virtual void NotifyWakeUp(uint8_t linkId);
+    /**
+     * When on operation occurs, channel access will be started.
+     */
+    virtual void NotifyOn();
 
-  /**
-   * Sends CF frame to STA with address <i>addr</i>.
-   *
-   * \param frameType the type of frame to be transmitted.
-   * \param addr address of the recipient.
-   */
-  void SendCfFrame (WifiMacType frameType, Mac48Address addr);
+    /* Event handlers */
+    /**
+     * \param packet packet to send.
+     * \param hdr header of packet to send.
+     *
+     * Store the packet in the internal queue until it
+     * can be sent safely.
+     */
+    virtual void Queue(Ptr<Packet> packet, const WifiMacHeader& hdr);
+    /**
+     * \param mpdu the given MPDU
+     *
+     * Store the given MPDU in the internal queue until it
+     * can be sent safely.
+     */
+    virtual void Queue(Ptr<WifiMpdu> mpdu);
 
-  /* Event handlers */
-  /**
-   * Event handler when a CTS timeout has occurred.
-   */
-  virtual void MissedCts (void);
-  /**
-   * Event handler when an Ack is received.
-   */
-  virtual void GotAck (void);
-  /**
-   * Event handler when an Ack is missed.
-   */
-  virtual void MissedAck (void);
-  /**
-   * Event handler when a CF-END frame is received.
-   */
-  void GotCfEnd (void);
-  /**
-   * Event handler when a response to a CF-POLL frame is missed.
-   *
-   * \param expectedCfAck flag to indicate whether a CF-Ack was expected in the response.
-   */
-  void MissedCfPollResponse (bool expectedCfAck);
-  /**
-   * Event handler when a BlockAck is received.
-   *
-   * \param blockAck BlockAck header.
-   * \param recipient address of the recipient.
-   * \param rxSnr SNR of the BlockAck itself in linear scale.
-   * \param dataSnr reported data SNR from the peer in linear scale.
-   * \param dataTxVector TXVECTOR used to send the Data.
-   */
-  virtual void GotBlockAck (const CtrlBAckResponseHeader *blockAck, Mac48Address recipient,
-                            double rxSnr, double dataSnr, WifiTxVector dataTxVector);
-  /**
-   * Event handler when a BlockAck timeout has occurred.
-   * \param nMpdus the number of MPDUs sent in the A-MPDU transmission that results in a BlockAck timeout.
-   */
-  virtual void MissedBlockAck (uint8_t nMpdus);
+    /**
+     * Called by the FrameExchangeManager to notify that channel access has
+     * been granted on the given link for the given amount of time.
+     *
+     * \param linkId the ID of the given link
+     * \param txopDuration the duration of the TXOP gained (zero for DCF)
+     */
+    virtual void NotifyChannelAccessed(uint8_t linkId, Time txopDuration = Seconds(0));
+    /**
+     * Called by the FrameExchangeManager to notify the completion of the transmissions.
+     * This method generates a new backoff and restarts access if needed.
+     *
+     * \param linkId the ID of the link the FrameExchangeManager is operating on
+     */
+    virtual void NotifyChannelReleased(uint8_t linkId);
 
-  /**
-   * Start transmission for the next fragment.
-   * This is called for fragment only.
-   */
-  virtual void StartNextFragment (void);
-  /**
-   * Cancel the transmission.
-   */
-  virtual void Cancel (void);
-  /**
-   * Start transmission for the next packet if allowed by the TxopLimit.
-   */
-  virtual void StartNextPacket (void);
-  /**
-   * Event handler when a transmission that
-   * does not require an Ack has completed.
-   */
-  virtual void EndTxNoAck (void);
+    /**
+     * Assign a fixed random variable stream number to the random variables
+     * used by this model. Return the number of streams (possibly zero) that
+     * have been assigned.
+     *
+     * \param stream first stream index to use.
+     *
+     * \return the number of stream indices assigned by this model.
+     */
+    int64_t AssignStreams(int64_t stream);
 
-  /**
-   * Return the remaining duration in the current TXOP.
-   *
-   * \return the remaining duration in the current TXOP.
-   */
-  virtual Time GetTxopRemaining (void) const;
-  /**
-   * Update backoff and restart access if needed.
-   */
-  virtual void TerminateTxop (void);
+    /**
+     * \param linkId the ID of the given link
+     * \return the current channel access status for the given link
+     */
+    virtual ChannelAccessStatus GetAccessStatus(uint8_t linkId) const;
 
-  /**
-   * Check if the next PCF transmission can fit in the remaining CFP duration.
-   *
-   * \return true if the next PCF transmission can fit in the remaining CFP duration,
-   *         false otherwise
-   */
-  bool CanStartNextPolling (void) const;
+    /**
+     * \param nSlots the number of slots of the backoff.
+     * \param linkId the ID of the given link
+     *
+     * Start a backoff for the given link by initializing the backoff counter to
+     * the number of slots specified.
+     */
+    void StartBackoffNow(uint32_t nSlots, uint8_t linkId);
 
+  protected:
+    ///< ChannelAccessManager associated class
+    friend class ChannelAccessManager;
 
-  /**
-   * Assign a fixed random variable stream number to the random variables
-   * used by this model. Return the number of streams (possibly zero) that
-   * have been assigned.
-   *
-   * \param stream first stream index to use.
-   *
-   * \return the number of stream indices assigned by this model.
-   */
-  int64_t AssignStreams (int64_t stream);
+    void DoDispose() override;
+    void DoInitialize() override;
 
-  /**
-   * \returns true if access has been requested for this function and
-   *          has not been granted already, false otherwise.
-   */
-  virtual bool IsAccessRequested (void) const;
+    /* Txop notifications forwarded here */
+    /**
+     * Notify that access request has been received for the given link.
+     *
+     * \param linkId the ID of the given link
+     */
+    virtual void NotifyAccessRequested(uint8_t linkId);
 
-  /**
-   * \param nSlots the number of slots of the backoff.
-   *
-   * Start a backoff by initializing the backoff counter to the number of
-   * slots specified.
-   */
-  void StartBackoffNow (uint32_t nSlots);
+    /**
+     * Check if the Txop has frames to transmit over the given link
+     * \param linkId the ID of the given link.
+     * \return true if the Txop has frames to transmit.
+     */
+    virtual bool HasFramesToTransmit(uint8_t linkId);
+    /**
+     * Generate a new backoff for the given link now.
+     *
+     * \param linkId the ID of the given link
+     */
+    virtual void GenerateBackoff(uint8_t linkId);
+    /**
+     * Request access from Txop on the given link if needed.
+     *
+     * \param linkId the ID of the given link
+     */
+    virtual void StartAccessIfNeeded(uint8_t linkId);
+    /**
+     * Request access to the ChannelAccessManager associated with the given link
+     *
+     * \param linkId the ID of the given link
+     */
+    void RequestAccess(uint8_t linkId);
 
-protected:
-  ///< ChannelAccessManager associated class
-  friend class ChannelAccessManager;
+    /**
+     * Get the current value of the CW variable for the given link. The initial
+     * value is minCw.
+     *
+     * \param linkId the ID of the given link
+     * \return the current value of the CW variable for the given link
+     */
+    uint32_t GetCw(uint8_t linkId) const;
+    /**
+     * Return the current number of backoff slots on the given link.
+     *
+     * \param linkId the ID of the given link
+     * \return the current number of backoff slots
+     */
+    uint32_t GetBackoffSlots(uint8_t linkId) const;
+    /**
+     * Return the time when the backoff procedure started on the given link.
+     *
+     * \param linkId the ID of the given link
+     * \return the time when the backoff procedure started
+     */
+    Time GetBackoffStart(uint8_t linkId) const;
+    /**
+     * Update backoff slots for the given link that nSlots has passed.
+     *
+     * \param nSlots the number of slots to decrement
+     * \param backoffUpdateBound the time at which backoff should start
+     * \param linkId the ID of the given link
+     */
+    void UpdateBackoffSlotsNow(uint32_t nSlots, Time backoffUpdateBound, uint8_t linkId);
 
-  virtual void DoDispose (void);
-  virtual void DoInitialize (void);
+    /**
+     * Structure holding information specific to a single link. Here, the meaning of
+     * "link" is that of the 11be amendment which introduced multi-link devices. For
+     * previous amendments, only one link can be created.
+     */
+    struct LinkEntity
+    {
+        /// Destructor (a virtual method is needed to make this struct polymorphic)
+        virtual ~LinkEntity() = default;
 
-  /* Txop notifications forwarded here */
-  /**
-   * Notify that access request has been received.
-   */
-  virtual void NotifyAccessRequested (void);
-  /**
-   * Notify the Txop that access has been granted.
-   */
-  virtual void NotifyAccessGranted (void);
-  /**
-   * Notify the Txop that internal collision has occurred.
-   */
-  virtual void NotifyInternalCollision (void);
+        uint8_t id{0};                             //!< Link ID (starting at 0)
+        uint32_t backoffSlots{0};                  //!< the number of backoff slots
+        Time backoffStart{0};                      /**< the backoffStart variable is used to keep
+                                                        track of the time at which a backoff was
+                                                        started or the time at which the backoff
+                                                        counter was last updated */
+        uint32_t cw{0};                            //!< the current contention window
+        uint32_t cwMin{0};                         //!< the minimum contention window
+        uint32_t cwMax{0};                         //!< the maximum contention window
+        uint8_t aifsn{0};                          //!< the AIFSN
+        Time txopLimit{0};                         //!< the TXOP limit time
+        ChannelAccessStatus access{NOT_REQUESTED}; //!< channel access status
+    };
 
-  /**
-   * Check if the Txop has frames to transmit.
-   * \return true if the Txop has frames to transmit.
-   */
-  virtual bool HasFramesToTransmit (void);
-  /**
-   * Generate a new backoff now.
-   */
-  virtual void GenerateBackoff (void);
-  /**
-   * Restart access request if needed.
-   */
-  virtual void RestartAccessIfNeeded (void);
-  /**
-   * Request access from Txop if needed.
-   */
-  virtual void StartAccessIfNeeded (void);
+    /**
+     * Get a reference to the link associated with the given ID.
+     *
+     * \param linkId the given link ID
+     * \return a reference to the link associated with the given ID
+     */
+    LinkEntity& GetLink(uint8_t linkId) const;
+    /**
+     * Get the number of links.
+     *
+     * \return the number of links
+     */
+    uint8_t GetNLinks() const;
 
-  /**
-   * \returns the current value of the CW variable. The initial value is
-   *          minCW.
-   */
-  uint32_t GetCw (void) const;
-  /**
-   * Update the value of the CW variable to take into account
-   * a transmission success or a transmission abort (stop transmission
-   * of a packet after the maximum number of retransmissions has been
-   * reached). By default, this resets the CW variable to minCW.
-   */
-  void ResetCw (void);
-  /**
-   * Update the value of the CW variable to take into account
-   * a transmission failure. By default, this triggers a doubling
-   * of CW (capped by maxCW).
-   */
-  void UpdateFailedCw (void);
-  /**
-   * Return the current number of backoff slots.
-   *
-   * \return the current number of backoff slots
-   */
-  uint32_t GetBackoffSlots (void) const;
-  /**
-   * Return the time when the backoff procedure started.
-   *
-   * \return the time when the backoff procedure started
-   */
-  Time GetBackoffStart (void) const;
-  /**
-   * Update backoff slots that nSlots has passed.
-   *
-   * \param nSlots the number of slots to decrement
-   * \param backoffUpdateBound the time at which backoff should start
-   */
-  void UpdateBackoffSlotsNow (uint32_t nSlots, Time backoffUpdateBound);
+    DroppedMpdu m_droppedMpduCallback; //!< the dropped MPDU callback
+    Ptr<WifiMacQueue> m_queue;         //!< the wifi MAC queue
+    Ptr<MacTxMiddle> m_txMiddle;       //!< the MacTxMiddle
+    Ptr<WifiMac> m_mac;                //!< the wifi MAC
+    Ptr<UniformRandomVariable> m_rng;  //!< the random stream
 
-  /**
-   * Check if RTS should be re-transmitted if CTS was missed.
-   *
-   * \param packet current packet being transmitted.
-   * \param hdr current header being transmitted.
-   * \return true if RTS should be re-transmitted,
-   *         false otherwise.
-   */
-  bool NeedRtsRetransmission (Ptr<const Packet> packet, const WifiMacHeader &hdr);
-  /**
-   * Check if Data should be re-transmitted if Ack was missed.
-   *
-   * \param packet current packet being transmitted.
-   * \param hdr current header being transmitted.
-   * \return true if Data should be re-transmitted,
-   *         false otherwise.
-   */
-  bool NeedDataRetransmission (Ptr<const Packet> packet, const WifiMacHeader &hdr);
-  /**
-   * Check if the current packet should be fragmented.
-   *
-   * \return true if the current packet should be fragmented,
-   *         false otherwise
-   */
-  virtual bool NeedFragmentation (void) const;
+    /// TracedCallback for backoff trace value typedef
+    typedef TracedCallback<uint32_t /* value */, uint8_t /* linkId */> BackoffValueTracedCallback;
+    /// TracedCallback for CW trace value typedef
+    typedef TracedCallback<uint32_t /* value */, uint8_t /* linkId */> CwValueTracedCallback;
 
-  /**
-   * Continue to the next fragment. This method simply
-   * increments the internal variable that keep track
-   * of the current fragment number.
-   */
-  void NextFragment (void);
-  /**
-   * Get the next fragment from the packet with
-   * appropriate Wifi header for the fragment.
-   *
-   * \param hdr Wi-Fi header.
-   *
-   * \return the fragment with the current fragment number.
-   */
-  virtual Ptr<Packet> GetFragmentPacket (WifiMacHeader *hdr);
-  /**
-   * Calculate the size of the next fragment.
-   *
-   * \return the size of the next fragment in bytes.
-   */
-  virtual uint32_t GetNextFragmentSize (void) const;
-  /**
-   * Calculate the size of the current fragment.
-   *
-   * \return the size of the current fragment in bytes.
-   */
-  virtual uint32_t GetFragmentSize (void) const;
-  /**
-   * Calculate the offset for the current fragment.
-   *
-   * \return the offset for the current fragment in bytes.
-   */
-  virtual uint32_t GetFragmentOffset (void) const;
-  /**
-   * Check if the current fragment is the last fragment.
-   *
-   * \return true if the current fragment is the last fragment,
-   *         false otherwise.
-   */
-  virtual bool IsLastFragment (void) const;
-  /**
-   *
-   * Pass the packet included in the wifi MAC queue item to the
-   * packet dropped callback.
-   *
-   * \param item the wifi MAC queue item.
-   */
-  void TxDroppedPacket (Ptr<const WifiMacQueueItem> item);
+    BackoffValueTracedCallback m_backoffTrace; //!< backoff trace value
+    CwValueTracedCallback m_cwTrace;           //!< CW trace value
 
-  Ptr<ChannelAccessManager> m_channelAccessManager; //!< the channel access manager
-  TxOk m_txOkCallback;                              //!< the transmit OK callback
-  TxFailed m_txFailedCallback;                      //!< the transmit failed callback
-  TxDropped m_txDroppedCallback;                    //!< the packet dropped callback
-  Ptr<WifiMacQueue> m_queue;                        //!< the wifi MAC queue
-  Ptr<MacTxMiddle> m_txMiddle;                      //!< the MacTxMiddle
-  Ptr <MacLow> m_low;                               //!< the MacLow
-  Ptr<WifiRemoteStationManager> m_stationManager;   //!< the wifi remote station manager
-  Ptr<UniformRandomVariable> m_rng;                 //!< the random stream
+  private:
+    /**
+     * Create a LinkEntity object.
+     *
+     * \return a unique pointer to the created LinkEntity object
+     */
+    virtual std::unique_ptr<LinkEntity> CreateLinkEntity() const;
 
-  uint32_t m_cwMin;        //!< the minimum contention window
-  uint32_t m_cwMax;        //!< the maximum contention window
-  uint32_t m_cw;           //!< the current contention window
-  uint32_t m_backoff;      //!< the current backoff
-  bool m_accessRequested;  //!< flag whether channel access is already requested
-  uint32_t m_backoffSlots; //!< the number of backoff slots
-  /**
-   * the backoffStart variable is used to keep track of the
-   * time at which a backoff was started or the time at which
-   * the backoff counter was last updated.
-   */
-  Time m_backoffStart;
-
-  uint8_t m_aifsn;        //!< the AIFSN
-  Time m_txopLimit;       //!< the TXOP limit time
-
-  Ptr<const Packet> m_currentPacket;            //!< the current packet
-  WifiMacHeader m_currentHdr;                   //!< the current header
-  MacLowTransmissionParameters m_currentParams; //!< current transmission parameters
-  uint8_t m_fragmentNumber;                     //!< the fragment number
-  TracedCallback<uint32_t> m_backoffTrace;      //!< backoff trace value
-  TracedValue<uint32_t> m_cwTrace;              //!< CW trace value
+    std::vector<std::unique_ptr<LinkEntity>> m_links; //!< vector of LinkEntity objects
 };
 
-} //namespace ns3
+} // namespace ns3
 
 #endif /* TXOP_H */

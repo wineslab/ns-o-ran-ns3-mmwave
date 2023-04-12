@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 INRIA
  *
@@ -20,29 +19,45 @@
 
 #include "file-config.h"
 
-namespace ns3 {
+namespace ns3
+{
 
-FileConfig::~FileConfig ()
+FileConfig::~FileConfig()
 {
 }
 
-NoneFileConfig::NoneFileConfig ()
-{
-}
-NoneFileConfig::~NoneFileConfig ()
-{
-}
-void 
-NoneFileConfig::SetFilename (std::string filename)
-{}
-void 
-NoneFileConfig::Default (void)
-{}
-void 
-NoneFileConfig::Global (void)
-{}
 void
-NoneFileConfig::Attributes (void)
-{}
+FileConfig::SetSaveDeprecated(bool saveDeprecated)
+{
+    m_saveDeprecated = saveDeprecated;
+}
+
+NoneFileConfig::NoneFileConfig()
+{
+}
+
+NoneFileConfig::~NoneFileConfig()
+{
+}
+
+void
+NoneFileConfig::SetFilename(std::string filename)
+{
+}
+
+void
+NoneFileConfig::Default()
+{
+}
+
+void
+NoneFileConfig::Global()
+{
+}
+
+void
+NoneFileConfig::Attributes()
+{
+}
 
 } // namespace ns3

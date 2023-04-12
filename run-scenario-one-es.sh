@@ -17,12 +17,12 @@ bufferSize=10
 trafficModel=0
 numberOfRaPreambles=40
 
-heuristicType=3 # Type of heuristic for managing BS status: Random sleeping (0), Static sleeping (1), Dynamic sleeping (2)
+heuristicType=1 # Type of heuristic for managing BS status: no heuristic (-1), Random sleeping (0), Static sleeping (1), Dynamic sleeping (2), Mavenir (3)
 #heuristic parameters
-probOn=0.6038
-probIdle=0.3854
-probSleep=0.0107
-probOff=0.0
+probOn=0.8
+probIdle=0.0
+probSleep=0.0
+probOff=0.2
 sinrTh=73.0
 bsOn=2
 bsIdle=2
@@ -44,17 +44,21 @@ ues=2 # Number of UEs for each mmWave ENB
 dataRate=0
 hoSinrDifference=3
 
-# Select 0 or 1 to switch between the optimized or debug build
-build=1
-if [[ build -eq 0 ]];then
-  # Debug build
-   echo "Build ns-3 in debug mode"
-   ./waf -debug
-else
-    # Optimized build
-   echo "Build ns-3 in optimized mode"
-    ./waf -optimized
-fi
+# # Select 0 or 1 to switch between the optimized or debug build
+# build=1
+# builf_conf=0
+
+# if [[ build -eq 0 ]];then
+#   if [[ build_conf -eq 0 ]];then
+#     # Debug build
+#     echo "Build ns-3 in debug mode"
+#     ./waf configure --build-profile=debug --out=build/debug
+#   else
+#       # Optimized build
+#     echo "Build ns-3 in optimized mode"
+#       ./waf configure --build-profile=optimized --out=build/optimized
+#   fi
+# fi
 
 ## Energy Efficiency use case
 echo "Energy Efficiency use case"
@@ -71,7 +75,7 @@ controlFileName="" # ES control file path
 
 for i in $(seq 1 $N); do
   echo "Running simulation $i out of $N";
-  ./waf --run "scratch/scenario-one-es --RngRun=$i \
+  ./ns3 run "scratch/scenario-one-es --RngRun=$i \
                                     --configuration=$configuration \
                                     --trafficModel=$trafficModel \
                                     --hoSinrDifference=$hoSinrDifference \
