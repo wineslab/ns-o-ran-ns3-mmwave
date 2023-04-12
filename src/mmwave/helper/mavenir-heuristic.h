@@ -27,7 +27,9 @@ namespace ns3
 {
 namespace mmwave
 {
-
+/**
+ * Class that contains all the parameters useful for the Mavenir heuristic
+ */
 class MavHeurParameters : public Object
 {
   public:
@@ -42,15 +44,35 @@ class MavHeurParameters : public Object
     double GetEekpiLambda();
 
   private:
+    /**
+     * @brief Threshold for the eekpi number one
+     *
+     */
     double m_eekpiTh;
+    /**
+     * @brief Threshold for the eekpi number two, the average of the weighted eekpi
+     *
+     */
     double m_avgWeightedEekpiTh;
+    /**
+     * @brief Number of cell to turn ON/OFF every time interval
+     *
+     */
     int m_kCells;
+    /**
+     * @brief B value for the weighted EEKPI formula
+     *
+     */
     double m_eekpiB;
+    /**
+     * @brief Lambda value for the weighted EEKPI formula
+     *
+     */
     double m_eekpiLambda;
 };
 
 /**
- * @brief Class that contains all methods related to heuristics on energy efficiency simulations
+ * @brief Class that contains all methods related to Mavenir heuristic
  *
  */
 class MavenirHeuristic : public Object
@@ -71,6 +93,7 @@ class MavenirHeuristic : public Object
      * the cells
      * @param numberOfClusters Number of clusters in the scenario
      * @param clusters The vector of clusters
+     * @param mavenirHeurPar pointer to an object that cotains parameters for mavenir heuristic
      */
     void MavenirHeur(uint8_t nMmWaveEnbNodes,
                      NetDeviceContainer mmWaveEnbDevs,
