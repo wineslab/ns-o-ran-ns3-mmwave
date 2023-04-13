@@ -149,9 +149,17 @@ class MmWaveEnbNetDevice : public MmWaveNetDevice
 
     void SetClosestUePos(std::pair<double, double>);
 
-    double GetClosestUeTime();
+    uint32_t GetMacVolumeCellSpecific();
+
+    uint32_t GetMacPduCellSpecific();
+
+    void SetTurnOffTime(double value);
+
+    double GetTurnOffTime();
 
     void SetClosestUeTime(double);
+
+    double GetClosestUeTime();
 
     std::map<uint64_t, std::map<uint16_t, long double>> Getl3sinrMap();
 
@@ -267,6 +275,22 @@ class MmWaveEnbNetDevice : public MmWaveNetDevice
      *
      */
     double m_closestUETime = 10000.0;
+
+    /**
+     * @brief Attribute representing the macPduCellSpecific value for the cell 
+     *
+     */
+    uint32_t m_macPduCellSpecific = 0;
+    /**
+     * @brief Attribute representing the macVolumeCellSpecific value for the cell
+     *
+     */
+    uint32_t m_macVolumeCellSpecific = 0;
+    /**
+     * @brief at which time the cell is turned off
+     *
+     */
+    double m_turnOffTime = 0;
 };
 } // namespace mmwave
 } // namespace ns3

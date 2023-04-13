@@ -6,6 +6,7 @@ set(source_files
     helper/mc-stats-calculator.cc
     helper/core-network-stats-calculator.cc
     helper/energy-heuristic.cc
+    helper/mavenir-heuristic.cc
     helper/mmwave-mac-trace.cc
     model/mmwave-net-device.cc
     model/mmwave-enb-net-device.cc
@@ -80,6 +81,7 @@ set(header_files
     helper/mmwave-point-to-point-epc-helper.h
     helper/mc-stats-calculator.h
     helper/energy-heuristic.h
+    helper/mavenir-heuristic.h
     helper/core-network-stats-calculator.h
     helper/mmwave-bearer-stats-connector.h
     helper/mmwave-mac-trace.h

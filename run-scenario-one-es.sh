@@ -17,7 +17,7 @@ bufferSize=10
 trafficModel=0
 numberOfRaPreambles=40
 
-heuristicType=1 # Type of heuristic for managing BS status: no heuristic (-1), Random sleeping (0), Static sleeping (1), Dynamic sleeping (2)
+heuristicType=1 # Type of heuristic for managing BS status: no heuristic (-1), Random sleeping (0), Static sleeping (1), Dynamic sleeping (2), Mavenir (3)
 #heuristic parameters
 probOn=0.8
 probIdle=0.0
@@ -28,6 +28,12 @@ bsOn=2
 bsIdle=2
 bsSleep=2
 bsOff=1
+clusters=[[5,6,7],[2,3,4,8]]
+eekpiTh=200.0
+avgWeightedEekpiTh=600.0
+kCells=2
+eekpiB=1
+eekpiLambda=0.1
 
 # Useful parameters to be configured
 N=1 # number of simulations
@@ -58,8 +64,8 @@ hoSinrDifference=3
 echo "Energy Efficiency use case"
 outageThreshold=-5.0 # use -5.0 when handover is not in NoAuto 
 handoverMode="DynamicTtt"
-indicationPeriodicity=0.1 #0.02 value in seconds (20 ms)
-controlFileName="es_actions_for_ns3.csv" # ES control file path
+indicationPeriodicity=0.2 # value in seconds (20 ms)
+controlFileName="" # ES control file path
 
 #scheduleControlMessages=1 # if the control message shall be read at the beginning of the simulation and the events scheduled
 # If scheduleControlMessages is 0, remember to create an empty version of the control file before the start of this script, otherwise it would lead to premature crashes.
@@ -104,6 +110,12 @@ for i in $(seq 1 $N); do
                                     --bsOn=$bsOn\
                                     --bsIdle=$bsIdle\
                                     --bsSleep=$bsSleep\
-                                    --bsOff=$bsOff";
+                                    --bsOff=$bsOff\
+                                    --clusters=$clusters\
+                                    --eekpiTh=$eekpiTh\
+                                    --avgWeightedEekpiTh=$avgWeightedEekpiTh\
+                                    --kCells=$kCells\
+                                    --eekpiB=$eekpiB\
+                                    --eekpiLambda=$eekpiLambda";
   sleep 1;
 done

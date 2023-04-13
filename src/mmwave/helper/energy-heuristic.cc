@@ -24,6 +24,9 @@
 #include "ns3/lte-ue-net-device.h"
 #include "ns3/mmwave-helper.h"
 #include "energy-heuristic.h"
+#include <vector>
+#include <iostream>
+#include <sstream>
 
 namespace ns3 {
 

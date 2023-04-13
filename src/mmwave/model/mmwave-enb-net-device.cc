@@ -180,8 +180,31 @@ MmWaveEnbNetDevice::SetCellState(enumModeEnergyBs value)
     m_CellState = value;
 }
 
-TypeId
-MmWaveEnbNetDevice::GetTypeId()
+uint32_t
+MmWaveEnbNetDevice::GetMacVolumeCellSpecific()
+{
+    return m_macVolumeCellSpecific;
+}
+
+uint32_t
+MmWaveEnbNetDevice::GetMacPduCellSpecific()
+{
+    return m_macPduCellSpecific;
+}
+
+void
+MmWaveEnbNetDevice::SetTurnOffTime(double value)
+{
+    m_turnOffTime = value;
+}
+
+double
+MmWaveEnbNetDevice::GetTurnOffTime()
+{
+    return m_turnOffTime;
+}
+
+TypeId MmWaveEnbNetDevice::GetTypeId ()
 {
     static TypeId tid =
         TypeId("ns3::MmWaveEnbNetDevice")
@@ -1088,6 +1111,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCe
         uint32_t macPduUe = m_e2DuCalculator->GetMacPduUeSpecific(rnti, m_cellId);
 
         macPduCellSpecific += macPduUe;
+        m_macPduCellSpecific = macPduCellSpecific;
 
         uint32_t macPduInitialUe =
             m_e2DuCalculator->GetMacPduInitialTransmissionUeSpecific(rnti, m_cellId);
@@ -1095,6 +1119,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCe
 
         uint32_t macVolume = m_e2DuCalculator->GetMacVolumeUeSpecific(rnti, m_cellId);
         macVolumeCellSpecific += macVolume;
+        m_macVolumeCellSpecific = macVolumeCellSpecific;
 
         uint32_t macQpsk = m_e2DuCalculator->GetMacPduQpskUeSpecific(rnti, m_cellId);
         macQpskCellSpecific += macQpsk;

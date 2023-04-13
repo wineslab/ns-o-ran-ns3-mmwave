@@ -29,6 +29,7 @@
 #include "ns3/mmwave-point-to-point-epc-helper.h"
 #include "ns3/lte-helper.h"
 #include "ns3/energy-heuristic.h"
+#include "ns3/mavenir-heuristic.h"
 
 
 using namespace ns3;
@@ -238,7 +239,8 @@ static ns3::GlobalValue g_heuristic ("heuristicType",
                                      " No heuristic (-1),"
                                      " Random sleeping (0),"
                                      " Static sleeping (1),"
-                                     " Dynamic sleeping (2)",
+                                     " Dynamic sleeping (2)"
+                                     " Mavenir heuristic (3)",
                                      ns3::IntegerValue (-1), ns3::MakeIntegerChecker<int8_t> ());
 static ns3::GlobalValue
     g_probOn ("probOn",
@@ -287,13 +289,25 @@ static ns3::GlobalValue
 static ns3::GlobalValue
     g_bsOff ("bsOff", "number of BS to turn Off for static and dynamic sleeping heuristic",
              ns3::UintegerValue (1), ns3::MakeUintegerChecker<uint8_t> ());
-
+static ns3::GlobalValue g_clusters ("clusters", "Cluster list of cells",
+  ns3::StringValue ("[[5,6,7],[2,3,4,8]]"), ns3::MakeStringChecker ());
+static ns3::GlobalValue g_eekpiTh ("eekpiTh", "threshold for the first eekpi",
+    ns3::DoubleValue (60.0), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_avgWeightedEekpiTh ("avgWeightedEekpiTh", "threshold for the average weighted eekpi",
+    ns3::DoubleValue (60.0), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_kCells ("kCells", "max number of k cells to turn OFF and ON every periodicity time",
+    ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
+static ns3::GlobalValue g_eekpiB ("eekpiB", "B value for weighted eekpi formula",
+    ns3::DoubleValue (1.0), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_eekpiLambda ("eekpiLambda", "lambda value for weighted eekpi formula",
+    ns3::DoubleValue (0.1), ns3::MakeDoubleChecker<double> ());
 int
 main (int argc, char *argv[])
 {
   LogComponentEnableAll (LOG_PREFIX_ALL);
   LogComponentEnable ("ScenarioOneEs", LOG_LEVEL_DEBUG);
   LogComponentEnable ("EnergyHeuristic", LOG_LEVEL_DEBUG);
+  LogComponentEnable ("MavenirHeuristic", LOG_LEVEL_DEBUG);
   // LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
   // LogComponentEnable ("OnOffApplication", LOG_LEVEL_ALL);
   // LogComponentEnable ("LtePdcp", LOG_LEVEL_ALL);
@@ -303,8 +317,8 @@ main (int argc, char *argv[])
   // LogComponentEnable ("LteUeMac", LOG_LEVEL_ALL);
   // LogComponentEnable ("LteEnbMac", LOG_LEVEL_ALL);
   // LogComponentEnable ("MmWaveFlexTtiMacScheduler", LOG_LEVEL_ALL);
-  //LogComponentEnable ("LteEnbRrc", LOG_LEVEL_ALL);
-  //LogComponentEnable ("LteUeRrc", LOG_LEVEL_ALL);
+  // LogComponentEnable ("LteEnbRrc", LOG_LEVEL_ALL);
+  // LogComponentEnable ("LteUeRrc", LOG_LEVEL_ALL);
   // LogComponentEnable ("McEnbPdcp", LOG_LEVEL_ALL);
   // LogComponentEnable ("McUePdcp", LOG_LEVEL_ALL);
   // LogComponentEnable ("ScenarioOneEs``", LOG_LEVEL_ALL);
@@ -380,6 +394,18 @@ main (int argc, char *argv[])
   int bsSleep = uintegerValue.Get ();
   GlobalValue::GetValueByName ("bsOff", uintegerValue);
   int bsOff = uintegerValue.Get ();
+  GlobalValue::GetValueByName ("clusters", stringValue);
+  std::string clusters = stringValue.Get ();
+  GlobalValue::GetValueByName ("eekpiTh", doubleValue);
+  double eekpiTh = doubleValue.Get ();
+  GlobalValue::GetValueByName ("avgWeightedEekpiTh", doubleValue);
+  double avgWeightedEekpiTh = doubleValue.Get ();
+  GlobalValue::GetValueByName ("kCells", uintegerValue);
+  int kCells = uintegerValue.Get ();
+  GlobalValue::GetValueByName ("eekpiB", doubleValue);
+  double eekpiB = doubleValue.Get ();
+  GlobalValue::GetValueByName ("eekpiLambda", doubleValue);
+  double eekpiLambda = doubleValue.Get ();
 
 
   NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << bufferSize
@@ -868,6 +894,8 @@ main (int argc, char *argv[])
   int BsStatus[4]={bsOn, bsIdle, bsSleep, bsOff};
 
   Ptr<EnergyHeuristic> energyHeur = CreateObject<EnergyHeuristic> ();
+  Ptr<MavenirHeuristic> mavenirHeur=CreateObject<MavenirHeuristic>();
+  std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> bsClusters = mavenirHeur->ReadClusters(clusters, nMmWaveEnbNodes, mmWaveEnbDevs);
 
   switch (heuristicType)
     {
@@ -929,9 +957,21 @@ main (int argc, char *argv[])
       }
       break;
 
+      // Mavenir heuristic
+      case 3: {
+        Ptr<MavHeurParameters> mavenirHeurPar=CreateObject<MavHeurParameters>(eekpiTh, avgWeightedEekpiTh, kCells, eekpiB, eekpiLambda);
+        for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
+          {
+            Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
+            Simulator::Schedule (Seconds (i), &MavenirHeuristic::MavenirHeur, mavenirHeur, 
+                                nMmWaveEnbNodes, mmWaveEnbDevs, ltedev, bsClusters, mavenirHeurPar);
+          }
+      }
+      break;
+
       default: {
         NS_FATAL_ERROR (
-            "Heuristic type not recognized, the only possible values are [-1,0,1,2]. Value passed: "
+            "Heuristic type not recognized, the only possible values are [-1,0,1,2,3]. Value passed: "
             << heuristicType);
       }
       break;
