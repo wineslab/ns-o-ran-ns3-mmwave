@@ -277,17 +277,17 @@ class MmWaveEnbNetDevice : public MmWaveNetDevice
     double m_closestUETime = 10000.0;
 
     /**
-     * @brief
+     * @brief attribute that represnt the macPduCellSpecific value for the cell 
      *
      */
     uint32_t m_macPduCellSpecific = 0;
     /**
-     * @brief
+     * @brief attribute that represnt the macVolumeCellSpecific value for the cell
      *
      */
     uint32_t m_macVolumeCellSpecific = 0;
     /**
-     * @brief
+     * @brief at which time the cell is turned off
      *
      */
     double m_turnOffTime = 0;

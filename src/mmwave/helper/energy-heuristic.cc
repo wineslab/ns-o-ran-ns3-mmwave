@@ -472,6 +472,6 @@ EnergyHeuristic::TurnOnBsSinrPos (uint8_t nMmWaveEnbNodes, NetDeviceContainer mm
     }
 }
 
-}
+} // namespace mmwave
 
 } // namespace ns3
