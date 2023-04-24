@@ -85,6 +85,26 @@ class MavenirHeuristic : public Object
     virtual ~MavenirHeuristic(void);
 
     /**
+     * @brief Write on m_energyHeuristicFilename information regarding the Mavenir heuristic
+     *
+     * @param trace String to print in the trace file
+     * @param ltedev object to access the starting time of the simulation in UNIX time
+     */
+    void MavHeuristicTrace(std::string trace, Ptr<LteEnbNetDevice> ltedev);
+
+    /**
+     * Return the heuristic file name used to print the trace of the heuristic
+     */
+    std::string GetEnergyHeuristicFilename();
+
+    /**
+     * @brief Set the Energy Heuristic file name
+     *
+     * @param filename name of the file
+     */
+    void SetEnergyHeuristicFilename(std::string filename);
+
+    /**
      * @brief implementation of Mavenir heuristic
      *
      * @param nMmWaveEnbNodes Number of mmWave BSs in the scenario
@@ -115,6 +135,14 @@ class MavenirHeuristic : public Object
         std::string clustersString,
         uint8_t nMmWaveEnbNodes,
         NetDeviceContainer mmWaveEnbDevs);
+
+  private:
+    /**
+     * @brief Name of the file to save information through the method MavHeuristicTrace()
+     *
+     */
+    std::string m_energyHeuristicFilename;
+    std::ofstream m_energyHeuristicFile;
 };
 
 } // namespace mmwave

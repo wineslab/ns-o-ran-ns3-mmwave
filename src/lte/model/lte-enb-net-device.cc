@@ -1259,4 +1259,11 @@ LteEnbNetDevice::SetStartTime(uint64_t st)
     m_startTime = st;
 }
 
+
+uint64_t
+LteEnbNetDevice::GetStartTime()
+{
+    return m_startTime;
+}
+
 } // namespace ns3

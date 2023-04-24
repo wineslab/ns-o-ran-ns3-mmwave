@@ -234,6 +234,7 @@ class LteEnbNetDevice : public LteNetDevice
      */
     void SetUeQoS(uint16_t ueId, double percentage);
     void SetStartTime(uint64_t);
+    uint64_t GetStartTime();
 
   protected:
     // inherited from Object

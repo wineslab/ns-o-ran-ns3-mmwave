@@ -107,14 +107,46 @@ MavenirHeuristic::MavenirHeuristic()
 MavenirHeuristic::~MavenirHeuristic()
 {
     NS_LOG_FUNCTION(this);
+    if (m_energyHeuristicFile.is_open()){
+        m_energyHeuristicFile.close();
+    }
 }
 
 TypeId
 MavenirHeuristic::GetTypeId()
 {
     static TypeId tid =
-        TypeId("ns3::MavenirHeuristic").SetParent<Object>().AddConstructor<MavenirHeuristic>();
+        TypeId("ns3::MavenirHeuristic")
+            .SetParent<Object>()
+            .AddConstructor<MavenirHeuristic>()
+            .AddAttribute("EnergyHeuristicFilename",
+                          "Name of the file where the energy heuristic information will be "
+                          "periodically written.",
+                          StringValue("EnergyHeuristic.txt"),
+                          MakeStringAccessor(&MavenirHeuristic::SetEnergyHeuristicFilename),
+                          MakeStringChecker());
     return tid;
+}
+
+void
+MavenirHeuristic::MavHeuristicTrace(std::string trace, Ptr<LteEnbNetDevice> ltedev)
+{
+    // write to file
+    if (!m_energyHeuristicFile.is_open())
+    {
+        NS_LOG_DEBUG(GetEnergyHeuristicFilename().c_str());
+        m_energyHeuristicFile.open(GetEnergyHeuristicFilename().c_str(),
+                                   std::ofstream::out | std::ofstream::trunc);
+        NS_LOG_LOGIC("File opened");
+        m_energyHeuristicFile << "Timestamp"
+                              << " "
+                              << "UNIX"
+                              << " "
+                              << "Info" << std::endl;
+    }
+    uint64_t timestamp = ltedev->GetStartTime() + Simulator::Now().GetMilliSeconds();
+    m_energyHeuristicFile << Simulator::Now().GetSeconds() << " " << timestamp << " " << trace
+                          << std::endl;
 }
 
 // transform the input string of cluster into a vector of vector of values, substituting the id with
@@ -164,16 +196,21 @@ MavenirHeuristic::ReadClusters(std::string clustersString,
         }
         clusters.push_back(cluster);
     }
-    for (uint i = 0; i < clusters.size(); i++)
-    {
-        for (uint j = 0; j < clusters[i].size(); j++)
-        {
-            NS_LOG_DEBUG(clusters[i][j]->GetCellId());
-        }
-        NS_LOG_DEBUG("/n");
-    }
+
 
     return clusters;
+}
+
+std::string
+MavenirHeuristic::GetEnergyHeuristicFilename()
+{
+    return m_energyHeuristicFilename;
+}
+
+void
+MavenirHeuristic::SetEnergyHeuristicFilename(std::string filename)
+{
+    m_energyHeuristicFilename = filename;
 }
 
 void
@@ -183,17 +220,30 @@ MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes,
                               std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> clusters,
                               Ptr<MavHeurParameters> mavenirHeurPar)
 {
-    // every time periodicity
-    // get attributes from the object
+    std::string trace;
+    // Print input cluster
+    for (uint i = 0; i < clusters.size(); i++)
+    {
+        for (uint j = 0; j < clusters[i].size(); j++)
+        {
+            trace = std::to_string(clusters[i][j]->GetCellId());
+            MavHeuristicTrace(trace, ltedev);
+            NS_LOG_DEBUG(trace);
+        }
+        trace = " ";
+        MavHeuristicTrace(trace, ltedev);
+        NS_LOG_DEBUG(trace);
+    }
+    // Every time periodicity
+    // Get attributes from the object
     double eekpiTh = mavenirHeurPar->GetEekpiTh();
     double avgWeightedEekpiTh = mavenirHeurPar->GetAvgWeightedEekpiTh();
     int kCells = mavenirHeurPar->GetKCells();
     double eekpiB = mavenirHeurPar->GetEekpiB();
     double eekpiLambda = mavenirHeurPar->GetEekpiLambda();
-    // initialize basic parameters
+    // Initialize basic parameters
     Ptr<LteEnbRrc> m_rrc = ltedev->GetRrc();
-    Ptr<MmWaveEnbNetDevice> smallestMmDev[kCells] =
-        {}; // leaving it empty is not a problem since in the worst case is not used
+    Ptr<MmWaveEnbNetDevice> smallestMmDev[kCells] = {}; // Leaving it empty is not a problem since in the worst case is not used
     double smallestEekpi[kCells] = {};
     for (int i = 0; i < kCells; i++)
     {
@@ -202,29 +252,45 @@ MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes,
     }
     for (int j = 0; j < nMmWaveEnbNodes; j++) // for every cell
     {
-        // get the mmwave BS
+        // Get the mmwave BS
         Ptr<MmWaveEnbNetDevice> mmDev = DynamicCast<MmWaveEnbNetDevice>(mmWaveEnbDevs.Get(j));
         if (mmDev->GetBsState() == 1)
-        { // if the cell is turned ON
-            NS_LOG_DEBUG("EEKPI1 BS ID " << mmDev->GetCellId() << " and state (turned ON) "
-                                         << mmDev->GetBsState());
-            // compute eekpi and get the smallest one c'
+        { // If the cell is turned ON
+            trace = "EEKPI1 BS ID " + std::to_string(mmDev->GetCellId()) +
+                    " and state (turned ON) " + std::to_string(mmDev->GetBsState());
+            MavHeuristicTrace(trace, ltedev);
+            NS_LOG_DEBUG(trace);
+            // Compute eekpi and get the smallest one c'
             double txPowerWatts = pow(10, mmDev->GetPhy()->GetTxPower() / 10) / 1000;
-            NS_LOG_DEBUG("macVolumeCellSpecific for EEKPI1 " << mmDev->GetMacVolumeCellSpecific());
-            NS_LOG_DEBUG("macPduCellSpecific for EEKPI1 " << mmDev->GetMacPduCellSpecific());
-            NS_LOG_DEBUG("txPowerWatts for EEKPI1 " << txPowerWatts);
+            trace = "macVolumeCellSpecific for EEKPI1 " +
+                    std::to_string(mmDev->GetMacVolumeCellSpecific());
+            MavHeuristicTrace(trace, ltedev);
+            NS_LOG_DEBUG(trace);
+            trace =
+                "macPduCellSpecific for EEKPI1 " + std::to_string(mmDev->GetMacPduCellSpecific());
+            MavHeuristicTrace(trace, ltedev);
+            NS_LOG_DEBUG(trace);
+            trace = "txPowerWatts for EEKPI1 " + std::to_string(txPowerWatts);
+            MavHeuristicTrace(trace, ltedev);
+            NS_LOG_DEBUG(trace);
             double eekpi = eekpiTh;
             if ((mmDev->GetMacPduCellSpecific() * txPowerWatts) != 0)
             {
                 eekpi = (double)mmDev->GetMacVolumeCellSpecific() /
                         (mmDev->GetMacPduCellSpecific() * txPowerWatts);
-                NS_LOG_DEBUG("EEKPI1 " << eekpi << " for cell " << mmDev->GetCellId());
+                trace = "EEKPI1 " + std::to_string(eekpi) + " for cell " +
+                        std::to_string(mmDev->GetCellId());
+                MavHeuristicTrace(trace, ltedev);
+                NS_LOG_DEBUG(trace);
             }
             else
             {
-                NS_LOG_DEBUG("EEKPI1 " << eekpi << " because macPduCellSpecific*txPowerWatts=0");
+                trace = "EEKPI1 " + std::to_string(eekpi) +
+                        " because macPduCellSpecific*txPowerWatts=0";
+                MavHeuristicTrace(trace, ltedev);
+                NS_LOG_DEBUG(trace);
             }
-            // we want to keep n (kCells variable) smallest eekpi values inside the array
+            // We want to keep n (kCells variable) smallest eekpi values inside the array
             // (smallestEekpi) find the highest value in array smallestEekpi[]
             double highestValueEekpiArray = 0;
             int indexhighestValueEekpiArray = 0;
@@ -236,7 +302,7 @@ MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes,
                     indexhighestValueEekpiArray = i;
                 }
             }
-            // check if the actual eekpi is smaller than the bigger eekpi saved in the array and in
+            // Check if the actual eekpi is smaller than the bigger eekpi saved in the array and in
             // case substitute it
             if (eekpi < highestValueEekpiArray)
             {
@@ -245,20 +311,27 @@ MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes,
             }
         }
     }
-    NS_LOG_DEBUG("The smallest " << kCells << " EEKPI1 values are ");
+    trace = "The smallest " + std::to_string(kCells) + " EEKPI1 values are ";
+    MavHeuristicTrace(trace, ltedev);
+    NS_LOG_DEBUG(trace);
     for (int i = 0; i < kCells; i++)
     {
-        NS_LOG_DEBUG("   " << smallestEekpi[i]);
+        trace = "   " + std::to_string(smallestEekpi[i]);
+        MavHeuristicTrace(trace, ltedev);
+        NS_LOG_DEBUG(trace);
     }
 
     for (int i = 0; i < kCells; i++)
     {
-        // if c'< threshold value (eekpiTh) -> turn off BS (energy saving)
+        // If c'< threshold value (eekpiTh) -> turn off BS (energy saving)
         if (smallestEekpi[i] < eekpiTh)
         {
             smallestMmDev[i]->TurnOff(smallestMmDev[i]->GetCellId(), m_rrc);
             smallestMmDev[i]->SetTurnOffTime(Simulator::Now().GetSeconds());
-            NS_LOG_DEBUG("Turn off the smallest EEKPI1 BS ID " << smallestMmDev[i]->GetCellId());
+            trace = "Turn off the smallest EEKPI1 BS ID " +
+                    std::to_string(smallestMmDev[i]->GetCellId());
+            MavHeuristicTrace(trace, ltedev);
+            NS_LOG_DEBUG(trace);
         }
     }
 
@@ -271,59 +344,67 @@ MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes,
             avgWeightedEekpiTh; // I set it higher than the c' threshold so in extreme cases it
                                 // doesn't pass the next IF control to turn on the Cell
     }
-    Ptr<MmWaveEnbNetDevice> smallestMmDev2[kCells] =
-        {}; // leaveing it empty is not a problem since in the worst case is not used
-    // for every cell turned off (except the c')
+    Ptr<MmWaveEnbNetDevice> smallestMmDev2[kCells] = {}; // Leaveing it empty is not a problem since in the worst case is not used
+    // For every cell turned off (except the c')
     for (int j = 0; j < nMmWaveEnbNodes; j++) // for every cell
     {
-        // get the mmwave BS
+        // Get the mmwave BS
         Ptr<MmWaveEnbNetDevice> mmDev = DynamicCast<MmWaveEnbNetDevice>(mmWaveEnbDevs.Get(j));
-        // check if the cell is just turned OFF, if yes skip it
+        // Check if the cell is just turned OFF, if yes skip it
         bool justTurnedOff = false;
         for (int i = 0; i < kCells; i++)
         {
             if (smallestMmDev[i] == mmDev)
             {
                 justTurnedOff = true;
-                break; // if found (just turned off) exit
+                break; // If found (just turned off) exit
             }
         }
         if (justTurnedOff == false && mmDev->GetBsState() == 0)
-        { // if the cell is turned OFF (except the c', so the one just turned off)
-            NS_LOG_DEBUG("EEKPI2 BS ID (except the one just turned OFF) "
-                         << mmDev->GetCellId() << " and state (turned OFF) "
-                         << mmDev->GetBsState());
+        { // If the cell is turned OFF (except the c', so the one just turned off)
+            trace = "EEKPI2 BS ID (except the one just turned OFF) " +
+                    std::to_string(mmDev->GetCellId()) + " and state (turned OFF) " +
+                    std::to_string(mmDev->GetBsState());
+            MavHeuristicTrace(trace, ltedev);
+            NS_LOG_DEBUG(trace);
 
             for (uint i1 = 0; i1 < clusters.size(); i1++)
             {
-                // check if the subject cell is inside this cluster
+                // Check if the subject cell is inside this cluster
                 if (std::find(clusters[i1].begin(), clusters[i1].end(), mmDev) !=
                     clusters[i1].end())
-                { // if the cell is here, perform the operation for all the neighbors
+                { // If the cell is here, perform the operation for all the neighbors
                     double sumWeightedEekpi2 = 0;
                     int cellToCount =
-                        0; // number of cells neighbors turned ON and prbUtilizationDl!=0 (important
-                           // variable to compute the eekpi formula)
-                    // calculate the eekpi
+                        0; // Number of cells neighbors turned ON and prbUtilizationDl!=0 (important
+                           // Variable to compute the eekpi formula)
+                    // Calculate the eekpi
                     for (uint i2 = 0; i2 < clusters[i1].size(); i2++)
                     {
                         Ptr<MmWaveEnbNetDevice> neighMmDev = clusters[i1][i2];
-                        // skip the mmdev cell (subject cell) as neighbor
-                        // moreover the neighbor cell has to be turned ON
+                        // Skip the mmdev cell (subject cell) as neighbor
+                        // Moreover the neighbor cell has to be turned ON
                         if (neighMmDev != mmDev && neighMmDev->GetBsState() == 1)
                         {
-                            NS_LOG_DEBUG("EEKPI2 Cell ID "
-                                         << mmDev->GetCellId()
-                                         << " has the following neighbor turned ON "
-                                         << neighMmDev->GetCellId());
-                            // calculate eekpi2 new formula for each neighbour
+                            trace = "EEKPI2 Cell ID " + std::to_string(mmDev->GetCellId()) +
+                                    " has the following neighbor turned ON " +
+                                    std::to_string(neighMmDev->GetCellId());
+                            MavHeuristicTrace(trace, ltedev);
+                            NS_LOG_DEBUG(trace);
+                            // Calculate eekpi2 new formula for each neighbour
                             double txPowerWatts =
                                 pow(10, neighMmDev->GetPhy()->GetTxPower() / 10) / 1000;
-                            NS_LOG_DEBUG("macVolumeCellSpecific for EEKPI2 "
-                                         << neighMmDev->GetMacVolumeCellSpecific());
-                            NS_LOG_DEBUG("macPduCellSpecific for EEKPI2 "
-                                         << neighMmDev->GetMacPduCellSpecific());
-                            NS_LOG_DEBUG("txPowerWatts for EEKPI2 " << txPowerWatts);
+                            trace = "macVolumeCellSpecific for EEKPI2 " +
+                                    std::to_string(neighMmDev->GetMacVolumeCellSpecific());
+                            MavHeuristicTrace(trace, ltedev);
+                            NS_LOG_DEBUG(trace);
+                            trace = "macPduCellSpecific for EEKPI2 " +
+                                    std::to_string(neighMmDev->GetMacPduCellSpecific());
+                            MavHeuristicTrace(trace, ltedev);
+                            NS_LOG_DEBUG(trace);
+                            trace = "txPowerWatts for EEKPI2 " + std::to_string(txPowerWatts);
+                            MavHeuristicTrace(trace, ltedev);
+                            NS_LOG_DEBUG(trace);
                             double eekpi = 0;
                             if ((neighMmDev->GetMacPduCellSpecific() * txPowerWatts) != 0)
                             {
@@ -333,7 +414,9 @@ MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes,
                             }
                             else
                             {
-                                NS_LOG_DEBUG("In EEKPI2 macPduCellSpecific*txPowerWatts=0");
+                                trace = "In EEKPI2 macPduCellSpecific*txPowerWatts=0";
+                                MavHeuristicTrace(trace, ltedev);
+                                NS_LOG_DEBUG(trace);
                             }
                             // eekpi is about the neighbour cell
                             double weightedEekpi2 =
@@ -343,22 +426,26 @@ MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes,
                             sumWeightedEekpi2 = sumWeightedEekpi2 + weightedEekpi2;
                         }
                     }
-                    // do the average and save it to the subject cell in variable "j" (the one
+                    // Do the average and save it to the subject cell in variable "j" (the one
                     // turned off)
                     double avgEekpi2 = avgWeightedEekpiTh;
                     if (cellToCount == 0)
                     {
-                        NS_LOG_DEBUG("AVG weighted EEKPI2 " << avgEekpi2
-                                                            << " because no neighbours ON");
+                        trace = "AVG weighted EEKPI2 " + std::to_string(avgEekpi2) +
+                                " because no neighbours ON";
+                        MavHeuristicTrace(trace, ltedev);
+                        NS_LOG_DEBUG(trace);
                     }
                     else
                     {
                         avgEekpi2 = sumWeightedEekpi2 / cellToCount;
-                        NS_LOG_DEBUG("AVG weighted EEKPI2 " << avgEekpi2 << " for cell "
-                                                            << mmDev->GetCellId());
+                        trace = "AVG weighted EEKPI2 " + std::to_string(avgEekpi2) + " for cell " +
+                                std::to_string(mmDev->GetCellId());
+                        MavHeuristicTrace(trace, ltedev);
+                        NS_LOG_DEBUG(trace);
                     }
 
-                    // find the highest value in array smallestEekpi2[]
+                    // Find the highest value in array smallestEekpi2[]
                     double highestValueEekpi2Array = 0;
                     int indexhighestValueEekpi2Array = 0;
                     for (int i = 0; i < kCells; i++)
@@ -369,31 +456,38 @@ MavenirHeuristic::MavenirHeur(uint8_t nMmWaveEnbNodes,
                             indexhighestValueEekpi2Array = i;
                         }
                     }
-                    // check if the actual eekpi2 is smaller than the bigger eekpi2 saved in the
-                    // array and in case substitute it
+                    // Check if the actual eekpi2 is smaller than the bigger eekpi2 saved in the
+                    // Array and in case substitute it
                     if (avgEekpi2 < highestValueEekpi2Array)
                     {
                         smallestEekpi2[indexhighestValueEekpi2Array] = avgEekpi2;
                         smallestMmDev2[indexhighestValueEekpi2Array] = mmDev;
                     }
                 }
-                // else, move to the next cluster
+                // Else, move to the next cluster
             }
         }
     }
-    NS_LOG_DEBUG("The smallest " << kCells << " AVG weighted EEKPI2 are ");
+    trace = "The smallest " + std::to_string(kCells) + " AVG weighted EEKPI2 are ";
+    MavHeuristicTrace(trace, ltedev);
+    NS_LOG_DEBUG(trace);
     for (int i = 0; i < kCells; i++)
     {
-        NS_LOG_DEBUG("   " << smallestEekpi2[i]);
+        trace = "   " + std::to_string(smallestEekpi2[i]);
+        MavHeuristicTrace(trace, ltedev);
+        NS_LOG_DEBUG(trace);
     }
     for (int i = 0; i < kCells; i++)
     {
-        // obtain all the smallest eekpi2 avg values and if eekpi2 < threshold value (
+        // Obtain all the smallest eekpi2 avg values and if eekpi2 < threshold value (
         // avgWeightedEekpiTh ) -> turn on BS
         if (smallestEekpi2[i] < avgWeightedEekpiTh)
         {
             smallestMmDev2[i]->TurnOn(smallestMmDev2[i]->GetCellId(), m_rrc);
-            NS_LOG_DEBUG("Turn on the smallest EEKPI2 BS ID " << smallestMmDev2[i]->GetCellId());
+            trace = "Turn on the smallest EEKPI2 BS ID " +
+                    std::to_string(smallestMmDev2[i]->GetCellId());
+            MavHeuristicTrace(trace, ltedev);
+            NS_LOG_DEBUG(trace);
         }
     }
 }
