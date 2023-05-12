@@ -163,15 +163,15 @@ class McUePdcp : public LtePdcp
     // Interface provided to upper RRC entity
     virtual void DoTransmitPdcpSdu(Ptr<Packet> p);
 
-    LtePdcpSapUser* m_pdcpSapUser;
-    LtePdcpSapProvider* m_pdcpSapProvider;
+    LtePdcpSapUser* m_pdcpSapUser {0};
+    LtePdcpSapProvider* m_pdcpSapProvider {0};
 
     // Interface provided to lower RLC entity
     virtual void DoReceivePdu(Ptr<Packet> p);
 
-    LteRlcSapUser* m_rlcSapUser;
-    LteRlcSapProvider* m_rlcSapProvider;
-    LteRlcSapProvider* m_mmWaveRlcSapProvider;
+    LteRlcSapUser* m_rlcSapUser {0};
+    LteRlcSapProvider* m_rlcSapProvider {0};
+    LteRlcSapProvider* m_mmWaveRlcSapProvider {0};
 
     uint16_t m_rnti;
     uint8_t m_lcid;

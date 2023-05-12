@@ -92,6 +92,7 @@ MmWaveEnbPhy::MmWaveEnbPhy(Ptr<MmWaveSpectrumPhy> dlPhy, Ptr<MmWaveSpectrumPhy> 
 MmWaveEnbPhy::~MmWaveEnbPhy()
 {
     m_sinrMap.clear();
+    m_rxPsdMap.clear();
 }
 
 TypeId
@@ -709,8 +710,7 @@ MmWaveEnbPhy::UpdateUeSinrEstimate()
     }
 
     for (std::map<uint64_t, Ptr<SpectrumValue>>::iterator ue = m_rxPsdMap.begin();
-         ue != m_rxPsdMap.end();
-         ++ue)
+         ue != m_rxPsdMap.end(); ++ue)
     {
         SpectrumValue interference = *totalReceivedPsd - *(ue->second);
         NS_LOG_LOGIC("interference " << interference);
@@ -718,177 +718,12 @@ MmWaveEnbPhy::UpdateUeSinrEstimate()
         // we consider the SNR only!
         NS_LOG_LOGIC("sinr " << sinr);
         double sinrAvg = Sum(sinr) / (sinr.GetSpectrumModel()->GetNumBands());
+        uint64_t ueImsi = ue->first;
         NS_LOG_DEBUG("Time " << Simulator::Now().GetSeconds() << " CellId " << m_cellId << " UE "
-                             << ue->first << "Average SINR " << 10 * std::log10(sinrAvg));
+                             << ueImsi << "Average SINR " << 10 * std::log10(sinrAvg));
 
-        if (m_noiseAndFilter)
-        {
-            pairDevices_t pairDevices =
-                std::make_pair(ue->first, m_cellId);            // this is the current pair (UE-eNB)
-            auto iteratorSinr = m_sinrVector.find(pairDevices); // pair [pairDevices,Sinrvalue]
-            if (iteratorSinr != m_sinrVector.end()) // this map has already been initialized, so I
-                                                    // can add a new element for the SINR collection
-            {
-                if (Now().GetMicroSeconds() <= m_transient)
-                {
-                    m_sinrVector.at(pairDevices)
-                        .push_back(sinrAvg); // before transient, so just collect SINR values
-                }
-                else
-                {
-                    m_sinrVector.at(pairDevices).erase(m_sinrVector.at(pairDevices).begin());
-                    m_sinrVector.at(pairDevices)
-                        .push_back(sinrAvg); // before transient, so just collect SINR values
-                }
+        m_sinrMap[ueImsi] = sinrAvg;
 
-                NS_LOG_DEBUG("At time " << Now().GetMicroSeconds() << " push back the REAL SINR "
-                                        << 10 * std::log10(sinrAvg) << " for pair with CellId "
-                                        << m_cellId << " and UE " << ue->first);
-            }
-            else // vector is not initialized, so it means that we are still in the initial
-                 // transient phase, for that pair
-            {
-                m_sinrVector.insert(std::make_pair(pairDevices, std::vector<double>()));
-                m_sinrVector.at(pairDevices).push_back(sinrAvg); // push back a new SINR value
-                NS_LOG_DEBUG("At time " << Now().GetMicroSeconds()
-                                        << " first initializazion and push back the SINR "
-                                        << 10 * std::log10(sinrAvg) << " for pair with CellId "
-                                        << m_cellId << " and UE " << ue->first);
-            }
-
-            auto iteratorFinalTrace =
-                m_finalSinrVector.find(pairDevices); // pair [pairDevices,Sinrvalue]
-            if (iteratorFinalTrace == m_finalSinrVector.end())
-            {
-                m_samplesFilter.insert(
-                    std::make_pair(pairDevices, std::pair<uint64_t, uint64_t>()));
-                m_finalSinrVector.insert(std::make_pair(pairDevices, std::vector<double>()));
-            }
-
-            auto iteratorSinrToFilter =
-                m_sinrVectorToFilter.find(pairDevices); // pair [pairDevices,Sinrvalue]
-            if (iteratorSinrToFilter == m_sinrVectorToFilter.end())
-            {
-                m_sinrVectorToFilter.insert(std::make_pair(pairDevices, std::vector<double>()));
-                m_sinrVectorNoisy.insert(std::make_pair(pairDevices, std::vector<double>()));
-            }
-
-            /* generate Gaussian noise for the last SINR value (that is the current one) */
-            double sinrNoisy = AddGaussianNoise(m_sinrVector.at(pairDevices).back());
-
-            /* UPDATE TRACE TO BE FILTERED */
-            if (Now().GetMicroSeconds() <= m_transient)
-            {
-                m_sinrVectorNoisy.at(pairDevices).push_back(sinrNoisy);
-
-                // if (sinrNoisy < 0)
-                // {
-                //        NS_LOG_DEBUG("Old SINR value was " << 10*std::log10(sinrNoisy) << " while
-                //        now is " << 10*std::log10(0.1)); sinrNoisy = 0.1;
-                // }
-                m_sinrVectorToFilter.at(pairDevices).push_back(sinrNoisy);
-            }
-            else
-            {
-                m_sinrVectorNoisy.at(pairDevices).erase(m_sinrVectorNoisy.at(pairDevices).begin());
-                m_sinrVectorNoisy.at(pairDevices).push_back(sinrNoisy);
-
-                // if (sinrNoisy < 0)
-                // {
-                //        NS_LOG_DEBUG("Old SINR value was " << 10*std::log10(sinrNoisy) << " while
-                //        now is " << 10*std::log10(0.1)); sinrNoisy = 0.1;
-                // }
-
-                double toPlot = *m_sinrVectorToFilter.at(pairDevices).begin();
-                double toPlotbis = sinrNoisy;
-                NS_LOG_DEBUG("(Remove SINR)  " << toPlot);
-                NS_LOG_DEBUG("(Add SINR)  " << toPlotbis);
-
-                m_sinrVectorToFilter.at(pairDevices)
-                    .erase(m_sinrVectorToFilter.at(pairDevices).begin());
-                m_sinrVectorToFilter.at(pairDevices).push_back(sinrNoisy);
-            }
-
-            if (Now().GetMicroSeconds() > m_transient) // apply filter only when I have a
-                                                       // sufficiently large set of SINR samples
-            {
-                std::vector<double> vectorNoisy = m_sinrVectorNoisy.at(pairDevices);
-                std::pair<uint64_t, uint64_t> pairFiltering = ApplyFilter(
-                    vectorNoisy); // find where to apply the filter, according to the variance
-                m_samplesFilter.at(pairDevices) = pairFiltering; // where to apply the linear filter
-                NS_LOG_DEBUG("Noisy vector start at sample " << std::get<0>(pairFiltering));
-                NS_LOG_DEBUG("Noisy vector end at sample " << std::get<1>(pairFiltering));
-
-                /* just apply filter where the SINR is too low and we are in a blockage situation */
-                if (std::get<0>(m_samplesFilter.at(pairDevices)) ==
-                    std::get<1>(m_samplesFilter.at(pairDevices))) // if start = end
-                {
-                    m_finalSinrVector.at(pairDevices) =
-                        m_sinrVectorToFilter.at(pairDevices); // no need to apply the filter
-                    NS_LOG_DEBUG("At time "
-                                 << Now().GetMicroSeconds()
-                                 << " there is no need to apply the Kalman filter for mmWave eNB "
-                                 << m_cellId << " and UE " << ue->first);
-                }
-                else
-                {
-                    std::vector<double> vectorToFilter = m_sinrVectorToFilter.at(pairDevices);
-                    std::vector<double> sinrVector = m_sinrVector.at(pairDevices);
-                    std::pair<uint64_t, uint64_t> filterPair = m_samplesFilter.at(pairDevices);
-                    m_finalSinrVector.at(pairDevices) =
-                        MakeFilter(vectorNoisy, sinrVector, filterPair);
-                    NS_LOG_DEBUG("finaltrace " << m_finalSinrVector.at(pairDevices).back());
-                }
-
-                /* the last sample in the filtered sequence is referred to the current time instant,
-                 * referred to the uplink reference signal that is used to build the RT in the
-                 * LteEnbRrc class */
-                double sampleToForward = m_finalSinrVector.at(pairDevices).back();
-                if (sampleToForward < 0) // this would be converted in NaN, in the log scale
-                {
-                    sampleToForward = 1e-20;
-                }
-                NS_LOG_DEBUG(" mmWave eNB " << m_cellId << " reports the SINR "
-                                            << 10 * std::log10(sampleToForward) << " for UE "
-                                            << ue->first);
-                m_sinrMap[ue->first] =
-                    sampleToForward; // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< in order to
-                                     // FORWARD to LteEnbRrc the value of SINR for the RT
-
-                // m_sinrVectorToFilter.at(pairDevices).erase(m_sinrVectorToFilter.at(pairDevices).begin());
-                // m_sinrVectorToFilter.at(pairDevices).push_back(m_finalSinrVector.at(pairDevices).back());
-                m_sinrVectorToFilter.at(pairDevices).pop_back();
-                m_sinrVectorToFilter.at(pairDevices)
-                    .push_back(m_finalSinrVector.at(pairDevices).back());
-            }
-            else // before the transient is over, just forwart the (last) noisy sample, without
-                 // having filtered
-            {
-                double sampleToForward = m_sinrVectorToFilter.at(pairDevices).back();
-                if (sampleToForward < 0) // this would be converted in NaN, in the log scale
-                {
-                    sampleToForward = 1e-20;
-                }
-                NS_LOG_DEBUG(" mmWave eNB " << m_cellId << " FIRST reports the SINR "
-                                            << 10 * std::log10(sampleToForward) << " for UE "
-                                            << ue->first);
-                m_sinrMap[ue->first] =
-                    sampleToForward; // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< in order to
-                                     // FORWARD to LteEnbRrc the value of SINR for the RT
-            }
-
-            /* after the SINR sample is forwarded, I need to REFRESH all the maps, so that
-             * a new SINR sequence can be created, to generate a new SINR sample
-             * for the next RT
-             */
-            m_finalSinrVector.erase(pairDevices);
-            m_samplesFilter.erase(pairDevices);
-            NS_LOG_DEBUG("ERASE MAPS FOR RT");
-        }
-        else // noise and filtering processes are not applied!
-        {
-            m_sinrMap[ue->first] = sinrAvg;
-        }
     }
 
     if (m_roundFromLastUeSinrUpdate >= (m_ueUpdateSinrPeriod / m_updateSinrPeriod))

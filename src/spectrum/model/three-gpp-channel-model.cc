@@ -270,6 +270,7 @@ ThreeGppChannelModel::DoDispose()
         m_channelConditionModel->Dispose();
     }
     m_channelMatrixMap.clear();
+
     m_channelParamsMap.clear();
     m_channelConditionModel = nullptr;
 }
@@ -1178,6 +1179,7 @@ ThreeGppChannelModel::GetChannel(Ptr<const MobilityModel> aMob,
     {
         // channel matrix not found or has to be updated, generate a new one
         channelMatrix = GetNewChannel(channelParams, table3gpp, aMob, bMob, aAntenna, bAntenna);
+
         channelMatrix->m_antennaPair =
             std::make_pair(aAntenna->GetId(),
                            bAntenna->GetId()); // save antenna pair, with the exact order of s and u
@@ -2172,6 +2174,7 @@ ThreeGppChannelModel::GetNewChannel(Ptr<const ThreeGppChannelParams> channelPara
                 << hUsn.GetNumRows() << ", " << hUsn.GetNumCols() << ", " << hUsn.GetNumPages()
                 << ")");
     channelMatrix->m_channel = hUsn;
+
     return channelMatrix;
 }
 

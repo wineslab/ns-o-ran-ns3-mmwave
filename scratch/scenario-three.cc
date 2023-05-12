@@ -310,8 +310,8 @@ main (int argc, char *argv[])
 {
   LogComponentEnableAll (LOG_PREFIX_ALL);
   LogComponentEnable ("ScenarioThree", LOG_LEVEL_DEBUG);
-  LogComponentEnable ("EnergyHeuristic", LOG_LEVEL_DEBUG);
-  LogComponentEnable ("MavenirHeuristic", LOG_LEVEL_DEBUG);
+  // LogComponentEnable ("EnergyHeuristic", LOG_LEVEL_DEBUG);
+  // LogComponentEnable ("MavenirHeuristic", LOG_LEVEL_DEBUG);
   // LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
   // LogComponentEnable ("OnOffApplication", LOG_LEVEL_ALL);
   // LogComponentEnable ("LtePdcp", LOG_LEVEL_ALL);

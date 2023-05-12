@@ -3062,6 +3062,7 @@ LteEnbRrc::ConfigureMmWaveCarriers(
 LteEnbRrc::~LteEnbRrc()
 {
     NS_LOG_FUNCTION(this);
+    m_cellSinrMap.clear();
 }
 
 void

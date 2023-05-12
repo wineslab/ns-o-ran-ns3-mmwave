@@ -94,3 +94,5 @@ LteUlSinrStats.txt
 *.csv
 *.zip
 stderr
+*.out
+*.xml
