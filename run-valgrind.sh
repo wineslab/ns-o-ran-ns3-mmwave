@@ -10,30 +10,30 @@ e2cuCp=1 # enable reporting of CU CP PM containers
 configuration=0 # 0: NR carrier at 850 MHz, low traffic | 1: NR carrier at 3.5 GHz, low traffic | 2: NR carrier at 28 GHz, high traffic
 minSpeed=2.0 # minimum UE speed in m/s
 maxSpeed=4.0 # maximum UE speed in m/s
-simTime=5 # simulation time
+simTime=0.8 # simulation time
 e2TermIp="10.102.157.65" # actual E2term IP interface
 rlcAmEnabled="true"
 bufferSize=10
 trafficModel=0
 numberOfRaPreambles=40
 
-heuristicType=0 # Type of heuristic for managing BS status: no heuristic (-1), Random sleeping (0), Static sleeping (1), Dynamic sleeping (2)
+heuristicType=2 # Type of heuristic for managing BS status: no heuristic (-1), Random sleeping (0), Static sleeping (1), Dynamic sleeping (2)
 #heuristic parameters
 probOn=0.5
 probIdle=0.0
 probSleep=0.0
 probOff=0.5
 sinrTh=73.0
-bsOn=2
-bsIdle=2
-bsSleep=2
-bsOff=1
+bsOn=4
+bsIdle=3
+bsSleep=3
+bsOff=3
 
 # Useful parameters to be configured
 basicCellId=1 # The next value will be the first cellId
 reducedPmValues=0 # use reduced subset of pmValues
 EnableE2FileLogging=1 # enable offline generation of data
-ues=1 # Number of UEs for each mmWave ENB
+ues=2 # Number of UEs for each mmWave ENB
 dataRate=0
 hoSinrDifference=3
 
@@ -66,7 +66,7 @@ controlFileName="es_actions_for_ns3.csv" # ES control file path
 # NS_LOG="KpmIndication"
 # NS_LOG="RicControlMessage" 
 
-./ns3 run --command-template="valgrind --leak-check=full --show-reachable=yes --track-origins=yes --xml=yes --xml-file=valgrind_output.xml %s \
+./ns3 run --command-template="valgrind --leak-check=full --show-reachable=yes --num-callers=50 --track-origins=yes --xml=yes --xml-file=valgrind_output.xml %s \
                                     --configuration=$configuration \
                                     --hoSinrDifference=$hoSinrDifference \
                                     --rlcAmEnabled=$rlcAmEnabled \

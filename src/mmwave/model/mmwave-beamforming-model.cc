@@ -222,6 +222,8 @@ MmWaveSvdBeamforming::DoDispose(void)
 {
     NS_LOG_FUNCTION(this);
     m_channel = 0;
+    m_cacheChannelMap.clear();
+    m_cacheBfVectors.clear();
     MmWaveBeamformingModel::DoDispose();
 }
 

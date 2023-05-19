@@ -242,6 +242,7 @@ MmWavePointToPointEpcHelper::DoDispose()
     m_tunDevice = 0;
     m_sgwPgwApp = 0;
     m_sgwPgw->Dispose();
+    m_mmeApp->Dispose();
 }
 
 void

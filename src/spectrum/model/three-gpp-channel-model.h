@@ -201,6 +201,20 @@ class ThreeGppChannelModel : public MatrixBasedChannelModel
         DoubleVector m_attenuation_dB;      //!< vector that stores the attenuation of the blockage
         uint8_t m_cluster1st;               //!< index of the first strongest cluster
         uint8_t m_cluster2nd;               //!< index of the second strongest cluster
+
+        ~ThreeGppChannelParams ()
+        {
+            m_nonSelfBlocking.clear();
+            m_norRvAngles.clear();
+            m_clusterPhase.clear();
+            m_rayZoaRadian.clear();
+            m_rayZodRadian.clear();
+            m_rayAodRadian.clear();
+            m_rayAoaRadian.clear();
+            m_crossPolarizationPowerRatios.clear();
+            m_clusterPower.clear();
+            m_attenuation_dB.clear();
+        }
     };
 
     /**
