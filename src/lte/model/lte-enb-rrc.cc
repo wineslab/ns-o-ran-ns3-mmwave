@@ -3009,6 +3009,12 @@ LteEnbRrc::LteEnbRrc()
     m_cphySapProvider.push_back(0);
     m_cmacSapProvider.push_back(0);
     m_ffrRrcSapProvider.push_back(0);
+
+    // File to keep track of the HO Preparation Failures
+    std::string filenameUeFailures = "UeFailures.txt";
+    std::ofstream uefailed_file(filenameUeFailures.c_str());
+    uefailed_file << "simtime,UeId,SourceCellId,TargetCellId\n";
+    uefailed_file.close();   
 }
 
 void
@@ -5312,7 +5318,21 @@ LteEnbRrc::DoRecvHandoverRequest(EpcX2SapUser::HandoverRequestParams req)
             this
             << " failed to allocate a preamble for non-contention based RA => cannot accept HO");
         RemoveUe(rnti);
-        NS_FATAL_ERROR("should trigger HO Preparation Failure, but it is not implemented");
+        NS_LOG_ERROR("should trigger HO Preparation Failure, but it is not implemented");
+        // Instead of a crash we prefer to disconnect the UE and hope for the unknown at the moment
+        // Anyway, we log this in a new file
+
+        std::string filename = "UeFailures.txt";
+
+        std::ofstream uefailed_file(filename.c_str(), std::ios_base::app);
+        if (!uefailed_file.is_open ())
+        {
+            NS_LOG_ERROR ("Can't open file " << filename);
+            return;
+        }  
+        uefailed_file << Simulator::Now().GetSeconds () << "," << req.mmeUeS1apId << ","
+                      << req.sourceCellId << "," << req.targetCellId << "\n";
+        uefailed_file.close();
         return;
     }
 
@@ -6098,6 +6118,18 @@ LteEnbRrc::SetSecondaryCellHandoverAllowedStatus(uint16_t cellId, bool hoAllowed
 void
 LteEnbRrc::EvictUsersFromSecondaryCell()
 {
+    // Get the number of preambles to avoid their exaustion and the triggering of
+    // HO preparation Failure
+    LteEnbCmacSapProvider::RachConfig rachConfig = m_cmacSapProvider.at(0)->GetRachConfig(); 
+    // The number of theoretical available preambles
+    uint8_t availablePreambles = 64 - rachConfig.numberOfRaPreambles;
+    // This offset ensures that the HO will be scheduled most likely when the other HOs are done
+    // May need some adjustment in terms of time 
+    uint64_t offsetHo = 25; // slot expressed in ms
+    uint64_t offsetCounter = 0;
+    // Number of already allocated preambles
+    uint8_t scheduledHos = 0;
+
     // cycle on UEs of that cell
     if (m_imsiCellSinrMap.size() > 0) // there are some entries
     {
@@ -6179,9 +6211,19 @@ LteEnbRrc::EvictUsersFromSecondaryCell()
             // start HO immediately - cannot use FixedTtt or DynamicTtt or ThresholdBased
             NS_LOG_DEBUG("Start HO to evict the user to cell " << maxSinrCellId);
 
+            // Control the allocation of the HO events
+            if (scheduledHos % availablePreambles == 0 && scheduledHos > availablePreambles)
+            {
+                // Each time this happen it means that we have exausted the next cycle of available preambles
+                offsetCounter++;
+            }
+
             // schedule the event
             EventId scheduledHandoverEvent =
-                Simulator::Schedule(MilliSeconds(0), &LteEnbRrc::PerformHandover, this, imsi);
+                Simulator::Schedule(MilliSeconds(0 + (offsetCounter * offsetHo)),
+                                    &LteEnbRrc::PerformHandover,
+                                    this,
+                                    imsi);
             LteEnbRrc::HandoverEventInfo handoverInfo;
             handoverInfo.sourceCellId = m_lastMmWaveCell[imsi];
             handoverInfo.targetCellId = maxSinrCellId;
@@ -6200,6 +6242,7 @@ LteEnbRrc::EvictUsersFromSecondaryCell()
                 m_imsiHandoverEventsMap.insert(
                     std::pair<uint64_t, HandoverEventInfo>(imsi, handoverInfo));
             }
+            scheduledHos++;
         }
     }
 }

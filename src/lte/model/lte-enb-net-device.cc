@@ -191,7 +191,7 @@ LteEnbNetDevice::ReadControlFile()
                     m_rrc->SetSecondaryCellHandoverAllowedStatus(cellId, hoAllowed);
                 }
                 else
-                {
+                {   // Here we pre-schedule all the functions to be executed during the simulation
                     Simulator::Schedule(MilliSeconds(timestamp),
                                         &LteEnbRrc::SetSecondaryCellHandoverAllowedStatus,
                                         m_rrc,

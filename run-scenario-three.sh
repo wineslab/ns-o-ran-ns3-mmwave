@@ -42,13 +42,15 @@ dataRate=0
 # Select 0 or 1 to switch between the optimized or debug build
 # build=0
 # if [[ build -eq 0 ]];then
-# # Debug build
+#   if [[ build_conf -eq 0 ]];then
+#     # Debug build
 #     echo "Build ns-3 in debug mode"
-#     ./waf configure --build-profile=debug --out=build/debug
+#     ./ns3 configure --build-profile=debug --enable-examples --enable-tests --out=build/debug
 #   else
 #       # Optimized build
 #     echo "Build ns-3 in optimized mode"
-#       ./waf configure --build-profile=optimized --out=build/optimized  
+#       ./ns3 configure --build-profile=optimized --enable-examples --enable-tests --out=build/optimized
+#   fi
 # fi
 
 ## Energy Efficiency use case

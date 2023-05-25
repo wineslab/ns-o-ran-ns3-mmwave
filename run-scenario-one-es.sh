@@ -14,33 +14,33 @@ simTime=1.0 # simulation time
 e2TermIp="10.102.157.65" # actual E2term IP interface
 rlcAmEnabled="true"
 bufferSize=10
-trafficModel=0
-numberOfRaPreambles=40
+trafficModel=3
+numberOfRaPreambles=30
 
-heuristicType=1 # Type of heuristic for managing BS status: no heuristic (-1), Random sleeping (0), Static sleeping (1), Dynamic sleeping (2), Mavenir (3)
+heuristicType=2 # Type of heuristic for managing BS status: no heuristic (-1), Random sleeping (0), Static sleeping (1), Dynamic sleeping (2), Mavenir (3)
 #heuristic parameters
-probOn=0.8
-probIdle=0.0
-probSleep=0.0
+probOn=0.6038
+probIdle=0.3854
+probSleep=0.0107
 probOff=0.2
 sinrTh=73.0
 bsOn=2
 bsIdle=2
-bsSleep=2
-bsOff=1
-clusters=[[5,6,7],[2,3,4,8]]
-eekpiTh=200.0
+bsSleep=1
+bsOff=2
+clusters=[[2,3,4,5,6,7,8]]
+eekpiTh=120.0
 avgWeightedEekpiTh=600.0
 kCells=2
 eekpiB=1
 eekpiLambda=0.1
 
 # Useful parameters to be configured
-N=1 # number of simulations
+seed=6060 # seed parameter to be used
 basicCellId=1 # The next value will be the first cellId
 reducedPmValues=0 # use reduced subset of pmValues
 EnableE2FileLogging=1 # enable offline generation of data
-ues=2 # Number of UEs for each mmWave ENB
+ues=9 # Number of UEs for each mmWave ENB
 dataRate=0
 hoSinrDifference=3
 
@@ -52,11 +52,11 @@ hoSinrDifference=3
 #   if [[ build_conf -eq 0 ]];then
 #     # Debug build
 #     echo "Build ns-3 in debug mode"
-#     ./waf configure --build-profile=debug --out=build/debug
+#     ./ns3 configure --build-profile=debug --enable-examples --enable-tests --out=build/debug
 #   else
 #       # Optimized build
 #     echo "Build ns-3 in optimized mode"
-#       ./waf configure --build-profile=optimized --out=build/optimized
+#       ./ns3 configure --build-profile=optimized --enable-examples --enable-tests --out=build/optimized
 #   fi
 # fi
 
@@ -64,7 +64,7 @@ hoSinrDifference=3
 echo "Energy Efficiency use case"
 outageThreshold=-5.0 # use -5.0 when handover is not in NoAuto 
 handoverMode="DynamicTtt"
-indicationPeriodicity=0.2 # value in seconds (20 ms)
+indicationPeriodicity=0.02 # value in seconds (20 ms)
 controlFileName="" # ES control file path
 
 #scheduleControlMessages=1 # if the control message shall be read at the beginning of the simulation and the events scheduled
@@ -73,9 +73,9 @@ controlFileName="" # ES control file path
 # NS_LOG="KpmIndication"
 # NS_LOG="RicControlMessage" 
 
-for i in $(seq 1 $N); do
-  echo "Running simulation $i out of $N";
-  ./ns3 run "scratch/scenario-one-es --RngRun=$i \
+
+echo "Running simulation with seed $seed";
+./ns3 run "scratch/scenario-one-es --RngRun=$seed \
                                     --configuration=$configuration \
                                     --trafficModel=$trafficModel \
                                     --hoSinrDifference=$hoSinrDifference \
@@ -117,5 +117,5 @@ for i in $(seq 1 $N); do
                                     --kCells=$kCells\
                                     --eekpiB=$eekpiB\
                                     --eekpiLambda=$eekpiLambda";
-  sleep 1;
-done
+
+

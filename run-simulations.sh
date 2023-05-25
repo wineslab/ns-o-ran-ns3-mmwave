@@ -56,6 +56,7 @@ elif [[ use_case -eq 1 ]];then
   handoverMode="NoAuto"
   indicationPeriodicity=0.1 # value in seconds (100 ms)
   controlPath="ts_actions_for_ns3.csv" # TS control file path
+  numberOfRaPreambles=40
 else
   ## Quality of Service use case
   echo "Quality of Service use case"

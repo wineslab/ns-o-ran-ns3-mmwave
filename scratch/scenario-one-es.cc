@@ -205,7 +205,7 @@ static ns3::GlobalValue g_basicCellId ("basicCellId", "The next value will be th
                                        ns3::MakeUintegerChecker<uint8_t> ());
 
 static ns3::GlobalValue g_numberOfRaPreambles ("numberOfRaPreambles", "how many random access preambles are available for the contention based RACH process",
-                                       ns3::UintegerValue (40), // this was the for ther TS use case, 52 is default, 30 is for ES
+                                       ns3::UintegerValue (30), // TS use case should be 40, 52 is default, ES should be 30
                                        ns3::MakeUintegerChecker<uint8_t> ());
 
 static ns3::GlobalValue
@@ -306,8 +306,8 @@ main (int argc, char *argv[])
 {
   LogComponentEnableAll (LOG_PREFIX_ALL);
   LogComponentEnable ("ScenarioOneEs", LOG_LEVEL_DEBUG);
-  LogComponentEnable ("EnergyHeuristic", LOG_LEVEL_DEBUG);
-  LogComponentEnable ("MavenirHeuristic", LOG_LEVEL_DEBUG);
+  // LogComponentEnable ("EnergyHeuristic", LOG_LEVEL_DEBUG);
+  // LogComponentEnable ("MavenirHeuristic", LOG_LEVEL_DEBUG);
   // LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
   // LogComponentEnable ("OnOffApplication", LOG_LEVEL_ALL);
   // LogComponentEnable ("LtePdcp", LOG_LEVEL_ALL);
