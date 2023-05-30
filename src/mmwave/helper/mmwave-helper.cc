@@ -276,7 +276,7 @@ MmWaveHelper::GetTypeId(void)
                           MakeUintegerChecker<uint16_t>(MIN_NO_CC, MAX_NO_CC))
             .AddAttribute("E2ModeNr",
                           "If true, enable reporting over E2 for NR cells.",
-                          BooleanValue(false),
+                          BooleanValue(true),
                           MakeBooleanAccessor(&MmWaveHelper::m_e2mode_nr),
                           MakeBooleanChecker())
             .AddAttribute("E2ModeLte",
