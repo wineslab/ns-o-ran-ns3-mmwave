@@ -306,7 +306,7 @@ main (int argc, char *argv[])
 {
   LogComponentEnableAll (LOG_PREFIX_ALL);
   LogComponentEnable ("ScenarioOneEs", LOG_LEVEL_DEBUG);
-  // LogComponentEnable ("EnergyHeuristic", LOG_LEVEL_DEBUG);
+  LogComponentEnable ("EnergyHeuristic", LOG_LEVEL_DEBUG);
   // LogComponentEnable ("MavenirHeuristic", LOG_LEVEL_DEBUG);
   // LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
   // LogComponentEnable ("OnOffApplication", LOG_LEVEL_ALL);
@@ -893,6 +893,16 @@ main (int argc, char *argv[])
 
   int BsStatus[4]={bsOn, bsIdle, bsSleep, bsOff};
 
+  // bsIdle turn ON the BS like would do bsOn
+  // If bsIdle is equal to zero, treat bsOn as bsIdle and put bsOn=0, in this way we are skipping
+  // the first part of heuristic 1 and 2 regarding SINR calculus and comparison: through this
+  // changing we will give the possibility to OFF cells to turn ON
+  if (bsIdle == 0)
+  {
+      BsStatus[1] = bsOn;
+      BsStatus[0] = 0;
+  }
+
   Ptr<EnergyHeuristic> energyHeur = CreateObject<EnergyHeuristic> ();
   Ptr<MavenirHeuristic> mavenirHeur=CreateObject<MavenirHeuristic>();
   std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> bsClusters = mavenirHeur->ReadClusters(clusters, nMmWaveEnbNodes, mmWaveEnbDevs);
@@ -924,7 +934,8 @@ main (int argc, char *argv[])
       case 1: {
         for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
           {
-            for (int j = 0; j < nMmWaveEnbNodes; j++)
+            //If bsOn==0 skip it: we don't need to count the SINR of connected UEs
+            for (int j = 0; j < nMmWaveEnbNodes && bsOn!=0; j++)
               {
                 Ptr<MmWaveEnbNetDevice> mmdev =
                     DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
@@ -943,7 +954,8 @@ main (int argc, char *argv[])
 
         for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
           {
-            for (int j = 0; j < nMmWaveEnbNodes; j++)
+            //If bsOn==0 skip it: we don't need to count the SINR of connected UEs
+            for (int j = 0; j < nMmWaveEnbNodes && bsOn!=0; j++)
               {
                 Ptr<MmWaveEnbNetDevice> mmdev =
                     DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));

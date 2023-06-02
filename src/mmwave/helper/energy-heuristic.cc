@@ -402,36 +402,44 @@ EnergyHeuristic::TurnOnBsSinrPos (uint8_t nMmWaveEnbNodes, NetDeviceContainer mm
                       << ") is different to the total number of BS in the scenario ("
                       << nMmWaveEnbNodes << ")");
     }
-  std::vector<int> BShighestValues (bsOn, -1);
   int bsToTurnOn[bsOn];
+  //If bsOn=0 just skip the part used to decide which cells to turn ON
+  if (bsOn!=0){
 
-  for (int j = 0; j < nMmWaveEnbNodes; j++)
-    {
-      // Get the mmwave BS
-      Ptr<MmWaveEnbNetDevice> mmDev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
+    //Find the lowest value in bsHighestValues and save the index of the BS with the related highest value
+    std::vector<int> bsHighestValues (bsOn, -1);
+    for (int j = 0; j < nMmWaveEnbNodes; j++)
+      {
+        // Get the mmwave BS
+        Ptr<MmWaveEnbNetDevice> mmDev = DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
 
-      for (int i = 0; i < bsOn; i++)
-        {
-          // Save the bests (number equal to bsOn) BSs with highest NUeGoodSINR
-          if (BShighestValues[i] < mmDev->GetNUeGoodSinr ())
-            {
-              BShighestValues[i] = mmDev->GetNUeGoodSinr (); // Save N UEs value
-              bsToTurnOn[i] = j; // Save BS index
-              break; // If this value is the highest exit the loop and check next BS
-            }
+        //Find the lowest value in the vector to confront and maybe substitute
+        int lowest = bsHighestValues[0];
+        int lowestIndex = 0;
+        for (int i = 1; i < bsOn; i++) {
+          if (bsHighestValues[i] < lowest) {
+            lowest = bsHighestValues[i];
+            lowestIndex = i;
+          }
         }
-    }
+        // Save the bests number (equal to bsOn) of BSs with highest NUeGoodSINR
+        if (lowest < mmDev->GetNUeGoodSinr ())
+          {
+            bsHighestValues[lowestIndex] = mmDev->GetNUeGoodSinr (); // Save N UEs value
+            bsToTurnOn[lowestIndex] = j; // Save BS index
+          }
+      }
 
-  // Turn on first N BSs
-  for (int j = 0; j < bsOn; j++)
-    {
-      Ptr<MmWaveEnbNetDevice> mmDev =
-          DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (bsToTurnOn[j]));
-      NS_LOG_DEBUG ("BS to turn on ID: " << mmDev->GetCellId ());
-      mmDev->TurnOn (mmDev->GetCellId (), lte_rrc);
-      EnergyHeuristicTrace(mmDev);
-    }
-
+    // Turn on first N BSs
+    for (int j = 0; j < bsOn; j++)
+      {
+        Ptr<MmWaveEnbNetDevice> mmDev =
+            DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (bsToTurnOn[j]));
+        NS_LOG_DEBUG ("BS to turn on ID: " << mmDev->GetCellId ());
+        mmDev->TurnOn (mmDev->GetCellId (), lte_rrc);
+        EnergyHeuristicTrace(mmDev);
+      }
+  }
   std::vector<std::pair<Ptr<MmWaveEnbNetDevice>, double>> UEVectorPairs;
   if (heuristic == "static")
     {
