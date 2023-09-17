@@ -12,7 +12,7 @@ configuration=0 # 0: NR carrier at 850 MHz, low traffic | 1: NR carrier at 3.5 G
 minSpeed=2.0 # minimum UE speed in m/s
 maxSpeed=4.0 # maximum UE speed in m/s
 simTime=1.0 # simulation time
-e2TermIp="10.102.157.65" # actual E2term IP interface
+e2TermIp="192.168.10.22" # actual E2term IP interface
 ueZeroPercentage=-1 # PDCP split for UE RNTI 0 on eNB
 
 # Useful parameters to be configured

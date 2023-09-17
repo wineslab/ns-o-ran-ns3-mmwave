@@ -275,7 +275,7 @@ MmWaveHelper::GetTypeId (void)
                    MakeStringChecker ())
     .AddAttribute ("E2Port",
                    "Port number for E2",
-                   UintegerValue (36422),
+                   UintegerValue (36421),
                    MakeUintegerAccessor (&MmWaveHelper::m_e2port),
                    MakeUintegerChecker<uint16_t> ())
     .AddAttribute ("E2LocalPort",

@@ -502,7 +502,7 @@ MmWaveEnbNetDevice::SetE2Termination(Ptr<E2Termination> e2term)
     {
       Ptr<KpmFunctionDescription> kpmFd = Create<KpmFunctionDescription> ();
       e2term->RegisterKpmCallbackToE2Sm (
-          200, kpmFd,
+          2, kpmFd,
           std::bind (&MmWaveEnbNetDevice::KpmSubscriptionCallback, this, std::placeholders::_1));
     }
 }

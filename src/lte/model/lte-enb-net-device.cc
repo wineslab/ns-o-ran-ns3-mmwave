@@ -685,11 +685,11 @@ LteEnbNetDevice::SetE2Termination(Ptr<E2Termination> e2term)
     {
       Ptr<KpmFunctionDescription> kpmFd = Create<KpmFunctionDescription> ();
       e2term->RegisterKpmCallbackToE2Sm (
-          200, kpmFd,
+          2, kpmFd,
           std::bind (&LteEnbNetDevice::KpmSubscriptionCallback, this, std::placeholders::_1));
 
       Ptr<RicControlFunctionDescription> ricCtrlFd = Create<RicControlFunctionDescription> ();
-      e2term->RegisterSmCallbackToE2Sm (300, ricCtrlFd,
+      e2term->RegisterSmCallbackToE2Sm (3, ricCtrlFd,
                                         std::bind (&LteEnbNetDevice::ControlMessageReceivedCallback,
                                                    this, std::placeholders::_1));
     }
@@ -841,6 +841,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
   NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << std::to_string(m_cellId) << " cell volume " << cellDlTxVolume);
 
   if (m_forceE2FileLogging) {
+
     std::ofstream csv {};
     csv.open (m_cuUpFileName.c_str (),  std::ios_base::app);
     if (!csv.is_open ())
@@ -872,12 +873,14 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
         uePms + ",,\n";
 
       csv << to_print;
+
     }
     csv.close();
     return nullptr;
     }
   else
     {
+
       return indicationMessageHelper->CreateIndicationMessage ();
     }
 }
@@ -985,6 +988,7 @@ LteEnbNetDevice::BuildAndSendReportMessage(E2Termination::RicSubscriptionRequest
                                                                header->m_size, // size of the encoded header
                                                                (uint8_t*) cuUpMsg->m_buffer, // buffer containing the encoded message
                                                                cuUpMsg->m_size); // size of the encoded message
+      
       m_e2term->SendE2Message (pdu_cuup_ue);
       delete pdu_cuup_ue;
     }
@@ -999,6 +1003,7 @@ LteEnbNetDevice::BuildAndSendReportMessage(E2Termination::RicSubscriptionRequest
     // Send CU-CP only if offline logging is disabled
     if (!m_forceE2FileLogging && header != nullptr && cuCpMsg != nullptr)
     {
+
       NS_LOG_DEBUG ("Send LTE CU-CP");
       E2AP_PDU *pdu_cucp_ue = new E2AP_PDU; 
       encoding::generate_e2apv1_indication_request_parameterized(pdu_cucp_ue, 
@@ -1011,7 +1016,7 @@ LteEnbNetDevice::BuildAndSendReportMessage(E2Termination::RicSubscriptionRequest
                                                                  header->m_size, // size of the encoded header
                                                                  (uint8_t*) cuCpMsg->m_buffer, // buffer containing the encoded message
                                                                  cuCpMsg->m_size); // size of the encoded message  
-      m_e2term->SendE2Message (pdu_cucp_ue);
+     m_e2term->SendE2Message (pdu_cucp_ue);
       delete pdu_cucp_ue;
     }
   }
