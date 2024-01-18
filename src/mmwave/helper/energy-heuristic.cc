@@ -45,55 +45,55 @@ EnergyHeuristic::EnergyHeuristic ()
 EnergyHeuristic::~EnergyHeuristic ()
 {
   NS_LOG_FUNCTION (this);
-  if (m_energyHeuristicFile.is_open ())
-    m_energyHeuristicFile.close();
+  // if (m_energyHeuristicFile.is_open ())
+  //   m_energyHeuristicFile.close();
 }
 
-void
-EnergyHeuristic::EnergyHeuristicTrace (Ptr<MmWaveEnbNetDevice> mmDev)
-{
-  NS_LOG_LOGIC ("EnergyHeuristicSizeTrace " << Simulator::Now ().GetSeconds () << " "
-                                            << mmDev->GetCellId () << " " << mmDev->GetBsState ());
-  // write to file
-  if (!m_energyHeuristicFile.is_open ())
-    {
-      NS_LOG_DEBUG (GetEnergyHeuristicFilename ().c_str ());
-      m_energyHeuristicFile.open (GetEnergyHeuristicFilename ().c_str (),
-                                  std::ofstream::out | std::ofstream::trunc);
-      NS_LOG_LOGIC ("File opened");
-      m_energyHeuristicFile << "Timestamp"
-                            << " "
-                            << "UNIX"
-                            << " "
-                            << "Id"
-                            << " "
-                            << "State" << std::endl;
-    }
-  uint64_t timestamp = mmDev->GetStartTime () + Simulator::Now ().GetMilliSeconds ();
-  m_energyHeuristicFile << Simulator::Now ().GetSeconds () << " " << timestamp << " "
-                        << mmDev->GetCellId () << " " << mmDev->GetBsState () << std::endl;
-}
+// void
+// EnergyHeuristic::EnergyHeuristicTrace (Ptr<MmWaveEnbNetDevice> mmDev)
+// {
+//   NS_LOG_LOGIC ("EnergyHeuristicSizeTrace " << Simulator::Now ().GetSeconds () << " "
+//                                             << mmDev->GetCellId () << " " << mmDev->GetBsState ());
+//   // write to file
+//   if (!m_energyHeuristicFile.is_open ())
+//     {
+//       NS_LOG_DEBUG (GetEnergyHeuristicFilename ().c_str ());
+//       m_energyHeuristicFile.open (GetEnergyHeuristicFilename ().c_str (),
+//                                   std::ofstream::out | std::ofstream::trunc);
+//       NS_LOG_LOGIC ("File opened");
+//       m_energyHeuristicFile << "Timestamp"
+//                             << " "
+//                             << "UNIX"
+//                             << " "
+//                             << "Id"
+//                             << " "
+//                             << "State" << std::endl;
+//     }
+//   uint64_t timestamp = mmDev->GetStartTime () + Simulator::Now ().GetMilliSeconds ();
+//   m_energyHeuristicFile << Simulator::Now ().GetSeconds () << " " << timestamp << " "
+//                         << mmDev->GetCellId () << " " << mmDev->GetBsState () << std::endl;
+// }
 
-std::string EnergyHeuristic::GetEnergyHeuristicFilename()
-{
-  return m_energyHeuristicFilename;
-}
+// std::string EnergyHeuristic::GetEnergyHeuristicFilename()
+// {
+//   return m_energyHeuristicFilename;
+// }
 
-void EnergyHeuristic::SetEnergyHeuristicFilename(std::string filename)
-{
-  m_energyHeuristicFilename = filename;
-}
+// void EnergyHeuristic::SetEnergyHeuristicFilename(std::string filename)
+// {
+//   m_energyHeuristicFilename = filename;
+// }
 
 TypeId EnergyHeuristic::GetTypeId ()
 {
   static TypeId tid = TypeId ("ns3::EnergyHeuristic")
     .SetParent<Object>()
     .AddConstructor<EnergyHeuristic>()
-    .AddAttribute ("EnergyHeuristicFilename",
-                "Name of the file where the energy heuristic information will be periodically written.",
-                StringValue ("EnergyHeuristic.txt"),
-                MakeStringAccessor (&EnergyHeuristic::SetEnergyHeuristicFilename),
-                MakeStringChecker ())
+    // .AddAttribute ("EnergyHeuristicFilename",
+    //             "Name of the file where the energy heuristic information will be periodically written.",
+    //             StringValue ("EnergyHeuristic.txt"),
+    //             MakeStringAccessor (&EnergyHeuristic::SetEnergyHeuristicFilename),
+    //             MakeStringChecker ())
     ;
   return tid;
 }
@@ -161,7 +161,7 @@ EnergyHeuristic::ProbabilityState (double p1, double p2, double p3, double p4,
   NS_LOG_DEBUG ("BS state " << state);
   lte_rrc->SetSecondaryCellHandoverAllowedStatus (nodeId, state);
   mmDev->SetCellState (state);
-  EnergyHeuristicTrace (mmDev);
+  // EnergyHeuristicTrace (mmDev);
 }
 
 std::vector<std::pair<Ptr<MmWaveEnbNetDevice>, double>>
@@ -437,7 +437,7 @@ EnergyHeuristic::TurnOnBsSinrPos (uint8_t nMmWaveEnbNodes, NetDeviceContainer mm
             DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (bsToTurnOn[j]));
         NS_LOG_DEBUG ("BS to turn on ID: " << mmDev->GetCellId ());
         mmDev->TurnOn (mmDev->GetCellId (), lte_rrc);
-        EnergyHeuristicTrace(mmDev);
+        // EnergyHeuristicTrace(mmDev);
       }
   }
   std::vector<std::pair<Ptr<MmWaveEnbNetDevice>, double>> UEVectorPairs;
@@ -458,7 +458,7 @@ EnergyHeuristic::TurnOnBsSinrPos (uint8_t nMmWaveEnbNodes, NetDeviceContainer mm
       Ptr<MmWaveEnbNetDevice> mmDev = UEVectorPairs[j].first;
       NS_LOG_DEBUG ("BS to turn Idle ID: " << UEVectorPairs[j].first->GetCellId ());
       mmDev->TurnIdle (mmDev->GetCellId (), lte_rrc);
-      EnergyHeuristicTrace(mmDev);
+      // EnergyHeuristicTrace(mmDev);
     }
 
   // Turn sleep first N BSs
@@ -467,7 +467,7 @@ EnergyHeuristic::TurnOnBsSinrPos (uint8_t nMmWaveEnbNodes, NetDeviceContainer mm
       Ptr<MmWaveEnbNetDevice> mmDev = UEVectorPairs[j].first;
       NS_LOG_DEBUG ("BS to turn sleep ID: " << UEVectorPairs[j].first->GetCellId ());
       mmDev->TurnSleep (mmDev->GetCellId (), lte_rrc);
-      EnergyHeuristicTrace(mmDev);
+      // EnergyHeuristicTrace(mmDev);
     }
 
   // Turn off first N BSs
@@ -476,7 +476,7 @@ EnergyHeuristic::TurnOnBsSinrPos (uint8_t nMmWaveEnbNodes, NetDeviceContainer mm
       Ptr<MmWaveEnbNetDevice> mmDev = UEVectorPairs[j].first;
       NS_LOG_DEBUG ("BS to turn off ID: " << UEVectorPairs[j].first->GetCellId ());
       mmDev->TurnOff (mmDev->GetCellId (), lte_rrc);
-      EnergyHeuristicTrace(mmDev);
+      // EnergyHeuristicTrace(mmDev);
     }
 }
 

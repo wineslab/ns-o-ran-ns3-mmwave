@@ -42,6 +42,39 @@ using namespace mmwave;
 
 NS_LOG_COMPONENT_DEFINE ("ScenarioOneEs");
 
+std::ofstream outFile;
+void
+BsStateTrace (std::string filename)
+{
+    if (!outFile.is_open ())
+    {
+      outFile.open (filename.c_str (), std::ios_base::out | std::ios_base::trunc);
+      NS_LOG_LOGIC ("File opened");
+      outFile << "Timestamp"
+              << " "
+              << "UNIX"
+              << " "
+              << "Id"
+              << " "
+              << "State" << std::endl;
+    }
+  for (NodeList::Iterator it = NodeList::Begin (); it != NodeList::End (); ++it)
+    {
+      Ptr<Node> node = *it;
+      int nDevs = node->GetNDevices ();
+      for (int j = 0; j < nDevs; j++)
+        {
+          Ptr<MmWaveEnbNetDevice> mmdev = node->GetDevice (j)->GetObject<MmWaveEnbNetDevice> ();
+          if (mmdev)
+            {
+              uint64_t timestamp = mmdev->GetStartTime () + Simulator::Now ().GetMilliSeconds ();
+              outFile << Simulator::Now ().GetSeconds () << " " << timestamp << " "
+                                    << mmdev->GetCellId () << " " << mmdev->GetBsState () << std::endl;
+            }
+        }
+    }
+}
+
 void
 PrintGnuplottableUeListToFile (std::string filename)
 {
@@ -1003,6 +1036,9 @@ main (int argc, char *argv[])
   // Since nodes are randomly allocated during each run we always need to print their positions
   PrintGnuplottableUeListToFile ("ues.txt");
   PrintGnuplottableEnbListToFile ("enbs.txt");
+  for (double i = 0.0; i < simTime; i = i + indicationPeriodicity){
+    Simulator::Schedule (Seconds (i), BsStateTrace,"bsState.txt");
+  }
 
   bool run = true;
   if (run)
