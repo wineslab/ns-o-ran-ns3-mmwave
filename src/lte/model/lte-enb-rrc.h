@@ -1635,6 +1635,11 @@ class LteEnbRrc : public Object
      * @returns false if the cell is not in the list of known cells
      */
     bool SetSecondaryCellHandoverAllowedStatus(uint16_t cellId, bool hoAllowed);
+    /**
+     * Get the map m_allowHandoverTo 
+     * @returns a map containing cellId, and a bool (true if cell is ON, otherwise false)
+    */
+    std::map<uint16_t, bool> GetAllowHandoverTo();
 
     /**
      * Evict users from secondary cells that have deactivated forcing handover to another cell

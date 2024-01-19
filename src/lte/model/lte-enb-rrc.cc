@@ -6115,6 +6115,12 @@ LteEnbRrc::SetSecondaryCellHandoverAllowedStatus(uint16_t cellId, bool hoAllowed
     }
 }
 
+std::map<uint16_t, bool>
+LteEnbRrc::GetAllowHandoverTo()
+{
+    return m_allowHandoverTo;
+}
+
 void
 LteEnbRrc::EvictUsersFromSecondaryCell()
 {
