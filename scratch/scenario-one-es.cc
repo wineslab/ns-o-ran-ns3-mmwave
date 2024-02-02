@@ -156,8 +156,9 @@ void
 PrintPosition (Ptr<Node> node)
 {
   Ptr<MobilityModel> model = node->GetObject<MobilityModel> ();
-  NS_LOG_UNCOND ("Position +****************************** " << model->GetPosition () << " at time "
-                                                             << Simulator::Now ().GetSeconds ());
+  NS_LOG_UNCOND("Position +****************************** ID "
+                << node->GetId() << " coords " << model->GetPosition() << " at time "
+                << Simulator::Now().GetSeconds());
 }
 
 static ns3::GlobalValue g_bufferSize ("bufferSize", "RLC tx buffer size (MB)",
@@ -192,6 +193,19 @@ static ns3::GlobalValue g_trafficModel (
     " half nodes in full buffer and half nodes in bursty (1),"
     " bursty traffic (2),"
     " Mixed (3): 0.25 full buffer, 0.25 bursty 3Mbps, 0.25 bursty 0.75Mbps, 0.25 bursty 0.15Mbps",
+    ns3::UintegerValue (0), ns3::MakeUintegerChecker<uint8_t> ());
+
+static ns3::GlobalValue g_nBsNoUesAlloc (
+    "nBsNoUesAlloc",
+    "Number of BS without UEs allocated [0, 1, 2, 3], "
+    "-1 is default value: no BSs are choosen",
+    ns3::IntegerValue (-1), ns3::MakeIntegerChecker<int8_t> ());
+
+static ns3::GlobalValue g_positionAllocator (
+    "positionAllocator",
+    "Type of the positionAllocator of UEs [0,1],"
+    " Uniform random distribution of UEs on discs around each BS  (0),"
+    " Uniform random distribution of UEs on discs around nBS-nBsNoUesAlloc (1)",
     ns3::UintegerValue (0), ns3::MakeUintegerChecker<uint8_t> ());
 
 static ns3::GlobalValue g_configuration ("configuration",
@@ -330,8 +344,8 @@ int
 main (int argc, char *argv[])
 {
   LogComponentEnableAll (LOG_PREFIX_ALL);
-  LogComponentEnable ("ScenarioOneEs", LOG_LEVEL_DEBUG);
-  LogComponentEnable ("EnergyHeuristic", LOG_LEVEL_DEBUG);
+  // LogComponentEnable ("ScenarioOneEs", LOG_LEVEL_DEBUG);
+  // LogComponentEnable ("EnergyHeuristic", LOG_LEVEL_DEBUG);
   // LogComponentEnable ("MavenirHeuristic", LOG_LEVEL_DEBUG);
   // LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
   // LogComponentEnable ("OnOffApplication", LOG_LEVEL_ALL);
@@ -383,6 +397,10 @@ main (int argc, char *argv[])
   bool enableTraces = booleanValue.Get ();
   GlobalValue::GetValueByName ("trafficModel", uintegerValue);
   uint8_t trafficModel = uintegerValue.Get ();
+  GlobalValue::GetValueByName ("nBsNoUesAlloc", integerValue);
+  int8_t nBsNoUesAlloc = integerValue.Get ();
+  GlobalValue::GetValueByName ("positionAllocator", uintegerValue);
+  uint8_t positionAllocator = uintegerValue.Get ();
   GlobalValue::GetValueByName ("outageThreshold",doubleValue);
   double outageThreshold = doubleValue.Get ();
   GlobalValue::GetValueByName ("handoverMode", stringValue);
@@ -679,33 +697,106 @@ main (int argc, char *argv[])
   enbmobility.SetPositionAllocator (enbPositionAlloc);
   enbmobility.Install (allEnbNodes);
 
-  MobilityHelper uemobility;
-
   Ptr<UniformDiscPositionAllocator> uePositionAlloc = CreateObject<UniformDiscPositionAllocator> ();
 
-  uePositionAlloc->SetX (centerPosition.x);
-  uePositionAlloc->SetY (centerPosition.y);
-  uePositionAlloc->SetRho (isd);
   Ptr<UniformRandomVariable> speed = CreateObject<UniformRandomVariable> ();
   speed->SetAttribute ("Min", DoubleValue (minSpeed));
   speed->SetAttribute ("Max", DoubleValue (maxSpeed));
-
   Ptr<UniformRandomVariable> puntTimeDirection = CreateObject<UniformRandomVariable> ();
-  puntTimeDirection->SetAttribute ("Min", DoubleValue (10));
-  puntTimeDirection->SetAttribute ("Max", DoubleValue (15));
+  // Set min and max speed of UEs
+  puntTimeDirection->SetAttribute ("Min", DoubleValue (1));
+  puntTimeDirection->SetAttribute ("Max", DoubleValue (3));
   double timeDirection=puntTimeDirection->GetValue();
-  // uemobility.SetMobilityModel ("ns3::RandomWalk2dOutdoorMobilityModel", "Speed",
-  //                              PointerValue (speed), "Bounds",
-  //                              RectangleValue (Rectangle (0, maxXAxis, 0, maxYAxis)));
 
-  uemobility.SetMobilityModel ("ns3::RandomWalk2dMobilityModel",
-    "Mode", StringValue ("Time"),
-    "Time", StringValue( std::to_string(timeDirection)+"s"),
-    "Speed", PointerValue (speed),
-    "Bounds", RectangleValue (Rectangle (0, maxXAxis, 0, maxYAxis)));
+  // Position allocator:
+  //  0: UEs set over a UniformDiscPositionAllocator with radius = isd and RandomWalk2dMobilityModel 
+  //  1: UEs set over a UniformDiscPositionAllocator placed on each BS-nBsNoUesAlloc with radius = isd/2 and RandomWalk2dMobilityModel
+  MobilityHelper uemobility;
+  switch (positionAllocator)
+  {
+  case 0: {
+      if (nBsNoUesAlloc != -1)
+      {
+          NS_FATAL_ERROR("nBsNoUesAlloc not correct for selected positionAllocator " << nBsNoUesAlloc << positionAllocator);
+      }
+      uePositionAlloc->SetX(centerPosition.x);
+      uePositionAlloc->SetY(centerPosition.y);
+      uePositionAlloc->SetRho(isd);
 
-  uemobility.SetPositionAllocator (uePositionAlloc);
-  uemobility.Install (ueNodes);
+      uemobility.SetMobilityModel("ns3::RandomWalk2dMobilityModel",
+                                  "Mode",
+                                  StringValue("Time"),
+                                  "Time",
+                                  StringValue(std::to_string(timeDirection) + "s"),
+                                  "Speed",
+                                  PointerValue(speed),
+                                  "Bounds",
+                                  RectangleValue(Rectangle(0, maxXAxis, 0, maxYAxis)));
+      uemobility.SetPositionAllocator(uePositionAlloc);
+      uemobility.Install(ueNodes);
+      break;
+  }
+
+  case 1: {
+      if (nBsNoUesAlloc == -1)
+      {
+          NS_FATAL_ERROR("nBsNoUesAlloc not correct for selected positionAllocator " << nBsNoUesAlloc << positionAllocator);
+      }
+      Vector bsCoords[7] = {};
+      // save vector coords into an array to shuffle them (without the first LTE BS coordinates)
+      enbPositionAlloc->GetNext();
+      for (int i = 0; i < nMmWaveEnbNodes; i++)
+      {
+        bsCoords[i] = enbPositionAlloc->GetNext();
+      }
+      std::srand(std::time(0));
+      std::random_shuffle(std::begin(bsCoords), std::end(bsCoords));
+      for (int i = 0; i < 7; i++)
+      {
+          NS_LOG_UNCOND(bsCoords[i]);
+      }
+
+      // choose firsts 7-nBsNoUesAlloc BS coordinates 
+      int nodeGroupSize = nUeNodes / (7 - nBsNoUesAlloc);
+      int nodeGroupSizeRest = nUeNodes % (7 - nBsNoUesAlloc);
+      for (int bsCoordIndex = 0; bsCoordIndex < 7 - nBsNoUesAlloc; bsCoordIndex++)
+      {
+          // set disc allocator on BS coordinate(isd = isd /2)
+          uePositionAlloc->SetX(bsCoords[bsCoordIndex].x);
+          uePositionAlloc->SetY(bsCoords[bsCoordIndex].y);
+          uePositionAlloc->SetRho(isd / 2);
+          uemobility.SetMobilityModel("ns3::RandomWalk2dMobilityModel",
+                                      "Mode",
+                                      StringValue("Time"),
+                                      "Time",
+                                      StringValue(std::to_string(timeDirection) + "s"),
+                                      "Speed",
+                                      PointerValue(speed),
+                                      "Bounds",
+                                      RectangleValue(Rectangle(0, maxXAxis, 0, maxYAxis)));
+          uemobility.SetPositionAllocator(uePositionAlloc);
+          for (int ueIndex = nodeGroupSize * bsCoordIndex;
+               ueIndex < nodeGroupSize * (bsCoordIndex + 1);
+               ueIndex++)
+          {
+              // NS_LOG_UNCOND(ueNodes.Get(ueIndex)->GetId());
+              uemobility.Install(ueNodes.Get(ueIndex));
+          }
+          // Allocate the remaining UEs along BSs
+          if (nodeGroupSizeRest > 0)
+          {
+              int addedUeIndex = nUeNodes - nodeGroupSizeRest;
+              // NS_LOG_UNCOND(ueNodes.Get(addedUeIndex)->GetId());
+              uemobility.Install(ueNodes.Get(addedUeIndex));
+              nodeGroupSizeRest = nodeGroupSizeRest - 1;
+          }
+      }
+      break;
+  }
+  default:
+      NS_FATAL_ERROR("positionAllocator not recognized" << positionAllocator);
+      break;
+  }
 
   // Install mmWave, lte, mc Devices to the nodes
   NetDeviceContainer lteEnbDevs = mmwaveHelper->InstallLteEnbDevice (lteEnbNodes);
@@ -907,7 +998,7 @@ main (int argc, char *argv[])
   clientApp.Start (MilliSeconds (100));
   clientApp.Stop (Seconds (simTime - 0.1));
 
-  // int numPrints = 5;
+  // int numPrints = 100;
   // for (int i = 0; i < numPrints; i++)
   //   {
   //     for (uint32_t j = 0; j < ueNodes.GetN (); j++)
@@ -916,16 +1007,16 @@ main (int argc, char *argv[])
   //       }
   //   }
 
-  int BsStatus[4]={bsOn, bsIdle, bsSleep, bsOff};
+    int BsStatus[4] = {bsOn, bsIdle, bsSleep, bsOff};
 
-  // bsIdle turn ON the BS like would do bsOn
-  // If bsIdle is equal to zero, treat bsOn as bsIdle and put bsOn=0, in this way we are skipping
-  // the first part of heuristic 1 and 2 regarding SINR calculus and comparison: through this
-  // changing we will give the possibility to OFF cells to turn ON
-  if (bsIdle == 0)
-  {
-      BsStatus[1] = bsOn;
-      BsStatus[0] = 0;
+    // bsIdle turn ON the BS like would do bsOn
+    // If bsIdle is equal to zero, treat bsOn as bsIdle and put bsOn=0, in this way we are skipping
+    // the first part of heuristic 1 and 2 regarding SINR calculus and comparison: through this
+    // changing we will give the possibility to OFF cells to turn ON
+    if (bsIdle == 0)
+    {
+        BsStatus[1] = bsOn;
+        BsStatus[0] = 0;
   }
 
   Ptr<EnergyHeuristic> energyHeur = CreateObject<EnergyHeuristic> ();

@@ -8,6 +8,8 @@ e2du=1 # enable reporting of DU PM containers
 e2cuUp=1 # enable reporting of CU UP PM containers
 e2cuCp=1 # enable reporting of CU CP PM containers
 configuration=0 # 0: NR carrier at 850 MHz, low traffic | 1: NR carrier at 3.5 GHz, low traffic | 2: NR carrier at 28 GHz, high traffic
+nBsNoUesAlloc=3
+positionAllocator=1
 minSpeed=2.0 # minimum UE speed in m/s
 maxSpeed=4.0 # maximum UE speed in m/s
 simTime=10.0 # simulation time
@@ -36,11 +38,11 @@ eekpiB=1
 eekpiLambda=0.1
 
 # Useful parameters to be configured
-seed=6060 # seed parameter to be used
+seed=500 # seed parameter to be used
 basicCellId=1 # The next value will be the first cellId
 reducedPmValues=0 # use reduced subset of pmValues
 EnableE2FileLogging=1 # enable offline generation of data
-ues=12 # Number of UEs for each mmWave ENB
+ues=15 # Number of UEs for each mmWave ENB
 dataRate=0
 hoSinrDifference=3
 
@@ -77,6 +79,8 @@ controlFileName="" # ES control file path
 echo "Running simulation with seed $seed";
 ./ns3 run "scratch/scenario-one-es --RngRun=$seed \
                                     --configuration=$configuration \
+                                    --nBsNoUesAlloc=$nBsNoUesAlloc \
+                                    --positionAllocator=$positionAllocator \
                                     --trafficModel=$trafficModel \
                                     --hoSinrDifference=$hoSinrDifference \
                                     --rlcAmEnabled=$rlcAmEnabled \
