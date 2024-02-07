@@ -169,7 +169,7 @@ EnergyHeuristic::RandomAction(std::vector<Ptr<MmWaveEnbNetDevice>> mmdevArray, P
         {
             mmDev->TurnOn (nodeId, lte_rrc);
         }
-        EnergyHeuristicTrace(mmDev);
+        // EnergyHeuristicTrace(mmDev);
         NS_LOG_DEBUG("BS state " << mmDev->GetBsState());
         iterator = iterator + 1;
     }
