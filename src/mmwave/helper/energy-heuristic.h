@@ -38,6 +38,14 @@ class EnergyHeuristic : public Object
 
     virtual ~EnergyHeuristic(void);
 
+
+    /**
+     * @brief Method randomly decide one action to apply to the scenario
+     * 
+     * @param mmdevArray Array of mmdev of each cell in the scenario
+     */
+    void RandomAction(std::vector<Ptr<MmWaveEnbNetDevice>> mmdevArray, Ptr<LteEnbNetDevice> ltedev);
+
     /**
      * @brief Method that decides which mmWave BSs to turn idle, sleep and off based on the smallest
      * time that connected ues take to reach them

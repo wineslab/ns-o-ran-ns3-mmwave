@@ -278,8 +278,9 @@ static ns3::GlobalValue g_heuristic ("heuristicType",
                                      " No heuristic (-1),"
                                      " Random sleeping (0),"
                                      " Static sleeping (1),"
-                                     " Dynamic sleeping (2)"
-                                     " Mavenir heuristic (3)",
+                                     " Dynamic sleeping (2),"
+                                     " Mavenir heuristic (3),"
+                                     " Random action (4)",
                                      ns3::IntegerValue (-1), ns3::MakeIntegerChecker<int8_t> ());
 static ns3::GlobalValue
     g_probOn ("probOn",
@@ -1093,6 +1094,23 @@ main (int argc, char *argv[])
             Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
             Simulator::Schedule (Seconds (i), &MavenirHeuristic::MavenirHeur, mavenirHeur, 
                                 nMmWaveEnbNodes, mmWaveEnbDevs, ltedev, bsClusters, mavenirHeurPar);
+          }
+      }
+      break;
+
+      // Random action sleeping
+      case 4: {
+          std::vector<Ptr<MmWaveEnbNetDevice>> mmdevArray;
+          for (int j = 0; j < nMmWaveEnbNodes; j++)
+          {
+              // save all the mdev into an array
+              mmdevArray.push_back(DynamicCast<MmWaveEnbNetDevice>(mmWaveEnbDevs.Get(j)));
+          }
+          // every second change action
+          Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice>(lteEnbDevs.Get(0));
+          for (double i = 0.0; i < simTime; i = i + 1.0)
+          {
+              Simulator::Schedule(Seconds(i), &EnergyHeuristic::RandomAction, energyHeur, mmdevArray, ltedev);
           }
       }
       break;

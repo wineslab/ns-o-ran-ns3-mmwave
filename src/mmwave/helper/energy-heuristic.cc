@@ -27,6 +27,7 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
+#include <bitset>
 
 namespace ns3 {
 
@@ -125,6 +126,53 @@ void EnergyHeuristic::CountBestUesSinr(double sinrTh, Ptr<MmWaveEnbNetDevice> mm
    NS_LOG_DEBUG ("NUeGoodSinr for BS "
                  << mmDev->GetCellId ()
                  << " is: " << mmDev->GetNUeGoodSinr ());
+}
+
+void
+EnergyHeuristic::RandomAction(std::vector<Ptr<MmWaveEnbNetDevice>> mmdevArray, Ptr<LteEnbNetDevice> ltedev)
+{
+    const int filter_list[] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13,  14,  16,
+                               17, 18, 19, 20, 21, 22, 24, 25, 26, 28, 32, 33, 34, 35,  36,  37,
+                               38, 40, 41, 42, 44, 48, 49, 50, 52, 56, 64, 65, 66, 67,  68,  69,
+                               70, 72, 73, 74, 76, 80, 81, 82, 84, 88, 96, 97, 98, 100, 104, 112};
+    // get the random value
+    Ptr<UniformRandomVariable>
+        x = CreateObject<UniformRandomVariable>();
+    int min = 0;
+    int max = sizeof(filter_list) / sizeof(filter_list[0]);
+    x->SetAttribute("Min", DoubleValue(min));
+    x->SetAttribute("Max", DoubleValue(max - 1));
+    int r = x->GetInteger();
+    NS_LOG_DEBUG("Random number: " << r );
+    // identify at which action is it referring to
+    int action = filter_list[r];
+    // Convert the integer to a 7-bit binary representation
+    std::string actionBinary = std::bitset<7>(action).to_string(); // to binary
+    Ptr<LteEnbRrc> lte_rrc = ltedev->GetRrc();
+    // iterate over the string
+    // Using a range-based for loop
+    int iterator = 0;
+    NS_LOG_DEBUG("Action: " << action << " Action binary: " << actionBinary);
+    for (char currentChar : actionBinary)
+    {
+        Ptr<MmWaveEnbNetDevice> mmDev = mmdevArray[iterator];
+        uint16_t nodeId = mmDev->GetCellId();
+        NS_LOG_DEBUG("Sim time " << Simulator::Now().GetSeconds() << " BS Id " << nodeId << " Action "
+                          << action << " Binary " << actionBinary);
+        // if it is a 1 turn oFF (1 = energy saving state)
+        if (currentChar == '1')
+        {
+            mmDev->TurnOff (nodeId, lte_rrc);
+        }
+        // else turn ON
+        else
+        {
+            mmDev->TurnOn (nodeId, lte_rrc);
+        }
+        EnergyHeuristicTrace(mmDev);
+        NS_LOG_DEBUG("BS state " << mmDev->GetBsState());
+        iterator = iterator + 1;
+    }
 }
 
 void

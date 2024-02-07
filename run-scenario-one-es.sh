@@ -122,4 +122,3 @@ echo "Running simulation with seed $seed";
                                     --eekpiB=$eekpiB\
                                     --eekpiLambda=$eekpiLambda" ;
 
-
