@@ -170,6 +170,7 @@ LteEnbNetDevice::ControlMessageReceivedCallback (E2AP_PDU_t* sub_req_pdu)
 {
   NS_LOG_DEBUG ("\n\nLteEnbNetDevice::ControlMessageReceivedCallback: Received RIC Control Message");
   
+  // Create RIC Control ACK
   Ptr<RicControlMessage> controlMessage = Create<RicControlMessage> (sub_req_pdu);
   NS_LOG_INFO ("After RicControlMessage::RicControlMessage constructor");
   NS_LOG_INFO ("Request type " << controlMessage->m_requestType);
@@ -206,7 +207,7 @@ LteEnbNetDevice::ControlMessageReceivedCallback (E2AP_PDU_t* sub_req_pdu)
     break;
   }
   default:{
-    NS_LOG_ERROR ("Unrecognized id type of Ric Control Message");
+    NS_LOG_INFO ("Unrecognized id type of Ric Control Message");
     break;
     }
   }
