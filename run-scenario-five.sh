@@ -8,48 +8,39 @@ e2du=1 # enable reporting of DU PM containers
 e2cuUp=1 # enable reporting of CU UP PM containers
 e2cuCp=1 # enable reporting of CU CP PM containers
 configuration=0 # 0: NR carrier at 850 MHz, low traffic | 1: NR carrier at 3.5 GHz, low traffic | 2: NR carrier at 28 GHz, high traffic
-nBsNoUesAlloc=3
-positionAllocator=1
 minSpeed=2.0 # minimum UE speed in m/s
 maxSpeed=4.0 # maximum UE speed in m/s
-simTime=10.0 # simulation time
+simTime=10 # simulation time
 e2TermIp="10.102.157.65" # actual E2term IP interface
-rlcAmEnabled="true"
-bufferSize=10
-trafficModel=3
-numberOfRaPreambles=30
 
-heuristicType=2 # Type of heuristic for managing BS status: no heuristic (-1), Random sleeping (0), Static sleeping (1), Dynamic sleeping (2), Mavenir (3)
+heuristicType=1 # Type of heuristic for managing BS status: no heuristic (-1), Random sleeping (0), Static sleeping (1), Dynamic sleeping (2), Mavenir (3)
 #heuristic parameters
 probOn=0.6038
 probIdle=0.3854
 probSleep=0.0107
-probOff=0.2
+probOff=0.0
 sinrTh=73.0
-bsOn=5
-bsIdle=0
-bsSleep=0
-bsOff=2
-clusters=[[2,3,4,5,6,7,8]]
-eekpiTh=120.0
-avgWeightedEekpiTh=600.0
+bsOn=4
+bsIdle=3
+bsSleep=3
+bsOff=3
+clusters=[[5,6,7],[2,3,4,8],[9,10,11,12],[13,14]]
+eekpiTh=60.0
+avgWeightedEekpiTh=60.0
 kCells=2
 eekpiB=1
 eekpiLambda=0.1
 
 # Useful parameters to be configured
-seed=500 # seed parameter to be used
+N=1 # number of simulations
 basicCellId=1 # The next value will be the first cellId
 reducedPmValues=0 # use reduced subset of pmValues
 EnableE2FileLogging=1 # enable offline generation of data
-ues=15 # Number of UEs for each mmWave ENB
+ues=2 # Number of UEs for each mmWave ENB
 dataRate=0
-hoSinrDifference=3
 
-# # Select 0 or 1 to switch between the optimized or debug build
-# build=1
-# builf_conf=0
-
+# Select 0 or 1 to switch between the optimized or debug build
+# build=0
 # if [[ build -eq 0 ]];then
 #   if [[ build_conf -eq 0 ]];then
 #     # Debug build
@@ -66,25 +57,19 @@ hoSinrDifference=3
 echo "Energy Efficiency use case"
 outageThreshold=-5.0 # use -5.0 when handover is not in NoAuto 
 handoverMode="DynamicTtt"
-indicationPeriodicity=0.02 # value in seconds (20 ms)
+indicationPeriodicity=0.2 # value in seconds (20 ms)
 controlFileName="" # ES control file path
 
-#scheduleControlMessages=1 # if the control message shall be read at the beginning of the simulation and the events scheduled
+scheduleControlMessages=0 # if the control message shall be read at the beginning of the simulation and the events scheduled
 # If scheduleControlMessages is 0, remember to create an empty version of the control file before the start of this script, otherwise it would lead to premature crashes.
 
 # NS_LOG="KpmIndication"
 # NS_LOG="RicControlMessage" 
 
-
-echo "Running simulation with seed $seed";
-./ns3 run "scratch/scenario-one-es --RngRun=$seed \
+for i in $(seq 1 $N); do
+  echo "Running simulation $i out of $N";
+  ./ns3 run "scratch/scenario-fives --RngRun=$i \
                                     --configuration=$configuration \
-                                    --nBsNoUesAlloc=$nBsNoUesAlloc \
-                                    --positionAllocator=$positionAllocator \
-                                    --trafficModel=$trafficModel \
-                                    --hoSinrDifference=$hoSinrDifference \
-                                    --rlcAmEnabled=$rlcAmEnabled \
-                                    --bufferSize=$bufferSize \
                                     --dataRate=$dataRate \
                                     --enableTraces=$enableTraces \
                                     --e2lteEnabled=$e2lteEnabled \
@@ -94,7 +79,6 @@ echo "Running simulation with seed $seed";
                                     --outageThreshold=$outageThreshold \
                                     --handoverMode=$handoverMode \
                                     --basicCellId=$basicCellId \
-                                    --numberOfRaPreambles=$numberOfRaPreambles \
                                     --e2cuUp=$e2cuUp \
                                     --e2cuCp=$e2cuCp \
                                     --ues=$ues \
@@ -120,5 +104,7 @@ echo "Running simulation with seed $seed";
                                     --avgWeightedEekpiTh=$avgWeightedEekpiTh\
                                     --kCells=$kCells\
                                     --eekpiB=$eekpiB\
-                                    --eekpiLambda=$eekpiLambda" ;
-
+                                    --eekpiLambda=$eekpiLambda\
+                                    --scheduleControlMessages=$scheduleControlMessages";
+  sleep 1;
+done

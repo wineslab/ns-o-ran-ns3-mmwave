@@ -15,7 +15,6 @@
  *
  * Authors: Andrea Lacava <thecave003@gmail.com>
  *          Michele Polese <michele.polese@gmail.com>
- *          Matteo Bordin <matbord97@gmail.com>
  */
 
 #include "ns3/core-module.h"
@@ -32,15 +31,41 @@
 #include "ns3/energy-heuristic.h"
 #include "ns3/mavenir-heuristic.h"
 
+
 using namespace ns3;
 using namespace mmwave;
 
 /**
- * Scenario Three
+ * Scenario three
  * 
  */
 
 NS_LOG_COMPONENT_DEFINE ("ScenarioThree");
+
+std::ofstream outFile;
+void
+BsStateTrace (std::string filename, Ptr<LteEnbNetDevice> ltedev, Ptr<LteEnbRrc> lte_rrc )
+{
+    if (!outFile.is_open ())
+    {
+      outFile.open (filename.c_str (), std::ios_base::out | std::ios_base::trunc);
+      NS_LOG_LOGIC ("File opened");
+      outFile << "Timestamp"
+              << " "
+              << "UNIX"
+              << " "
+              << "Id"
+              << " "
+              << "State" << std::endl;
+    }
+  std::map<uint16_t, bool> entry = lte_rrc->GetAllowHandoverTo();
+  for (auto it = entry.begin(); it != entry.end(); it++)
+  {
+    uint64_t timestamp = ltedev->GetStartTime() + Simulator::Now ().GetMilliSeconds ();
+    outFile << Simulator::Now ().GetSeconds () << " " << timestamp << " "
+                          << it->first << " " << it->second << std::endl;
+  }
+}
 
 void
 PrintGnuplottableUeListToFile (std::string filename)
@@ -65,7 +90,7 @@ PrintGnuplottableUeListToFile (std::string filename)
             {
               Vector pos = node->GetObject<MobilityModel> ()->GetPosition ();
               outFile << "set label \"" << uedev->GetImsi () << "\" at " << pos.x << "," << pos.y
-                      << " left font \"Helvetica,15\" textcolor rgb \"black\" front point pt 4 ps "
+                      << " left font \"Helvetica,8\" textcolor rgb \"black\" front point pt 1 ps "
                          "0.3 lc rgb \"black\" offset 0,0"
                       << std::endl;
             }
@@ -73,7 +98,7 @@ PrintGnuplottableUeListToFile (std::string filename)
             {
               Vector pos = node->GetObject<MobilityModel> ()->GetPosition ();
               outFile << "set label \"" << mmuedev->GetImsi () << "\" at " << pos.x << "," << pos.y
-                      << " left font \"Helvetica,15\" textcolor rgb \"black\" front point pt 4 ps "
+                      << " left font \"Helvetica,8\" textcolor rgb \"black\" front point pt 1 ps "
                          "0.3 lc rgb \"black\" offset 0,0"
                       << std::endl;
             }
@@ -81,7 +106,7 @@ PrintGnuplottableUeListToFile (std::string filename)
             {
               Vector pos = node->GetObject<MobilityModel> ()->GetPosition ();
               outFile << "set label \"" << mcuedev->GetImsi () << "\" at " << pos.x << "," << pos.y
-                      << " left font \"Helvetica,15\" textcolor rgb \"black\" front point pt 4 ps "
+                      << " left font \"Helvetica,8\" textcolor rgb \"black\" front point pt 1 ps "
                          "0.3 lc rgb \"black\" offset 0,0"
                       << std::endl;
             }
@@ -111,7 +136,7 @@ PrintGnuplottableEnbListToFile (std::string filename)
             {
               Vector pos = node->GetObject<MobilityModel> ()->GetPosition ();
               outFile << "set label \"" << enbdev->GetCellId () << "\" at " << pos.x << "," << pos.y
-                      << " left font \"Helvetica,24\" textcolor rgb \"blue\" front  point pt 8 ps "
+                      << " left font \"Helvetica,8\" textcolor rgb \"blue\" front  point pt 4 ps "
                          "0.3 lc rgb \"blue\" offset 0,0"
                       << std::endl;
             }
@@ -119,7 +144,7 @@ PrintGnuplottableEnbListToFile (std::string filename)
             {
               Vector pos = node->GetObject<MobilityModel> ()->GetPosition ();
               outFile << "set label \"" << mmdev->GetCellId () << "\" at " << pos.x << "," << pos.y
-                      << " left font \"Helvetica,24\" textcolor rgb \"red\" front  point pt 8 ps "
+                      << " left font \"Helvetica,8\" textcolor rgb \"red\" front  point pt 4 ps "
                          "0.3 lc rgb \"red\" offset 0,0"
                       << std::endl;
             }
@@ -131,8 +156,9 @@ void
 PrintPosition (Ptr<Node> node)
 {
   Ptr<MobilityModel> model = node->GetObject<MobilityModel> ();
-  NS_LOG_UNCOND ("Position ****************************** " << model->GetPosition () << " at time "
-                                                             << Simulator::Now ().GetSeconds ());
+  NS_LOG_UNCOND("Position +****************************** ID "
+                << node->GetId() << " coords " << model->GetPosition() << " at time "
+                << Simulator::Now().GetSeconds());
 }
 
 static ns3::GlobalValue g_bufferSize ("bufferSize", "RLC tx buffer size (MB)",
@@ -160,6 +186,28 @@ static ns3::GlobalValue g_e2cuUp ("e2cuUp", "If true, send CU-UP reports",
 static ns3::GlobalValue g_e2cuCp ("e2cuCp", "If true, send CU-CP reports",
                                         ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
 
+static ns3::GlobalValue g_trafficModel (
+    "trafficModel",
+    "Type of the traffic model at the transport layer [0,3],"
+    " can generate full buffer traffic (0),"
+    " half nodes in full buffer and half nodes in bursty (1),"
+    " bursty traffic (2),"
+    " Mixed (3): 0.25 full buffer, 0.25 bursty 3Mbps, 0.25 bursty 0.75Mbps, 0.25 bursty 0.15Mbps",
+    ns3::UintegerValue (0), ns3::MakeUintegerChecker<uint8_t> ());
+
+static ns3::GlobalValue g_nBsNoUesAlloc (
+    "nBsNoUesAlloc",
+    "Number of BS without UEs allocated [0, 1, 2, 3], "
+    "-1 is default value: no BSs are choosen",
+    ns3::IntegerValue (-1), ns3::MakeIntegerChecker<int8_t> ());
+
+static ns3::GlobalValue g_positionAllocator (
+    "positionAllocator",
+    "Type of the positionAllocator of UEs [0,1],"
+    " Uniform random distribution of UEs on discs around each BS  (0),"
+    " Uniform random distribution of UEs on discs around nBS-nBsNoUesAlloc (1)",
+    ns3::UintegerValue (0), ns3::MakeUintegerChecker<uint8_t> ());
+
 static ns3::GlobalValue g_configuration ("configuration",
                                          "Set the wanted configuration to emulate [0,2]",
                                          ns3::UintegerValue (1),
@@ -183,7 +231,6 @@ static ns3::GlobalValue g_indicationPeriodicity ("indicationPeriodicity", "E2 In
 static ns3::GlobalValue g_simTime ("simTime", "Simulation time in seconds", ns3::DoubleValue (1.9),
                                    ns3::MakeDoubleChecker<double> (0.1, 1000.0));
 
-
 static ns3::GlobalValue g_reducedPmValues ("reducedPmValues", "If true, use a subset of the the pm containers",
                                         ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
 
@@ -202,7 +249,8 @@ static ns3::GlobalValue g_numberOfRaPreambles ("numberOfRaPreambles", "how many 
 
 static ns3::GlobalValue
     g_handoverMode ("handoverMode",
-                    "HO euristic to be used, can be only \"NoAuto\", \"FixedTtt\", \"DynamicTtt\",   \"Threshold\"",
+                    "HO euristic to be used,"
+                    "can be only \"NoAuto\", \"FixedTtt\", \"DynamicTtt\",   \"Threshold\"",
                     ns3::StringValue ("NoAuto"), ns3::MakeStringChecker ());
 
 static ns3::GlobalValue g_e2TermIp ("e2TermIp", "The IP address of the RIC E2 termination",
@@ -214,13 +262,7 @@ static ns3::GlobalValue
               ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
 
 static ns3::GlobalValue g_controlFileName ("controlFileName", "The path to the control file (can be absolute)",
-                                     ns3::StringValue ("es_actions_for_ns3.csv"), ns3::MakeStringChecker ());
-
-static ns3::GlobalValue g_digestControlMessages ("scheduleControlMessages",
-                                                 "If true, read the whole control file at the beginning "
-                                                 "of the simulation and schedules all the control actions events in advance",
-                                                 ns3::BooleanValue (false),
-                                                 ns3::MakeBooleanChecker ());
+                                     ns3::StringValue (""), ns3::MakeStringChecker ());
 
 static ns3::GlobalValue g_minSpeed ("minSpeed",
                                            "minimum UE speed in m/s",
@@ -231,70 +273,64 @@ static ns3::GlobalValue g_maxSpeed ("maxSpeed",
                                            "maximum UE speed in m/s",
                                            ns3::DoubleValue (4.0),
                                            ns3::MakeDoubleChecker<double> ());
-
-static ns3::GlobalValue g_heuristic (
-    "heuristicType",
-    "Type of heuristic for managing BS status,"
-    " No heuristic (-1),"
-    " Random sleeping (0),"
-    " Static sleeping (1),"
-    " Dynamic sleeping (2),"
-    " Mavenir heuristic (3)",
-    ns3::IntegerValue (-1), ns3::MakeIntegerChecker<int8_t> ());
-static ns3::GlobalValue g_probOn (
-    "probOn",
-    "Probability to turn BS ON for the random sleeping heuristic"
-    "the value is proposed on the paper 'Small Cell Base Station Sleep"
-    "Strategies for Energy Efficiency' in order to obtain an overall "
-    "small average cell wake up time"
-    "https://ieeexplore.ieee.org/abstract/document/7060678",
-    ns3::DoubleValue (0.6038), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue g_probIdle (
-    "probIdle",
-    "Probability to turn BS Idle for the random sleeping heuristic"
-    "the value is proposed on the paper 'Small Cell Base Station Sleep"
-    "Strategies for 'Energy Efficiency' in order to obtain an overall" 
-    "small average cell wake up time"
-    "https://ieeexplore.ieee.org/abstract/document/7060678",
-    ns3::DoubleValue (0.3854), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue g_probSleep (
-    "probSleep",
-    "Probability to turn BS Sleep for the random sleeping heuristic"
-    "the value is proposed on the paper 'Small Cell Base Station Sleep"
-    "Strategies for Energy Efficiency' in order to obtain an overall" 
-    "small average cell wake up time"
-    "https://ieeexplore.ieee.org/abstract/document/7060678",
-    ns3::DoubleValue (0.0107), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue g_probOff (
-    "probOff",
-    "Probability to turn BS Off for the random sleeping heuristic"
-    "the value is proposed on the paper 'Small Cell Base Station Sleep"
-    "Strategies for Energy Efficiency' in order to obtain an overall" 
-    "small average cell wake up time"
-    "https://ieeexplore.ieee.org/abstract/document/7060678",
-    ns3::DoubleValue (0.0), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue g_sinrTh (
-    "sinrTh",
-    "SINR threshold for static and dynamic sleeping heuristic",
-    ns3::DoubleValue (73.0), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue g_bsOn (
-    "bsOn",
-    "number of BS to turn ON for static and dynamic sleeping heuristic",
-    ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
-static ns3::GlobalValue g_bsIdle (
-    "bsIdle",
-    "number of BS to turn IDLE for static and dynamic sleeping heuristic",
-    ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
-static ns3::GlobalValue g_bsSleep (
-    "bsSleep",
-    "number of BS to turn Sleep for static and dynamic sleeping heuristic",
-    ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
-static ns3::GlobalValue g_bsOff (
-    "bsOff",
-    "number of BS to turn Off for static and dynamic sleeping heuristic",
-    ns3::UintegerValue (1), ns3::MakeUintegerChecker<uint8_t> ());
+static ns3::GlobalValue g_heuristic ("heuristicType",
+                                     "Type of heuristic for managing BS status,"
+                                     " No heuristic (-1),"
+                                     " Random sleeping (0),"
+                                     " Static sleeping (1),"
+                                     " Dynamic sleeping (2),"
+                                     " Mavenir heuristic (3),"
+                                     " Random action (4)",
+                                     ns3::IntegerValue (-1), ns3::MakeIntegerChecker<int8_t> ());
+static ns3::GlobalValue
+    g_probOn ("probOn",
+              "Probability to turn BS ON for the random sleeping heuristic"
+              "the value is proposed on the paper 'Small Cell Base Station Sleep"
+              "Strategies for Energy Efficiency' in order to obtain an overall "
+              "small average cell wake up time"
+              "https://ieeexplore.ieee.org/abstract/document/7060678",
+              ns3::DoubleValue (0.6038), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue
+    g_probIdle ("probIdle",
+                "Probability to turn BS Idle for the random sleeping heuristic"
+                "the value is proposed on the paper 'Small Cell Base Station Sleep"
+                "Strategies for 'Energy Efficiency' in order to obtain an overall"
+                "small average cell wake up time"
+                "https://ieeexplore.ieee.org/abstract/document/7060678",
+                ns3::DoubleValue (0.3854), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue
+    g_probSleep ("probSleep",
+                 "Probability to turn BS Sleep for the random sleeping heuristic"
+                 "the value is proposed on the paper 'Small Cell Base Station Sleep"
+                 "Strategies for Energy Efficiency' in order to obtain an overall"
+                 "small average cell wake up time"
+                 "https://ieeexplore.ieee.org/abstract/document/7060678",
+                 ns3::DoubleValue (0.0107), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue
+    g_probOff ("probOff",
+               "Probability to turn BS Off for the random sleeping heuristic"
+               "the value is proposed on the paper 'Small Cell Base Station Sleep"
+               "Strategies for Energy Efficiency' in order to obtain an overall"
+               "small average cell wake up time"
+               "https://ieeexplore.ieee.org/abstract/document/7060678",
+               ns3::DoubleValue (0.0), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_sinrTh ("sinrTh",
+                                  "SINR threshold for static and dynamic sleeping heuristic",
+                                  ns3::DoubleValue (73.0), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_bsOn ("bsOn",
+                                "number of BS to turn ON for static and dynamic sleeping heuristic",
+                                ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
+static ns3::GlobalValue
+    g_bsIdle ("bsIdle", "number of BS to turn IDLE for static and dynamic sleeping heuristic",
+              ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
+static ns3::GlobalValue
+    g_bsSleep ("bsSleep", "number of BS to turn Sleep for static and dynamic sleeping heuristic",
+               ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
+static ns3::GlobalValue
+    g_bsOff ("bsOff", "number of BS to turn Off for static and dynamic sleeping heuristic",
+             ns3::UintegerValue (1), ns3::MakeUintegerChecker<uint8_t> ());
 static ns3::GlobalValue g_clusters ("clusters", "Cluster list of cells",
-    ns3::StringValue ("[[5,6,7],[2,3,4,8],[9,10,11,12],[13,14]]"), ns3::MakeStringChecker ());
+  ns3::StringValue ("[2,3,4,5,6,7,8]"), ns3::MakeStringChecker ());
 static ns3::GlobalValue g_eekpiTh ("eekpiTh", "threshold for the first eekpi",
     ns3::DoubleValue (60.0), ns3::MakeDoubleChecker<double> ());
 static ns3::GlobalValue g_avgWeightedEekpiTh ("avgWeightedEekpiTh", "threshold for the average weighted eekpi",
@@ -309,7 +345,7 @@ int
 main (int argc, char *argv[])
 {
   LogComponentEnableAll (LOG_PREFIX_ALL);
-  LogComponentEnable ("ScenarioThree", LOG_LEVEL_DEBUG);
+  // LogComponentEnable ("ScenarioThree", LOG_LEVEL_DEBUG);
   // LogComponentEnable ("EnergyHeuristic", LOG_LEVEL_DEBUG);
   // LogComponentEnable ("MavenirHeuristic", LOG_LEVEL_DEBUG);
   // LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
@@ -325,7 +361,7 @@ main (int argc, char *argv[])
   // LogComponentEnable ("LteUeRrc", LOG_LEVEL_ALL);
   // LogComponentEnable ("McEnbPdcp", LOG_LEVEL_ALL);
   // LogComponentEnable ("McUePdcp", LOG_LEVEL_ALL);
-  // LogComponentEnable ("ScenarioOne", LOG_LEVEL_ALL);
+  // LogComponentEnable ("ScenarioThree``", LOG_LEVEL_ALL);
   // LogComponentEnable ("RicControlMessage", LOG_LEVEL_ALL);
   // LogComponentEnable ("Asn1Types", LOG_LEVEL_LOGIC);
   // LogComponentEnable ("E2Termination", LOG_LEVEL_LOGIC);
@@ -360,6 +396,12 @@ main (int argc, char *argv[])
   uint16_t basicCellId = uintegerValue.Get ();
   GlobalValue::GetValueByName ("enableTraces", booleanValue);
   bool enableTraces = booleanValue.Get ();
+  GlobalValue::GetValueByName ("trafficModel", uintegerValue);
+  uint8_t trafficModel = uintegerValue.Get ();
+  GlobalValue::GetValueByName ("nBsNoUesAlloc", integerValue);
+  int8_t nBsNoUesAlloc = integerValue.Get ();
+  GlobalValue::GetValueByName ("positionAllocator", uintegerValue);
+  uint8_t positionAllocator = uintegerValue.Get ();
   GlobalValue::GetValueByName ("outageThreshold",doubleValue);
   double outageThreshold = doubleValue.Get ();
   GlobalValue::GetValueByName ("handoverMode", stringValue);
@@ -374,6 +416,7 @@ main (int argc, char *argv[])
   double maxSpeed = doubleValue.Get ();
   GlobalValue::GetValueByName ("numberOfRaPreambles", uintegerValue);
   uint8_t numberOfRaPreambles = uintegerValue.Get ();
+
   // Heuristic parameters
   GlobalValue::GetValueByName ("heuristicType", integerValue);
   int8_t heuristicType = integerValue.Get ();
@@ -408,11 +451,14 @@ main (int argc, char *argv[])
   GlobalValue::GetValueByName ("eekpiLambda", doubleValue);
   double eekpiLambda = doubleValue.Get ();
 
-  NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << unsigned(bufferSize)
-                                 << " OutageThreshold " << outageThreshold << " HandoverMode " << handoverMode
-                                 << " BasicCellId " << unsigned(basicCellId) << " e2TermIp " << e2TermIp
-                                 << " enableE2FileLogging " << enableE2FileLogging << " minSpeed "
-                                 << minSpeed << " maxSpeed " << maxSpeed << " numberofRaPreambles " << unsigned(numberOfRaPreambles));
+
+  NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << bufferSize
+                                 << " traffic Model " << unsigned (trafficModel)
+                                 << " OutageThreshold " << outageThreshold << " HandoverMode "
+                                 << handoverMode << " BasicCellId " << basicCellId << " e2TermIp "
+                                 << e2TermIp << " enableE2FileLogging " << enableE2FileLogging
+                                 << " minSpeed " << minSpeed << " maxSpeed " << maxSpeed);
+
 
   // Get current time
   time_t rawtime;
@@ -436,24 +482,21 @@ main (int argc, char *argv[])
 
   GlobalValue::GetValueByName ("reducedPmValues", booleanValue);
   bool reducedPmValues = booleanValue.Get ();
+
   GlobalValue::GetValueByName ("indicationPeriodicity", doubleValue);
   double indicationPeriodicity = doubleValue.Get ();
 
   GlobalValue::GetValueByName ("controlFileName", stringValue);
   std::string controlFilename = stringValue.Get ();
 
-  GlobalValue::GetValueByName ("scheduleControlMessages", booleanValue);
-  bool scheduleControlMessages = booleanValue.Get ();
-
-  NS_LOG_UNCOND("e2lteEnabled " << e2lteEnabled 
+    NS_LOG_UNCOND("e2lteEnabled " << e2lteEnabled 
     << " e2nrEnabled " << e2nrEnabled
     << " e2du " << e2du
     << " e2cuCp " << e2cuCp
     << " e2cuUp " << e2cuUp
-    << " reducedPmValues " << reducedPmValues
+    << " reducedPmValues " << reducedPmValues 
     << " controlFilename " << controlFilename
     << " indicationPeriodicity " << indicationPeriodicity
-    << " ScheduleControlMessages " << scheduleControlMessages
     << " heuristicType " << int(heuristicType)
   );
 
@@ -469,8 +512,6 @@ main (int argc, char *argv[])
   // TODO DU reports from LTE eNB are not implemented yet
   Config::SetDefault ("ns3::MmWaveEnbNetDevice::EnableDuReport", BooleanValue(e2du));
 
-  // Config::SetDefault ("ns3::LteEnbNetDevice::ControlFileName", StringValue (controlFileName));
-
   // The CU-UP PM reports should only come from LTE eNB, since in the NS3 “EN-DC 
   // simulation (Option 3A)”, the PDCP is only in the LTE eNB and NOT in the NR gNB
   Config::SetDefault ("ns3::MmWaveEnbNetDevice::EnableCuUpReport", BooleanValue(e2cuUp));
@@ -485,10 +526,7 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::LteEnbNetDevice::EnableE2FileLogging", BooleanValue (enableE2FileLogging));
   Config::SetDefault ("ns3::MmWaveEnbNetDevice::EnableE2FileLogging", BooleanValue (enableE2FileLogging));
 
-  Config::SetDefault ("ns3::LteEnbNetDevice::ScheduleControlMessages", BooleanValue (scheduleControlMessages));
-
   Config::SetDefault ("ns3::MmWaveEnbMac::NumberOfRaPreambles", UintegerValue (numberOfRaPreambles));
-  Config::SetDefault ("ns3::LteEnbMac::NumberOfRaPreambles", UintegerValue (numberOfRaPreambles));
 
   Config::SetDefault ("ns3::MmWaveHelper::RlcAmEnabled", BooleanValue (rlcAmEnabled));
   Config::SetDefault ("ns3::MmWaveHelper::HarqEnabled", BooleanValue (harqEnabled));
@@ -499,6 +537,7 @@ main (int argc, char *argv[])
 
   Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::HarqEnabled", BooleanValue (harqEnabled));
   Config::SetDefault ("ns3::MmWavePhyMacCommon::NumHarqProcess", UintegerValue (100));
+  //Config::SetDefault ("ns3::MmWaveBearerStatsCalculator::EpochDuration", TimeValue (MilliSeconds (10.0)));
 
   Config::SetDefault ("ns3::ThreeGppChannelModel::UpdatePeriod", TimeValue (MilliSeconds (100.0)));
   Config::SetDefault ("ns3::ThreeGppChannelConditionModel::UpdatePeriod", TimeValue (MilliSeconds (100)));
@@ -521,7 +560,7 @@ main (int argc, char *argv[])
   // Center frequency in Hz
   double centerFrequency;
   // Distance between the mmWave BSs and the two co-located LTE and mmWave BSs in meters
-  double isd = 850; // (interside distance)
+  double isd; // (interside distance)
   // Number of antennas in each UE
   int numAntennasMcUe;
   // Number of antennas in each mmWave BS
@@ -533,31 +572,31 @@ main (int argc, char *argv[])
   uint8_t configuration = uintegerValue.Get ();
   switch (configuration)
     {
-
-    // 
     case 0:
       centerFrequency = 850e6;
       bandwidth = 20e6;
+      isd = 1000;
       numAntennasMcUe = 1;
       numAntennasMmWave = 1;
       dataRate = (dataRateFromConf == 0 ? "1.5Mbps" : "4.5Mbps");
       break;
 
-    // FR-1 
     case 1:
       centerFrequency = 3.5e9;
       bandwidth = 20e6;
+      isd = 1000;
       numAntennasMcUe = 1;
       numAntennasMmWave = 1;
       dataRate = (dataRateFromConf == 0 ? "1.5Mbps" : "4.5Mbps");
       break;
 
-    // FR-2
     case 2:
       centerFrequency = 28e9;
       bandwidth = 100e6;
+      isd = 200;
       numAntennasMcUe = 16;
       numAntennasMmWave = 64;
+      dataRate = (dataRateFromConf == 0 ? "15Mbps" : "45Mbps");
       break;
 
     default:
@@ -586,11 +625,12 @@ main (int argc, char *argv[])
   Ptr<MmWavePointToPointEpcHelper> epcHelper = CreateObject<MmWavePointToPointEpcHelper> ();
   mmwaveHelper->SetEpcHelper (epcHelper);
 
-  uint8_t nMmWaveEnbNodes = 13;
+  uint8_t nMmWaveEnbNodes = 7;
   uint8_t nLteEnbNodes = 1;
   GlobalValue::GetValueByName ("ues", uintegerValue);
   uint32_t ues = uintegerValue.Get ();
   uint8_t nUeNodes = ues * nMmWaveEnbNodes;
+
   NS_LOG_INFO (" Bandwidth " << bandwidth << " centerFrequency " << double (centerFrequency)
                              << " isd " << isd << " numAntennasMcUe " << numAntennasMcUe
                              << " numAntennasMmWave " << numAntennasMmWave << " dataRate "
@@ -643,64 +683,121 @@ main (int argc, char *argv[])
 
   double x;
   double y;
+  double nConstellation = nMmWaveEnbNodes - 1;
 
-  // This guarantees that each of the rest BSs is placed at the same distance from the two co-located in the center
-  // 12 base stations where the closest are std = 850 
-  
-  //Smaller square
-  for (int8_t i = 0; i < 4; ++i)
+  // This guarantee that each of the rest BSs is placed at the same distance from the two co-located in the center
+  for (int8_t i = 0; i < nConstellation; ++i)
     {
-      float x= pow(-1,floor(i/2))*isd/sqrt(2);
-      float y= pow(-1,i)*isd/sqrt(2);
+      x = isd * cos ((2 * M_PI * i) / (nConstellation));
+      y = isd * sin ((2 * M_PI * i) / (nConstellation));
       enbPositionAlloc->Add (Vector (centerPosition.x + x, centerPosition.y + y, 3));
     }
 
-  // Square rotated by 90 degrees
-  for (int8_t i = 0; i < 4; ++i)
-    {
-      x = isd/sqrt(2)*2 * cos ((2 * M_PI * i) / (4));
-      y = isd/sqrt(2)*2 * sin ((2 * M_PI * i) / (4));
-      enbPositionAlloc->Add (Vector (centerPosition.x + x, centerPosition.y + y, 3));
-    }
-
-  // Bigger square
-  for (int8_t i = 0; i < 4; ++i)
-    {
-      float x= pow(-1,floor(i/2))*isd*2/sqrt(2);
-      float y= pow(-1,i)*isd*2/sqrt(2);
-      enbPositionAlloc->Add (Vector (centerPosition.x + x, centerPosition.y + y, 3));
-    }
-    
   MobilityHelper enbmobility;
   enbmobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
   enbmobility.SetPositionAllocator (enbPositionAlloc);
   enbmobility.Install (allEnbNodes);
-  // UE position allocator
-  MobilityHelper uemobility;
 
- // Rectangle allocator with a uniform random variable
-  Ptr<RandomRectanglePositionAllocator> uePositionAlloc = CreateObject<RandomRectanglePositionAllocator> ();
-  Ptr<UniformRandomVariable> uePosAllX = CreateObject<UniformRandomVariable> ();
-  uePosAllX->SetAttribute ("Min", DoubleValue (0));
-  uePosAllX->SetAttribute ("Max", DoubleValue (maxXAxis));
-
-  Ptr<UniformRandomVariable> uePosAllY = CreateObject<UniformRandomVariable> ();
-  uePosAllY->SetAttribute ("Min", DoubleValue (0));
-  uePosAllY->SetAttribute ("Max", DoubleValue (maxYAxis));
-
-  uePositionAlloc->SetX (uePosAllX);
-  uePositionAlloc->SetY (uePosAllY);
-  uePositionAlloc->SetZ (centerPosition.z);
+  Ptr<UniformDiscPositionAllocator> uePositionAlloc = CreateObject<UniformDiscPositionAllocator> ();
 
   Ptr<UniformRandomVariable> speed = CreateObject<UniformRandomVariable> ();
   speed->SetAttribute ("Min", DoubleValue (minSpeed));
   speed->SetAttribute ("Max", DoubleValue (maxSpeed));
+  Ptr<UniformRandomVariable> puntTimeDirection = CreateObject<UniformRandomVariable> ();
+  // Set min and max speed of UEs
+  puntTimeDirection->SetAttribute ("Min", DoubleValue (1));
+  puntTimeDirection->SetAttribute ("Max", DoubleValue (3));
+  double timeDirection=puntTimeDirection->GetValue();
 
-  uemobility.SetMobilityModel ("ns3::RandomWalk2dOutdoorMobilityModel", "Speed",
-                               PointerValue (speed), "Bounds",
-                               RectangleValue (Rectangle (0, maxXAxis, 0, maxYAxis)));
-  uemobility.SetPositionAllocator (uePositionAlloc);
-  uemobility.Install (ueNodes);
+  // Position allocator:
+  //  0: UEs set over a UniformDiscPositionAllocator with radius = isd and RandomWalk2dMobilityModel 
+  //  1: UEs set over a UniformDiscPositionAllocator placed on each BS-nBsNoUesAlloc with radius = isd/2 and RandomWalk2dMobilityModel
+  MobilityHelper uemobility;
+  switch (positionAllocator)
+  {
+  case 0: {
+      if (nBsNoUesAlloc != -1)
+      {
+          NS_FATAL_ERROR("nBsNoUesAlloc not correct for selected positionAllocator " << nBsNoUesAlloc << positionAllocator);
+      }
+      uePositionAlloc->SetX(centerPosition.x);
+      uePositionAlloc->SetY(centerPosition.y);
+      uePositionAlloc->SetRho(isd);
+
+      uemobility.SetMobilityModel("ns3::RandomWalk2dMobilityModel",
+                                  "Mode",
+                                  StringValue("Time"),
+                                  "Time",
+                                  StringValue(std::to_string(timeDirection) + "s"),
+                                  "Speed",
+                                  PointerValue(speed),
+                                  "Bounds",
+                                  RectangleValue(Rectangle(0, maxXAxis, 0, maxYAxis)));
+      uemobility.SetPositionAllocator(uePositionAlloc);
+      uemobility.Install(ueNodes);
+      break;
+  }
+
+  case 1: {
+      if (nBsNoUesAlloc == -1)
+      {
+          NS_FATAL_ERROR("nBsNoUesAlloc not correct for selected positionAllocator " << nBsNoUesAlloc << positionAllocator);
+      }
+      Vector bsCoords[7] = {};
+      // save vector coords into an array to shuffle them (without the first LTE BS coordinates)
+      enbPositionAlloc->GetNext();
+      for (int i = 0; i < nMmWaveEnbNodes; i++)
+      {
+        bsCoords[i] = enbPositionAlloc->GetNext();
+      }
+      std::srand(std::time(0));
+      std::random_shuffle(std::begin(bsCoords), std::end(bsCoords));
+      for (int i = 0; i < 7; i++)
+      {
+          NS_LOG_UNCOND(bsCoords[i]);
+      }
+
+      // choose firsts 7-nBsNoUesAlloc BS coordinates 
+      int nodeGroupSize = nUeNodes / (7 - nBsNoUesAlloc);
+      int nodeGroupSizeRest = nUeNodes % (7 - nBsNoUesAlloc);
+      for (int bsCoordIndex = 0; bsCoordIndex < 7 - nBsNoUesAlloc; bsCoordIndex++)
+      {
+          // set disc allocator on BS coordinate(isd = isd /2)
+          uePositionAlloc->SetX(bsCoords[bsCoordIndex].x);
+          uePositionAlloc->SetY(bsCoords[bsCoordIndex].y);
+          uePositionAlloc->SetRho(isd / 2);
+          uemobility.SetMobilityModel("ns3::RandomWalk2dMobilityModel",
+                                      "Mode",
+                                      StringValue("Time"),
+                                      "Time",
+                                      StringValue(std::to_string(timeDirection) + "s"),
+                                      "Speed",
+                                      PointerValue(speed),
+                                      "Bounds",
+                                      RectangleValue(Rectangle(0, maxXAxis, 0, maxYAxis)));
+          uemobility.SetPositionAllocator(uePositionAlloc);
+          for (int ueIndex = nodeGroupSize * bsCoordIndex;
+               ueIndex < nodeGroupSize * (bsCoordIndex + 1);
+               ueIndex++)
+          {
+              // NS_LOG_UNCOND(ueNodes.Get(ueIndex)->GetId());
+              uemobility.Install(ueNodes.Get(ueIndex));
+          }
+          // Allocate the remaining UEs along BSs
+          if (nodeGroupSizeRest > 0)
+          {
+              int addedUeIndex = nUeNodes - nodeGroupSizeRest;
+              // NS_LOG_UNCOND(ueNodes.Get(addedUeIndex)->GetId());
+              uemobility.Install(ueNodes.Get(addedUeIndex));
+              nodeGroupSizeRest = nodeGroupSizeRest - 1;
+          }
+      }
+      break;
+  }
+  default:
+      NS_FATAL_ERROR("positionAllocator not recognized" << positionAllocator);
+      break;
+  }
 
   // Install mmWave, lte, mc Devices to the nodes
   NetDeviceContainer lteEnbDevs = mmwaveHelper->InstallLteEnbDevice (lteEnbNodes);
@@ -749,40 +846,8 @@ main (int argc, char *argv[])
   clientHelperTcp.SetAttribute ("Remote", serverAddressTcp);
   clientHelperTcp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable"));
   clientHelperTcp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
-  // Datarate defined in the switch
+  clientHelperTcp.SetAttribute ("DataRate", StringValue (dataRate));
   clientHelperTcp.SetAttribute ("PacketSize", UintegerValue (1280));
-
-  OnOffHelper clientHelperUdp ("ns3::UdpSocketFactory", Address ());
-  clientHelperUdp.SetAttribute ("Remote", serverAddressUdp);
-  clientHelperUdp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable"));
-  clientHelperUdp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
-  // Datarate defined in the switch
-  clientHelperUdp.SetAttribute ("PacketSize", UintegerValue (1280));
-
-  switch (configuration)
-    {
-    // 
-    case 0:
-      clientHelperTcp.SetAttribute ("DataRate", StringValue (dataRate));
-      clientHelperUdp.SetAttribute ("DataRate", StringValue (dataRate));
-      break;
-
-    // FR-1
-    case 1:
-      clientHelperTcp.SetAttribute ("DataRate", StringValue (dataRate));
-      clientHelperUdp.SetAttribute ("DataRate", StringValue (dataRate));
-      break;
-
-    // FR-2
-    case 2:
-      clientHelperTcp.SetAttribute ("DataRate", StringValue ("45Mbps"));
-      clientHelperUdp.SetAttribute ("DataRate", StringValue ("15Mbps"));
-      break;
-
-    default:
-      NS_FATAL_ERROR ("Configuration not recognized" << configuration);
-      break;
-    }
 
   OnOffHelper clientHelperTcp150 ("ns3::TcpSocketFactory", Address ());
   clientHelperTcp150.SetAttribute ("Remote", serverAddressTcp);
@@ -798,52 +863,132 @@ main (int argc, char *argv[])
   clientHelperTcp750.SetAttribute ("DataRate", StringValue ("750kbps"));
   clientHelperTcp750.SetAttribute ("PacketSize", UintegerValue (1280));
 
-
+  OnOffHelper clientHelperUdp ("ns3::UdpSocketFactory", Address ());
+  clientHelperUdp.SetAttribute ("Remote", serverAddressUdp);
+  clientHelperUdp.SetAttribute ("OnTime", StringValue ("ns3::ExponentialRandomVariable"));
+  clientHelperUdp.SetAttribute ("OffTime", StringValue ("ns3::ExponentialRandomVariable"));
+  clientHelperUdp.SetAttribute ("DataRate", StringValue (dataRate));
+  clientHelperUdp.SetAttribute ("PacketSize", UintegerValue (1280));
 
   ApplicationContainer clientApp;
-  // 25% Full-buffer traffic
-  // 25% Bursty traffic with higher application bit-rate averaging around 3 Mbps
-  // 25% Bursty traffic with higher application bit-rate averaging around 750 Kbps
-  // 25% Bursty traffic with lower application bit-rate averaging around 150 Kbps.
-  for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
+  switch (trafficModel)
     {
+      case 0: {
+        for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
+          {
+            // Full traffic
+            PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory",
+                                                 InetSocketAddress (Ipv4Address::GetAny (), 1234));
+            sinkApp.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
+            UdpClientHelper dlClient (ueIpIface.GetAddress (u), 1234);
+            dlClient.SetAttribute ("Interval", TimeValue (MicroSeconds (500)));
+            dlClient.SetAttribute ("MaxPackets", UintegerValue (UINT32_MAX));
+            dlClient.SetAttribute ("PacketSize", UintegerValue (1280));
+            clientApp.Add (dlClient.Install (remoteHost));
+          }
+      }
+      break;
 
-      if (u % 4 == 0)
-        {
-          // Full buffer traffic
-          PacketSinkHelper dlPacketSinkHelper ("ns3::UdpSocketFactory",
-                                               InetSocketAddress (Ipv4Address::GetAny (), 1234));
-          sinkApp.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
-          UdpClientHelper dlClient (ueIpIface.GetAddress (u), 1234);
-          dlClient.SetAttribute ("MaxPackets", UintegerValue (UINT32_MAX));
-          dlClient.SetAttribute ("PacketSize", UintegerValue (1280));
-          if (configuration == 2)
-            {
-              // Data rate 40 Mbps
-              dlClient.SetAttribute ("Interval", TimeValue (MicroSeconds (250)));
-            }
-          else
-            {
-              // Data rate 20 Mbps
-              dlClient.SetAttribute ("Interval", TimeValue (MicroSeconds (500)));
-            }
+      case 1: {
+        for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
+          {
 
-          clientApp.Add (dlClient.Install (remoteHost));
-        }
-      else if (u % 4 == 1)
-        {
-          if (configuration == 2)
-            clientHelperTcp.SetAttribute ("DataRate", StringValue ("20Mbps"));
-          clientApp.Add (clientHelperTcp.Install (ueNodes.Get (u)));
-        }
-      else if (u % 4 == 2)
-        {
-          clientApp.Add (clientHelperTcp750.Install (ueNodes.Get (u)));
-        }
-      else if (u % 4 == 3)
-        {
-          clientApp.Add (clientHelperTcp150.Install (ueNodes.Get (u)));
-        }
+            if (u % 2 == 0)
+              {
+                // Bursty traffic
+                if (u % 4 == 0)
+                  {
+                    clientApp.Add (clientHelperTcp.Install (ueNodes.Get (u)));
+                  }
+                else
+                  {
+                    clientApp.Add (clientHelperUdp.Install (ueNodes.Get (u)));
+                  }
+              }
+            else
+              {
+                // Full traffic
+                PacketSinkHelper dlPacketSinkHelper (
+                    "ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), 1234));
+                sinkApp.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
+                UdpClientHelper dlClient (ueIpIface.GetAddress (u), 1234);
+                dlClient.SetAttribute ("Interval", TimeValue (MicroSeconds (500)));
+                dlClient.SetAttribute ("MaxPackets", UintegerValue (UINT32_MAX));
+                dlClient.SetAttribute ("PacketSize", UintegerValue (1280));
+                clientApp.Add (dlClient.Install (remoteHost));
+              }
+          }
+      }
+      break;
+
+      case 2: {
+        for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
+          {
+            // Bursty traffic
+            if (u % 2 == 0)
+              {
+                clientApp.Add (clientHelperTcp.Install (ueNodes.Get (u)));
+              }
+            else
+              {
+                clientApp.Add (clientHelperUdp.Install (ueNodes.Get (u)));
+              }
+          }
+      }
+      break;
+
+      case 3: { // 25% bursty Full-buffer traffic
+                // 25% Bursty traffic with higher application bit-rate averaging around 3 Mbps
+                // 25% Bursty traffic with higher application bit-rate averaging around 750 Kbps
+                // 25% Bursty traffic with lower application bit-rate averaging around 150 Kbps.
+        for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
+          {
+
+            if (u % 4 == 0)
+              {
+                // Full buffer traffic
+                PacketSinkHelper dlPacketSinkHelper (
+                    "ns3::UdpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), 1234));
+                sinkApp.Add (dlPacketSinkHelper.Install (ueNodes.Get (u)));
+                UdpClientHelper dlClient (ueIpIface.GetAddress (u), 1234);
+                dlClient.SetAttribute ("MaxPackets", UintegerValue (UINT32_MAX));
+                dlClient.SetAttribute ("PacketSize", UintegerValue (1280));
+                if (configuration == 2)
+                  {
+                    // Data rate 40 Mbps
+                    dlClient.SetAttribute ("Interval", TimeValue (MicroSeconds (250)));
+                  }
+                else
+                  {
+                    // Data rate 20 Mbps 
+                    dlClient.SetAttribute ("Interval", TimeValue (MicroSeconds (500)));
+                  }
+
+                clientApp.Add (dlClient.Install (remoteHost));
+              }
+            else if (u % 4 == 1)
+              {
+                if (configuration == 2)
+                  clientHelperTcp.SetAttribute ("DataRate", StringValue ("20Mbps"));
+                clientApp.Add (clientHelperTcp.Install (ueNodes.Get (u)));
+              }
+            else if (u % 4 == 2)
+              {
+                clientApp.Add (clientHelperTcp750.Install (ueNodes.Get (u)));
+              }
+            else if (u % 4 == 3)
+              {
+                clientApp.Add (clientHelperTcp150.Install (ueNodes.Get (u)));
+              }
+          }
+        break;
+      }
+
+    default:
+      NS_FATAL_ERROR (
+          "Traffic model not recognized, the only possible values are [0,1,2,3]. Value passed: "
+          << trafficModel);
+
     }
 
   // Start applications
@@ -854,9 +999,28 @@ main (int argc, char *argv[])
   clientApp.Start (MilliSeconds (100));
   clientApp.Stop (Seconds (simTime - 0.1));
 
-  int BsStatus[4] = {bsOn, bsIdle, bsSleep, bsOff};
+  // int numPrints = 100;
+  // for (int i = 0; i < numPrints; i++)
+  //   {
+  //     for (uint32_t j = 0; j < ueNodes.GetN (); j++)
+  //       {
+  //         Simulator::Schedule (Seconds (i * simTime / numPrints), &PrintPosition, ueNodes.Get (j));
+  //       }
+  //   }
 
-  Ptr<EnergyHeuristic> energyHeur=CreateObject<EnergyHeuristic>();
+    int BsStatus[4] = {bsOn, bsIdle, bsSleep, bsOff};
+
+    // bsIdle turn ON the BS like would do bsOn
+    // If bsIdle is equal to zero, treat bsOn as bsIdle and put bsOn=0, in this way we are skipping
+    // the first part of heuristic 1 and 2 regarding SINR calculus and comparison: through this
+    // changing we will give the possibility to OFF cells to turn ON
+    if (bsIdle == 0)
+    {
+        BsStatus[1] = bsOn;
+        BsStatus[0] = 0;
+  }
+
+  Ptr<EnergyHeuristic> energyHeur = CreateObject<EnergyHeuristic> ();
   Ptr<MavenirHeuristic> mavenirHeur=CreateObject<MavenirHeuristic>();
   std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> bsClusters = mavenirHeur->ReadClusters(clusters, nMmWaveEnbNodes, mmWaveEnbDevs);
 
@@ -867,7 +1031,6 @@ main (int argc, char *argv[])
         NS_LOG_UNCOND ("Running the scenario with no Energy Heuristic");
       }
       break;
-
       // Random sleeping
       case 0: {
         for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
@@ -888,7 +1051,8 @@ main (int argc, char *argv[])
       case 1: {
         for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
           {
-            for (int j = 0; j < nMmWaveEnbNodes; j++)
+            //If bsOn==0 skip it: we don't need to count the SINR of connected UEs
+            for (int j = 0; j < nMmWaveEnbNodes && bsOn!=0; j++)
               {
                 Ptr<MmWaveEnbNetDevice> mmdev =
                     DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
@@ -904,9 +1068,11 @@ main (int argc, char *argv[])
 
       // Dynamic sleeping
       case 2: {
+
         for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
           {
-            for (int j = 0; j < nMmWaveEnbNodes; j++)
+            //If bsOn==0 skip it: we don't need to count the SINR of connected UEs
+            for (int j = 0; j < nMmWaveEnbNodes && bsOn!=0; j++)
               {
                 Ptr<MmWaveEnbNetDevice> mmdev =
                     DynamicCast<MmWaveEnbNetDevice> (mmWaveEnbDevs.Get (j));
@@ -928,6 +1094,23 @@ main (int argc, char *argv[])
             Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
             Simulator::Schedule (Seconds (i), &MavenirHeuristic::MavenirHeur, mavenirHeur, 
                                 nMmWaveEnbNodes, mmWaveEnbDevs, ltedev, bsClusters, mavenirHeurPar);
+          }
+      }
+      break;
+
+      // Random action sleeping
+      case 4: {
+          std::vector<Ptr<MmWaveEnbNetDevice>> mmdevArray;
+          for (int j = 0; j < nMmWaveEnbNodes; j++)
+          {
+              // save all the mdev into an array
+              mmdevArray.push_back(DynamicCast<MmWaveEnbNetDevice>(mmWaveEnbDevs.Get(j)));
+          }
+          // every second change action
+          Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice>(lteEnbDevs.Get(0));
+          for (double i = 0.0; i < simTime; i = i + 1.0)
+          {
+              Simulator::Schedule(Seconds(i), &EnergyHeuristic::RandomAction, energyHeur, mmdevArray, ltedev);
           }
       }
       break;
@@ -954,6 +1137,11 @@ main (int argc, char *argv[])
   // Since nodes are randomly allocated during each run we always need to print their positions
   PrintGnuplottableUeListToFile ("ues.txt");
   PrintGnuplottableEnbListToFile ("enbs.txt");
+  Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
+  Ptr<LteEnbRrc> lte_rrc = ltedev->GetRrc ();  
+  for (double i = 0.0; i < simTime; i = i + indicationPeriodicity){
+    Simulator::Schedule (Seconds (i), BsStateTrace,"bsState.txt", ltedev, lte_rrc);
+  }
 
   bool run = true;
   if (run)
