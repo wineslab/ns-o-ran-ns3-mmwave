@@ -203,14 +203,16 @@ static ns3::GlobalValue g_controlFileName ("controlFileName",
 int
 main (int argc, char *argv[])
 {
-  //LogComponentEnableAll (LOG_PREFIX_ALL);
-   LogComponentEnable ("RicControlMessage", LOG_LEVEL_ALL);
-   LogComponentEnable ("KpmIndication", LOG_LEVEL_ALL);
+  LogComponentEnableAll (LOG_PREFIX_ALL);
+  //  LogComponentEnable ("RicControlMessage", LOG_LEVEL_ALL);
+  //  LogComponentEnable ("KpmIndication", LOG_LEVEL_DEBUG);
+   LogComponentEnable ("KpmIndication", LOG_LEVEL_INFO);
+
   // LogComponentEnable ("Asn1Types", LOG_LEVEL_LOGIC);
 //   LogComponentEnable ("E2Termination", LOG_LEVEL_LOGIC);
-   LogComponentEnable ("E2Termination", LOG_LEVEL_DEBUG);
+  //  LogComponentEnable ("E2Termination", LOG_LEVEL_DEBUG);
 
-  LogComponentEnable ("LteEnbNetDevice", LOG_LEVEL_DEBUG);
+  // LogComponentEnable ("LteEnbNetDevice", LOG_LEVEL_ALL);
   LogComponentEnable ("MmWaveEnbNetDevice", LOG_LEVEL_DEBUG);
 
   // The maximum X coordinate of the scenario
@@ -343,7 +345,7 @@ main (int argc, char *argv[])
   // Number of antennas in each UE
   int numAntennasMcUe = 1;
   // Number of antennas in each mmWave BS
-  int numAntennasMmWave = 0;
+  int numAntennasMmWave = 1;
 
   NS_LOG_INFO ("Bandwidth " << bandwidth << " centerFrequency " << double (centerFrequency)
                             << " isd " << isd << " numAntennasMcUe " << numAntennasMcUe
@@ -363,7 +365,7 @@ main (int argc, char *argv[])
   mmwaveHelper->SetEpcHelper (epcHelper);
 
   uint8_t nMmWaveEnbNodes = 0;
-  uint8_t nLteEnbNodes = 1;
+  uint8_t nLteEnbNodes = 6;
   uint32_t ues = 1;
   uint8_t nUeNodes = ues * nMmWaveEnbNodes;
   //uint8_t nUeNodes = 1;
