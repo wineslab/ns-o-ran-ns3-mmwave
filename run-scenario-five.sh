@@ -12,8 +12,10 @@ minSpeed=2.0 # minimum UE speed in m/s
 maxSpeed=4.0 # maximum UE speed in m/s
 simTime=10 # simulation time
 e2TermIp="10.102.157.65" # actual E2term IP interface
-
-heuristicType=1 # Type of heuristic for managing BS status: no heuristic (-1), Random sleeping (0), Static sleeping (1), Dynamic sleeping (2), Mavenir (3)
+rlcAmEnabled="true"
+bufferSize=10
+numberOfRaPreambles=30
+heuristicType=0 # Type of heuristic for managing BS status: no heuristic (-1), Random sleeping (0), Static sleeping (1), Dynamic sleeping (2), Random action (3)
 #heuristic parameters
 probOn=0.6038
 probIdle=0.3854
@@ -24,19 +26,13 @@ bsOn=4
 bsIdle=3
 bsSleep=3
 bsOff=3
-clusters=[[5,6,7],[2,3,4,8],[9,10,11,12],[13,14]]
-eekpiTh=60.0
-avgWeightedEekpiTh=60.0
-kCells=2
-eekpiB=1
-eekpiLambda=0.1
 
 # Useful parameters to be configured
-N=1 # number of simulations
+seed=555 # seed parameter to be used
 basicCellId=1 # The next value will be the first cellId
 reducedPmValues=0 # use reduced subset of pmValues
 EnableE2FileLogging=1 # enable offline generation of data
-ues=2 # Number of UEs for each mmWave ENB
+ues=7 # Number of UEs for each mmWave ENB
 dataRate=0
 
 # Select 0 or 1 to switch between the optimized or debug build
@@ -57,7 +53,7 @@ dataRate=0
 echo "Energy Efficiency use case"
 outageThreshold=-5.0 # use -5.0 when handover is not in NoAuto 
 handoverMode="DynamicTtt"
-indicationPeriodicity=0.2 # value in seconds (20 ms)
+indicationPeriodicity=0.02 # value in seconds (20 ms)
 controlFileName="" # ES control file path
 
 scheduleControlMessages=0 # if the control message shall be read at the beginning of the simulation and the events scheduled
@@ -68,8 +64,10 @@ scheduleControlMessages=0 # if the control message shall be read at the beginnin
 
 for i in $(seq 1 $N); do
   echo "Running simulation $i out of $N";
-  ./ns3 run "scratch/scenario-fives --RngRun=$i \
+  ./ns3 run "scratch/scenario-five --RngRun=$i \
                                     --configuration=$configuration \
+                                    --rlcAmEnabled=$rlcAmEnabled \
+                                    --bufferSize=$bufferSize \
                                     --dataRate=$dataRate \
                                     --enableTraces=$enableTraces \
                                     --e2lteEnabled=$e2lteEnabled \
@@ -99,12 +97,6 @@ for i in $(seq 1 $N); do
                                     --bsIdle=$bsIdle\
                                     --bsSleep=$bsSleep\
                                     --bsOff=$bsOff\
-                                    --clusters=$clusters\
-                                    --eekpiTh=$eekpiTh\
-                                    --avgWeightedEekpiTh=$avgWeightedEekpiTh\
-                                    --kCells=$kCells\
-                                    --eekpiB=$eekpiB\
-                                    --eekpiLambda=$eekpiLambda\
                                     --scheduleControlMessages=$scheduleControlMessages";
   sleep 1;
 done

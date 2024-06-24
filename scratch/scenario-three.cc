@@ -15,6 +15,7 @@
  *
  * Authors: Andrea Lacava <thecave003@gmail.com>
  *          Michele Polese <michele.polese@gmail.com>
+ *          Matteo Bordin <matbord97@gmail.com>
  */
 
 #include "ns3/core-module.h"
@@ -29,14 +30,12 @@
 #include "ns3/mmwave-point-to-point-epc-helper.h"
 #include "ns3/lte-helper.h"
 #include "ns3/energy-heuristic.h"
-#include "ns3/mavenir-heuristic.h"
-
 
 using namespace ns3;
 using namespace mmwave;
 
 /**
- * Scenario three
+ * Scenario Three
  * 
  */
 
@@ -212,12 +211,6 @@ static ns3::GlobalValue g_configuration ("configuration",
                                          "Set the wanted configuration to emulate [0,2]",
                                          ns3::UintegerValue (1),
                                          ns3::MakeUintegerChecker<uint8_t> ());
-
-static ns3::GlobalValue
-    g_hoSinrDifference ("hoSinrDifference",
-                        "The value for which an handover between MmWave eNB is triggered",
-                        ns3::DoubleValue (3), ns3::MakeDoubleChecker<double> ());
-
 static ns3::GlobalValue
     g_dataRate ("dataRate", "Set the data rate to be used [only \"0\"(low),\"1\"(high) admitted]",
                 ns3::DoubleValue (0), ns3::MakeDoubleChecker<double> (0, 1));
@@ -273,81 +266,74 @@ static ns3::GlobalValue g_maxSpeed ("maxSpeed",
                                            "maximum UE speed in m/s",
                                            ns3::DoubleValue (4.0),
                                            ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue g_heuristic ("heuristicType",
-                                     "Type of heuristic for managing BS status,"
-                                     " No heuristic (-1),"
-                                     " Random sleeping (0),"
-                                     " Static sleeping (1),"
-                                     " Dynamic sleeping (2),"
-                                     " Mavenir heuristic (3),"
-                                     " Random action (4)",
-                                     ns3::IntegerValue (-1), ns3::MakeIntegerChecker<int8_t> ());
-static ns3::GlobalValue
-    g_probOn ("probOn",
-              "Probability to turn BS ON for the random sleeping heuristic"
-              "the value is proposed on the paper 'Small Cell Base Station Sleep"
-              "Strategies for Energy Efficiency' in order to obtain an overall "
-              "small average cell wake up time"
-              "https://ieeexplore.ieee.org/abstract/document/7060678",
-              ns3::DoubleValue (0.6038), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue
-    g_probIdle ("probIdle",
-                "Probability to turn BS Idle for the random sleeping heuristic"
-                "the value is proposed on the paper 'Small Cell Base Station Sleep"
-                "Strategies for 'Energy Efficiency' in order to obtain an overall"
-                "small average cell wake up time"
-                "https://ieeexplore.ieee.org/abstract/document/7060678",
-                ns3::DoubleValue (0.3854), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue
-    g_probSleep ("probSleep",
-                 "Probability to turn BS Sleep for the random sleeping heuristic"
-                 "the value is proposed on the paper 'Small Cell Base Station Sleep"
-                 "Strategies for Energy Efficiency' in order to obtain an overall"
-                 "small average cell wake up time"
-                 "https://ieeexplore.ieee.org/abstract/document/7060678",
-                 ns3::DoubleValue (0.0107), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue
-    g_probOff ("probOff",
-               "Probability to turn BS Off for the random sleeping heuristic"
-               "the value is proposed on the paper 'Small Cell Base Station Sleep"
-               "Strategies for Energy Efficiency' in order to obtain an overall"
-               "small average cell wake up time"
-               "https://ieeexplore.ieee.org/abstract/document/7060678",
-               ns3::DoubleValue (0.0), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue g_sinrTh ("sinrTh",
-                                  "SINR threshold for static and dynamic sleeping heuristic",
-                                  ns3::DoubleValue (73.0), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue g_bsOn ("bsOn",
-                                "number of BS to turn ON for static and dynamic sleeping heuristic",
-                                ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
-static ns3::GlobalValue
-    g_bsIdle ("bsIdle", "number of BS to turn IDLE for static and dynamic sleeping heuristic",
-              ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
-static ns3::GlobalValue
-    g_bsSleep ("bsSleep", "number of BS to turn Sleep for static and dynamic sleeping heuristic",
-               ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
-static ns3::GlobalValue
-    g_bsOff ("bsOff", "number of BS to turn Off for static and dynamic sleeping heuristic",
-             ns3::UintegerValue (1), ns3::MakeUintegerChecker<uint8_t> ());
-static ns3::GlobalValue g_clusters ("clusters", "Cluster list of cells",
-  ns3::StringValue ("[2,3,4,5,6,7,8]"), ns3::MakeStringChecker ());
-static ns3::GlobalValue g_eekpiTh ("eekpiTh", "threshold for the first eekpi",
-    ns3::DoubleValue (60.0), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue g_avgWeightedEekpiTh ("avgWeightedEekpiTh", "threshold for the average weighted eekpi",
-    ns3::DoubleValue (60.0), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue g_kCells ("kCells", "max number of k cells to turn OFF and ON every periodicity time",
+
+static ns3::GlobalValue g_heuristic (
+    "heuristicType",
+    "Type of heuristic for managing BS status,"
+    " No heuristic (-1),"
+    " Random sleeping (0),"
+    " Static sleeping (1),"
+    " Dynamic sleeping (2),",
+    ns3::IntegerValue (-1), ns3::MakeIntegerChecker<int8_t> ());
+static ns3::GlobalValue g_probOn (
+    "probOn",
+    "Probability to turn BS ON for the random sleeping heuristic"
+    "the value is proposed on the paper 'Small Cell Base Station Sleep"
+    "Strategies for Energy Efficiency' in order to obtain an overall "
+    "small average cell wake up time"
+    "https://ieeexplore.ieee.org/abstract/document/7060678",
+    ns3::DoubleValue (0.6038), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_probIdle (
+    "probIdle",
+    "Probability to turn BS Idle for the random sleeping heuristic"
+    "the value is proposed on the paper 'Small Cell Base Station Sleep"
+    "Strategies for 'Energy Efficiency' in order to obtain an overall" 
+    "small average cell wake up time"
+    "https://ieeexplore.ieee.org/abstract/document/7060678",
+    ns3::DoubleValue (0.3854), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_probSleep (
+    "probSleep",
+    "Probability to turn BS Sleep for the random sleeping heuristic"
+    "the value is proposed on the paper 'Small Cell Base Station Sleep"
+    "Strategies for Energy Efficiency' in order to obtain an overall" 
+    "small average cell wake up time"
+    "https://ieeexplore.ieee.org/abstract/document/7060678",
+    ns3::DoubleValue (0.0107), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_probOff (
+    "probOff",
+    "Probability to turn BS Off for the random sleeping heuristic"
+    "the value is proposed on the paper 'Small Cell Base Station Sleep"
+    "Strategies for Energy Efficiency' in order to obtain an overall" 
+    "small average cell wake up time"
+    "https://ieeexplore.ieee.org/abstract/document/7060678",
+    ns3::DoubleValue (0.0), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_sinrTh (
+    "sinrTh",
+    "SINR threshold for static and dynamic sleeping heuristic",
+    ns3::DoubleValue (73.0), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_bsOn (
+    "bsOn",
+    "number of BS to turn ON for static and dynamic sleeping heuristic",
     ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
-static ns3::GlobalValue g_eekpiB ("eekpiB", "B value for weighted eekpi formula",
-    ns3::DoubleValue (1.0), ns3::MakeDoubleChecker<double> ());
-static ns3::GlobalValue g_eekpiLambda ("eekpiLambda", "lambda value for weighted eekpi formula",
-    ns3::DoubleValue (0.1), ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_bsIdle (
+    "bsIdle",
+    "number of BS to turn IDLE for static and dynamic sleeping heuristic",
+    ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
+static ns3::GlobalValue g_bsSleep (
+    "bsSleep",
+    "number of BS to turn Sleep for static and dynamic sleeping heuristic",
+    ns3::UintegerValue (2), ns3::MakeUintegerChecker<uint8_t> ());
+static ns3::GlobalValue g_bsOff (
+    "bsOff",
+    "number of BS to turn Off for static and dynamic sleeping heuristic",
+    ns3::UintegerValue (1), ns3::MakeUintegerChecker<uint8_t> ());
+
 int
 main (int argc, char *argv[])
 {
   LogComponentEnableAll (LOG_PREFIX_ALL);
   // LogComponentEnable ("ScenarioThree", LOG_LEVEL_DEBUG);
   // LogComponentEnable ("EnergyHeuristic", LOG_LEVEL_DEBUG);
-  // LogComponentEnable ("MavenirHeuristic", LOG_LEVEL_DEBUG);
   // LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
   // LogComponentEnable ("OnOffApplication", LOG_LEVEL_ALL);
   // LogComponentEnable ("LtePdcp", LOG_LEVEL_ALL);
@@ -384,8 +370,6 @@ main (int argc, char *argv[])
   StringValue stringValue;
   DoubleValue doubleValue;
 
-  GlobalValue::GetValueByName ("hoSinrDifference", doubleValue);
-  double hoSinrDifference = doubleValue.Get ();
   GlobalValue::GetValueByName ("dataRate", doubleValue);
   double dataRateFromConf = doubleValue.Get ();
   GlobalValue::GetValueByName ("rlcAmEnabled", booleanValue);
@@ -438,18 +422,6 @@ main (int argc, char *argv[])
   int bsSleep = uintegerValue.Get ();
   GlobalValue::GetValueByName ("bsOff", uintegerValue);
   int bsOff = uintegerValue.Get ();
-  GlobalValue::GetValueByName ("clusters", stringValue);
-  std::string clusters = stringValue.Get ();
-  GlobalValue::GetValueByName ("eekpiTh", doubleValue);
-  double eekpiTh = doubleValue.Get ();
-  GlobalValue::GetValueByName ("avgWeightedEekpiTh", doubleValue);
-  double avgWeightedEekpiTh = doubleValue.Get ();
-  GlobalValue::GetValueByName ("kCells", uintegerValue);
-  int kCells = uintegerValue.Get ();
-  GlobalValue::GetValueByName ("eekpiB", doubleValue);
-  double eekpiB = doubleValue.Get ();
-  GlobalValue::GetValueByName ("eekpiLambda", doubleValue);
-  double eekpiLambda = doubleValue.Get ();
 
 
   NS_LOG_UNCOND ("rlcAmEnabled " << rlcAmEnabled << " bufferSize " << bufferSize
@@ -552,8 +524,6 @@ main (int argc, char *argv[])
 
   Config::SetDefault ("ns3::LteEnbRrc::OutageThreshold", DoubleValue (outageThreshold));
   Config::SetDefault ("ns3::LteEnbRrc::SecondaryCellHandoverMode", StringValue (handoverMode));
-  Config::SetDefault ("ns3::LteEnbRrc::HoSinrDifference", DoubleValue (hoSinrDifference));
-
 
   // Carrier bandwidth in Hz
   double bandwidth;
@@ -999,31 +969,19 @@ main (int argc, char *argv[])
   clientApp.Start (MilliSeconds (100));
   clientApp.Stop (Seconds (simTime - 0.1));
 
-  // int numPrints = 100;
-  // for (int i = 0; i < numPrints; i++)
-  //   {
-  //     for (uint32_t j = 0; j < ueNodes.GetN (); j++)
-  //       {
-  //         Simulator::Schedule (Seconds (i * simTime / numPrints), &PrintPosition, ueNodes.Get (j));
-  //       }
-  //   }
+  int BsStatus[4] = {bsOn, bsIdle, bsSleep, bsOff};
 
-    int BsStatus[4] = {bsOn, bsIdle, bsSleep, bsOff};
-
-    // bsIdle turn ON the BS like would do bsOn
-    // If bsIdle is equal to zero, treat bsOn as bsIdle and put bsOn=0, in this way we are skipping
-    // the first part of heuristic 1 and 2 regarding SINR calculus and comparison: through this
-    // changing we will give the possibility to OFF cells to turn ON
-    if (bsIdle == 0)
-    {
-        BsStatus[1] = bsOn;
-        BsStatus[0] = 0;
+  // bsIdle turn ON the BS like would do bsOn
+  // If bsIdle is equal to zero, treat bsIdle as bsOn and put bsOn=0, in this way we are skipping
+  // the first part of heuristic 1 and 2 regarding SINR calculus and comparison: through this
+  // changing we will give the possibility the cells that are turned OFF, to turn ON again
+  if (bsIdle == 0)
+  {
+      BsStatus[1] = bsOn;
+      BsStatus[0] = 0;
   }
 
-  Ptr<EnergyHeuristic> energyHeur = CreateObject<EnergyHeuristic> ();
-  Ptr<MavenirHeuristic> mavenirHeur=CreateObject<MavenirHeuristic>();
-  std::vector<std::vector<Ptr<MmWaveEnbNetDevice>>> bsClusters = mavenirHeur->ReadClusters(clusters, nMmWaveEnbNodes, mmWaveEnbDevs);
-
+  Ptr<EnergyHeuristic> energyHeur=CreateObject<EnergyHeuristic>();
   switch (heuristicType)
     {
       // No heuristc
@@ -1031,6 +989,7 @@ main (int argc, char *argv[])
         NS_LOG_UNCOND ("Running the scenario with no Energy Heuristic");
       }
       break;
+
       // Random sleeping
       case 0: {
         for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
@@ -1085,39 +1044,9 @@ main (int argc, char *argv[])
           }
       }
       break;
-
-      // Mavenir heuristic
-      case 3: {
-        Ptr<MavHeurParameters> mavenirHeurPar=CreateObject<MavHeurParameters>(eekpiTh, avgWeightedEekpiTh, kCells, eekpiB, eekpiLambda);
-        for (double i = 0.0; i < simTime; i = i + indicationPeriodicity)
-          {
-            Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
-            Simulator::Schedule (Seconds (i), &MavenirHeuristic::MavenirHeur, mavenirHeur, 
-                                nMmWaveEnbNodes, mmWaveEnbDevs, ltedev, bsClusters, mavenirHeurPar);
-          }
-      }
-      break;
-
-      // Random action sleeping
-      case 4: {
-          std::vector<Ptr<MmWaveEnbNetDevice>> mmdevArray;
-          for (int j = 0; j < nMmWaveEnbNodes; j++)
-          {
-              // save all the mdev into an array
-              mmdevArray.push_back(DynamicCast<MmWaveEnbNetDevice>(mmWaveEnbDevs.Get(j)));
-          }
-          // every second change action
-          Ptr<LteEnbNetDevice> ltedev = DynamicCast<LteEnbNetDevice>(lteEnbDevs.Get(0));
-          for (double i = 0.0; i < simTime; i = i + 1.0)
-          {
-              Simulator::Schedule(Seconds(i), &EnergyHeuristic::RandomAction, energyHeur, mmdevArray, ltedev);
-          }
-      }
-      break;
-
       default: {
         NS_FATAL_ERROR (
-            "Heuristic type not recognized, the only possible values are [-1,0,1,2,3]. Value passed: "
+            "Heuristic type not recognized, the only possible values are [-1,0,1,2]. Value passed: "
             << heuristicType);
       }
       break;

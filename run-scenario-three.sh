@@ -12,14 +12,14 @@ nBsNoUesAlloc=3
 positionAllocator=1
 minSpeed=2.0 # minimum UE speed in m/s
 maxSpeed=4.0 # maximum UE speed in m/s
-simTime=10.0 # simulation time
+simTime=10 # simulation time
 e2TermIp="10.102.157.65" # actual E2term IP interface
 rlcAmEnabled="true"
 bufferSize=10
 trafficModel=3
 numberOfRaPreambles=30
 
-heuristicType=2 # Type of heuristic for managing BS status: no heuristic (-1), Random sleeping (0), Static sleeping (1), Dynamic sleeping (2), Mavenir (3)
+heuristicType=0 # Type of heuristic for managing BS status: no heuristic (-1), Random sleeping (0), Static sleeping (1), Dynamic sleeping (2)
 #heuristic parameters
 probOn=0.6038
 probIdle=0.3854
@@ -30,21 +30,14 @@ bsOn=5
 bsIdle=0
 bsSleep=0
 bsOff=2
-clusters=[[2,3,4,5,6,7,8]]
-eekpiTh=120.0
-avgWeightedEekpiTh=600.0
-kCells=2
-eekpiB=1
-eekpiLambda=0.1
 
 # Useful parameters to be configured
 seed=500 # seed parameter to be used
 basicCellId=1 # The next value will be the first cellId
 reducedPmValues=0 # use reduced subset of pmValues
 EnableE2FileLogging=1 # enable offline generation of data
-ues=15 # Number of UEs for each mmWave ENB
+ues=7 # Number of UEs for each mmWave ENB
 dataRate=0
-hoSinrDifference=3
 
 # # Select 0 or 1 to switch between the optimized or debug build
 # build=1
@@ -82,7 +75,6 @@ echo "Running simulation with seed $seed";
                                     --nBsNoUesAlloc=$nBsNoUesAlloc \
                                     --positionAllocator=$positionAllocator \
                                     --trafficModel=$trafficModel \
-                                    --hoSinrDifference=$hoSinrDifference \
                                     --rlcAmEnabled=$rlcAmEnabled \
                                     --bufferSize=$bufferSize \
                                     --dataRate=$dataRate \
@@ -114,11 +106,4 @@ echo "Running simulation with seed $seed";
                                     --bsOn=$bsOn\
                                     --bsIdle=$bsIdle\
                                     --bsSleep=$bsSleep\
-                                    --bsOff=$bsOff\
-                                    --clusters=$clusters\
-                                    --eekpiTh=$eekpiTh\
-                                    --avgWeightedEekpiTh=$avgWeightedEekpiTh\
-                                    --kCells=$kCells\
-                                    --eekpiB=$eekpiB\
-                                    --eekpiLambda=$eekpiLambda" ;
-
+                                    --bsOff=$bsOff";

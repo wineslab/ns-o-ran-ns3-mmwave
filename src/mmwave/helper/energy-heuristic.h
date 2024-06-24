@@ -40,7 +40,7 @@ class EnergyHeuristic : public Object
 
 
     /**
-     * @brief Method randomly decide one action to apply to the scenario
+     * @brief Method randomly decide one action to apply to the scenario within the list filter_list
      * 
      * @param mmdevArray Array of mmdev of each cell in the scenario
      */
@@ -48,10 +48,10 @@ class EnergyHeuristic : public Object
 
     /**
      * @brief Method that decides which mmWave BSs to turn idle, sleep and off based on the smallest
-     * time that connected ues take to reach them
+     * time that connected UEs take to reach them
      *
      * @param bsToTurnOn Array that contains a list mmWave BS indexes that are turned on. Each BS is
-     * identified with an index value used to save them in mmWaveEnbDevs
+     * identified with the index value used to store them in mmWaveEnbDevs
      * @param bsOn Number of BSs that are turned on
      * @param bsIdle Number of BSs that are turned idle
      * @param bsSleep Number of BSs that are turned sleep
@@ -74,7 +74,7 @@ class EnergyHeuristic : public Object
      * of the closest ue
      *
      * @param bsToTurnOn Array that contains a list mmWave BS indexes that are turned on. Each BS is
-     * identified with an index used to save them in mmWaveEnbDevs
+     * identified with the index used to store them in mmWaveEnbDevs
      * @param bsOn Number of BSs that are turned on
      * @param bsIdle Number of BSs that are turned idle
      * @param bsSleep Number of BSs that are turned sleep
@@ -98,7 +98,7 @@ class EnergyHeuristic : public Object
      * @param nMmWaveEnbNodes Number of mmWave BSs in the scenario
      * @param mmWaveEnbDevs Object that contains all the mmWave BSs
      * @param heuristic Type of heuristic, Dynamic or Static
-     * @param BsStatus Array of 4 elements: each cell contains the number of BS we want to:
+     * @param BsStatus Array of 4 elements: each cell of the array contains the number of BSs we want to:
      * BsStatus[0]=turn on, BsStatus[1]=turn idle, BsStatus[2]=turn sleep, BsStatus[3]=turn off
      */
     void TurnOnBsSinrPos(uint8_t nMmWaveEnbNodes,
@@ -123,30 +123,12 @@ class EnergyHeuristic : public Object
                           Ptr<MmWaveEnbNetDevice> mmDev,
                           Ptr<LteEnbNetDevice> ltedev);
     /**
-     * @brief Count the number of ues with a good SINR
+     * @brief Count the number of UEs with SINR higher than threshold
      *
      * @param sinrTh SINR threshold to define if a UE has a high SINR value
      * @param mmDev
      */
     void CountBestUesSinr(double sinrTh, Ptr<MmWaveEnbNetDevice> mmDev);
-    /**
-     * @brief write on m_energyHeuristicFilename information regarding the state of each cell
-     *
-     * @param mmDev
-     */
-    // void EnergyHeuristicTrace(Ptr<MmWaveEnbNetDevice> mmDev);
-
-    // std::string GetEnergyHeuristicFilename();
-
-    // void SetEnergyHeuristicFilename(std::string filename);
-
-  private:
-    /**
-     * @brief name of the file to save information through the method EnergyHeuristicTrace()
-     *
-     */
-    // std::string m_energyHeuristicFilename;
-    std::ofstream m_energyHeuristicFile;
 };
 
 } // namespace mmwave
