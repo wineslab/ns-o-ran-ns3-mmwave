@@ -20,6 +20,7 @@
 #ifndef NS3_CSV_READER_H_
 #define NS3_CSV_READER_H_
 
+#include <limits>
 #include <cstddef>
 #include <cstdint>
 #include <fstream>

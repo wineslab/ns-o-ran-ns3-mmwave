@@ -25,6 +25,7 @@
 #define LTE_ENB_NET_DEVICE_H
 
 #include "ns3/component-carrier-enb.h"
+#include <semaphore.h>
 #include "ns3/event-id.h"
 #include "ns3/lte-net-device.h"
 #include "ns3/lte-phy.h"
@@ -52,6 +53,8 @@ class LteHandoverAlgorithm;
 class LteAnr;
 class LteFfrAlgorithm;
 class LteEnbComponentCarrierManager;
+
+typedef std::pair<uint64_t, uint16_t> ImsiCellIdPair_t; // TODO maybe this can be moved string into ns-o-ran module
 
 /**
  * \ingroup lte
@@ -220,6 +223,15 @@ class LteEnbNetDevice : public LteNetDevice
 
     void SetE2Termination(Ptr<E2Termination> e2term);
 
+
+    double GetE2Periodicity (void);
+    static void ReportCurrentCellRsrpSinr(Ptr<LteEnbNetDevice> netDev,
+                                          std::string context,
+                                          uint16_t cellId,
+                                          uint16_t rnti,
+                                          double rsrp,
+                                          double sinr,
+                                          uint8_t componentCarrierId);
     Ptr<E2Termination> GetE2Termination() const;
 
     void BuildAndSendReportMessage(E2Termination::RicSubscriptionRequest_rval_s params);
@@ -233,6 +245,20 @@ class LteEnbNetDevice : public LteNetDevice
      * @param percentage percentage of traffic using LTE
      */
     void SetUeQoS(uint16_t ueId, double percentage);
+    /**
+     * @brief Get the PDCP traffic split percentage for the given ueId (rnti)
+     * 
+     * @param rnti 
+     * @return double 
+     */
+    double GetUeQoS (uint16_t rnti);
+    /**
+     * @brief Get the PDCP traffic split percentage for the given imsi
+     * 
+     * @param imsi 
+     * @return double 
+     */
+    double GetUeQoS (uint64_t imsi);
     void SetStartTime(uint64_t);
     uint64_t GetStartTime();
 
@@ -264,6 +290,10 @@ class LteEnbNetDevice : public LteNetDevice
     Ptr<KpmIndicationMessage> BuildRicIndicationMessageCuCp(std::string plmId);
     std::string GetImsiString(uint64_t imsi);
     void ReadControlFile();
+    std::string GetCurrentDirectory ();
+
+    void RegisterNewSinrReading(uint64_t imsi, uint16_t cellId, long double sinr);
+    std::map<ImsiCellIdPair_t, long double> m_l3sinrMap;
 
     /**
      * @brief Save at each granularity period of 10 ms the number of UEs connected to the cell
@@ -319,6 +349,10 @@ class LteEnbNetDevice : public LteNetDevice
 
     bool m_reducedPmValues;    //< if true use a reduced subset of pmvalues
     bool m_forceE2FileLogging; //< if true log PMs to files
+
+    bool m_useSemaphores; //< if true set up the semaphores for the external control
+    std::string m_metricsReadySemaphoreName; //< name of the semaphore ensuring the consumption of the metrics when they are ready
+    std::string m_controlSemaphoreName; //< name of the semaphore ensuring the the consumption of the control file when is ready
 
     std::vector<size_t> m_ueRrcMean;
 

@@ -67,6 +67,7 @@
 #include <ns3/trace-fading-loss-model.h>
 
 #include <iostream>
+#include <ns3/node-list.h>
 
 namespace ns3
 {
@@ -1667,6 +1668,27 @@ LteHelper::EnableDlPhyTraces(void)
     Config::ConnectFailSafe(
         "/NodeList/*/DeviceList/*/LteComponentCarrierMapUe/*/LteUePhy/ReportCurrentCellRsrpSinr",
         MakeBoundCallback(&PhyStatsCalculator::ReportCurrentCellRsrpSinrCallback, m_phyStats));
+
+    // This enables the connection to the traces for each LTE Enb Net Device
+    Ptr<LteEnbNetDevice> enbDevice;
+
+    for (NodeList::Iterator it = NodeList::Begin(); it != NodeList::End(); ++it)
+    {
+        Ptr<Node> node = *it;
+        int nDevs = node->GetNDevices();
+        for (int j = 0; j < nDevs; j++)
+        {
+            enbDevice = node->GetDevice(j)->GetObject<LteEnbNetDevice>();
+            if (enbDevice)
+            {
+                // connect to callbacks
+                Config::ConnectFailSafe(
+                    "/NodeList/*/DeviceList/*/LteComponentCarrierMapUe/*/LteUePhy/"
+                    "ReportCurrentCellRsrpSinr",
+                    MakeBoundCallback(&LteEnbNetDevice::ReportCurrentCellRsrpSinr, enbDevice));
+            }
+        }
+    }
 }
 
 void

@@ -171,16 +171,6 @@ static ns3::GlobalValue g_configuration ("configuration",
                                          ns3::UintegerValue (1),
                                          ns3::MakeUintegerChecker<uint8_t> ());
 
-static ns3::GlobalValue g_perPckToLTE ("perPckToLTE",
-                                       "Percentage of packets to be directed to LTE.",
-                                       ns3::DoubleValue (-1),
-                                       ns3::MakeDoubleChecker<double> (-1, 1.0));
-
-static ns3::GlobalValue
-    g_ueZeroPercentage ("ueZeroPercentage",
-                        "Percentage of packets to be directed to LTE from UE with X.",
-                        ns3::DoubleValue (-1), ns3::MakeDoubleChecker<double> (-1, 1.0));
-
 static ns3::GlobalValue
     g_hoSinrDifference ("hoSinrDifference",
                         "The value for which an handover between MmWave eNB is triggered",
@@ -229,8 +219,11 @@ static ns3::GlobalValue
               "If true, generate offline file logging instead of connecting to RIC",
               ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
 
+static ns3::GlobalValue q_useSemaphores ("useSemaphores", "If true, get the current directory as the path for the control file",
+                                        ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
+
 static ns3::GlobalValue g_controlFileName ("controlFileName", "The path to the control file (can be absolute)",
-                                     ns3::StringValue ("qos_actions.csv"), ns3::MakeStringChecker ());
+                                     ns3::StringValue ("ts_actions_for_ns3.csv"), ns3::MakeStringChecker ());
 
 static ns3::GlobalValue g_minSpeed ("minSpeed",
                                            "minimum UE speed in m/s",
@@ -245,6 +238,9 @@ static ns3::GlobalValue g_maxSpeed ("maxSpeed",
 int
 main (int argc, char *argv[])
 {
+  // std::freopen("stdout.txt", "a", stdout);
+  // std::freopen("stderr.txt", "a", stderr);
+
   LogComponentEnableAll (LOG_PREFIX_ALL);
   // LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
   // LogComponentEnable ("OnOffApplication", LOG_LEVEL_ALL);
@@ -281,10 +277,6 @@ main (int argc, char *argv[])
   StringValue stringValue;
   DoubleValue doubleValue;
 
-  GlobalValue::GetValueByName ("perPckToLTE", doubleValue);
-  double perPckToLTE = doubleValue.Get ();
-  GlobalValue::GetValueByName ("ueZeroPercentage", doubleValue);
-  double ueZeroPercentage = doubleValue.Get ();
   GlobalValue::GetValueByName ("hoSinrDifference", doubleValue);
   double hoSinrDifference = doubleValue.Get ();
   GlobalValue::GetValueByName ("dataRate", doubleValue);
@@ -349,6 +341,9 @@ main (int argc, char *argv[])
   GlobalValue::GetValueByName ("indicationPeriodicity", doubleValue);
   double indicationPeriodicity = doubleValue.Get ();
 
+  GlobalValue::GetValueByName ("useSemaphores", booleanValue);
+  bool useSemaphores = booleanValue.Get ();
+
   GlobalValue::GetValueByName ("controlFileName", stringValue);
   std::string controlFilename = stringValue.Get ();
 
@@ -358,13 +353,13 @@ main (int argc, char *argv[])
     << " e2cuCp " << e2cuCp
     << " e2cuUp " << e2cuUp
     << " reducedPmValues " << reducedPmValues 
-    << " perPckToLTE " << perPckToLTE
-    << " ueZeroPercentage " << ueZeroPercentage
     << " controlFilename " << controlFilename
     << " indicationPeriodicity " << indicationPeriodicity
+    << " UseSemaphores " << useSemaphores
   );
 
   Config::SetDefault ("ns3::LteEnbNetDevice::ControlFileName", StringValue(controlFilename));
+  Config::SetDefault ("ns3::LteEnbNetDevice::UseSemaphores", BooleanValue (useSemaphores));
   Config::SetDefault ("ns3::LteEnbNetDevice::E2Periodicity", DoubleValue (indicationPeriodicity));
   Config::SetDefault ("ns3::MmWaveEnbNetDevice::E2Periodicity", DoubleValue (indicationPeriodicity));
 
@@ -416,7 +411,6 @@ main (int argc, char *argv[])
                       UintegerValue (bufferSize * 1024 * 1024));
   Config::SetDefault ("ns3::LteRlcAm::MaxTxBufferSize", UintegerValue (bufferSize * 1024 * 1024));
 
-  Config::SetDefault ("ns3::McEnbPdcp::perPckToLTE", DoubleValue (perPckToLTE));
   Config::SetDefault ("ns3::LteEnbRrc::OutageThreshold", DoubleValue (outageThreshold));
   Config::SetDefault ("ns3::LteEnbRrc::SecondaryCellHandoverMode", StringValue (handoverMode));
   Config::SetDefault ("ns3::LteEnbRrc::HoSinrDifference", DoubleValue (hoSinrDifference));
@@ -805,15 +799,6 @@ main (int argc, char *argv[])
   // Since nodes are randomly allocated during each run we always need to print their positions
   PrintGnuplottableUeListToFile ("ues.txt");
   PrintGnuplottableEnbListToFile ("enbs.txt");
-
-  Ptr<LteEnbNetDevice> eNBDevice = DynamicCast<LteEnbNetDevice> (lteEnbDevs.Get (0));
-  uint16_t ueIdRnti = 1; // RNTI of the UE to be controlled
-  if (ueZeroPercentage != -1)
-    {
-      NS_LOG_UNCOND ("Setting UE with RNTI " << ueIdRnti << " PDCP split to " << ueZeroPercentage);
-      Simulator::Schedule (MilliSeconds (100), &LteEnbNetDevice::SetUeQoS, eNBDevice, ueIdRnti,
-                           ueZeroPercentage);
-    }
 
   bool run = true;
   if (run)

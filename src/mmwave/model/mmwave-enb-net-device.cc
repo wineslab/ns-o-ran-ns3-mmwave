@@ -318,7 +318,7 @@ MmWaveEnbNetDevice::DoInitialize(void)
     m_rrc->Initialize();
     m_componentCarrierManager->Initialize();
 
-    if (m_sendCuCp == true)
+    if (m_sendCuCp)
     {
         // connect to callback
         Config::ConnectFailSafe(
@@ -516,7 +516,7 @@ MmWaveEnbNetDevice::UpdateConfig(void)
                            "m_pDCPBytesUL (0),"
                            "m_pDCPBytesDL (cellDlTxVolume),DRB.PdcpSduVolumeDl_Filter.UEID "
                            "(txBytes),"
-                           "Tot.PdcpSduNbrDl.UEID (txDlPackets),DRB.PdcpSduBitRateDl.UEID"
+                           "Tot.PdcpSduNbrDl.UEID (txDlPackets),DRB.PdcpSduBitRateDl.UEID "
                            "(pdcpThroughput),"
                            "DRB.PdcpSduDelayDl.UEID "
                            "(pdcpLatency),QosFlow.PdcpPduVolumeDL_Filter.UEID"
@@ -563,7 +563,7 @@ MmWaveEnbNetDevice::UpdateConfig(void)
                         "QosFlow.PdcpPduVolumeDL_Filter,CARR.PDSCHMCSDist.Bin1,"
                         "CARR.PDSCHMCSDist.Bin2,"
                         "CARR.PDSCHMCSDist.Bin3,CARR.PDSCHMCSDist.Bin4,CARR.PDSCHMCSDist.Bin5,"
-                        "CARR.PDSCHMCSDist.Bin6,L1M.RS-SINR.Bin34,L1M.RS-SINR.Bin46, "
+                        "CARR.PDSCHMCSDist.Bin6,L1M.RS-SINR.Bin34,L1M.RS-SINR.Bin46,"
                         "L1M.RS-SINR.Bin58,"
                         "L1M.RS-SINR.Bin70,L1M.RS-SINR.Bin82,L1M.RS-SINR.Bin94,L1M.RS-SINR.Bin127,"
                         "DRB.BufferSize.Qos,DRB.MeanActiveUeDl";
@@ -577,7 +577,7 @@ MmWaveEnbNetDevice::UpdateConfig(void)
                         "CARR.PDSCHMCSDist.Bin2.UEID,CARR.PDSCHMCSDist.Bin3.UEID,"
                         "CARR.PDSCHMCSDist.Bin4.UEID,"
                         "CARR.PDSCHMCSDist.Bin5.UEID,"
-                        "CARR.PDSCHMCSDist.Bin6.UEID,L1M.RS-SINR.Bin34.UEID, "
+                        "CARR.PDSCHMCSDist.Bin6.UEID,L1M.RS-SINR.Bin34.UEID,"
                         "L1M.RS-SINR.Bin46.UEID,"
                         "L1M.RS-SINR.Bin58.UEID,L1M.RS-SINR.Bin70.UEID,L1M.RS-SINR.Bin82.UEID,"
                         "L1M.RS-SINR.Bin94.UEID,L1M.RS-SINR.Bin127.UEID,DRB.BufferSize.Qos.UEID,"

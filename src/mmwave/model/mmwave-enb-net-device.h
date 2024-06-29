@@ -178,12 +178,14 @@ class MmWaveEnbNetDevice : public MmWaveNetDevice
     void SetCellState(enumModeEnergyBs value);
 
     uint32_t GetmacPduInitialCellSpecificAttr();
+    std::string GetImsiString(uint64_t imsi);
 
   protected:
     virtual void DoInitialize(void) override;
     void UpdateConfig();
 
     void GetPeriodicPdcpStats();
+    uint32_t GetRlcBufferOccupancy(Ptr<LteRlc> rlc) const;
 
   private:
     /**
@@ -218,8 +220,6 @@ class MmWaveEnbNetDevice : public MmWaveNetDevice
     Ptr<KpmIndicationMessage> BuildRicIndicationMessageCuUp(std::string plmId);
     Ptr<KpmIndicationMessage> BuildRicIndicationMessageCuCp(std::string plmId);
     Ptr<KpmIndicationMessage> BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCellId);
-    std::string GetImsiString(uint64_t imsi);
-    uint32_t GetRlcBufferOccupancy(Ptr<LteRlc> rlc) const;
 
     /**
      * @brief Save at each granularity period of 10 ms the number of UEs connected to the cell

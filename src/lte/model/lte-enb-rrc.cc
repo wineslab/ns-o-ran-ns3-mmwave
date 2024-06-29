@@ -2425,6 +2425,12 @@ UeManager::GetImsi(void) const
     return m_imsi;
 }
 
+uint16_t
+UeManager::GetMmWaveCellId (void) const
+{
+  return m_mmWaveCellId;
+}
+
 uint8_t
 UeManager::GetComponentCarrierId() const
 {
@@ -5187,7 +5193,8 @@ void
 LteEnbRrc::SendHandoverRequest(uint16_t rnti, uint16_t cellId)
 {
     NS_LOG_FUNCTION(this << rnti << cellId);
-    NS_LOG_LOGIC("Request to send HANDOVER REQUEST");
+    NS_LOG_LOGIC("Request to send HANDOVER REQUEST Src: " << m_cellId << " RNTI: " << rnti
+                                                          << " target " << cellId);
     NS_ASSERT(m_configured);
 
     NS_LOG_INFO("LteEnbRrc on cell " << m_cellId << " for rnti " << rnti

@@ -527,6 +527,7 @@ MmWaveBearerStatsConnector::PrintMmWaveSinr(uint64_t imsi, uint16_t cellId, long
     NS_LOG_FUNCTION(this << " PrintMmWaveSinr " << Simulator::Now().GetSeconds());
     if (!m_mmWaveSinrOutFile.is_open())
     {
+        m_mmWaveSinrOutFile << "Time" << " " << "IMSI" << " " << "CellId" << " " << "SINR[dB]" << std::endl;
         m_mmWaveSinrOutFile.open(GetMmWaveSinrOutputFilename().c_str());
     }
     m_mmWaveSinrOutFile << Simulator::Now().GetNanoSeconds() / 1.0e9 << " " << imsi << " " << cellId

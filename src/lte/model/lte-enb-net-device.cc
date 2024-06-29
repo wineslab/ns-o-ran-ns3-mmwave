@@ -38,6 +38,9 @@
 #include <ns3/lte-amc.h>
 #include <ns3/lte-anr.h>
 #include <ns3/lte-enb-component-carrier-manager.h>
+#include <ns3/config.h>
+#include <semaphore.h>
+#include <fcntl.h>
 #include <ns3/lte-enb-mac.h>
 #include <ns3/lte-enb-net-device.h>
 #include <ns3/lte-enb-phy.h>
@@ -97,204 +100,270 @@ LteEnbNetDevice::KpmSubscriptionCallback(E2AP_PDU_t* sub_req_pdu)
     }
 }
 
+std::string
+LteEnbNetDevice::GetCurrentDirectory()
+{
+    NS_LOG_FUNCTION(this);
+    int ret = std::system("pwd >path.txt");
+    if (ret < 0)
+    {
+        NS_FATAL_ERROR("Unable to execute pwd command ");
+    }
+
+    std::string path;
+    std::getline(std::ifstream("path.txt"), path);
+    NS_LOG_INFO("I am running in " << path);
+    return path;
+}
+
 void
 LteEnbNetDevice::ReadControlFile()
 {
-    // open the control file and read handover commands
+    NS_LOG_INFO(Simulator::Now().GetMilliSeconds()
+                << " I will try to read the control file " << m_controlFilename);
+    // Open the control file and read control commands
     if (m_controlFilename != "")
     {
-        std::ifstream csv{};
-        csv.open(m_controlFilename.c_str(), std::ifstream::in);
-        if (!csv.is_open())
+        if (m_useSemaphores)
         {
-            NS_FATAL_ERROR("Can't open file " << m_controlFilename.c_str());
-        }
-        std::string line;
+            sem_t* metricsReadySemaphore = sem_open(m_metricsReadySemaphoreName.c_str(), 0);
+            NS_ABORT_MSG_IF(metricsReadySemaphore == SEM_FAILED,
+                            "Error in opening the metrics semaphore, errno: " << strerror(errno));
 
-        if (m_controlFilename.find("ts_actions_for_ns3.csv") != std::string::npos)
-        { // TODO adapt to the scheduling of the messages
-
-            long long timestamp{};
-
-            while (std::getline(csv, line))
+            if (sem_post(metricsReadySemaphore) == -1)
             {
-                if (line == "")
-                {
-                    // skip empty lines
-                    continue;
-                }
-                NS_LOG_INFO("Read handover command");
-                std::stringstream lineStream(line);
-                std::string cell;
-
-                std::getline(lineStream, cell, ',');
-                timestamp = std::stoll(cell);
-
-                uint64_t imsi;
-                std::getline(lineStream, cell, ',');
-                imsi = std::stoi(cell);
-
-                uint16_t targetCellId;
-                std::getline(lineStream, cell, ',');
-                // uncomment the next line if need to remove PLM ID, first 3 digits always 111
-                // cell.erase(0, 3);
-                targetCellId = std::stoi(cell);
-
-                NS_LOG_INFO("Handover command for timestamp " << timestamp << " imsi " << imsi
-                                                              << " targetCellId " << targetCellId);
-
-                m_rrc->TakeUeHoControl(imsi);
-                Simulator::ScheduleWithContext(1,
-                                               Seconds(0),
-                                               &LteEnbRrc::PerformHandoverToTargetCell,
-                                               m_rrc,
-                                               imsi,
-                                               targetCellId);
+                NS_FATAL_ERROR("Error post named metrics semaphore: " << strerror(errno));
             }
+
+            sem_close(metricsReadySemaphore);
+            metricsReadySemaphore = nullptr;
+
+            sem_t* controlSemaphore = sem_open(m_controlSemaphoreName.c_str(), 0);
+            NS_ABORT_MSG_IF(controlSemaphore == SEM_FAILED,
+                            "Error in opening the control semaphore, errno: " << strerror(errno));
+
+            if (sem_wait(controlSemaphore) == -1)
+            {
+                NS_FATAL_ERROR("Error wait control mutex semaphore: " << strerror(errno));
+            }
+
+            sem_close(controlSemaphore);
+            controlSemaphore = nullptr;
         }
-        else if (m_controlFilename.find("es_actions_for_ns3.csv") != std::string::npos)
+
+        // open the control file and read handover commands
+        if (m_controlFilename != "")
         {
-            long long timestamp{};
-            uint8_t counter = 0;
-            while (std::getline(csv, line))
+            std::ifstream csv{};
+            csv.open(m_controlFilename.c_str(), std::ifstream::in);
+            if (!csv.is_open())
             {
-                if (line == "")
+                NS_FATAL_ERROR("Can't open file " << m_controlFilename.c_str());
+            }
+            std::string line;
+
+            if (m_controlFilename.find("ts_actions_for_ns3.csv") != std::string::npos)
+            { // TODO adapt to the scheduling of the messages
+
+                long long timestamp{};
+
+                while (std::getline(csv, line))
                 {
-                    // skip empty lines
-                    continue;
-                }
-                NS_LOG_INFO("Read evict users command");
-                counter++;
-                std::stringstream lineStream(line);
-                std::string cell;
+                    if (line == "")
+                    {
+                        // skip empty lines
+                        continue;
+                    }
+                    NS_LOG_INFO("Read handover command");
+                    std::stringstream lineStream(line);
+                    std::string cell;
 
-                std::getline(lineStream, cell, ',');
-                timestamp = std::stoll(cell);
+                    std::getline(lineStream, cell, ',');
+                    timestamp = std::stoll(cell);
 
-                uint16_t cellId;
-                std::getline(lineStream, cell, ',');
-                // uncomment the next line if need to remove PLM ID, first 3 digits always 111
-                // cell.erase(0, 3);
-                cellId = std::stoi(cell);
+                    uint64_t imsi;
+                    std::getline(lineStream, cell, ',');
+                    imsi = std::stoi(cell);
 
-                bool hoAllowed; // TODO check what value is written in the file (should be 0 for
-                                // false and 1 for true now)
-                std::getline(lineStream, cell, ',');
-                hoAllowed = std::stoi(cell);
+                    uint16_t targetCellId;
+                    std::getline(lineStream, cell, ',');
+                    // uncomment the next line if need to remove PLM ID, first 3 digits always 111
+                    // cell.erase(0, 3);
+                    targetCellId = std::stoi(cell);
 
-                NS_LOG_INFO("Set allowed command with timestamp "
-                            << timestamp << " cellId " << cellId << " hoAllowed " << hoAllowed);
+                    NS_LOG_INFO("Handover command for timestamp " << timestamp << " imsi " << imsi
+                                                                  << " targetCellId "
+                                                                  << targetCellId);
 
-                // set the status of the cell (On/Off)
-                if (!m_scheduleControlMessages)
-                {
-                    m_rrc->SetSecondaryCellHandoverAllowedStatus(cellId, hoAllowed);
-                }
-                else
-                {   // Here we pre-schedule all the functions to be executed during the simulation
-                    Simulator::Schedule(MilliSeconds(timestamp),
-                                        &LteEnbRrc::SetSecondaryCellHandoverAllowedStatus,
-                                        m_rrc,
-                                        cellId,
-                                        hoAllowed);
+                    uint16_t rntiUe = m_rrc->GetRntiFromImsi(imsi);
+                    uint16_t sourceCellId = m_rrc->GetUeManager(rntiUe)->GetMmWaveCellId();
+                    if (sourceCellId == targetCellId)
+                    {
+                        NS_LOG_WARN("Source CellId and Target CellId are the same "
+                                    << unsigned(sourceCellId) << ", ignoring HO request");
+                        continue;
+                    }
+
+                    m_rrc->TakeUeHoControl(imsi);
+                    Simulator::ScheduleWithContext(1,
+                                                   Seconds(0),
+                                                   &LteEnbRrc::PerformHandoverToTargetCell,
+                                                   m_rrc,
+                                                   imsi,
+                                                   targetCellId);
                 }
             }
+            else if (m_controlFilename.find("es_actions_for_ns3.csv") != std::string::npos)
+            {
+                long long timestamp{};
+                uint8_t counter = 0;
+                while (std::getline(csv, line))
+                {
+                    if (line == "")
+                    {
+                        // skip empty lines
+                        continue;
+                    }
+                    NS_LOG_INFO("Read evict users command");
+                    counter++;
+                    std::stringstream lineStream(line);
+                    std::string cell;
 
-            if (counter > 0)
-            { // we want this to be triggered only when we have some new data in the dale
-                // Triggers (or schedules) the handovers for UEs in the Off cells
-                if (!m_scheduleControlMessages)
-                {
-                    m_rrc->EvictUsersFromSecondaryCell();
+                    std::getline(lineStream, cell, ',');
+                    timestamp = std::stoll(cell);
+
+                    uint16_t cellId;
+                    std::getline(lineStream, cell, ',');
+                    // uncomment the next line if need to remove PLM ID, first 3 digits always 111
+                    // cell.erase(0, 3);
+                    cellId = std::stoi(cell);
+
+                    bool hoAllowed; // TODO enforce correctness by checking what value is written in
+                                    // the file (should be 0 for false and 1 for true now)
+                    std::getline(lineStream, cell, ',');
+                    hoAllowed = std::stoi(cell);
+
+                    NS_LOG_INFO("Set allowed command with timestamp "
+                                << timestamp << " cellId " << cellId << " hoAllowed " << hoAllowed);
+
+                    // set the status of the cell (On/Off)
+                    if (!m_scheduleControlMessages)
+                    {
+                        m_rrc->SetSecondaryCellHandoverAllowedStatus(cellId, hoAllowed);
+                    }
+                    else
+                    { // Here we pre-schedule all the functions to be executed during the simulation
+                        Simulator::Schedule(MilliSeconds(timestamp),
+                                            &LteEnbRrc::SetSecondaryCellHandoverAllowedStatus,
+                                            m_rrc,
+                                            cellId,
+                                            hoAllowed);
+                    }
                 }
-                else
-                {
-                    // we introduce a minimum offset of 0.001 to make sure that this is scheduled
-                    // after. This may be unnecessary according to the internal working of ns-3
-                    Simulator::Schedule(MilliSeconds(timestamp + 0.001),
-                                        &LteEnbRrc::EvictUsersFromSecondaryCell,
-                                        m_rrc);
+
+                if (counter > 0)
+                { // we want this to be triggered only when we have some new data to process
+                    // Triggers (or schedules) the handovers for UEs in the Off cells
+                    if (!m_scheduleControlMessages)
+                    {
+                        m_rrc->EvictUsersFromSecondaryCell();
+                    }
+                    else
+                    {
+                        // we introduce a minimum offset of 0.001 to make sure that this is
+                        // scheduled after. This may be unnecessary according to the internal
+                        // working of ns-3 But ¯\_(ツ)_/¯
+                        Simulator::Schedule(MilliSeconds(timestamp + 0.001),
+                                            &LteEnbRrc::EvictUsersFromSecondaryCell,
+                                            m_rrc);
+                    }
                 }
             }
-        }
-        else if (m_controlFilename == "qos_actions.csv")
-        { // TODO adapt to the scheduling of the messages
-            long long timestamp{};
-            std::unordered_map<uint16_t, double> uePercentages{};
-            while (std::getline(csv, line))
-            {
-                if (line == "")
-                {
-                    // skip empty lines
-                    continue;
-                }
+            else if (m_controlFilename.find("qos_actions.csv") != std::string::npos)
+            { // TODO adapt to the scheduling of the messages
+                long long timestamp{};
+                std::unordered_map<uint16_t, double> uePercentages{};
                 NS_LOG_INFO("Read QoS command");
-                std::stringstream lineStream(line);
-                std::string data;
-
-                std::getline(lineStream, data, ',');
-                timestamp = std::stoll(data);
-
-                uint16_t ueId;
-                std::getline(lineStream, data, ',');
-                // uncomment the next line if need to remove PLM ID, first 3 digits always 111
-                // cell.erase(0, 3);
-                ueId = std::stoi(data);
-
-                double uePerc;
-                std::getline(lineStream, data, ',');
-                uePerc = std::stof(data);
-                if (uePerc < 0 || uePerc > 1)
+                while (std::getline(csv, line))
                 {
-                    NS_LOG_ERROR("Wrong value for ueid " << uePerc << " percentage ");
+                    if (line == "")
+                    {
+                        // skip empty lines
+                        continue;
+                    }
+
+                    std::stringstream lineStream(line);
+                    std::string data;
+
+                    std::getline(lineStream, data, ',');
+                    timestamp = std::stoll(data);
+
+                    uint16_t ueId;
+                    std::getline(lineStream, data, ',');
+                    // uncomment the next line if need to remove PLM ID, first 3 digits always 111
+                    // cell.erase(0, 3);
+                    ueId = std::stoi(data);
+
+                    double uePerc;
+                    std::getline(lineStream, data, ',');
+                    uePerc = std::stof(data);
+                    if (uePerc < 0 || uePerc > 1)
+                    {
+                        NS_LOG_ERROR("Wrong value for ueid " << uePerc << " percentage ");
+                    }
+                    else
+                    {
+                        NS_LOG_INFO("Set ue percentage command with timestamp "
+                                    << timestamp << " ueId " << ueId << "percentage" << uePerc);
+                        uePercentages.insert({ueId, uePerc});
+                    }
                 }
-                else
+
+                auto ueMap = m_rrc->GetUeMap();
+                for (std::pair<uint64_t, double> uePercentage : uePercentages)
                 {
-                    NS_LOG_INFO("Set ue percentage command with timestamp "
-                                << timestamp << " ueId " << ueId << "percentage" << uePerc);
-                    uePercentages.insert({ueId, uePerc});
+                    uint16_t ueId = m_rrc->GetRntiFromImsi(uePercentage.first);
+                    if (ueMap.find(ueId) == ueMap.end())
+                    {
+                        NS_LOG_ERROR(ueId << " not found in UeMap");
+                        NS_LOG_ERROR("Current map status:");
+                        for (std::pair<uint16_t, ns3::Ptr<ns3::UeManager>> ue : ueMap)
+                        {
+                            NS_LOG_ERROR(ue.first);
+                        }
+                        NS_FATAL_ERROR("Wrong UE RNTI passed by the controller, aborting...");
+                    }
+                    double percentage = uePercentage.second;
+                    this->SetUeQoS(ueId, percentage);
                 }
             }
-            // rrc -> GetUeMap returns the map <rnti, UeManager> with all UEs in the BS
-            // get the UeManager for the user you want to control from this map, if you know the
-            // imsi you can use rrc-> GetImsiFromRnti get the drbMap from that UeManager
-            // (GetDrbMap), the map has <drbid, Ptr<LteDataRadioBearerInfo>>
-
-            // Ptr<LteDataRadioBearerInfo> has a pointer to the PDCP
-            // Call SetAttribute (“attr_name”, DoubleValue(perc)) on the PDCP object
-            auto ueMap = m_rrc->GetUeMap();
-            for (std::pair<uint16_t, double> uePercentage : uePercentages)
+            else
             {
-                uint16_t ueId = uePercentage.first;
-                double percentage = uePercentage.second;
-                this->SetUeQoS(ueId, percentage);
+                NS_FATAL_ERROR(
+                    "Unknown use case not implemented yet with filename: " << m_controlFilename);
+            }
+
+            csv.close();
+
+            if (!m_scheduleControlMessages)
+            { // no need to delete stuff in this mode
+                // This clears the written file without deleting the OS file reference.
+                std::ofstream csvDelete{};
+                csvDelete.open(m_controlFilename.c_str());
+
+                NS_LOG_INFO("File flushed");
             }
         }
-        else
-        {
-            NS_FATAL_ERROR(
-                "Unknown use case not implemented yet with filename: " << m_controlFilename);
-        }
 
-        csv.close();
-
+        // Since the message digestion and the control are mutually exclusive,
+        // there is no need to reschedule this action again in the first case.
         if (!m_scheduleControlMessages)
-        { // no need to delete stuff in this mode
-            std::ofstream csvDelete{};
-            csvDelete.open(m_controlFilename.c_str());
-
-            NS_LOG_INFO("File flushed");
+        {
+            // Now that we have a semaphore control, the code will stop, thus avoiding endless
+            // function calls This means that we can safely fix the check at each m_e2Periodicity
+            // (which will be always delayed by 5ms due to the settomgs in the constructor)
+            Simulator::Schedule(Seconds(m_e2Periodicity), &LteEnbNetDevice::ReadControlFile, this);
         }
-    }
-
-    // Since the message digestion and the control are mutually exclusive,
-    // there is no need to reschedule this action again in the first case.
-    if (!m_scheduleControlMessages)
-    {
-        // TODO check if we need to run multiple times in a m_e2Periodicity time delta,
-        // to catch commands that are late
-        // We can run every ms, if the file is empty, do not do anything
-        Simulator::Schedule(Seconds(0.001), &LteEnbNetDevice::ReadControlFile, this);
     }
 }
 
@@ -309,16 +378,52 @@ LteEnbNetDevice::SetUeQoS(uint16_t ueId, double percentage)
         Ptr<McEnbPdcp> pdcp = DynamicCast<McEnbPdcp>(dataBearer->m_pdcp);
         if (pdcp)
         {
-            NS_LOG_UNCOND(Simulator::Now().GetMilliSeconds()
-                          << ": About to set pecentage " << percentage
-                          << " on UE connectes to eNB with RNTI " << ueId);
+            NS_LOG_INFO(Simulator::Now().GetMilliSeconds()
+                        << ": About to set pecentage " << percentage
+                        << " on UE connectes to eNB with RNTI " << ueId);
             pdcp->SetAttribute("perPckToLTE", DoubleValue(percentage));
+        }
+        else
+        {
+            NS_LOG_WARN("pdcp not found");
+        }
+    }
+}
+
+double
+LteEnbNetDevice::GetUeQoS(uint16_t rnti)
+{
+    auto ueManager = m_rrc->GetUeManager(rnti);
+    auto drbMap = ueManager->GetDrbMap();
+    DoubleValue percentage;
+    double ueQoS;
+    for (auto drb : drbMap)
+    {
+        auto dataBearer = drb.second;
+        Ptr<McEnbPdcp> pdcp = DynamicCast<McEnbPdcp>(dataBearer->m_pdcp);
+        if (pdcp)
+        {
+            pdcp->GetAttribute("perPckToLTE", percentage);
+            ueQoS = percentage.Get();
+            if (ueQoS == -1)
+            { // ueQoS == -1 means that qos is not yet set, but stastically it will distribute with
+              // 50% of possibility, thus we set 0.5
+                return 0.5;
+            }
+            return ueQoS;
         }
         else
         {
             NS_LOG_UNCOND("pdcp not found");
         }
     }
+    return -1.0; // This should never happen
+}
+
+double
+LteEnbNetDevice::GetUeQoS(uint64_t imsi)
+{
+    return GetUeQoS(m_rrc->GetRntiFromImsi(imsi));
 }
 
 void
@@ -506,7 +611,7 @@ LteEnbNetDevice::GetTypeId(void)
                 "Filename for the stand alone control mode. The file is deleted after every read."
                 "Format should correspond to the particular use case:\n"
                 "TS: Contains multiple lines with ts, imsi, targetCellId\n"
-                "QoS: TBD\n"
+                "QoS: Contains multiple lines with ts, imsi, qos\n"
                 "EE: Contains multiple lines with ts, cellId, action",
                 StringValue(""),
                 MakeStringAccessor(&LteEnbNetDevice::m_controlFilename),
@@ -517,6 +622,12 @@ LteEnbNetDevice::GetTypeId(void)
                           "If false, the control action will be executed when parsed.\n",
                           BooleanValue(false),
                           MakeBooleanAccessor(&LteEnbNetDevice::m_scheduleControlMessages),
+                          MakeBooleanChecker())
+            .AddAttribute("UseSemaphores",
+                          "If true, we use the semaphores to handle communication with an external "
+                          "environment",
+                          BooleanValue(false),
+                          MakeBooleanAccessor(&LteEnbNetDevice::m_useSemaphores),
                           MakeBooleanChecker());
     return tid;
 }
@@ -529,6 +640,7 @@ LteEnbNetDevice::LteEnbNetDevice()
       m_isReportingEnabled(false),
       m_reducedPmValues(false),
       m_forceE2FileLogging(false),
+      m_useSemaphores(false),
       m_cuUpFileName(),
       m_cuCpFileName()
 {
@@ -768,6 +880,40 @@ LteEnbNetDevice::DoInitialize(void)
     m_ffrAlgorithm->Initialize();
 }
 
+void
+LteEnbNetDevice::ReportCurrentCellRsrpSinr(Ptr<LteEnbNetDevice> netDev,
+                                           std::string context,
+                                           uint16_t cellId,
+                                           uint16_t rnti,
+                                           double rsrp,
+                                           double sinr,
+                                           uint8_t componentCarrierId)
+{
+    uint64_t imsi = netDev->GetRrc()->GetImsiFromRnti(rnti);
+    // NS_LOG_UNCOND ("RegisterNewSinrReadingCallback rnti" << std::to_string(rnti)<< " imsi "<<
+    // std::to_string(imsi));
+    netDev->RegisterNewSinrReading(imsi, cellId, sinr);
+}
+
+void
+LteEnbNetDevice::RegisterNewSinrReading(uint64_t imsi, uint16_t cellId, long double sinr)
+{
+    if (!m_sendCuCp)
+    {
+        return;
+    }
+
+    // Create key
+    ImsiCellIdPair_t imsiCid{imsi, cellId};
+
+    // We only need to save the last value, so we do not care about overwriting or not
+    m_l3sinrMap[imsiCid] = sinr;
+
+    NS_LOG_LOGIC(Simulator::Now().GetSeconds()
+                 << " enbdev " << m_cellId << " UE " << imsi << " report for " << cellId << " SINR "
+                 << m_l3sinrMap[imsiCid]);
+}
+
 bool
 LteEnbNetDevice::Send(Ptr<Packet> packet, const Address& dest, uint16_t protocolNumber)
 {
@@ -826,16 +972,68 @@ LteEnbNetDevice::UpdateConfig(void)
                 csv.open(m_cuCpFileName.c_str());
                 csv << "timestamp,ueImsiComplete,numActiveUes,RRC.ConnMean,DRB.EstabSucc.5QI.UEID "
                        "(numDrb),"
-                       "DRB.RelActNbr.5QI.UEID (0),enbdev (m_cellId),UE (imsi),sameCellSinr,"
-                       "sameCellSinr 3gpp encoded,L3 neigh Id (cellId),"
-                       "sinr,3gpp encoded sinr (convertedSinr)\n";
+                       "DRB.RelActNbr.5QI.UEID (0),eNB id,sameCellSinr,"
+                       "sameCellSinr 3gpp encoded\n";
                 csv.close();
-                Simulator::Schedule(MicroSeconds(800),
+                Simulator::Schedule(MicroSeconds(500),
                                     &LteEnbNetDevice::BuildAndSendReportMessage,
                                     this,
                                     E2Termination::RicSubscriptionRequest_rval_s{});
+                NS_LOG_INFO("About to schedule control file function");
+                if (m_useSemaphores)
+                {
+                    std::string currentDirectory = GetCurrentDirectory();
+                    // Extract folder name
+                    size_t lastDelimiterPos = currentDirectory.find_last_of('/');
+                    m_metricsReadySemaphoreName = "/sem_metrics_";
+                    m_controlSemaphoreName = "/sem_control_";
+                    if (lastDelimiterPos != std::string::npos)
+                    {
+                        m_metricsReadySemaphoreName +=
+                            currentDirectory.substr(lastDelimiterPos + 1);
+                        m_controlSemaphoreName += currentDirectory.substr(lastDelimiterPos + 1);
+                    }
+                    else
+                    {
+                        m_metricsReadySemaphoreName += currentDirectory;
+                        m_controlSemaphoreName += currentDirectory;
+                    }
 
-                Simulator::Schedule(MicroSeconds(1000), &LteEnbNetDevice::ReadControlFile, this);
+                    NS_LOG_INFO("Name of semaphore for metrics is "
+                                << m_metricsReadySemaphoreName.c_str());
+                    NS_LOG_INFO("Name of semaphore for control is "
+                                << m_controlSemaphoreName.c_str());
+                    // Ensure semaphores are created
+                    int initial_count = 0;
+                    sem_t* metricsReadySemaphore = sem_open(m_metricsReadySemaphoreName.c_str(),
+                                                            O_CREAT,
+                                                            S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP,
+                                                            initial_count);
+                    NS_ABORT_MSG_IF(
+                        metricsReadySemaphore == SEM_FAILED,
+                        "Error in opening the metrics semaphore, errno: " << strerror(errno));
+                    sem_close(metricsReadySemaphore);
+                    metricsReadySemaphore = nullptr;
+
+                    sem_t* controlSemaphore = sem_open(m_controlSemaphoreName.c_str(),
+                                                       O_CREAT,
+                                                       S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP,
+                                                       initial_count);
+                    NS_ABORT_MSG_IF(
+                        controlSemaphore == SEM_FAILED,
+                        "Error in opening the control semaphore, errno: " << strerror(errno));
+                    sem_close(controlSemaphore);
+                    controlSemaphore = nullptr;
+
+                    // This is needed when the output of the simulation and the control file are
+                    // saved in a different folder from the ns-3 one
+                    m_controlFilename = currentDirectory + '/' + m_controlFilename;
+                    NS_LOG_INFO("The filename of the control file is " << m_controlFilename);
+                }
+
+                // Set the first Control Action to happen after 5 ms to the first m_e2Periodicity
+                Time e2ControlPeriodicity = Seconds(m_e2Periodicity) + MilliSeconds(5);
+                Simulator::Schedule(e2ControlPeriodicity, &LteEnbNetDevice::ReadControlFile, this);
             }
 
             // Regardless the offline or online mode for reporting the files, we always want to
@@ -950,10 +1148,9 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
         uint64_t imsi = ue.second->GetImsi();
         std::string ueImsiComplete = GetImsiString(imsi);
 
-        // TODO fix types
-        long txDlPackets =
+        uint32_t txDlPackets =
             m_e2PdcpStatsCalculator->GetDlTxPackets(imsi, 3); // LCID 3 is used for data
-        double txBytes =
+        uint64_t txBytes =
             m_e2PdcpStatsCalculator->GetDlTxData(imsi, 3) * 8 / 1e3; // in kbit, not byte
         cellDlTxVolume += txBytes;
 
@@ -1157,9 +1354,15 @@ LteEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
 
             auto uePms = uePmString.find(imsi)->second;
 
-            std::string to_print = std::to_string(timestamp) + "," + ueImsiComplete + "," +
-                                   std::to_string(ueMapSize) + "," + std::to_string(meanRrcUes) +
-                                   "," + uePms + ",,,,,,," + "\n";
+            // SINR for the same cell
+            ImsiCellIdPair_t cid{imsi, m_cellId};
+            double sinrThisCell = 10 * std::log10(m_l3sinrMap[cid]);
+            double convertedSinr = L3RrcMeasurements::ThreeGppMapSinr(sinrThisCell);
+
+            std::string to_print =
+                std::to_string(timestamp) + "," + ueImsiComplete + "," + std::to_string(ueMapSize) +
+                "," + std::to_string(meanRrcUes) + uePms + "," + std::to_string(m_cellId) + "," +
+                std::to_string(sinrThisCell) + "," + std::to_string(convertedSinr) + "\n";
 
             NS_LOG_DEBUG(to_print);
 
@@ -1264,6 +1467,12 @@ uint64_t
 LteEnbNetDevice::GetStartTime()
 {
     return m_startTime;
+}
+
+double
+LteEnbNetDevice::GetE2Periodicity ()
+{
+    return m_e2Periodicity;
 }
 
 } // namespace ns3

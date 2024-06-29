@@ -366,6 +366,12 @@ class UeManager : public Object
 
     /**
      *
+     * \return the mmWave cell Id the UE is connected to
+     */
+    uint16_t GetMmWaveCellId (void) const;
+
+    /**
+     *
      * \return the primary component carrier ID
      */
     uint8_t GetComponentCarrierId() const;

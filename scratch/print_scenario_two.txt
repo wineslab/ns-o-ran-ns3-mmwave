@@ -1,0 +1,12 @@
+set view map
+set xlabel 'X [m]'
+set ylabel 'Y [m]'
+set style fill transparent solid 0.5
+set xrange [100:3900]
+set yrange [300:3600]
+load 'ues.txt'
+load 'enbs.txt'
+#set output 'scenario_2.eps'
+set terminal png size 2400,1200
+set output 'scenario-two.png'
+plot 1/0 notitle

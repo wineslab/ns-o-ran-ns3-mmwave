@@ -91,6 +91,8 @@ X2Stats.txt
 LteDlRsrpSinrStats.txt
 RlcAmBufferSize.txt
 LteUlSinrStats.txt
+path.txt
+QoSLoadBalancing.txt
 *.csv
 *.zip
 stderr
