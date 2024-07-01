@@ -1,44 +1,37 @@
-# Contributing to ns-3
-
-*This file is heavily inspired by Atom's [CONTRIBUTING.md file](https://raw.githubusercontent.com/atom/atom/master/CONTRIBUTING.md).*
-
 The following is a set of guidelines for contributing to ns-3, which are hosted in the [nsnam organization](https://gitlab.com/nsnam) on GitLab.com. These are mostly guidelines, not rules. Use your best judgment, and feel free to propose changes to this document in a merge request.
 
-## Table Of Contents
-- [Contributing to ns-3](#contributing-to-ns-3)
-  - [Table Of Contents](#table-of-contents)
-  - [ns-o-ran issues and questions](#ns-o-ran-issues-and-questions)
-  - [I do not want to read this whole thing, I just have a question](#i-do-not-want-to-read-this-whole-thing-i-just-have-a-question)
-  - [What should I know before I get started?](#what-should-i-know-before-i-get-started)
-    - [ns-3 Documentation](#ns-3-documentation)
-    - [ns-3 Modules](#ns-3-modules)
-    - [Design Decisions](#design-decisions)
-  - [How Can I Contribute?](#how-can-i-contribute)
-    - [Reporting Bugs](#reporting-bugs)
-      - [Before Submitting A Bug Report (to be completed)](#before-submitting-a-bug-report-to-be-completed)
-      - [How Do I Submit A (Good) Bug Report?](#how-do-i-submit-a-good-bug-report)
-    - [Suggesting Enhancements](#suggesting-enhancements)
-      - [Before Submitting An Enhancement Suggestion](#before-submitting-an-enhancement-suggestion)
-      - [How Do I Submit A (Good) Enhancement Suggestion?](#how-do-i-submit-a-good-enhancement-suggestion)
-    - [Your First Code Contribution](#your-first-code-contribution)
-      - [Local development](#local-development)
-    - [Merge Requests](#merge-requests)
-  - [Styleguides](#styleguides)
-    - [Git Commit Messages](#git-commit-messages)
-    - [C++ Styleguide](#c-styleguide)
-    - [Documentation Styleguide](#documentation-styleguide)
-  - [Additional Notes](#additional-notes)
-    - [Issue and Merge Request Labels](#issue-and-merge-request-labels)
-      - [Type of Issue and Issue State](#type-of-issue-and-issue-state)
-      - [Topic Categories](#topic-categories)
-      - [Merge Request Labels](#merge-request-labels)
-    - [Module Labels](#module-labels)
+- [ns-o-ran issues and questions](#ns-o-ran-issues-and-questions)
+- [I do not want to read this whole thing, I just have a question](#i-do-not-want-to-read-this-whole-thing-i-just-have-a-question)
+- [What should I know before I get started?](#what-should-i-know-before-i-get-started)
+  - [ns-3 Documentation](#ns-3-documentation)
+  - [ns-3 Modules](#ns-3-modules)
+  - [Design Decisions](#design-decisions)
+- [How Can I Contribute?](#how-can-i-contribute)
+  - [Reporting Bugs](#reporting-bugs)
+    - [Before Submitting A Bug Report (to be completed)](#before-submitting-a-bug-report-to-be-completed)
+    - [How Do I Submit A (Good) Bug Report?](#how-do-i-submit-a-good-bug-report)
+  - [Suggesting Enhancements](#suggesting-enhancements)
+    - [Before Submitting An Enhancement Suggestion](#before-submitting-an-enhancement-suggestion)
+    - [How Do I Submit A (Good) Enhancement Suggestion?](#how-do-i-submit-a-good-enhancement-suggestion)
+  - [Your First Code Contribution](#your-first-code-contribution)
+    - [Local development](#local-development)
+  - [Merge Requests](#merge-requests)
+- [Styleguides](#styleguides)
+  - [Git Commit Messages](#git-commit-messages)
+  - [C++ Styleguide](#c-styleguide)
+  - [Documentation Styleguide](#documentation-styleguide)
+- [Additional Notes](#additional-notes)
+  - [Issue and Merge Request Labels](#issue-and-merge-request-labels)
+    - [Type of Issue and Issue State](#type-of-issue-and-issue-state)
+    - [Topic Categories](#topic-categories)
+    - [Merge Request Labels](#merge-request-labels)
+  - [Module Labels](#module-labels)
 
 ## ns-o-ran issues and questions
 * If you want to open an issue about ns-o-ran open it in this repositiory under the appropriate section.
   * Before opening an issue double check that does not already exists and it is not already answered.
 * Questions:
-  * Send your question to lacava.a@nrortheastern.edu , bordin.m@northeastern.edu , polese.m@northeastern.edu
+  * Send your question to lacava.a@northeastern.edu , bordin.m@northeastern.edu , polese.m@northeastern.edu
 
 
 ## I do not want to read this whole thing, I just have a question
@@ -300,3 +293,5 @@ Please open an issue on `infrastructure` if you have suggestions for new labels,
 | `wave module` | Any issue related to this module |
 | `wifi` | Any issue related to this module |
 | `wimax` | Any issue related to this module |
+
+*This file is heavily inspired by Atom's [CONTRIBUTING.md file](https://raw.githubusercontent.com/atom/atom/master/CONTRIBUTING.md).*
