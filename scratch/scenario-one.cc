@@ -219,8 +219,8 @@ static ns3::GlobalValue
               "If true, generate offline file logging instead of connecting to RIC",
               ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
 
-static ns3::GlobalValue q_useSemaphores ("useSemaphores", "If true, get the current directory as the path for the control file",
-                                        ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
+static ns3::GlobalValue q_useSemaphores ("useSemaphores", "If true, enables the use of semaphores for external environment control",
+                                        ns3::BooleanValue (false), ns3::MakeBooleanChecker ());
 
 static ns3::GlobalValue g_controlFileName ("controlFileName", "The path to the control file (can be absolute)",
                                      ns3::StringValue ("ts_actions_for_ns3.csv"), ns3::MakeStringChecker ());
@@ -314,16 +314,6 @@ main (int argc, char *argv[])
                                  << e2TermIp << " enableE2FileLogging " << enableE2FileLogging
                                  << " minSpeed " << minSpeed << " maxSpeed " << maxSpeed);
 
-
-  //get current time
-  time_t rawtime;
-  struct tm *timeinfo;
-  char buffer[80];
-  time (&rawtime);
-  timeinfo = localtime (&rawtime);
-  strftime (buffer, 80, "%d_%m_%Y_%I_%M_%S", timeinfo);
-  std::string time_str (buffer);
-
   GlobalValue::GetValueByName ("e2lteEnabled", booleanValue);
   bool e2lteEnabled = booleanValue.Get ();
   GlobalValue::GetValueByName ("e2nrEnabled", booleanValue);
@@ -355,7 +345,7 @@ main (int argc, char *argv[])
     << " reducedPmValues " << reducedPmValues 
     << " controlFilename " << controlFilename
     << " indicationPeriodicity " << indicationPeriodicity
-    << " UseSemaphores " << useSemaphores
+    << " useSemaphores " << useSemaphores
   );
 
   Config::SetDefault ("ns3::LteEnbNetDevice::ControlFileName", StringValue(controlFilename));

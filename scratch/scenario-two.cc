@@ -219,8 +219,8 @@ static ns3::GlobalValue g_qoSmIoT ("qoSmIoT",
                                         ns3::DoubleValue (-1),
                                         ns3::MakeDoubleChecker<double> (-1, 1.0));
 
-static ns3::GlobalValue q_useSemaphores ("useSemaphores", "If true, get the current directory as the path for the control file",
-                                        ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
+static ns3::GlobalValue q_useSemaphores ("useSemaphores", "If true, enables the use of semaphores for external environment control",
+                                        ns3::BooleanValue (false), ns3::MakeBooleanChecker ());
 
 static ns3::GlobalValue g_configuration ("configuration", "Set the RF configuration [0,2]",
                                          ns3::UintegerValue (1),
@@ -315,7 +315,7 @@ main (int argc, char *argv[])
                                  << " QoS percentage URLLC " << qoSURLLC 
                                  << " QoS percentage mIoT " << qoSmIoT
                                  << " controlFilename " << controlFilename
-                                 << " UseSemaphores " << useSemaphores);
+                                 << " useSemaphores " << useSemaphores);
 
   Config::SetDefault ("ns3::MmWaveHelper::E2ModeLte", BooleanValue(true));
   Config::SetDefault ("ns3::MmWaveHelper::E2ModeNr", BooleanValue(true));

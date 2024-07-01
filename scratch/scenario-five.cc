@@ -210,6 +210,9 @@ static ns3::GlobalValue
 static ns3::GlobalValue g_controlFileName ("controlFileName", "The path to the control file (can be absolute)",
                                      ns3::StringValue ("es_actions_for_ns3.csv"), ns3::MakeStringChecker ());
 
+static ns3::GlobalValue q_useSemaphores ("useSemaphores", "If true, enables the use of semaphores for external environment control",
+                                        ns3::BooleanValue (false), ns3::MakeBooleanChecker ());
+
 static ns3::GlobalValue g_digestControlMessages ("scheduleControlMessages",
                                                  "If true, read the whole control file at the beginning "
                                                  "of the simulation and schedules all the control actions events in advance",
@@ -400,6 +403,9 @@ main (int argc, char *argv[])
   GlobalValue::GetValueByName ("controlFileName", stringValue);
   std::string controlFilename = stringValue.Get ();
 
+  GlobalValue::GetValueByName ("useSemaphores", booleanValue);
+  bool useSemaphores = booleanValue.Get ();
+
   GlobalValue::GetValueByName ("scheduleControlMessages", booleanValue);
   bool scheduleControlMessages = booleanValue.Get ();
 
@@ -410,11 +416,13 @@ main (int argc, char *argv[])
     << " e2cuUp " << e2cuUp
     << " reducedPmValues " << reducedPmValues
     << " controlFilename " << controlFilename
+    << " useSemaphores " << useSemaphores
     << " indicationPeriodicity " << indicationPeriodicity
     << " ScheduleControlMessages " << scheduleControlMessages
     << " heuristicType " << int(heuristicType)
   );
 
+  Config::SetDefault ("ns3::LteEnbNetDevice::UseSemaphores", BooleanValue (useSemaphores));
   Config::SetDefault ("ns3::LteEnbNetDevice::ControlFileName", StringValue(controlFilename));
   Config::SetDefault ("ns3::LteEnbNetDevice::E2Periodicity", DoubleValue (indicationPeriodicity));
   Config::SetDefault ("ns3::MmWaveEnbNetDevice::E2Periodicity", DoubleValue (indicationPeriodicity));

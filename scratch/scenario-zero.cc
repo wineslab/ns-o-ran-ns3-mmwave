@@ -200,6 +200,9 @@ static ns3::GlobalValue g_controlFileName ("controlFileName",
                                            ns3::StringValue (""),
                                            ns3::MakeStringChecker ());
 
+static ns3::GlobalValue q_useSemaphores ("useSemaphores", "If true, enables the use of semaphores for external environment control",
+                                        ns3::BooleanValue (false), ns3::MakeBooleanChecker ());
+
 int
 main (int argc, char *argv[])
 {
@@ -250,12 +253,16 @@ main (int argc, char *argv[])
 
   GlobalValue::GetValueByName ("e2lteEnabled", booleanValue);
   bool e2lteEnabled = booleanValue.Get ();
+
   GlobalValue::GetValueByName ("e2nrEnabled", booleanValue);
   bool e2nrEnabled = booleanValue.Get ();
+
   GlobalValue::GetValueByName ("e2du", booleanValue);
   bool e2du = booleanValue.Get ();
+
   GlobalValue::GetValueByName ("e2cuUp", booleanValue);
   bool e2cuUp = booleanValue.Get ();
+
   GlobalValue::GetValueByName ("e2cuCp", booleanValue);
   bool e2cuCp = booleanValue.Get ();
 
@@ -264,14 +271,21 @@ main (int argc, char *argv[])
 
   GlobalValue::GetValueByName ("indicationPeriodicity", doubleValue);
   double indicationPeriodicity = doubleValue.Get ();
+
   GlobalValue::GetValueByName ("controlFileName", stringValue);
   std::string controlFilename = stringValue.Get ();
+
+  GlobalValue::GetValueByName ("useSemaphores", booleanValue);
+  bool useSemaphores = booleanValue.Get ();
+
 
   NS_LOG_UNCOND ("e2lteEnabled " << e2lteEnabled << " e2nrEnabled " << e2nrEnabled << " e2du "
                                  << e2du << " e2cuCp " << e2cuCp << " e2cuUp " << e2cuUp
                                  << " controlFilename " << controlFilename
+                                 << " useSemaphores " << useSemaphores
                                  << " indicationPeriodicity " << indicationPeriodicity);
 
+  Config::SetDefault ("ns3::LteEnbNetDevice::UseSemaphores", BooleanValue (useSemaphores));
   Config::SetDefault ("ns3::LteEnbNetDevice::ControlFileName", StringValue (controlFilename));
   Config::SetDefault ("ns3::LteEnbNetDevice::E2Periodicity", DoubleValue (indicationPeriodicity));
   Config::SetDefault ("ns3::MmWaveEnbNetDevice::E2Periodicity",
