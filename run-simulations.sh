@@ -26,21 +26,21 @@ ues=3 # Number of UEs for each mmWave ENB
 build=0
 builf_conf=0
 
-if [[ build -eq 0 ]];then
+if [[ build -eq 1 ]];then
   if [[ build_conf -eq 0 ]];then
     # Debug build
     echo "Build ns-3 in debug mode"
-    ./waf configure --build-profile=debug --out=build/debug
+    ./ns3 configure --build-profile=debug --out=build/debug
   else
       # Optimized build
     echo "Build ns-3 in optimized mode"
-      ./waf configure --build-profile=optimized --out=build/optimized
+      ./ns3 configure --build-profile=optimized --out=build/optimized
   fi
 fi
 
 # Select 0 or 1 to switch between the use cases
 # Remember to create an empty version of the control file before the start of this script, otherwise it would lead to premature crashes.
-use_case=0
+use_case=1
 if [[ use_case -eq 0 ]];then
   ## Energy Efficiency use case
   echo "Energy Efficiency use case"

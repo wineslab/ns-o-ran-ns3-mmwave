@@ -1342,7 +1342,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
 
         NS_LOG_DEBUG("m_cuCpFileName open " << m_cuCpFileName);
 
-        // the string is timestamp, ueImsiComplete, numActiveUes,RRC.ConnMean,
+        // the string is timestamp, ueImsiComplete, numActiveUes, RRC.ConnMean,
         // DRB.EstabSucc.5QI.UEID (numDrb), DRB.RelActNbr.5QI.UEID (0)
 
         uint64_t timestamp = m_startTime + (uint64_t)Simulator::Now().GetMilliSeconds();
@@ -1361,7 +1361,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
 
             std::string to_print =
                 std::to_string(timestamp) + "," + ueImsiComplete + "," + std::to_string(ueMapSize) +
-                "," + std::to_string(meanRrcUes) + uePms + "," + std::to_string(m_cellId) + "," +
+                "," + std::to_string(meanRrcUes)+ "," + uePms + "," + std::to_string(m_cellId) + "," +
                 std::to_string(sinrThisCell) + "," + std::to_string(convertedSinr) + "\n";
 
             NS_LOG_DEBUG(to_print);
