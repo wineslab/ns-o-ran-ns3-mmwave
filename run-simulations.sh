@@ -69,6 +69,7 @@ else
 fi
 
 #  NS_LOG="LteEnbNetDevice:LteEnbRrc:LteUeRrc:McEnbPdcp:McUePdcp" 
+# ./ns3 configure --enable-eigen --build-profile=optimized --out=build/optimized
 
 for i in $(seq 1 $N); do
   echo "Running simulation $i out of $N";
