@@ -210,10 +210,12 @@ main (int argc, char *argv[])
 
   // LogComponentEnable ("Asn1Types", LOG_LEVEL_LOGIC);
 //   LogComponentEnable ("E2Termination", LOG_LEVEL_LOGIC);
-  //  LogComponentEnable ("E2Termination", LOG_LEVEL_DEBUG);
+   LogComponentEnable ("E2Termination", LOG_LEVEL_ALL);
 
-  // LogComponentEnable ("LteEnbNetDevice", LOG_LEVEL_ALL);
-  LogComponentEnable ("MmWaveEnbNetDevice", LOG_LEVEL_DEBUG);
+  LogComponentEnable ("LteEnbNetDevice", LOG_LEVEL_ALL);
+  LogComponentEnable ("MmWaveEnbNetDevice", LOG_LEVEL_ALL);
+  LogComponentEnable("MmWaveHelper", LOG_LEVEL_ALL);
+  LogComponentEnable("MmWaveEnbPhy", LOG_LEVEL_ALL);
 
   // The maximum X coordinate of the scenario
 
@@ -364,9 +366,9 @@ main (int argc, char *argv[])
   Ptr<MmWavePointToPointEpcHelper> epcHelper = CreateObject<MmWavePointToPointEpcHelper> ();
   mmwaveHelper->SetEpcHelper (epcHelper);
 
-  uint8_t nMmWaveEnbNodes = 0;
-  uint8_t nLteEnbNodes = 6;
-  uint32_t ues = 1;
+  uint8_t nMmWaveEnbNodes = 1;
+  uint8_t nLteEnbNodes = 4;
+  uint32_t ues = 3;
   uint8_t nUeNodes = ues * nMmWaveEnbNodes;
   //uint8_t nUeNodes = 1;
   NS_LOG_INFO (" Bandwidth " << bandwidth << " centerFrequency " << double (centerFrequency)
