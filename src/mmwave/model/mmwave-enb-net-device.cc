@@ -87,12 +87,16 @@ MmWaveEnbNetDevice::KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu)
                  ", ranFuncionId " << +params.ranFuncionId << 
                  ", actionId " << +params.actionId);  
 
-  if (!m_isReportingEnabled)
+  if (!m_stopSendingMessages && !m_isReportingEnabled)
   {
     BuildAndSendReportMessage (params);
     m_isReportingEnabled = true; 
   }
     
+}
+
+void MmWaveEnbNetDevice::stopSendingAndCancelSchedule() {
+    m_stopSendingMessages = true;
 }
 
 TypeId MmWaveEnbNetDevice::GetTypeId ()
@@ -181,7 +185,8 @@ MmWaveEnbNetDevice::MmWaveEnbNetDevice ()
 //:m_cellId(0),
 // m_Bandwidth (72),
 // m_Earfcn(1),
-  : m_componentCarrierManager (0),
+  : m_stopSendingMessages(false),
+    m_componentCarrierManager (0),
     m_isConfigured (false),
     m_isReportingEnabled (false),
     m_reducedPmValues (false),
@@ -496,7 +501,7 @@ MmWaveEnbNetDevice::SetE2Termination(Ptr<E2Termination> e2term)
 {
   m_e2term = e2term;
 
-  NS_LOG_DEBUG("Register E2SM");
+  NS_LOG_DEBUG("Register E2SM MmWaveEnbNetDevice");
 
   if (!m_forceE2FileLogging)
     {
@@ -504,6 +509,8 @@ MmWaveEnbNetDevice::SetE2Termination(Ptr<E2Termination> e2term)
       e2term->RegisterKpmCallbackToE2Sm (
           2, kpmFd,
           std::bind (&MmWaveEnbNetDevice::KpmSubscriptionCallback, this, std::placeholders::_1));
+
+      e2term->RegisterCallbackFunctionToE2Sm(1, std::bind(&MmWaveEnbNetDevice::stopSendingAndCancelSchedule, this));
     }
 }
 
@@ -1335,12 +1342,18 @@ MmWaveEnbNetDevice::BuildAndSendReportMessage(E2Termination::RicSubscriptionRequ
     }
   }
   
-  if (!m_forceE2FileLogging)
-    Simulator::ScheduleWithContext (1, Seconds (m_e2Periodicity),
-                                    &MmWaveEnbNetDevice::BuildAndSendReportMessage, this, params);
-  else
-    Simulator::Schedule (Seconds (m_e2Periodicity), &MmWaveEnbNetDevice::BuildAndSendReportMessage,
-                         this, params);
+ if(m_stopSendingMessages) {
+    return;
+  }
+
+  if(!m_stopSendingMessages) {
+    if (!m_forceE2FileLogging)
+      Simulator::ScheduleWithContext (1, Seconds (m_e2Periodicity),
+                                      &MmWaveEnbNetDevice::BuildAndSendReportMessage, this, params);
+    else
+      Simulator::Schedule (Seconds (m_e2Periodicity), &MmWaveEnbNetDevice::BuildAndSendReportMessage,
+                          this, params);
+  }
 }
 
 void

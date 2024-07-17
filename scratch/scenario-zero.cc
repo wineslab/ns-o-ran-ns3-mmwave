@@ -210,12 +210,12 @@ main (int argc, char *argv[])
 
   // LogComponentEnable ("Asn1Types", LOG_LEVEL_LOGIC);
 //   LogComponentEnable ("E2Termination", LOG_LEVEL_LOGIC);
-   LogComponentEnable ("E2Termination", LOG_LEVEL_ALL);
+   LogComponentEnable ("E2Termination", LOG_LEVEL_DEBUG);
 
-  LogComponentEnable ("LteEnbNetDevice", LOG_LEVEL_ALL);
-  LogComponentEnable ("MmWaveEnbNetDevice", LOG_LEVEL_ALL);
-  LogComponentEnable("MmWaveHelper", LOG_LEVEL_ALL);
-  LogComponentEnable("MmWaveEnbPhy", LOG_LEVEL_ALL);
+  // LogComponentEnable ("LteEnbNetDevice", LOG_LEVEL_ALL);
+  // LogComponentEnable ("MmWaveEnbNetDevice", LOG_LEVEL_ALL);
+  // LogComponentEnable("MmWaveHelper", LOG_LEVEL_ALL);
+  // LogComponentEnable("MmWaveEnbPhy", LOG_LEVEL_ALL);
 
   // The maximum X coordinate of the scenario
 

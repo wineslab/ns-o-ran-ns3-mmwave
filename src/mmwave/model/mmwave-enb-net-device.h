@@ -112,6 +112,8 @@ public:
   
   void SetStartTime (uint64_t);
 
+  void stopSendingAndCancelSchedule();
+
 protected:
   virtual void DoInitialize (void) override;
   void UpdateConfig ();
@@ -121,6 +123,9 @@ protected:
 
 
 private:
+  
+  bool m_stopSendingMessages;
+
   Ptr<MmWaveMacScheduler> m_scheduler;
 
   Ptr<LteEnbRrc> m_rrc;
