@@ -86,11 +86,15 @@ LteEnbNetDevice::KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu)
                  ", ranFuncionId " << +params.ranFuncionId << 
                  ", actionId " << +params.actionId);  
   
-  if (!m_isReportingEnabled && !m_forceE2FileLogging)
+  if (!m_stopSendingMessages && !m_isReportingEnabled && !m_forceE2FileLogging)
   {
     BuildAndSendReportMessage (params);
     m_isReportingEnabled = true; 
   }
+}
+
+void LteEnbNetDevice::stopSendingAndCancelSchedule() {
+    m_stopSendingMessages = true;
 }
 
 void
@@ -345,7 +349,8 @@ TypeId LteEnbNetDevice::GetTypeId (void)
 }
 
 LteEnbNetDevice::LteEnbNetDevice ()
-  : m_isConstructed (false),
+  : m_stopSendingMessages(false),
+    m_isConstructed (false),
     m_isConfigured (false),
     m_anr (0),
     m_componentCarrierManager(0), 
@@ -680,7 +685,7 @@ LteEnbNetDevice::SetE2Termination(Ptr<E2Termination> e2term)
 {
   m_e2term = e2term;
 
-  NS_LOG_DEBUG("Register E2SM");
+  NS_LOG_DEBUG("Register E2SM LteEnbNetDevice");
 
   if (!m_forceE2FileLogging)
     {
@@ -693,6 +698,19 @@ LteEnbNetDevice::SetE2Termination(Ptr<E2Termination> e2term)
       e2term->RegisterSmCallbackToE2Sm (3, ricCtrlFd,
                                         std::bind (&LteEnbNetDevice::ControlMessageReceivedCallback,
                                                    this, std::placeholders::_1));
+
+      // Mostafa-FD-TODO
+      // Ptr<RicDeletelFunctionDescription> ricDeletelFd = Create<RicDeletelFunctionDescription> ();
+      // e2term->RegisterSmCallbackToE2Sm (4, static_cast<Ptr<FunctionDescription>>(ricDeletelFd),
+      //                                   std::bind (&LteEnbNetDevice::stopSendingAndCancelSchedule,
+      //                                              this, std::placeholders::_1));
+
+      // Ptr<FunctionDescription> ricDeletelFd = Create<FunctionDescription> ();
+
+      // e2term->RegisterSmCallbackToE2Sm (4, ricDeletelFd,
+      //                                   std::bind (&LteEnbNetDevice::stopSendingAndCancelSchedule,
+      //                                              this));
+      e2term->RegisterCallbackFunctionToE2Sm(1, std::bind(&LteEnbNetDevice::stopSendingAndCancelSchedule, this));
     }
 }
 
@@ -1021,13 +1039,19 @@ LteEnbNetDevice::BuildAndSendReportMessage(E2Termination::RicSubscriptionRequest
       delete pdu_cucp_ue;
     }
   }
-  
-  if (!m_forceE2FileLogging)
-    Simulator::ScheduleWithContext (1, Seconds (m_e2Periodicity),
-                                    &LteEnbNetDevice::BuildAndSendReportMessage, this, params);
-  else
-    Simulator::Schedule (Seconds (m_e2Periodicity), &LteEnbNetDevice::BuildAndSendReportMessage,
-                         this, params);
+
+  if(m_stopSendingMessages) {
+    return;
+  }
+
+  if(!m_stopSendingMessages) {
+    if (!m_forceE2FileLogging)
+      Simulator::ScheduleWithContext (1, Seconds (m_e2Periodicity),
+                                      &LteEnbNetDevice::BuildAndSendReportMessage, this, params);
+    else
+      Simulator::Schedule (Seconds (m_e2Periodicity), &LteEnbNetDevice::BuildAndSendReportMessage,
+                          this, params);
+  }
 }
 
 void
