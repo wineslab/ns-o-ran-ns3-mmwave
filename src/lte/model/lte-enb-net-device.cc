@@ -86,11 +86,15 @@ LteEnbNetDevice::KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu)
                  ", ranFuncionId " << +params.ranFuncionId << 
                  ", actionId " << +params.actionId);  
   
-  if (!m_isReportingEnabled && !m_forceE2FileLogging)
+  if (!m_stopSendingMessages && !m_isReportingEnabled && !m_forceE2FileLogging)
   {
     BuildAndSendReportMessage (params);
     m_isReportingEnabled = true; 
   }
+}
+
+void LteEnbNetDevice::stopSendingAndCancelSchedule() {
+    m_stopSendingMessages = true;
 }
 
 void
@@ -170,6 +174,7 @@ LteEnbNetDevice::ControlMessageReceivedCallback (E2AP_PDU_t* sub_req_pdu)
 {
   NS_LOG_DEBUG ("\n\nLteEnbNetDevice::ControlMessageReceivedCallback: Received RIC Control Message");
   
+  // Create RIC Control ACK
   Ptr<RicControlMessage> controlMessage = Create<RicControlMessage> (sub_req_pdu);
   NS_LOG_INFO ("After RicControlMessage::RicControlMessage constructor");
   NS_LOG_INFO ("Request type " << controlMessage->m_requestType);
@@ -206,7 +211,7 @@ LteEnbNetDevice::ControlMessageReceivedCallback (E2AP_PDU_t* sub_req_pdu)
     break;
   }
   default:{
-    NS_LOG_ERROR ("Unrecognized id type of Ric Control Message");
+    NS_LOG_INFO ("Unrecognized id type of Ric Control Message");
     break;
     }
   }
@@ -344,7 +349,8 @@ TypeId LteEnbNetDevice::GetTypeId (void)
 }
 
 LteEnbNetDevice::LteEnbNetDevice ()
-  : m_isConstructed (false),
+  : m_stopSendingMessages(false),
+    m_isConstructed (false),
     m_isConfigured (false),
     m_anr (0),
     m_componentCarrierManager(0), 
@@ -679,19 +685,32 @@ LteEnbNetDevice::SetE2Termination(Ptr<E2Termination> e2term)
 {
   m_e2term = e2term;
 
-  NS_LOG_DEBUG("Register E2SM");
+  NS_LOG_DEBUG("Register E2SM LteEnbNetDevice");
 
   if (!m_forceE2FileLogging)
     {
       Ptr<KpmFunctionDescription> kpmFd = Create<KpmFunctionDescription> ();
       e2term->RegisterKpmCallbackToE2Sm (
-          200, kpmFd,
+          2, kpmFd,
           std::bind (&LteEnbNetDevice::KpmSubscriptionCallback, this, std::placeholders::_1));
 
       Ptr<RicControlFunctionDescription> ricCtrlFd = Create<RicControlFunctionDescription> ();
-      e2term->RegisterSmCallbackToE2Sm (300, ricCtrlFd,
+      e2term->RegisterSmCallbackToE2Sm (3, ricCtrlFd,
                                         std::bind (&LteEnbNetDevice::ControlMessageReceivedCallback,
                                                    this, std::placeholders::_1));
+
+      // Mostafa-FD-TODO
+      // Ptr<RicDeletelFunctionDescription> ricDeletelFd = Create<RicDeletelFunctionDescription> ();
+      // e2term->RegisterSmCallbackToE2Sm (4, static_cast<Ptr<FunctionDescription>>(ricDeletelFd),
+      //                                   std::bind (&LteEnbNetDevice::stopSendingAndCancelSchedule,
+      //                                              this, std::placeholders::_1));
+
+      // Ptr<FunctionDescription> ricDeletelFd = Create<FunctionDescription> ();
+
+      // e2term->RegisterSmCallbackToE2Sm (4, ricDeletelFd,
+      //                                   std::bind (&LteEnbNetDevice::stopSendingAndCancelSchedule,
+      //                                              this));
+      e2term->RegisterCallbackFunctionToE2Sm(1, std::bind(&LteEnbNetDevice::stopSendingAndCancelSchedule, this));
     }
 }
 
@@ -841,6 +860,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
   NS_LOG_DEBUG(Simulator::Now().GetSeconds() << " " << std::to_string(m_cellId) << " cell volume " << cellDlTxVolume);
 
   if (m_forceE2FileLogging) {
+
     std::ofstream csv {};
     csv.open (m_cuUpFileName.c_str (),  std::ios_base::app);
     if (!csv.is_open ())
@@ -872,12 +892,14 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
         uePms + ",,\n";
 
       csv << to_print;
+
     }
     csv.close();
     return nullptr;
     }
   else
     {
+
       return indicationMessageHelper->CreateIndicationMessage ();
     }
 }
@@ -985,6 +1007,7 @@ LteEnbNetDevice::BuildAndSendReportMessage(E2Termination::RicSubscriptionRequest
                                                                header->m_size, // size of the encoded header
                                                                (uint8_t*) cuUpMsg->m_buffer, // buffer containing the encoded message
                                                                cuUpMsg->m_size); // size of the encoded message
+      
       m_e2term->SendE2Message (pdu_cuup_ue);
       delete pdu_cuup_ue;
     }
@@ -999,6 +1022,7 @@ LteEnbNetDevice::BuildAndSendReportMessage(E2Termination::RicSubscriptionRequest
     // Send CU-CP only if offline logging is disabled
     if (!m_forceE2FileLogging && header != nullptr && cuCpMsg != nullptr)
     {
+
       NS_LOG_DEBUG ("Send LTE CU-CP");
       E2AP_PDU *pdu_cucp_ue = new E2AP_PDU; 
       encoding::generate_e2apv1_indication_request_parameterized(pdu_cucp_ue, 
@@ -1011,17 +1035,23 @@ LteEnbNetDevice::BuildAndSendReportMessage(E2Termination::RicSubscriptionRequest
                                                                  header->m_size, // size of the encoded header
                                                                  (uint8_t*) cuCpMsg->m_buffer, // buffer containing the encoded message
                                                                  cuCpMsg->m_size); // size of the encoded message  
-      m_e2term->SendE2Message (pdu_cucp_ue);
+     m_e2term->SendE2Message (pdu_cucp_ue);
       delete pdu_cucp_ue;
     }
   }
-  
-  if (!m_forceE2FileLogging)
-    Simulator::ScheduleWithContext (1, Seconds (m_e2Periodicity),
-                                    &LteEnbNetDevice::BuildAndSendReportMessage, this, params);
-  else
-    Simulator::Schedule (Seconds (m_e2Periodicity), &LteEnbNetDevice::BuildAndSendReportMessage,
-                         this, params);
+
+  if(m_stopSendingMessages) {
+    return;
+  }
+
+  if(!m_stopSendingMessages) {
+    if (!m_forceE2FileLogging)
+      Simulator::ScheduleWithContext (1, Seconds (m_e2Periodicity),
+                                      &LteEnbNetDevice::BuildAndSendReportMessage, this, params);
+    else
+      Simulator::Schedule (Seconds (m_e2Periodicity), &LteEnbNetDevice::BuildAndSendReportMessage,
+                          this, params);
+  }
 }
 
 void

@@ -226,12 +226,16 @@ public:
   
   void SetStartTime (uint64_t);
 
+  void stopSendingAndCancelSchedule();
+
 protected:
   // inherited from Object
   virtual void DoInitialize (void);
 
 
 private:
+
+  bool m_stopSendingMessages;
   bool m_isConstructed; ///< is constructed?
   bool m_isConfigured; ///< is configured?
 
