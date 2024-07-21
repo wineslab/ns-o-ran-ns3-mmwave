@@ -366,8 +366,8 @@ main (int argc, char *argv[])
   Ptr<MmWavePointToPointEpcHelper> epcHelper = CreateObject<MmWavePointToPointEpcHelper> ();
   mmwaveHelper->SetEpcHelper (epcHelper);
 
-  uint8_t nMmWaveEnbNodes = 1;
-  uint8_t nLteEnbNodes = 4;
+  uint8_t nMmWaveEnbNodes = 0;
+  uint8_t nLteEnbNodes = 6;
   uint32_t ues = 3;
   uint8_t nUeNodes = ues * nMmWaveEnbNodes;
   //uint8_t nUeNodes = 1;
