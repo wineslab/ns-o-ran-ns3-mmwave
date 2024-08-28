@@ -659,7 +659,7 @@ main (int argc, char *argv[])
   sinkApp.Start (Seconds (0));
   
   clientApp.Start (MilliSeconds (30));
-  clientApp.Stop (Seconds (simTime - 0.05));
+  clientApp.Stop (Seconds (simTime));
 
   mmwaveHelper->EnableTraces ();
 
@@ -711,8 +711,8 @@ main (int argc, char *argv[])
   bool run = true;
   if (run)
     {
-      NS_LOG_INFO ("Simulation time is " << simTime << " seconds ");
-      Simulator::Stop (Seconds (simTime));
+      NS_LOG_INFO ("Simulation time is " << simTime + 0.05 << " seconds ");
+      Simulator::Stop (Seconds (simTime + 0.05));
       Simulator::Run ();
     }
 
