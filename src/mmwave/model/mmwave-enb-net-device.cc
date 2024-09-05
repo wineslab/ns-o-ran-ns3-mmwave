@@ -87,7 +87,7 @@ MmWaveEnbNetDevice::KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu)
                  ", ranFuncionId " << +params.ranFuncionId << 
                  ", actionId " << +params.actionId);  
 
-  if (!m_stopSendingMessages && !m_isReportingEnabled)
+  if (!m_stopSendingMessages && !m_isReportingEnabled && !m_forceE2FileLogging)
   {
     BuildAndSendReportMessage (params);
     m_isReportingEnabled = true; 
