@@ -53,127 +53,146 @@
 
 namespace ns3 {
 /* Add forward declarations here */
-class Packet;
-class PacketBurst;
-class Node;
-class LteEnbComponentCarrierManager;
+    class Packet;
 
-namespace mmwave {
+    class PacketBurst;
+
+    class Node;
+
+    class LteEnbComponentCarrierManager;
+
+    namespace mmwave {
 //class MmWavePhy;
-class MmWaveEnbPhy;
-class MmWaveEnbMac;
+        class MmWaveEnbPhy;
 
-typedef std::pair<uint64_t, uint16_t> ImsiCellIdPair_t;
+        class MmWaveEnbMac;
 
-class MmWaveEnbNetDevice : public MmWaveNetDevice
-{
-public:
-  const static uint16_t E2SM_REPORT_MAX_NEIGH = 8;
+        typedef std::pair <uint64_t, uint16_t> ImsiCellIdPair_t;
 
-  static TypeId GetTypeId (void);
+        class MmWaveEnbNetDevice : public MmWaveNetDevice {
+        public:
+            const static uint16_t E2SM_REPORT_MAX_NEIGH = 8;
 
-  MmWaveEnbNetDevice ();
+            static TypeId GetTypeId(void);
 
-  virtual ~MmWaveEnbNetDevice (void);
-  virtual void DoDispose (void) override;
-  virtual bool DoSend (Ptr<Packet> packet, const Address& dest, uint16_t protocolNumber) override;
+            MmWaveEnbNetDevice();
 
-  Ptr<MmWaveEnbPhy> GetPhy (void) const;
+            virtual ~MmWaveEnbNetDevice(void);
 
-  Ptr<MmWaveEnbPhy> GetPhy (uint8_t index);
+            virtual void DoDispose(void) override;
 
-  uint16_t GetCellId () const;
+            virtual bool DoSend(Ptr<Packet> packet, const Address &dest, uint16_t protocolNumber) override;
 
-  bool HasCellId (uint16_t cellId) const;
+            Ptr<MmWaveEnbPhy> GetPhy(void) const;
 
-  uint8_t GetBandwidth () const;
+            Ptr<MmWaveEnbPhy> GetPhy(uint8_t index);
 
-  void SetBandwidth (uint8_t bw);
+            uint16_t GetCellId() const;
 
-  Ptr<MmWaveEnbMac> GetMac (void);
+            std::map<uint16_t, Ptr<UeManager>> GetUeMap ();
 
-  Ptr<MmWaveEnbMac> GetMac (uint8_t index);
+            bool HasCellId(uint16_t cellId) const;
 
-  void SetRrc (Ptr<LteEnbRrc> rrc);
+            uint8_t GetBandwidth() const;
 
-  Ptr<LteEnbRrc> GetRrc (void);
+            void SetBandwidth(uint8_t bw);
 
-  void SetE2Termination (Ptr<E2Termination> e2term);
+            Ptr<MmWaveEnbMac> GetMac(void);
 
-  Ptr<E2Termination> GetE2Termination() const;
+            Ptr<MmWaveEnbMac> GetMac(uint8_t index);
 
-  void SetCcMap (std::map< uint8_t, Ptr<MmWaveComponentCarrier> > ccm) override;
+            void SetRrc(Ptr<LteEnbRrc> rrc);
 
-  void BuildAndSendReportMessage(E2Termination::RicSubscriptionRequest_rval_s params);
+            Ptr<LteEnbRrc> GetRrc(void);
 
-  void KpmSubscriptionCallback (E2AP_PDU_t* sub_req_pdu);
-  
-  void ControlMessageReceivedCallback (E2AP_PDU_t* sub_req_pdu);
-  
-  void SetStartTime (uint64_t);
+            void SetE2Termination(Ptr<E2Termination> e2term);
 
-  void stopSendingAndCancelSchedule();
+            Ptr<E2Termination> GetE2Termination() const;
 
-protected:
-  virtual void DoInitialize (void) override;
-  void UpdateConfig ();
+            void SetCcMap(std::map <uint8_t, Ptr<MmWaveComponentCarrier>> ccm) override;
 
-  void GetPeriodicPdcpStats();
+            void BuildAndSendReportMessage(E2Termination::RicSubscriptionRequest_rval_s params);
+
+            void KpmSubscriptionCallback(E2AP_PDU_t *sub_req_pdu);
+
+            void ControlMessageReceivedCallback(E2AP_PDU_t *sub_req_pdu);
+
+            void SetStartTime(uint64_t);
+
+            void stopSendingAndCancelSchedule();
+
+        protected:
+            virtual void DoInitialize(void) override;
+
+            void UpdateConfig();
+
+            void GetPeriodicPdcpStats();
 
 
+        private:
 
-private:
-  
-  bool m_stopSendingMessages;
+            bool m_stopSendingMessages;
 
-  Ptr<MmWaveMacScheduler> m_scheduler;
+            Ptr<MmWaveMacScheduler> m_scheduler;
 
-  Ptr<LteEnbRrc> m_rrc;
+            Ptr<LteEnbRrc> m_rrc;
 
-  uint16_t m_cellId;       /* Cell Identifer. To uniquely identify an E-nodeB  */
+            uint16_t m_cellId;       /* Cell Identifer. To uniquely identify an E-nodeB  */
 
-  uint8_t m_Bandwidth;       /* bandwidth in RBs (?) */
+            uint8_t m_Bandwidth;       /* bandwidth in RBs (?) */
 
-  Ptr<LteEnbComponentCarrierManager> m_componentCarrierManager; ///< the component carrier manager of this eNb
+            Ptr<LteEnbComponentCarrierManager> m_componentCarrierManager; ///< the component carrier manager of this eNb
 
-  bool m_isConfigured;
+            bool m_isConfigured;
 
-  Ptr<E2Termination> m_e2term;
-  Ptr<MmWaveBearerStatsCalculator> m_e2PdcpStatsCalculator;
-  Ptr<MmWaveBearerStatsCalculator> m_e2RlcStatsCalculator;
-  Ptr<MmWavePhyTrace> m_e2DuCalculator;
+            Ptr<E2Termination> m_e2term;
+            Ptr<MmWaveBearerStatsCalculator> m_e2PdcpStatsCalculator;
+            Ptr<MmWaveBearerStatsCalculator> m_e2RlcStatsCalculator;
+            Ptr<MmWavePhyTrace> m_e2DuCalculator;
 
-  double m_e2Periodicity;
-  // TODO doxy
-  Ptr<KpmIndicationHeader> BuildRicIndicationHeader(std::string plmId, std::string gnbId, uint16_t nrCellId);
-  Ptr<KpmIndicationMessage> BuildRicIndicationMessageCuUp(std::string plmId);
-  Ptr<KpmIndicationMessage> BuildRicIndicationMessageCuCp(std::string plmId);
-  Ptr<KpmIndicationMessage> BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCellId);
-  std::string GetImsiString(uint64_t imsi);
-  uint32_t GetRlcBufferOccupancy(Ptr<LteRlc> rlc) const;
+            double m_e2Periodicity;
 
-  bool m_sendCuUp;
-  bool m_sendCuCp;
-  bool m_sendDu;
+            // TODO doxy
+            Ptr<KpmIndicationHeader> BuildRicIndicationHeader(std::string plmId, std::string gnbId, uint16_t nrCellId);
 
-  static void RegisterNewSinrReadingCallback(Ptr<MmWaveEnbNetDevice> netDev, std::string context, uint64_t imsi, uint16_t cellId, long double sinr);
-  void RegisterNewSinrReading(uint64_t imsi, uint16_t cellId, long double sinr);
-  std::map<uint64_t, std::map<uint16_t, long double>> m_l3sinrMap;
-  uint64_t m_startTime;
-  std::map<uint64_t, uint32_t> m_drbThrDlPdcpBasedComputationUeid;
-  std::map<uint64_t, uint32_t> m_drbThrDlUeid;
-  bool m_isReportingEnabled; //! true is KPM reporting cycle is active, false otherwise
-  bool m_reducedPmValues; //< if true use a reduced subset of pmvalues
+            Ptr<KpmIndicationMessage> BuildRicIndicationMessageCuUp(std::string plmId);
 
-  uint16_t m_basicCellId;
+            Ptr<KpmIndicationMessage> BuildRicIndicationMessageCuCp(std::string plmId);
 
-  bool m_forceE2FileLogging; //< if true log PMs to files
-  std::string m_cuUpFileName;
-  std::string m_cuCpFileName;
-  std::string m_duFileName;
+            Ptr<KpmIndicationMessage> BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCellId);
 
-};
-}
+            std::string GetImsiString(uint64_t imsi);
+
+            uint32_t GetRlcBufferOccupancy(Ptr<LteRlc> rlc) const;
+
+            bool m_sendCuUp;
+            bool m_sendCuCp;
+            bool m_sendDu;
+
+            static void
+            RegisterNewSinrReadingCallback(Ptr<MmWaveEnbNetDevice> netDev, std::string context, uint64_t imsi,
+                                           uint16_t cellId, long double sinr);
+
+            void RegisterNewSinrReading(uint64_t imsi, uint16_t cellId, long double sinr);
+
+            std::map <uint64_t, std::map<uint16_t, long double>> m_l3sinrMap;
+            uint64_t m_startTime;
+            std::map <uint64_t, uint32_t> m_drbThrDlPdcpBasedComputationUeid;
+            std::map <uint64_t, uint32_t> m_drbThrDlUeid;
+            bool m_isReportingEnabled; //! true is KPM reporting cycle is active, false otherwise
+            bool m_reducedPmValues; //< if true use a reduced subset of pmvalues
+
+            uint16_t m_basicCellId;
+
+            double e2_func_id; //to pass kpm function id
+            bool m_e2andlog; //if true, both e2 term and e2file logging will work
+            bool m_forceE2FileLogging; //< if true log PMs to files
+            std::string m_cuUpFileName;
+            std::string m_cuCpFileName;
+            std::string m_duFileName;
+
+        };
+    }
 }
 
 
