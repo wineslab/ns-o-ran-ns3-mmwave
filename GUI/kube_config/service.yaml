@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: v2x-gui-service
+  namespace: v2x
+spec:
+  selector:
+    app: v2x-gui
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+      nodePort: 32275
+  type: NodePort

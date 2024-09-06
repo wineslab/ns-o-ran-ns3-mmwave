@@ -3,6 +3,7 @@
 *   Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
 *   Copyright (c) 2015, NYU WIRELESS, Tandon School of Engineering, New York University
 *   Copyright (c) 2016, 2018, University of Padova, Dep. of Information Engineering, SIGNET lab.
+*   Copyright (c) 2024 Orange Innovation Poland
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License version 2 as
@@ -32,6 +33,8 @@
 *								 Integration of Carrier Aggregation
 * Modified by: Argha Sen <arghasen10@gmail.com>
 *                 MmWave Radio Energy Model
+* Modified by: Kamil Kociszewski <kamil.kociszewski@orange.com>
+               Deep sleep mode for mmwave-spectrum-phy.cc
 */
 
 
@@ -144,7 +147,8 @@ public:
     IDLE = 0,
     TX = 1,
     RX_DATA = 2,
-    RX_CTRL = 3
+    RX_CTRL = 3,
+    Deep_Sleep = 4
   };
 
   TracedValue<int32_t> m_intState; //!< used to trace the value of m_state
@@ -248,6 +252,7 @@ public:
                       uint8_t rv, bool downlink, uint8_t symStart, uint8_t numSym);
 
   void SetHarqPhyModule (Ptr<MmWaveHarqPhy> harq);
+  void SetSleep_EM (bool val);
 
 
 private:
@@ -304,6 +309,7 @@ private:
 
   Ptr<UniformRandomVariable> m_random;
 
+  bool m_sleepEnabled;
   bool m_dataErrorModelEnabled;       // when true (default) the phy error model is enabled
   bool m_ctrlErrorModelEnabled;       // when true (default) the phy error model is enabled for DL ctrl frame
   TypeId m_errorModelType {Object::GetTypeId()}; //!< Error model type by default is MmWaveLteMiErrorModel
@@ -325,3 +331,4 @@ private:
 
 
 #endif /* SRC_MMWAVE_MODEL_MMWAVE_SPECTRUM_PHY_H_ */
+

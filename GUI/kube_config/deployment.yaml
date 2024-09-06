@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: v2x
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: v2x-gui
+  namespace: v2x
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: v2x-gui
+  template:
+    metadata:
+      labels:
+        app: v2x-gui
+    spec:
+      containers:
+        - name: v2x-gui
+          image: v2x_gui:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DB_URL
+              value: "http://influxdb.iro:8086"
+            - name: DB_TOKEN
+              value: "811MWfeajjg6s10whhpEwWnStyCk8WQdlVqlzGQPgMxUc6K-aCt8ix5KWnJx8o0hfp9CRZWOsU7D7rewXdeu5g=="
+            - name: DB_BUCKET
+              value: "v2x"
+            - name: DB_ORG
+              value: "OrangeInnovationsPoland"

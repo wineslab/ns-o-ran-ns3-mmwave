@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UEs and Cells Chart</title>
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            background-color: #0d0d0d;
+            color: #ff8c00;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        #main-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        #form-container {
+            display: none;
+            background: #1a1a1a;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        #simulationForm {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        #simulationForm label {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        #simulationForm input {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background: #333;
+            color: #ff8c00;
+            width: 100%;
+        }
+
+        #form-toggle-button {
+            background: #ff8c00;
+            color: #1a1a1a;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #tab-container {
+            display: flex;
+            background: #1a1a1a;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            padding: 5px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            color: #ff8c00;
+            background: #333;
+            border-radius: 5px;
+            margin: 0 5px;
+        }
+
+        .tab-button.active {
+            background: #ff8c00;
+            color: #1a1a1a;
+        }
+
+        .tab-content {
+            display: none;
+            flex: 1;
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #chart-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #chart-content canvas {
+            width: 100% !important;
+            height: 100% !important;
+            max-height: 80vh;
+            max-width: 100%;
+        }
+
+        #data-content {
+            flex: 1.2;
+        }
+
+        .data-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .data-section {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        h3 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .scrollable-data {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            border: 1px solid #ccc;
+            overflow-y: auto;
+            background: #1a1a1a;
+            padding: 10px;
+        }
+
+        .object-box {
+            border: 1px solid #ff8c00;
+            padding: 10px;
+            background-color: #1a1a1a;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+
+        .value {
+            color: lightblue;
+        }
+
+
+        .custom-legend.horizontal {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 10px;
+            background: #1a1a1a;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            overflow-x: auto;
+        }
+
+        .custom-legend.vertical {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            background: #1a1a1a;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .legend-item {
+            margin: 5px;
+        }
+
+        .legend-color-box {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .legend-text {
+            vertical-align: middle;
+        }
+
+        #simulationForm button {
+            grid-column: span 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background: #ff8c00;
+            color: #1a1a1a;
+            cursor: pointer;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        #loading-icon {
+            display: none;
+            color: #ff8c00;
+            font-size: 24px;
+        }
+
+        #simulationForm button {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background: #ff8c00;
+            color: #1a1a1a;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        #simulationForm button:active {
+            background: #e07b00;
+        }
+
+        #simulationForm button:disabled {
+            background: #4d4d4d;
+            color: #7a7a7a;
+            cursor: not-allowed;
+        }
+
+
+    </style>
+</head>
+<body>
+<div id="main-container">
+    <button id="form-toggle-button">Show simulation setup</button>
+    <div id="form-container">
+        <form id="simulationForm">
+            <div>
+                <div style="display: flex; flex-direction: column;">
+                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                        <label for="flexric">Connect to FlexRIC: (If true, FlexRIC need to be running) </label>
+                        <input type="checkbox" id="flexric" name="flexric" value="true"
+                               style="transform: scale(1.5); margin-left: 0;">
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <label for="e2TermIp" style="margin-right: 8px; width: 100px;">e2TermIp:</label>
+                        <input type="text" id="e2TermIp" name="e2TermIp" value="127.0.0.1" disabled
+                               style="flex: 1; background-color: lightgray;">
+                    </div>
+                </div>
+
+            </div>
+            <div>
+                <label for="hoSinrDifference">hoSinrDifference (dB):</label>
+                <input type="number" id="hoSinrDifference" name="hoSinrDifference" value="3" step="">
+            </div>
+            <div>
+                <label for="indicationPeriodicity">indicationPeriodicity (s):</label>
+                <input type="number" id="indicationPeriodicity" name="indicationPeriodicity" value="0.1" step="">
+            </div>
+            <div>
+                <label for="simTime">simTime (s):</label>
+                <input type="number" id="simTime" name="simTime" value="1000">
+            </div>
+            <div>
+                <label for="KPM_E2functionID">KPM_E2functionID:</label>
+                <input type="number" id="KPM_E2functionID" name="KPM_E2functionID" value="2">
+            </div>
+            <div>
+                <label for="RC_E2functionID">RC_E2functionID:</label>
+                <input type="number" id="RC_E2functionID" name="RC_E2functionID" value="3">
+            </div>
+            <div>
+                <label for="N_MmWaveEnbNodes">N_MmWaveEnbNodes:</label>
+                <input type="number" id="N_MmWaveEnbNodes" name="N_MmWaveEnbNodes" value="4">
+            </div>
+            <!--<div>
+                <label for="N_LteEnbNodes">N_LteEnbNodes:</label>
+                <input type="number" id="N_LteEnbNodes" name="N_LteEnbNodes" value="1">
+            </div> -->
+            <div>
+                <label for="N_Ues">N_Ues:</label>
+                <input type="number" id="N_Ues" name="N_Ues" value="3">
+            </div>
+            <div>
+                <label for="CenterFrequency">CenterFrequency (Hz):</label>
+                <input type="number" id="CenterFrequency" name="CenterFrequency" value="3.5e9" step="">
+            </div>
+            <div>
+                <label for="Bandwidth">Bandwidth (Hz):</label>
+                <input type="number" id="Bandwidth" name="Bandwidth" value="20e6" step="">
+            </div>
+            <!--<div>
+                <label for="N_AntennasMcUe">N_AntennasMcUe:</label>
+                <input type="number" id="N_AntennasMcUe" name="N_AntennasMcUe" value="">
+            </div>
+            <div>
+                <label for="N_AntennasMmWave">N_AntennasMmWave:</label>
+                <input type="number" id="N_AntennasMmWave" name="N_AntennasMmWave" value="">
+            </div> -->
+            <div>
+                <label for="IntersideDistanceUEs">IntersideDistanceUEs (m):</label>
+                <input type="number" id="IntersideDistanceUEs" name="IntersideDistanceUEs" value="1000">
+            </div>
+            <div>
+                <label for="IntersideDistanceCells">IntersideDistanceCells (m):</label>
+                <input type="number" id="IntersideDistanceCells" name="IntersideDistanceCells" value="1000">
+            </div>
+            <button type="button" onclick="sendForm('/start_simulation')" id="start_button">Start</button>
+            <button type="button" onclick="stopSim('/stop_simulation')" id="stop_button" disabled>Stop</button>
+            <div>
+                <label>Status: </label>
+                <label id="status_label" style="text-align: center">off</label></div>
+            <button type="button" onclick="resetSim('/reset_simulation')" id="reset_button" disabled>Reset</button>
+        </form>
+    </div>
+    <div id="tab-container">
+        <div id="chart-tab" class="tab-button active">Observe simulation grid</div>
+        <div id="data-tab" class="tab-button">Observe KPIs</div>
+    </div>
+    <div id="chart-content" class="tab-content active">
+        <canvas id="myChart"></canvas>
+        <div id="chart-legend" class="custom-legend"></div>
+    </div>
+    <div id="data-content" class="tab-content">
+        <div class="data-container">
+            <div class="data-section">
+                <h3>UE Data</h3>
+                <div id="ueSourceData" class="scrollable-data"></div>
+            </div>
+            <div class="data-section">
+                <h3>Cell Data</h3>
+                <div id="cellSourceData" class="scrollable-data"></div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<script>
+    document.getElementById('flexric').addEventListener('change', function () {
+        var e2TermIpField = document.getElementById('e2TermIp');
+        if (this.checked) {
+            e2TermIpField.disabled = false;
+            e2TermIpField.style.backgroundColor = "";
+        } else {
+            e2TermIpField.disabled = true;
+            e2TermIpField.value = "127.0.0.1";
+            e2TermIpField.style.backgroundColor = "lightgray";
+        }
+    });
+
+    const cellColors = [
+        '#1f77b4', '#9467bd', '#2ca02c', '#d62728', '#ff7f0e',
+        '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'
+    ];
+
+    var ctx = document.getElementById('myChart').getContext('2d');
+
+    var myChart = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [
+                {
+                    label: 'UEs',
+                    data: [],
+                    backgroundColor: [],
+                    borderWidth: 1,
+                    pointRadius: 6,
+                    pointStyle: 'circle',
+                    datalabels: {
+                        align: 'top',
+                        color: '#ff8c00',
+                        formatter: function (value, context) {
+                            return `UE (${value.x.toFixed(1)}, ${value.y.toFixed(1)})`;
+                        },
+                        offset: 6,
+                        padding: {
+                            bottom: 6
+                        }
+                    }
+                },
+                {
+                    label: 'Cells',
+                    data: [],
+                    backgroundColor: [],
+                    borderWidth: 1,
+                    pointRadius: 20,
+                    pointStyle: 'triangle',
+                    datalabels: {
+                        align: 'top',
+                        color: '#ff4500',
+                        formatter: function (value, context) {
+                            return `Cell (${value.x.toFixed(1)}, ${value.y.toFixed(1)})`;
+                        },
+                        offset: 12,
+                        padding: {
+                            bottom: 12
+                        }
+                    }
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    type: 'linear',
+                    position: 'bottom',
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.2)'
+                    },
+                    ticks: {
+                        color: '#ff8c00',
+                        callback: function (value) {
+                            return value;
+                        }
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.2)'
+                    },
+                    ticks: {
+                        color: '#ff8c00'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        title: function (tooltipItems) {
+                            return '';
+                        },
+                        label: function (context) {
+                            const dataset = context.dataset;
+                            const index = context.dataIndex;
+                            const dataPoint = dataset.data[index];
+
+                            let label = dataset.label || '';
+                            if (dataPoint) {
+                                if (dataset.label === 'UEs') {
+                                    label += `\nID: ${dataPoint.ue_id}`;
+                                } else if (dataset.label === 'Cells') {
+                                    label += `\nID: ${dataPoint.cell_id}`;
+                                }
+                                label += `\nX: ${dataPoint.x.toFixed(1)}`;
+                                label += `\nY: ${dataPoint.y.toFixed(1)}`;
+                                if (dataset.label === 'UEs') {
+                                    label += `\nType: ${dataPoint.type}`;
+                                    label += `\nConnected to Cell: ${dataPoint.MMWave_Cell || 'N/A'}`;
+                                } else if (dataset.label === 'Cells') {
+                                    label += `\nType: ${dataPoint.type}`;
+                                }
+                            }
+                            return label;
+                        }
+                    }
+                },
+                datalabels: {
+                    display: true
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+
+    function updateChart() {
+        fetch('/refresh-data')
+                .then(response => response.json())
+                .then(data => {
+                    const cellColorMap = new Map(data.cells.map((cell, index) => [
+                        cell.cell_id, cellColors[index % cellColors.length]
+                    ]));
+
+                    const cellData = data.cells.map(cell => ({
+                        x: cell.x_position,
+                        y: cell.y_position,
+                        cell_id: cell.cell_id,
+                        type: cell.type,
+                        backgroundColor: cellColorMap.get(cell.cell_id),
+                        pointStyle: cell.type === 'lte' ? 'rect' : 'triangle'
+                    }));
+
+                    const ueData = data.ues.map(ue => ({
+                        x: ue.x_position,
+                        y: ue.y_position,
+                        ue_id: ue.ue_id,
+                        type: ue.type,
+                        MMWave_Cell: ue.MMWave_Cell,
+                        LTE_Cell: ue.LTE_Cell,
+                        backgroundColor: cellColorMap.get(ue.MMWave_Cell)
+                    }));
+
+                    myChart.data.datasets[0].data = ueData;
+                    myChart.data.datasets[0].backgroundColor = ueData.map(ue => ue.backgroundColor);
+                    myChart.data.datasets[1].data = cellData;
+                    myChart.data.datasets[1].backgroundColor = cellData.map(cell => cell.backgroundColor);
+                    myChart.data.datasets[1].pointStyle = cellData.map(cell => cell.pointStyle);
+
+                    var chartDimensions = data.max_x_max_y;
+                    myChart.options.scales.x.min = 0;
+                    myChart.options.scales.x.max = chartDimensions[0];
+                    myChart.options.scales.y.min = 0;
+                    myChart.options.scales.y.max = chartDimensions[1];
+
+                    myChart.update();
+
+                    function formatAndDisplayCellData(data) {
+                        return data.map(cell => {
+                            return `<div class="object-box">${Object.entries(cell)
+                                    .map(([key, value]) => `${key}: <span class="value">${value === null || value === "" ? "N/A" : value}</span>`
+                        )
+                        .
+                            join("<br>")
+                        }
+                    </div>
+                        `;
+                    }).join("");
+                }
+
+                document.getElementById('ueSourceData').innerHTML = formatAndDisplayCellData(data.ues);
+                document.getElementById('cellSourceData').innerHTML = formatAndDisplayCellData(data.cells);
+
+
+                const legendContainer = document.getElementById('chart-legend');
+                legendContainer.innerHTML = '';
+
+                cellData.forEach(cell => {
+                    const legendItem = document.createElement('div');
+                    legendItem.className = 'legend-item';
+
+                    const colorBox = document.createElement('div');
+                    colorBox.className = 'legend-color-box';
+                    colorBox.style.backgroundColor = cell.backgroundColor;
+
+                    const legendText = document.createElement('span');
+                    legendText.className = 'legend-text';
+                    legendText.textContent = `
+                        Cell ${cell.cell_id} (${cell.type})`;
+
+                    legendItem.appendChild(colorBox);
+                    legendItem.appendChild(legendText);
+                    legendContainer.appendChild(legendItem);
+                });
+
+                const isChartViewActive = document.getElementById('chart-content').classList.contains('active');
+                if (isChartViewActive) {
+                    legendContainer.classList.add('horizontal');
+                    legendContainer.classList.remove('vertical');
+                } else {
+                    legendContainer.classList.add('vertical');
+                    legendContainer.classList.remove('horizontal');
+                }
+            });
+    }
+
+
+    document.getElementById('form-toggle-button').addEventListener('click', () => {
+        const formContainer = document.getElementById('form-container');
+        const button = document.getElementById('form-toggle-button');
+
+        if (formContainer.style.display === 'none' || formContainer.style.display === '') {
+            formContainer.style.display = 'block';
+            button.textContent = 'Hide simulation setup';
+        } else {
+            formContainer.style.display = 'none';
+            button.textContent = 'Show simulation setup';
+        }
+    });
+
+
+    document.getElementById('chart-tab').addEventListener('click', () => {
+        document.getElementById('chart-content').classList.add('active');
+        document.getElementById('data-content').classList.remove('active');
+        document.getElementById('chart-tab').classList.add('active');
+        document.getElementById('data-tab').classList.remove('active');
+        updateChart();
+    });
+
+    document.getElementById('data-tab').addEventListener('click', () => {
+        document.getElementById('chart-content').classList.remove('active');
+        document.getElementById('data-content').classList.add('active');
+        document.getElementById('chart-tab').classList.remove('active');
+        document.getElementById('data-tab').classList.add('active');
+        updateChart();
+    });
+
+    document.getElementById('simulationForm').addEventListener('submit', (event) => {
+        event.preventDefault();
+    });
+
+    setInterval(updateChart, 1250);
+    updateChart();
+
+    function sendForm(endpoint) {
+        const form = document.getElementById('simulationForm');
+        const formData = new FormData(form);
+        const data = {};
+
+        formData.forEach((value, key) => {
+            if (value.trim() !== '') {
+                data[key] = value;
+            }
+        });
+
+        console.log('Data to be sent:', data);
+        const statusLabel = document.getElementById('status_label');
+        const startButton = document.getElementById('start_button')
+        const stopButton = document.getElementById('stop_button')
+        statusLabel.textContent = 'Simulation starting';
+        startButton.disabled = true
+        stopButton.disabled = false
+
+
+        fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+statusLabel.textContent = 'Simulation running (if there are no Cells/UEs on the grid after max 30s, please check if ns3 is running properly typing in terminal "ps -a" or "cat ns-3-mmwave-oran/ns3_run.log")';
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                statusLabel.textContent = 'Error while starting up the simulation';
+                startButton.disabled = false
+                stopButton.disabled = true
+            });
+    }
+
+    function stopSim(endpoint) {
+        const statusLabel = document.getElementById('status_label');
+        statusLabel.textContent = 'Stopping simulation';
+        const startButton = document.getElementById('start_button')
+        const stopButton = document.getElementById('stop_button')
+        const resetButton = document.getElementById('reset_button')
+        startButton.disabled = false
+        stopButton.disabled = true
+        resetButton.disabled = false
+        fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+                statusLabel.textContent = 'Simulation stopped';
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                statusLabel.textContent = 'Error encountered while stopping the simulation';
+
+            });
+    }
+
+    function resetSim(endpoint) {
+        const statusLabel = document.getElementById('status_label');
+        statusLabel.textContent = 'Resetting simulation';
+        const resetButton = document.getElementById('reset_button')
+        resetButton.disabled = true
+        fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+                statusLabel.textContent = 'off';
+
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                statusLabel.textContent = 'Error encountered while resetting the simulation';
+            });
+    }
+
+</script>
+</body>
+</html>
