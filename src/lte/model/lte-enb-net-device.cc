@@ -176,8 +176,8 @@ namespace ns3 {
                 NS_LOG_INFO("TS, do the handover");
                 // do handover
                 Ptr <OctetString> imsiString =
-                        Create<OctetString>((void *) controlMessage->m_e2SmRcControlHeaderFormat1->ueId.buf,
-                                            controlMessage->m_e2SmRcControlHeaderFormat1->ueId.size);
+                        Create<OctetString>((void *) controlMessage->m_e2SmRcControlHeaderFormat1->ueID.choice.gNB_UEID,
+                                            controlMessage->m_e2SmRcControlHeaderFormat1->ueID.present);  //this line need to fix 
                 char *end;
 
                 uint64_t imsi = std::strtoull(imsiString->DecodeContent().c_str(), &end, 10);

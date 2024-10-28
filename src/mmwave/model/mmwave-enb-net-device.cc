@@ -4,6 +4,7 @@
 *   Copyright (c) 2015, NYU WIRELESS, Tandon School of Engineering, New York University
 *   Copyright (c) 2016, 2018, University of Padova, Dep. of Information Engineering, SIGNET lab.
 *   Copyright (c) 2024 Orange Innovation Poland
+*   Copyright (c) 2024 Orange Innovation Egypt
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License version 2 as
@@ -25,6 +26,9 @@
 *                         Sourjya Dutta <sdutta@nyu.edu>
 *                         Russell Ford <russell.ford@nyu.edu>
 *                         Menglei Zhang <menglei@nyu.edu>
+*                         Mostafa Ashraf <mostafa.ashraf.ext@orange.com>
+*                         Aya Kamal <aya.kamal.ext@orange.com>
+*                         Abdelrhman Soliman <abdelrhman.soliman.ext@orange.com>
 *
 *       Modified by: Tommaso Zugno <tommasozugno@gmail.com>
 *                                Integration of Carrier Aggregation
@@ -186,7 +190,10 @@ TypeId MmWaveEnbNetDevice::GetTypeId ()
                     MakeBooleanChecker ())
             .AddAttribute ("KPM_E2functionID", "Function ID to subscribe", DoubleValue (2),
                            MakeDoubleAccessor (&MmWaveEnbNetDevice::e2_func_id),
-                           MakeDoubleChecker<double> ());
+                           MakeDoubleChecker<double> ())
+            .AddAttribute("RC_E2functionID", "Function ID to subscribe", DoubleValue(3),
+                           MakeDoubleAccessor(&MmWaveEnbNetDevice::rc_e2_func_id),
+                           MakeDoubleChecker<double>());
   return tid;
 }
 
@@ -600,6 +607,44 @@ MmWaveEnbNetDevice::GetE2Termination() const
   return m_e2term;
 }
 
+
+void
+  MmWaveEnbNetDevice::ControlMessageReceivedCallback(E2AP_PDU_t *sub_req_pdu) {
+    NS_LOG_DEBUG("\n\nLteEnbNetDevice::ControlMessageReceivedCallback: Received RIC Control Message");
+
+    // Create RIC Control ACK
+    Ptr <RicControlMessage> controlMessage = Create<RicControlMessage>(sub_req_pdu);
+    NS_LOG_INFO("After RicControlMessage::RicControlMessage constructor");
+    NS_LOG_INFO("Request type " << controlMessage->m_requestType);
+    switch (controlMessage->m_requestType) {
+        case RicControlMessage::ControlMessageRequestIdType::TS : {
+            NS_LOG_INFO("TS, do the handover");
+            // do handover
+            /*Ptr <OctetString> imsiString =
+                    Create<OctetString>((void *) controlMessage->m_e2SmRcControlHeaderFormat1->ueID.choice.gNB_UEID,
+                                        controlMessage->m_e2SmRcControlHeaderFormat1->ueID.present);  //this line need to fix 
+            char *end;
+
+            uint64_t imsi = std::strtoull(imsiString->DecodeContent().c_str(), &end, 10);
+            uint16_t targetCellId = std::stoi(controlMessage->GetSecondaryCellIdHO());
+            NS_LOG_INFO("Imsi Decoded: " << imsi);
+            NS_LOG_INFO("Target Cell id " << targetCellId);
+            m_rrc->TakeUeHoControl(imsi);
+            if (!m_forceE2FileLogging) {
+                Simulator::ScheduleWithContext(1, Seconds(0), &LteEnbRrc::PerformHandoverToTargetCell,
+                                                m_rrc, imsi, targetCellId);
+            } else {
+                Simulator::Schedule(Seconds(0), &LteEnbRrc::PerformHandoverToTargetCell,
+                                    m_rrc, imsi, targetCellId);*/
+            }
+            break;
+            default: {
+            NS_LOG_INFO("Unrecognized id type of Ric Control Message");
+            break;
+        }
+        }
+    }
+
 void
 MmWaveEnbNetDevice::SetE2Termination(Ptr<E2Termination> e2term)
 {
@@ -607,12 +652,17 @@ MmWaveEnbNetDevice::SetE2Termination(Ptr<E2Termination> e2term)
 
   NS_LOG_DEBUG("Register E2SM MmWaveEnbNetDevice");
 
-            if (!m_forceE2FileLogging)
-            {
-                long m_e2_func_id = long (e2_func_id);
-                Ptr<KpmFunctionDescription> kpmFd = Create<KpmFunctionDescription> ();
-                e2term->RegisterKpmCallbackToE2Sm (
-                        m_e2_func_id, kpmFd,std::bind (&MmWaveEnbNetDevice::KpmSubscriptionCallback, this, std::placeholders::_1));
+  if (!m_forceE2FileLogging) {
+      long m_e2_func_id = long (e2_func_id);
+      long m_rc_e2_func_id = long(rc_e2_func_id);
+      Ptr<KpmFunctionDescription> kpmFd = Create<KpmFunctionDescription> ();
+      e2term->RegisterKpmCallbackToE2Sm (
+              m_e2_func_id, kpmFd,std::bind (&MmWaveEnbNetDevice::KpmSubscriptionCallback, this, std::placeholders::_1));
+
+      Ptr <RicControlFunctionDescription> ricCtrlFd = Create<RicControlFunctionDescription>();
+      e2term->RegisterSmCallbackToE2Sm(m_rc_e2_func_id, ricCtrlFd,
+                                      std::bind(&MmWaveEnbNetDevice::ControlMessageReceivedCallback,
+                                                this, std::placeholders::_1));
 
       e2term->RegisterCallbackFunctionToE2Sm(1, std::bind(&MmWaveEnbNetDevice::stopSendingAndCancelSchedule, this));
     }

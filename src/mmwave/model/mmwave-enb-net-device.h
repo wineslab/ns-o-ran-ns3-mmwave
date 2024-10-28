@@ -3,6 +3,7 @@
 *   Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
 *   Copyright (c) 2015, NYU WIRELESS, Tandon School of Engineering, New York University
 *   Copyright (c) 2016, 2018, University of Padova, Dep. of Information Engineering, SIGNET lab.
+*   Copyright (c) 2024 Orange Innovation Egypt
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License version 2 as
@@ -24,6 +25,9 @@
 *                         Sourjya Dutta <sdutta@nyu.edu>
 *                         Russell Ford <russell.ford@nyu.edu>
 *                         Menglei Zhang <menglei@nyu.edu>
+*                         Mostafa Ashraf <mostafa.ashraf.ext@orange.com>
+*                         Aya Kamal <aya.kamal.ext@orange.com>
+*                         Abdelrhman Soliman <abdelrhman.soliman.ext@orange.com>
 *
 *        Modified by: Tommaso Zugno <tommasozugno@gmail.com>
 *								 Integration of Carrier Aggregation
@@ -116,7 +120,6 @@ namespace ns3 {
             void KpmSubscriptionCallback(E2AP_PDU_t *sub_req_pdu);
 
             void ControlMessageReceivedCallback(E2AP_PDU_t *sub_req_pdu);
-
             void SetStartTime(uint64_t);
 
             void stopSendingAndCancelSchedule();
@@ -183,7 +186,7 @@ namespace ns3 {
             bool m_reducedPmValues; //< if true use a reduced subset of pmvalues
 
             uint16_t m_basicCellId;
-
+            double  rc_e2_func_id ; // to RC
             double e2_func_id; //to pass kpm function id
             bool m_e2andlog; //if true, both e2 term and e2file logging will work
             bool m_forceE2FileLogging; //< if true log PMs to files
