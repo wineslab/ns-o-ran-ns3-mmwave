@@ -1,0 +1,1960 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 18,
+  "links": [],
+  "panels": [
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "lines",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "alias": "Cell 1",
+          "query": "SELECT \"value\" FROM \"cu-up-cell-1_m_pdcpbytesdl (celldltxvolume)\" WHERE $timeFilter  ",
+          "rawQuery": true,
+          "refId": "A"
+        },
+        {
+          "alias": "Cell 2",
+          "query": "SELECT \"value\" FROM \"cu-up-cell-2_m_pdcpbytesdl (celldltxvolume)\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B"
+        },
+        {
+          "alias": "Cell 3",
+          "query": "SELECT \"value\" FROM \"cu-up-cell-3_m_pdcpbytesdl (celldltxvolume)\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C"
+        },
+        {
+          "alias": "Cell 4",
+          "query": "SELECT \"value\" FROM \"cu-up-cell-4_m_pdcpbytesdl (celldltxvolume)\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D"
+        },
+        {
+          "alias": "Cell 5",
+          "query": "SELECT \"value\" FROM \"cu-up-cell-5_m_pdcpbytesdl (celldltxvolume)\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E"
+        },
+        {
+          "alias": "Cell 6",
+          "query": "SELECT \"value\" FROM \"cu-up-cell-6_m_pdcpbytesdl (celldltxvolume)\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F"
+        }
+      ],
+      "title": "PDCP Bytes DL for Cells 1-6",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "description": "pdcpLatency",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "DRB.PdcpSduDelayDl.UEID",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "Cell 1"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "alias": "Cell 1",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "pdcp_latency",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"cu-up-cell-1_drb.pdcpsdudelaydl (cellaveragelatency)\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "metric_type",
+              "operator": "=",
+              "value": "gauge"
+            }
+          ]
+        },
+        {
+          "alias": "Cell 2",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "pdcp_latency",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"cu-up-cell-2_drb.pdcpsdudelaydl (cellaveragelatency)\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "metric_type",
+              "operator": "=",
+              "value": "gauge"
+            }
+          ]
+        },
+        {
+          "alias": "Cell 3",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "pdcp_latency",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"cu-up-cell-3_drb.pdcpsdudelaydl (cellaveragelatency)\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "metric_type",
+              "operator": "=",
+              "value": "gauge"
+            }
+          ]
+        },
+        {
+          "alias": "Cell 4",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "pdcp_latency",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"cu-up-cell-4_drb.pdcpsdudelaydl (cellaveragelatency)\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "metric_type",
+              "operator": "=",
+              "value": "gauge"
+            }
+          ]
+        },
+        {
+          "alias": "Cell 5",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "pdcp_latency",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"cu-up-cell-5_drb.pdcpsdudelaydl (cellaveragelatency)\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "metric_type",
+              "operator": "=",
+              "value": "gauge"
+            }
+          ]
+        },
+        {
+          "alias": "Cell 6",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "pdcp_latency",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"cu-up-cell-6_drb.pdcpsdudelaydl (cellaveragelatency)\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "metric_type",
+              "operator": "=",
+              "value": "gauge"
+            }
+          ]
+        }
+      ],
+      "title": "Cell Average Latency",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "DRB.PdcpSduDelayDl.UEID\\(pdcpLatency\\)_([0-9]{5})_up",
+            "renamePattern": "$1"
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "description": "pdcpLatency",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "DRB.PdcpSduDelayDl.UEID",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "alias": "Cell 1",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "pdcp_latency",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"cu-up-cell-1_drb.pdcpsdudelaydl (cellaveragelatency)\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "metric_type",
+              "operator": "=",
+              "value": "gauge"
+            }
+          ]
+        },
+        {
+          "alias": "Cell 2",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "pdcp_latency",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"cu-up-cell-2_drb.pdcpsdudelaydl (cellaveragelatency)\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "metric_type",
+              "operator": "=",
+              "value": "gauge"
+            }
+          ]
+        },
+        {
+          "alias": "Cell 3",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "pdcp_latency",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"cu-up-cell-3_drb.pdcpsdudelaydl (cellaveragelatency)\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "metric_type",
+              "operator": "=",
+              "value": "gauge"
+            }
+          ]
+        },
+        {
+          "alias": "Cell 4",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "pdcp_latency",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"cu-up-cell-4_drb.pdcpsdudelaydl (cellaveragelatency)\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "metric_type",
+              "operator": "=",
+              "value": "gauge"
+            }
+          ]
+        },
+        {
+          "alias": "Cell 5",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "pdcp_latency",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"cu-up-cell-5_drb.pdcpsdudelaydl (cellaveragelatency)\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "metric_type",
+              "operator": "=",
+              "value": "gauge"
+            }
+          ]
+        },
+        {
+          "alias": "Cell 6",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "pdcp_latency",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"cu-up-cell-6_drb.pdcpsdudelaydl (cellaveragelatency)\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "metric_type",
+              "operator": "=",
+              "value": "gauge"
+            }
+          ]
+        },
+        {
+          "alias": "Cell 1",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "pdcp_latency",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"cu-up-cell-1_drb.pdcpsdudelaydl (cellaveragelatency)\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "G",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "metric_type",
+              "operator": "=",
+              "value": "gauge"
+            }
+          ]
+        }
+      ],
+      "title": "Cell Average Latency",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "DRB.PdcpSduDelayDl.UEID\\(pdcpLatency\\)_([0-9]{5})_up",
+            "renamePattern": "$1"
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "alias": "Cell 2",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-2_dlprbusage\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A"
+        },
+        {
+          "alias": "Cell 3",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-3_dlprbusage\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B"
+        },
+        {
+          "alias": "Cell 4",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-4_dlprbusage\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C"
+        },
+        {
+          "alias": "Cell 5",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-5_dlprbusage\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D"
+        },
+        {
+          "alias": "Cell 6",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-6_dlprbusage\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E"
+        },
+        {
+          "alias": "Cell 1",
+          "datasource": null,
+          "hide": false,
+          "query": "SELECT \"value\" FROM \"du-cell-1_dlprbusage\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F"
+        }
+      ],
+      "title": "PRB Usage %",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 23,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.2",
+      "targets": [
+        {
+          "alias": "Cell 1",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-1_drb.meanactiveuedl\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A"
+        },
+        {
+          "alias": "Cell 2",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-2_drb.meanactiveuedl\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B"
+        },
+        {
+          "alias": "Cell 3",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-3_drb.meanactiveuedl\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C"
+        },
+        {
+          "alias": "Cell 4",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-4_drb.meanactiveuedl\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D"
+        },
+        {
+          "alias": "Cell 5",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-5_drb.meanactiveuedl\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E"
+        },
+        {
+          "alias": "Cell 6",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-6_drb.meanactiveuedl\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F"
+        },
+        {
+          "alias": "Cell 7",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-7_drb.meanactiveuedl\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "G"
+        }
+      ],
+      "title": "Mean Active UE DL",
+      "type": "stat"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "alias": "Cell 1",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-1_rru.prbuseddl\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A"
+        },
+        {
+          "alias": "Cell 2",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-2_rru.prbuseddl\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B"
+        },
+        {
+          "alias": "Cell 3",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-3_rru.prbuseddl\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C"
+        },
+        {
+          "alias": "Cell 4",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-4_rru.prbuseddl\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D"
+        },
+        {
+          "alias": "Cell 5",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-5_rru.prbuseddl\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E"
+        },
+        {
+          "alias": "Cell 6",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-6_rru.prbuseddl\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F"
+        }
+      ],
+      "title": "RRU PRB Used",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "id": 17,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "alias": "Cell 2",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-2_drb.buffersize.qos.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A"
+        },
+        {
+          "alias": "Cell 3",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-3_drb.buffersize.qos.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B"
+        },
+        {
+          "alias": "Cell 4",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-4_drb.buffersize.qos.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C"
+        },
+        {
+          "alias": "Cell 5",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-5_drb.buffersize.qos.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D"
+        },
+        {
+          "alias": "Cell 6",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-6_drb.buffersize.qos.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E"
+        }
+      ],
+      "title": "DRB Buffer Size",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "id": 20,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "alias": "Cell 1",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-1_tb.totnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A"
+        },
+        {
+          "alias": "Cell 2",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-2_tb.totnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B"
+        },
+        {
+          "alias": "Cell 3",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-3_tb.totnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C"
+        },
+        {
+          "alias": "Cell 4",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-4_tb.totnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D"
+        },
+        {
+          "alias": "Cell 5",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-5_tb.totnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E"
+        },
+        {
+          "alias": "Cell 6",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-6_tb.totnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F"
+        }
+      ],
+      "title": "Total DL Count",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "id": 19,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "alias": "Cell 1",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-1_tb.errtotalnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A"
+        },
+        {
+          "alias": "Cell 2",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-2_tb.errtotalnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B"
+        },
+        {
+          "alias": "Cell 3",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-3_tb.errtotalnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C"
+        },
+        {
+          "alias": "Cell 4",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-4_tb.errtotalnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D"
+        },
+        {
+          "alias": "Cell 5",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-5_tb.errtotalnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E"
+        },
+        {
+          "alias": "Cell 6",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-6_tb.errtotalnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F"
+        }
+      ],
+      "title": "Error Count ",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "stepBefore",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "alias": "Cell 1",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-1_tb.totnbrdlinitial.64qam\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A"
+        },
+        {
+          "alias": "Cell 2",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-2_tb.totnbrdlinitial.64qam\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B"
+        },
+        {
+          "alias": "Cell 3",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-3_tb.totnbrdlinitial.64qam\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C"
+        },
+        {
+          "alias": "Cell 4",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-4_tb.totnbrdlinitial.64qam\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D"
+        },
+        {
+          "alias": "Cell 5",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-5_tb.totnbrdlinitial.64qam\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E"
+        },
+        {
+          "alias": "Cell 6",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-6_tb.totnbrdlinitial.64qam\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F"
+        }
+      ],
+      "title": "Total  number of DL initial TBs  DL 64 QAM",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "stepBefore",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      },
+      "id": 9,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "alias": "Cell 1",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-1_tb.totnbrdlinitial.16qam\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A"
+        },
+        {
+          "alias": "Cell 2",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-2_tb.totnbrdlinitial.16qam\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B"
+        },
+        {
+          "alias": "Cell 3",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-3_tb.totnbrdlinitial.16qam\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C"
+        },
+        {
+          "alias": "Cell 4",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-4_tb.totnbrdlinitial.16qam\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D"
+        },
+        {
+          "alias": "Cell 5",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-5_tb.totnbrdlinitial.16qam\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E"
+        },
+        {
+          "alias": "Cell 6",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-6_tb.totnbrdlinitial.16qam\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F"
+        }
+      ],
+      "title": "Total  number of DL initial TBs  DL 16QAM",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "stepBefore",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 40
+      },
+      "id": 11,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "alias": "Cell 1",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-1_tb.totnbrdlinitial.qpsk.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A"
+        },
+        {
+          "alias": "Cell 2",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-2_tb.totnbrdlinitial.qpsk.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B"
+        },
+        {
+          "alias": "Cell 3",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-3_tb.totnbrdlinitial.qpsk.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C"
+        },
+        {
+          "alias": "Cell 4",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-4_tb.totnbrdlinitial.qpsk.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D"
+        },
+        {
+          "alias": "Cell 5",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-5_tb.totnbrdlinitial.qpsk.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E"
+        },
+        {
+          "alias": "Cell 6",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"du-cell-6_tb.totnbrdlinitial.qpsk.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F"
+        }
+      ],
+      "title": "Total  number of DL initial TBs  DL QPSK",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-5m",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s"
+    ]
+  },
+  "timezone": "",
+  "title": "per_Cell_stats",
+  "uid": "iVWP_IiHk",
+  "version": 1
+}

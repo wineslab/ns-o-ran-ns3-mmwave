@@ -1,0 +1,1385 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "links": [],
+  "panels": [
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 11,
+        "x": 0,
+        "y": 0
+      },
+      "id": 10,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.2",
+      "targets": [
+        {
+          "alias": "UE 1",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_position_cell_1\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A"
+        },
+        {
+          "alias": "UE 2",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_position_cell_2\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B"
+        },
+        {
+          "alias": "UE 3",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_position_cell_3\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C"
+        },
+        {
+          "alias": "UE 4",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_position_cell_4\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D"
+        },
+        {
+          "alias": "UE 5",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_position_cell_5\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E"
+        },
+        {
+          "alias": "UE 6",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_position_cell_6\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F"
+        },
+        {
+          "alias": "UE 7",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_position_cell_7\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "G"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Serving Cell ID (UE)",
+      "type": "stat"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "max": 25,
+          "min": -25,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 11,
+        "y": 0
+      },
+      "id": 11,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "alias": "UE 1",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_1_l3 serving sinr\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A"
+        },
+        {
+          "alias": "UE 2",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_2_l3 serving sinr\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B"
+        },
+        {
+          "alias": "UE 3",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_3_l3 serving sinr\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C"
+        },
+        {
+          "alias": "UE 4",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_4_l3 serving sinr\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D"
+        },
+        {
+          "alias": "UE 5",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_5_l3 serving sinr\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E"
+        },
+        {
+          "alias": "UE 6",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_6_l3 serving sinr\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F"
+        },
+        {
+          "alias": "UE 7",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_7_l3 serving sinr\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "G"
+        }
+      ],
+      "title": "Serving SINR",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 11,
+        "x": 0,
+        "y": 9
+      },
+      "id": 12,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "alias": "UE 1",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_1_qosflow.pdcppduvolumedl_filter\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A"
+        },
+        {
+          "alias": "UE 2",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_2_qosflow.pdcppduvolumedl_filter\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B"
+        },
+        {
+          "alias": "UE 3",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_3_qosflow.pdcppduvolumedl_filter\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C"
+        },
+        {
+          "alias": "UE 4",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_4_qosflow.pdcppduvolumedl_filter\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D"
+        },
+        {
+          "alias": "UE 5",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_5_qosflow.pdcppduvolumedl_filter\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E"
+        },
+        {
+          "alias": "UE 6",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_6_qosflow.pdcppduvolumedl_filter\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F"
+        },
+        {
+          "alias": "UE 7",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_7_qosflow.pdcppduvolumedl_filter\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "G"
+        }
+      ],
+      "title": "QoS Flow (PDCP PDU Volume DL)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 11,
+        "y": 9
+      },
+      "id": 13,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "alias": "UE 1",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_1_rru.prbuseddl\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A"
+        },
+        {
+          "alias": "UE 2",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_2_rru.prbuseddl\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B"
+        },
+        {
+          "alias": "UE 3",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_3_rru.prbuseddl\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C"
+        },
+        {
+          "alias": "UE 4",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_4_rru.prbuseddl\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D"
+        },
+        {
+          "alias": "UE 5",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_5_rru.prbuseddl\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E"
+        },
+        {
+          "alias": "UE 6",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_6_rru.prbuseddl\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F"
+        },
+        {
+          "alias": "UE 7",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_7_rru.prbuseddl\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "G"
+        }
+      ],
+      "title": "PRB Used DL",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 11,
+        "x": 0,
+        "y": 17
+      },
+      "id": 14,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "alias": "UE 1",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_1_tb.errtotalnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A"
+        },
+        {
+          "alias": "UE 2",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_2_tb.errtotalnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B"
+        },
+        {
+          "alias": "UE 3",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_3_tb.errtotalnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C"
+        },
+        {
+          "alias": "UE 4",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_4_tb.errtotalnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D"
+        },
+        {
+          "alias": "UE 5",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_5_tb.errtotalnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E"
+        },
+        {
+          "alias": "UE 6",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_6_tb.errtotalnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F"
+        },
+        {
+          "alias": "UE 7",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_7_tb.errtotalnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "G"
+        }
+      ],
+      "title": "Total Number of DL Errors",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 11,
+        "y": 17
+      },
+      "id": 15,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "alias": "UE 1",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_1_tb.totnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A"
+        },
+        {
+          "alias": "UE 2",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_2_tb.totnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B"
+        },
+        {
+          "alias": "UE 3",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_3_tb.totnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C"
+        },
+        {
+          "alias": "UE 4",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_4_tb.totnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D"
+        },
+        {
+          "alias": "UE 5",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_5_tb.totnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E"
+        },
+        {
+          "alias": "UE 6",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_6_tb.totnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F"
+        },
+        {
+          "alias": "UE 7",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_7_tb.totnbrdl.1.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "G"
+        }
+      ],
+      "title": "Total Number of DL TB",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 11,
+        "x": 0,
+        "y": 25
+      },
+      "id": 16,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "alias": "UE 1",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_1_tb.totnbrdlinitial\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A"
+        },
+        {
+          "alias": "UE 2",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_2_tb.totnbrdlinitial\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B"
+        },
+        {
+          "alias": "UE 3",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_3_tb.totnbrdlinitial\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C"
+        },
+        {
+          "alias": "UE 4",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_4_tb.totnbrdlinitial\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D"
+        },
+        {
+          "alias": "UE 5",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_5_tb.totnbrdlinitial\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E"
+        },
+        {
+          "alias": "UE 6",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_6_tb.totnbrdlinitial\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F"
+        },
+        {
+          "alias": "UE 7",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_7_tb.totnbrdlinitial\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "G"
+        }
+      ],
+      "title": "Total Number of DL Initial TB",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 11,
+        "y": 25
+      },
+      "id": 17,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "alias": "UE 1",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_1_dlprbusage\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A"
+        },
+        {
+          "alias": "UE 2",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_2_dlprbusage\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B"
+        },
+        {
+          "alias": "UE 3",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_3_dlprbusage\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C"
+        },
+        {
+          "alias": "UE 4",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_4_dlprbusage\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D"
+        },
+        {
+          "alias": "UE 5",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_5_dlprbusage\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E"
+        },
+        {
+          "alias": "UE 6",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_6_dlprbusage\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F"
+        },
+        {
+          "alias": "UE 7",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_7_dlprbusage\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "G"
+        }
+      ],
+      "title": "DL PRB Usage",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 11,
+        "x": 0,
+        "y": 32
+      },
+      "id": 20,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "alias": "UE 1",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_1_drb.buffersize.qos.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A"
+        },
+        {
+          "alias": "UE 2",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_2_drb.buffersize.qos.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B"
+        },
+        {
+          "alias": "UE 3",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_3_drb.buffersize.qos.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C"
+        },
+        {
+          "alias": "UE 4",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_4_drb.buffersize.qos.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D"
+        },
+        {
+          "alias": "UE 5",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_5_drb.buffersize.qos.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E"
+        },
+        {
+          "alias": "UE 6",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_6_drb.buffersize.qos.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F"
+        },
+        {
+          "alias": "UE 7",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_7_drb.buffersize.qos.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "G"
+        }
+      ],
+      "title": "DRB Buffer Size Qos",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 11,
+        "y": 32
+      },
+      "id": 24,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "alias": "UE 1",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_1_drb.uethpdlpdcpbased.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A"
+        },
+        {
+          "alias": "UE 2",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_2_drb.uethpdlpdcpbased.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B"
+        },
+        {
+          "alias": "UE 3",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_3_drb.uethpdlpdcpbased.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C"
+        },
+        {
+          "alias": "UE 4",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_4_drb.uethpdlpdcpbased.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D"
+        },
+        {
+          "alias": "UE 5",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_5_drb.uethpdlpdcpbased.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E"
+        },
+        {
+          "alias": "UE 6",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_6_drb.uethpdlpdcpbased.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F"
+        },
+        {
+          "alias": "UE 7",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_7_drb.uethpdlpdcpbased.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "G"
+        }
+      ],
+      "title": "DRB Throughput (PDCP Based)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 11,
+        "x": 0,
+        "y": 39
+      },
+      "id": 23,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "alias": "UE 1",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_1_drb.uethpdl.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A"
+        },
+        {
+          "alias": "UE 2",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_2_drb.uethpdl.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B"
+        },
+        {
+          "alias": "UE 3",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_3_drb.uethpdl.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C"
+        },
+        {
+          "alias": "UE 4",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_4_drb.uethpdl.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D"
+        },
+        {
+          "alias": "UE 5",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_5_drb.uethpdl.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E"
+        },
+        {
+          "alias": "UE 6",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_6_drb.uethpdl.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F"
+        },
+        {
+          "alias": "UE 7",
+          "datasource": null,
+          "query": "SELECT \"value\" FROM \"ue_7_drb.uethpdl.ueid\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "G"
+        }
+      ],
+      "title": "DRB Throughput (UE ID)",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s"
+    ]
+  },
+  "timezone": "",
+  "title": "per_UE_stats",
+  "uid": "U6C2_IiHk",
+  "version": 1
+}
