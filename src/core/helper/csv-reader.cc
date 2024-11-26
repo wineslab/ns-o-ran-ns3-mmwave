@@ -23,6 +23,7 @@
 #include "ns3/log.h"
 
 #include <algorithm>
+#include <limits>
 #include <cctype>
 #include <fstream>
 #include <iterator>
