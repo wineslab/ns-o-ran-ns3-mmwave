@@ -244,24 +244,32 @@ static ns3::GlobalValue g_policy ("policy", "Placeholder to let the controller u
 static ns3::GlobalValue g_controlFileName ("controlFileName", "The path to the control file (can be absolute)",
                                      ns3::StringValue ("qos_actions.csv"), ns3::MakeStringChecker ());
 
+static ns3::GlobalValue g_indicationPeriodicity ("indicationPeriodicity", "E2 Indication Periodicity reports (value in seconds)", ns3::DoubleValue (0.1),
+                                   ns3::MakeDoubleChecker<double> (0.01, 2.0));
+
 int
 main (int argc, char *argv[])
 {
   LogComponentEnableAll (LOG_PREFIX_ALL);
   LogComponentEnable ("ScenarioTwo", LOG_LEVEL_INFO);
-  // LogComponentEnable ("PacketSink", LOG_LEVEL_ALL);
+  LogComponentEnable ("LteEnbNetDevice", LOG_LEVEL_INFO);
+  LogComponentEnable ("MmWaveEnbNetDevice", LOG_LEVEL_INFO);
   // LogComponentEnable ("OnOffApplication", LOG_LEVEL_INFO);
-  // LogComponentEnable ("LtePdcp", LOG_LEVEL_ALL);
-  // LogComponentEnable ("LteRlcAm", LOG_LEVEL_ALL);
+  LogComponentEnable ("MmWaveBearerStatsCalculator", LOG_LEVEL_FUNCTION);
+  LogComponentEnable ("LteStatsCalculator", LOG_LEVEL_FUNCTION);
+  LogComponentEnable ("RadioBearerStatsCalculator", LOG_LEVEL_FUNCTION);
+  LogComponentEnable ("LteRlcAm", LOG_LEVEL_FUNCTION);
+  LogComponentEnable ("MmWaveBearerStatsConnector", LOG_LEVEL_FUNCTION);
+  LogComponentEnable ("RadioBearerStatsConnector", LOG_LEVEL_FUNCTION);
   // LogComponentEnable ("MmWaveUeMac", LOG_LEVEL_ALL);
   // LogComponentEnable ("MmWaveEnbMac", LOG_LEVEL_ALL);
   // LogComponentEnable ("LteUeMac", LOG_LEVEL_ALL);
   // LogComponentEnable ("LteEnbMac", LOG_LEVEL_ALL);
   // LogComponentEnable ("MmWaveFlexTtiMacScheduler", LOG_LEVEL_ALL);
-  // LogComponentEnable ("LteEnbRrc", LOG_LEVEL_ALL);
+  LogComponentEnable ("LteEnbRrc", LOG_LEVEL_INFO);
   // LogComponentEnable ("LteUeRrc", LOG_LEVEL_ALL);
-  // LogComponentEnable ("McEnbPdcp", LOG_LEVEL_ALL);
-  // LogComponentEnable ("McUePdcp", LOG_LEVEL_ALL);
+  LogComponentEnable ("McEnbPdcp", LOG_LEVEL_FUNCTION);
+  LogComponentEnable ("McUePdcp", LOG_LEVEL_INFO);
   // LogComponentEnable ("RicControlMessage", LOG_LEVEL_ALL);
   // LogComponentEnable ("Asn1Types", LOG_LEVEL_LOGIC);
   // LogComponentEnable ("E2Termination", LOG_LEVEL_LOGIC);
@@ -301,6 +309,8 @@ main (int argc, char *argv[])
   double qoSmIoT = doubleValue.Get ();
   GlobalValue::GetValueByName ("controlFileName", stringValue);
   std::string controlFilename = stringValue.Get ();
+  GlobalValue::GetValueByName ("indicationPeriodicity", doubleValue);
+  double indicationPeriodicity = doubleValue.Get ();
 
   if (PercUEeMBB + PercUEURLLC > 1)
     {
@@ -315,14 +325,15 @@ main (int argc, char *argv[])
                                  << " QoS percentage URLLC " << qoSURLLC 
                                  << " QoS percentage mIoT " << qoSmIoT
                                  << " controlFilename " << controlFilename
-                                 << " useSemaphores " << useSemaphores);
+                                 << " useSemaphores " << useSemaphores
+                                 << " indicationPeriodicity " << indicationPeriodicity);
 
   Config::SetDefault ("ns3::MmWaveHelper::E2ModeLte", BooleanValue(true));
   Config::SetDefault ("ns3::MmWaveHelper::E2ModeNr", BooleanValue(true));
+  Config::SetDefault ("ns3::MmWaveHelper::E2Periodicity", DoubleValue (indicationPeriodicity));
   
   // The DU PM reports should come from both NR gNB as well as LTE eNB, 
   // since in the RLC/MAC/PHY entities are present in BOTH NR gNB as well as LTE eNB.
-  // TODO DU reports from LTE eNB are not implemented yet
   Config::SetDefault ("ns3::MmWaveEnbNetDevice::EnableDuReport", BooleanValue(true));
 
   Config::SetDefault ("ns3::LteEnbNetDevice::ControlFileName", StringValue (controlFilename));
@@ -494,11 +505,10 @@ main (int argc, char *argv[])
   enbmobility.SetPositionAllocator (enbPositionAlloc);
   enbmobility.Install (allEnbNodes);
 
-
   Ptr<UniformDiscPositionAllocator> uePositionAlloc = CreateObject<UniformDiscPositionAllocator> ();
   uePositionAlloc->SetX (centerPosition.x);
   uePositionAlloc->SetY (centerPosition.y);
-  uePositionAlloc->SetRho (1.5 * isd);
+  uePositionAlloc->SetRho (0.7 * isd);
 
   uint32_t countUe;
   // eMBB
@@ -517,7 +527,7 @@ main (int argc, char *argv[])
 
       uemobilityeMBB.SetPositionAllocator (uePositionAlloc);
       uemobilityeMBB.Install (ueNodes.Get (countUe));
-      NS_LOG_INFO ("Node " << countUe << " is eMBB");
+      NS_LOG_INFO ("Node " << countUe + 1 << " is eMBB");
     }
 
   // URLLC
@@ -534,7 +544,7 @@ main (int argc, char *argv[])
                                   RectangleValue (Rectangle (0, maxXAxis, 0, maxYAxis)));
       uemobilityURLLC.SetPositionAllocator (uePositionAlloc);
       uemobilityURLLC.Install (ueNodes.Get (countUe));
-      NS_LOG_INFO ("Node " << countUe << " is uRLLC");
+      NS_LOG_INFO ("Node " << countUe + 1 << " is uRLLC");
     }
 
   // mIoT 
@@ -544,7 +554,7 @@ main (int argc, char *argv[])
       // static mobility m/s
       uemobilitymIoT.SetPositionAllocator (uePositionAlloc);
       uemobilitymIoT.Install (ueNodes.Get (countUe));
-      NS_LOG_INFO ("Node " << countUe << " is mIoT");
+      NS_LOG_INFO ("Node " << countUe + 1 << " is mIoT");
     }
 
   // Install mmWave, lte, mc Devices to the nodes
@@ -588,7 +598,7 @@ main (int argc, char *argv[])
       sinkApp.Add (dlPacketSinkHelper.Install (ueNodes.Get (countUe)));
       UdpClientHelper embbClient (ueIpIface.GetAddress (countUe), 1234);
       embbClient.SetAttribute ("Interval", TimeValue (MicroSeconds (2560))); // 4 Mbit/s
-      embbClient.SetAttribute ("MaxPackets", UintegerValue (UINT32_MAX));
+      embbClient.SetAttribute ("MaxPackets", UintegerValue (0)); // Zero means infinite
       embbClient.SetAttribute ("PacketSize", UintegerValue (1280));
       clientApp.Add (embbClient.Install (remoteHost));
 
@@ -658,7 +668,7 @@ main (int argc, char *argv[])
   double simTime = doubleValue.Get ();
   sinkApp.Start (Seconds (0));
   
-  clientApp.Start (MilliSeconds (30));
+  clientApp.Start (MilliSeconds (50));
   clientApp.Stop (Seconds (simTime));
 
   mmwaveHelper->EnableTraces ();
@@ -695,9 +705,7 @@ main (int argc, char *argv[])
         }
     }
 
-  // Schedule the tracing of the load balancing values with the same indication periodicity to match the timestamps
-  double indicationPeriodicity = eNBDevice->GetE2Periodicity ();
-  
+  // Schedule the tracing of the load balancing values with the same indication periodicity to match the timestamps 
   double nReports = simTime / indicationPeriodicity; // Number of reports
   double scheduleTime;
   for (int i = 1; i <= nReports; ++i)
@@ -708,14 +716,11 @@ main (int argc, char *argv[])
                            loadBalanceFilename, eNBDevice, mmWaveGnbs);
     }
 
-  bool run = true;
-  if (run)
-    {
-      NS_LOG_INFO ("Simulation time is " << simTime + 0.05 << " seconds ");
-      Simulator::Stop (Seconds (simTime + 0.05));
-      Simulator::Run ();
-    }
 
+  double offset = 0.005;
+  NS_LOG_INFO ("Simulation time is " << simTime + offset << " seconds ");
+  Simulator::Stop (Seconds (simTime + offset));
+  Simulator::Run ();
   NS_LOG_INFO (lteHelper);
 
   Simulator::Destroy ();

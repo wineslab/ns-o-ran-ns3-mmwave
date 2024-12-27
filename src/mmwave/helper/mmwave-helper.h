@@ -518,6 +518,7 @@ class MmWaveHelper : public Object
     std::string m_e2ip;
     uint16_t m_e2port;
     uint16_t m_e2localPort;
+    double m_e2Periodicity;
 
     /**
      * This contains all the informations about each LTE component carrier

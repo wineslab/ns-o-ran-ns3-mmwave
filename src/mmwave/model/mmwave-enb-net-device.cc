@@ -512,15 +512,16 @@ MmWaveEnbNetDevice::UpdateConfig(void)
                     m_cuUpFileName = "cu-up-cell-" + std::to_string(m_cellId) + ".txt";
                     std::ofstream csv{};
                     csv.open(m_cuUpFileName.c_str());
-                    csv << "timestamp,ueImsiComplete,DRB.PdcpSduDelayDl (cellAverageLatency),"
-                           "m_pDCPBytesUL (0),"
-                           "m_pDCPBytesDL (cellDlTxVolume),DRB.PdcpSduVolumeDl_Filter.UEID "
-                           "(txBytes),"
-                           "Tot.PdcpSduNbrDl.UEID (txDlPackets),DRB.PdcpSduBitRateDl.UEID "
-                           "(pdcpThroughput),"
-                           "DRB.PdcpSduDelayDl.UEID "
-                           "(pdcpLatency),QosFlow.PdcpPduVolumeDL_Filter.UEID"
-                           "(txPdcpPduBytesNrRlc),DRB.PdcpPduNbrDl.Qos.UEID (txPdcpPduNrRlc)\n";
+                    csv << "timestamp,ueImsiComplete,DRB.PdcpSduDelayDl(cellAverageLatency),"
+                           "m_pDCPBytesUL(0),"
+                           "m_pDCPBytesDL(cellDlTxVolume),"
+                           "DRB.PdcpSduVolumeDl_Filter.UEID(txBytes),"
+                           "Tot.PdcpSduNbrDl.UEID(txDlPackets),"
+                           "DRB.PdcpSduBitRateDl.UEID(pdcpThroughput),"
+                           "DRB.PdcpSduDelayDl.UEID(pdcpLatency),"
+                           "txPdcpPduLteRlc,txPdcpPduBytesLteRlc,"
+                           "QosFlow.PdcpPduVolumeDL_Filter.UEID(txPdcpPduBytesNrRlc),"
+                           "DRB.PdcpPduNbrDl.Qos.UEID (txPdcpPduNrRlc)\n";
                     csv.close();
 
                     m_cuCpFileName = "cu-cp-cell-" + std::to_string(m_cellId) + ".txt";
@@ -670,8 +671,7 @@ MmWaveEnbNetDevice::BuildRicIndicationHeader(std::string plmId,
         headerValues.m_plmId = plmId;
         headerValues.m_gnbId = gnbId;
         headerValues.m_nrCellId = nrCellId;
-        auto time = Simulator::Now();
-        uint64_t timestamp = m_startTime + (uint64_t)time.GetMilliSeconds();
+        uint64_t timestamp = m_startTime + Simulator::Now().GetMilliSeconds();
         NS_LOG_DEBUG("NR plmid " << plmId << " gnbId " << gnbId << " nrCellId " << nrCellId);
         NS_LOG_DEBUG("Timestamp " << timestamp);
         headerValues.m_timestamp = timestamp;
@@ -714,35 +714,83 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
 
         // double rxDlPackets = m_e2PdcpStatsCalculator->GetDlRxPackets(imsi, 3); // LCID 3 is used
         // for data
-        long txDlPackets =
+        uint64_t txDlPackets =
             m_e2PdcpStatsCalculator->GetDlTxPackets(imsi, 3); // LCID 3 is used for data
-        double txBytes =
-            m_e2PdcpStatsCalculator->GetDlTxData(imsi, 3) * 8 / 1e3; // in kbit, not byte
-        double rxBytes =
+        uint64_t txBytes = std::round (
+            m_e2PdcpStatsCalculator->GetDlTxData(imsi, 3) * 8 / 1e3); // in kbit, not byte
+        uint64_t rxBytes =
             m_e2PdcpStatsCalculator->GetDlRxData(imsi, 3) * 8 / 1e3; // in kbit, not byte
         cellDlTxVolume += txBytes;
         cellDlRxVolume += rxBytes;
 
-        long txPdcpPduNrRlc = 0;
-        double txPdcpPduBytesNrRlc = 0;
+        uint64_t txPdcpPduNrRlc = 0;
+        uint64_t txPdcpPduBytesNrRlc = 0;
 
-        auto drbMap = ue.second->GetDrbMap();
-        for (auto drb : drbMap)
-        {
-            txPdcpPduNrRlc += drb.second->m_rlc->GetTxPacketsInReportingPeriod();
-            txPdcpPduBytesNrRlc += drb.second->m_rlc->GetTxBytesInReportingPeriod();
-            drb.second->m_rlc->ResetRlcCounters();
-        }
 
         auto rlcMap = ue.second->GetRlcMap(); // secondary-connected RLCs
+        NS_LOG_INFO("About to get into the RLC map for ue " << std::to_string(imsi) << " size " << rlcMap.size());
+
         for (auto drb : rlcMap)
         {
             txPdcpPduNrRlc += drb.second->m_rlc->GetTxPacketsInReportingPeriod();
             txPdcpPduBytesNrRlc += drb.second->m_rlc->GetTxBytesInReportingPeriod();
+            NS_LOG_INFO("ue id " << std::to_string(imsi) << " txPdcpPduNrRlc " << std::to_string(txPdcpPduNrRlc));
+            NS_LOG_INFO("ue id " << std::to_string(imsi) << " txPdcpPduBytesNrRlc " << std::to_string(txPdcpPduBytesNrRlc));
             drb.second->m_rlc->ResetRlcCounters();
         }
-        txPdcpPduBytesNrRlc *= 8 / 1e3;
+        txPdcpPduBytesNrRlc = std::round (txPdcpPduBytesNrRlc * 8 / 1e3); // in kbit, not byte
 
+        NS_LOG_INFO("txDlPackets (" << txDlPackets << ") vs txPdcpPduNrRlc (" << txPdcpPduNrRlc
+                                    << ") and txBytes (" << txBytes << ") vs txPdcpPduBytesNrRlc ("
+                                    << txPdcpPduBytesNrRlc << ")\n");
+
+        /*
+         * There is a corner case after a handover where the reported NR RLC packets and bytes
+         * exceed the reported cell values from the PDCP. This occurs because RLC buffers are
+         * transferred between cells during the handover, and if this happens during the reset
+         * of an E2 indication periodicity, mismatches can arise.
+         *
+         * For now, we calculate the NR values from the lte enb net device. Here below some
+         * possible solutions on how we address this by ignoring the issue and removing the
+         * additional packet on the RLC. However, a more comprehensive fix could involve one 
+         * of the following approaches:
+         *
+         * 1. Drop traffic at or before the PDCP until the UE reconfiguration is complete, and
+         *    consequently avoid logging these packets.
+         * 2. Move the trace setup to when the bearer (i.e., RLC and PDCP objects) is created,
+         *    and delete the trace if the UE reconfiguration is unsuccessful.
+         * 3. As an alternative (not a fix) for cases where RRC procedures are not of concern,
+         *    use `RrcIdeal`.
+         */
+
+        if (txDlPackets < txPdcpPduNrRlc)
+        {
+        
+            NS_LOG_WARN("ue id " << std::to_string(imsi) << " txDlPackets (" << txDlPackets
+                                      << ") < txPdcpPduNrRlc (" << txPdcpPduNrRlc
+                                      << ") on mmWaveCell");
+
+            // // Corner case: just one packet, we remove it and move forward
+            // if (txDlPackets + 1 == txPdcpPduNrRlc)
+            // {
+            //     NS_LOG_WARN("ue id " << std::to_string(imsi) << " txDlPackets (" << txDlPackets
+            //                           << ") + 1 == txPdcpPduNrRlc (" << txPdcpPduNrRlc
+            //                           << "), removing one packet");
+            //     txPdcpPduNrRlc = txDlPackets;
+            //     txBytes = txPdcpPduBytesNrRlc;
+            // }
+            // else
+            // {
+            //     // Something else is wrong and we need to investigate, launch assert
+            //     NS_ASSERT_MSG(txDlPackets >= txPdcpPduNrRlc && txBytes >= txPdcpPduBytesNrRlc,
+            //                   "txDlPackets (" << txDlPackets << ") < txPdcpPduNrRlc ("
+            //                                   << txPdcpPduNrRlc << ") txBytes (" << txBytes
+            //                                   << ") < txPdcpPduBytesNrRlc (" << txPdcpPduBytesNrRlc
+            //                                   << ")");
+            // }
+        }
+
+        NS_LOG_INFO("ue id " << std::to_string(imsi) << " final txPdcpPduBytesNrRlc after *= 8 / 1e3: " << std::to_string(txPdcpPduBytesNrRlc));
         double pdcpLatency = m_e2PdcpStatsCalculator->GetDlDelay(imsi, 3) / 1e5; // unit: x 0.1 ms
         perUserAverageLatencySum += pdcpLatency;
 
@@ -760,10 +808,15 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
         }
 
         // compute bitrate based on RLC statistics, decoupled from pdcp throughput
-        double rlcLatency = m_e2RlcStatsCalculator->GetDlDelay(imsi, 3) / 1e9; // unit: s
-        double pduStats =
-            m_e2RlcStatsCalculator->GetDlPduSizeStats(imsi, 3)[0] * 8.0 / 1e3; // unit kbit
-        double rlcBitrate = (rlcLatency == 0) ? 0 : pduStats / rlcLatency;     // unit kbit/s
+        double rlcLatencyS = m_e2RlcStatsCalculator->GetDlDelay(imsi, 3);
+        double rlcLatency = rlcLatencyS / 1e9; // unit: s
+        NS_LOG_INFO("rlcLatencyS (" << rlcLatencyS << ") rlcLatency (" << rlcLatency << ")");
+
+        double pduSizeBytes = m_e2RlcStatsCalculator->GetDlPduSizeStats(imsi, 3)[0];
+        double pduSize = pduSizeBytes * 8.0 / 1e3; // unit kbit
+        double rlcBitrate = (rlcLatency == 0) ? 0 : pduSize / rlcLatency;     // unit kbit/s
+        
+        NS_LOG_INFO("pduSizeBytes (" << pduSizeBytes << ") pduSize (" << pduSize << ") rlcBitrate (" << rlcBitrate << ")");
 
         m_drbThrDlUeid[imsi] = rlcBitrate;
 
@@ -784,9 +837,12 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
                                                      txPdcpPduNrRlc);
         }
 
+        // TODO enable this back once the reports are fixed
+        // uePmString.insert(std::make_pair(imsi,
+        //                                  ",,,,,," + std::to_string(txPdcpPduBytesNrRlc) + "," +
+        //                                      std::to_string(txPdcpPduNrRlc)));
         uePmString.insert(std::make_pair(imsi,
-                                         ",,,," + std::to_string(txPdcpPduBytesNrRlc) + "," +
-                                             std::to_string(txPdcpPduNrRlc)));
+                                         ",,,,,,,,,"));
     }
 
     if (!indicationMessageHelper->IsOffline())
@@ -806,14 +862,15 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
             NS_FATAL_ERROR("Can't open file " << m_cuUpFileName.c_str());
         }
 
-        uint64_t timestamp = m_startTime + (uint64_t)Simulator::Now().GetMilliSeconds();
+        uint64_t timestamp = m_startTime + Simulator::Now().GetMilliSeconds();
 
-        // the string is timestamp, ueImsiComplete, DRB.PdcpSduDelayDl (cellAverageLatency),
-        // m_pDCPBytesUL (0), m_pDCPBytesDL (cellDlTxVolume), DRB.PdcpSduVolumeDl_Filter.UEID
-        // (txBytes), Tot.PdcpSduNbrDl.UEID (txDlPackets), DRB.PdcpSduBitRateDl.UEID
-        // (pdcpThroughput), DRB.PdcpSduDelayDl.UEID (pdcpLatency),
-        // QosFlow.PdcpPduVolumeDL_Filter.UEID (txPdcpPduBytesNrRlc), DRB.PdcpPduNbrDl.Qos.UEID
-        // (txPdcpPduNrRlc)
+        // the string is timestamp, ueImsiComplete, DRB.PdcpSduDelayDl(cellAverageLatency),
+        // m_pDCPBytesUL(0),m_pDCPBytesDL(cellDlTxVolume),DRB.PdcpSduVolumeDl_Filter.UEID
+        // (txBytes),Tot.PdcpSduNbrDl.UEID (txDlPackets),
+        // DRB.PdcpSduBitRateDl.UEID(pdcpThroughput),DRB.PdcpSduDelayDl.UEID(pdcpLatency),
+        // txPdcpPduLteRlc,txPdcpPduBytesLteRlc,
+        // QosFlow.PdcpPduVolumeDL_Filter.UEID (txPdcpPduBytesNrRlc),
+        // DRB.PdcpPduNbrDl.Qos.UEID(txPdcpPduNrRlc)
 
         for (auto ue : ueMap)
         {
@@ -923,9 +980,9 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
                                                                     m_cellId,
                                                                     convertedSinr);
         }
-        NS_LOG_DEBUG(Simulator::Now().GetSeconds()
-                     << " enbdev " << m_cellId << " UE " << imsi << " L3 serving SINR "
-                     << sinrThisCell << " L3 serving SINR 3gpp " << convertedSinr);
+        // NS_LOG_DEBUG(Simulator::Now().GetSeconds()
+        //              << " enbdev " << m_cellId << " UE " << imsi << " L3 serving SINR "
+        //              << sinrThisCell << " L3 serving SINR 3gpp " << convertedSinr);
 
         std::string servingStr = std::to_string(numDrb) + "," + std::to_string(0) + "," +
                                  std::to_string(m_cellId) + "," + std::to_string(imsi) + "," +
@@ -1017,7 +1074,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
         // neigh SINR 3gpp (convertedSinr) The values for L3 neighbour cells are repeated for each
         // neighbour (7 times in this implementation)
 
-        uint64_t timestamp = m_startTime + (uint64_t)Simulator::Now().GetMilliSeconds();
+        uint64_t timestamp = m_startTime + Simulator::Now().GetMilliSeconds();
 
         for (auto ue : ueMap)
         {
@@ -1030,7 +1087,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
                                    std::to_string(ueMap.size()) + "," + std::to_string(meanRrcUes) +
                                    "," + uePms + "\n";
 
-            NS_LOG_DEBUG(to_print);
+            // NS_LOG_DEBUG(to_print);
 
             csv << to_print;
         }
@@ -1380,7 +1437,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCe
             NS_FATAL_ERROR("Can't open file " << m_duFileName.c_str());
         }
 
-        uint64_t timestamp = m_startTime + (uint64_t)Simulator::Now().GetMilliSeconds();
+        uint64_t timestamp = m_startTime + Simulator::Now().GetMilliSeconds();
 
         // the string is timestamp, ueImsiComplete, plmId, nrCellId, dlAvailablePrbs,
         // ulAvailablePrbs, qci , dlPrbUsage, ulPrbUsage, /*CellSpecificValues*/, /*

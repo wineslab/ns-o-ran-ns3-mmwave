@@ -85,7 +85,7 @@ NS_OBJECT_ENSURE_REGISTERED(LteEnbNetDevice);
 void
 LteEnbNetDevice::KpmSubscriptionCallback(E2AP_PDU_t* sub_req_pdu)
 {
-    NS_LOG_DEBUG("\nReceived RIC Subscription Request, cellId = " << m_cellId << "\n");
+    NS_LOG_DEBUG("Received RIC Subscription Request, cellId = " << m_cellId);
 
     E2Termination::RicSubscriptionRequest_rval_s params =
         m_e2term->ProcessRicSubscriptionRequest(sub_req_pdu);
@@ -405,11 +405,6 @@ LteEnbNetDevice::GetUeQoS(uint16_t rnti)
         {
             pdcp->GetAttribute("perPckToLTE", percentage);
             ueQoS = percentage.Get();
-            if (ueQoS == -1)
-            { // ueQoS == -1 means that qos is not yet set, but stastically it will distribute with
-              // 50% of possibility, thus we set 0.5
-                return 0.5;
-            }
             return ueQoS;
         }
         else
@@ -429,8 +424,7 @@ LteEnbNetDevice::GetUeQoS(uint64_t imsi)
 void
 LteEnbNetDevice::ControlMessageReceivedCallback(E2AP_PDU_t* sub_req_pdu)
 {
-    NS_LOG_DEBUG(
-        "\n\nLteEnbNetDevice::ControlMessageReceivedCallback: Received RIC Control Message");
+    NS_LOG_DEBUG("LteEnbNetDevice::ControlMessageReceivedCallback: Received RIC Control Message");
 
     Ptr<RicControlMessage> controlMessage = Create<RicControlMessage>(sub_req_pdu);
     NS_LOG_INFO("After RicControlMessage::RicControlMessage constructor");
@@ -959,13 +953,16 @@ LteEnbNetDevice::UpdateConfig(void)
                 m_cuUpFileName = "cu-up-cell-" + std::to_string(m_cellId) + ".txt";
                 std::ofstream csv{};
                 csv.open(m_cuUpFileName.c_str());
-                csv << "timestamp,ueImsiComplete,DRB.PdcpSduDelayDl (cellAverageLatency),"
-                       "m_pDCPBytesUL (0),m_pDCPBytesDL (cellDlTxVolume),"
-                       "DRB.PdcpSduVolumeDl_Filter.UEID (txBytes),"
-                       "Tot.PdcpSduNbrDl.UEID (txDlPackets),DRB.PdcpSduBitRateDl.UEID "
-                       "(pdcpThroughput),"
-                       "DRB.PdcpSduDelayDl.UEID (pdcpLatency),QosFlow.PdcpPduVolumeDL_Filter.UEID"
-                       "(txPdcpPduBytesNrRlc),DRB.PdcpPduNbrDl.Qos.UEID (txPdcpPduNrRlc)\n";
+                csv << "timestamp,ueImsiComplete,DRB.PdcpSduDelayDl(cellAverageLatency),"
+                       "m_pDCPBytesUL(0),"
+                       "m_pDCPBytesDL(cellDlTxVolume),"
+                       "DRB.PdcpSduVolumeDl_Filter.UEID(txBytes),"
+                       "Tot.PdcpSduNbrDl.UEID(txDlPackets),"
+                       "DRB.PdcpSduBitRateDl.UEID(pdcpThroughput),"
+                       "DRB.PdcpSduDelayDl.UEID(pdcpLatency),"
+                       "txPdcpPduLteRlc,txPdcpPduBytesLteRlc,"
+                       "QosFlow.PdcpPduVolumeDL_Filter.UEID(txPdcpPduBytesNrRlc),"
+                       "DRB.PdcpPduNbrDl.Qos.UEID(txPdcpPduNrRlc)\n";
                 csv.close();
 
                 m_cuCpFileName = "cu-cp-cell-" + std::to_string(m_cellId) + ".txt";
@@ -1109,8 +1106,7 @@ LteEnbNetDevice::BuildRicIndicationHeader(std::string plmId, std::string gnbId, 
         headerValues.m_plmId = plmId;
         headerValues.m_gnbId = gnbId;
         headerValues.m_nrCellId = nrCellId;
-        auto time = Simulator::Now();
-        uint64_t timestamp = m_startTime + (uint64_t)time.GetMilliSeconds();
+        uint64_t timestamp = m_startTime + Simulator::Now().GetMilliSeconds();
         NS_LOG_DEBUG("NR plmid " << plmId << " gnbId " << gnbId << " nrCellId " << nrCellId);
         NS_LOG_DEBUG("Timestamp " << timestamp);
         headerValues.m_timestamp = timestamp;
@@ -1136,7 +1132,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
     // get <rnti, UeManager> map of connected UEs
     auto ueMap = m_rrc->GetUeMap();
     // gNB-wide PDCP volume in downlink
-    double cellDlTxVolume = 0;
+    uint64_t cellDlTxVolume = 0; // in kbit
 
     // sum of the per-user average latency
     double perUserAverageLatencySum = 0;
@@ -1148,32 +1144,61 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
         uint64_t imsi = ue.second->GetImsi();
         std::string ueImsiComplete = GetImsiString(imsi);
 
-        uint32_t txDlPackets =
+        uint64_t txDlPackets =
             m_e2PdcpStatsCalculator->GetDlTxPackets(imsi, 3); // LCID 3 is used for data
         uint64_t txBytes =
-            m_e2PdcpStatsCalculator->GetDlTxData(imsi, 3) * 8 / 1e3; // in kbit, not byte
+            std::round (m_e2PdcpStatsCalculator->GetDlTxData(imsi, 3) * 8 / 1e3); // in kbit, not byte
         cellDlTxVolume += txBytes;
 
-        long txPdcpPduLteRlc = 0;
-        double txPdcpPduBytesLteRlc = 0;
+        uint64_t txPdcpPduLteRlc = 0;
+        uint64_t txPdcpPduBytesLteRlc = 0;
         auto drbMap = ue.second->GetDrbMap();
+        NS_LOG_INFO("About to get into the DRB map for ue " << std::to_string(imsi) << " size " << drbMap.size());
+
+        uint64_t txE2DlPduRlc = m_e2RlcStatsCalculator->GetDlTxPackets(imsi, 3);
+        uint64_t txE2DlBytesRlc = std::round( m_e2RlcStatsCalculator->GetDlTxData(imsi, 3) * 8 / 1e3); // in kbit, not byte
+
+        NS_LOG_INFO("ue id " << std::to_string(imsi) << " txE2DlPduRlc " << std::to_string(txE2DlPduRlc));
+        NS_LOG_INFO("ue id " << std::to_string(imsi) << " txE2DlBytesRlc " << std::to_string(txE2DlBytesRlc));
+
         for (auto drb : drbMap)
         {
             txPdcpPduLteRlc += drb.second->m_rlc->GetTxPacketsInReportingPeriod();
             txPdcpPduBytesLteRlc += drb.second->m_rlc->GetTxBytesInReportingPeriod();
+            NS_LOG_INFO("ue id " << std::to_string(imsi) << " txPdcpPduLteRlc " << std::to_string(txPdcpPduLteRlc));
+            NS_LOG_INFO("ue id " << std::to_string(imsi) << " txPdcpPduBytesLteRlc " << std::to_string(txPdcpPduBytesLteRlc));
             drb.second->m_rlc->ResetRlcCounters();
         }
-        auto rlcMap = ue.second->GetRlcMap(); // secondary-connected RLCs
-        for (auto drb : rlcMap)
-        {
-            txPdcpPduLteRlc += drb.second->m_rlc->GetTxPacketsInReportingPeriod();
-            txPdcpPduBytesLteRlc += drb.second->m_rlc->GetTxBytesInReportingPeriod();
-            drb.second->m_rlc->ResetRlcCounters();
-        }
-        txPdcpPduBytesLteRlc *= 8 / 1e3;
 
-        long txPdcpPduNrRlc = std::max(long(0), txDlPackets - txPdcpPduLteRlc);
-        double txPdcpPduBytesNrRlc = std::max(0.0, txBytes - txPdcpPduBytesLteRlc);
+        txPdcpPduBytesLteRlc = std::round(txPdcpPduBytesLteRlc * 8 / 1e3); // in kbit, not byte
+        NS_LOG_INFO("ue id " << std::to_string(imsi) <<" final txPdcpPduBytesLteRlc after *= 8 / 1e3: " << std::to_string(txPdcpPduBytesLteRlc));
+
+        NS_LOG_INFO("txDlPackets (" << txDlPackets << ") vs txPdcpPduLteRlc ("
+                                  << txPdcpPduLteRlc << ") and txBytes (" << txBytes << ") vs txPdcpPduBytesLteRlc (" << txPdcpPduBytesLteRlc
+                                  << ")\n");
+
+        /**
+         * The assert below can be triggered in one cell scenario if the UE has not connected yet to
+         * the RLC and the traffic from application layer started. To fix this move the start of the
+         * traffic later. If there are more than one LteNetDevice, the handover between cel handover
+         * where the reported NR RLC packets and bytes exceed the reported cell values from the
+         * PDCP. This occurs because RLC buffers are transferred between cells during the handover,
+         * and if this happens during the reset of an E2 indication periodicity, mismatches can
+         * arise.
+         */
+
+        NS_ASSERT_MSG(txBytes >= txPdcpPduBytesLteRlc && txDlPackets >= txPdcpPduLteRlc,
+                      "txBytes (" << txBytes << ") < txPdcpPduBytesLteRlc (" << txPdcpPduBytesLteRlc
+                                  << ") txDlPackets (" << txDlPackets << ") < txPdcpPduLteRlc ("
+                                  << txPdcpPduLteRlc << ")");
+
+        uint64_t txPdcpPduNrRlc = std::max(static_cast<uint64_t>(0), txDlPackets - txPdcpPduLteRlc);
+        double txPdcpPduBytesNrRlc = std::max(static_cast<uint64_t>(0), txBytes - txPdcpPduBytesLteRlc);
+
+        NS_LOG_INFO("ue id " << std::to_string(imsi) 
+                    << " According to LTE, txPdcpPduNrRlc " << std::to_string(txPdcpPduNrRlc) 
+                    <<  " txPdcpPduBytesNrRlc " << std::to_string(txPdcpPduBytesNrRlc)
+        );
 
         double pdcpLatency = m_e2PdcpStatsCalculator->GetDlDelay(imsi, 3) / 1e5; // unit: x 0.1 ms
         perUserAverageLatencySum += pdcpLatency;
@@ -1181,10 +1206,14 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
         double pdcpThroughput = txBytes / m_e2Periodicity; // unit kbps
 
         NS_LOG_DEBUG(Simulator::Now().GetSeconds()
-                     << " " << std::to_string(m_cellId) << " cell, connected UE with IMSI " << imsi
+                     << " " << std::to_string(m_cellId) << " cell, connected UE with IMSI " << std::to_string(imsi)
                      << " ueImsiString " << ueImsiComplete << " txDlPackets " << txDlPackets
-                     << " txDlPacketsNr " << txPdcpPduNrRlc << " txBytes " << txBytes
-                     << " txDlBytesNr " << txPdcpPduBytesNrRlc << " pdcpLatency " << pdcpLatency
+                     << " txPdcpPduNrRlc " << txPdcpPduNrRlc 
+                     << " txBytes " << txBytes
+                     << " txPdcpPduLteRlc " << txPdcpPduLteRlc
+                     << " txPdcpPduBytesLteRlc " << txPdcpPduBytesLteRlc
+                     << " txPdcpPduBytesNrRlc " << txPdcpPduBytesNrRlc 
+                     << " pdcpLatency " << pdcpLatency
                      << " pdcpThroughput " << pdcpThroughput);
 
         m_e2PdcpStatsCalculator->ResetResultsForImsiLcid(imsi, 3);
@@ -1198,10 +1227,14 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
                                                      pdcpLatency);
         }
 
-        uePmString.insert(
-            std::make_pair(imsi,
-                           std::to_string(txBytes) + "," + std::to_string(txDlPackets) + "," +
-                               std::to_string(pdcpThroughput) + "," + std::to_string(pdcpLatency)));
+        // We include here the NR RLC PDU and Bytes even though it is LTE since they traces are not working properly
+        // To remove them from the report, remove last two elements keeping commas
+        uePmString.insert(std::make_pair(
+            imsi,
+            std::to_string(txBytes) + "," + std::to_string(txDlPackets) + "," +
+                std::to_string(pdcpThroughput) + "," + std::to_string(pdcpLatency) + "," + 
+                std::to_string(txPdcpPduLteRlc) + "," + std::to_string(txPdcpPduBytesLteRlc)
+                + "," + std::to_string(txPdcpPduBytesNrRlc)+ "," + std::to_string(txPdcpPduNrRlc)));
     }
 
     // get average cell latency
@@ -1228,7 +1261,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
     }
 
     NS_LOG_DEBUG(Simulator::Now().GetSeconds()
-                 << " " << std::to_string(m_cellId) << " cell volume Lte" << cellDlTxVolume);
+                 << " " << std::to_string(m_cellId) << " cell volume Lte " << cellDlTxVolume);
 
     if (m_forceE2FileLogging)
     {
@@ -1239,14 +1272,15 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
             NS_FATAL_ERROR("Can't open file " << m_cuUpFileName.c_str());
         }
 
-        uint64_t timestamp = m_startTime + (uint64_t)Simulator::Now().GetMilliSeconds();
+        uint64_t timestamp = m_startTime + Simulator::Now().GetMilliSeconds();
 
-        // the string is timestamp,ueImsiComplete,DRB.PdcpSduDelayDl (cellAverageLatency),
-        // m_pDCPBytesUL (0),m_pDCPBytesDL (cellDlTxVolume),DRB.PdcpSduVolumeDl_Filter.UEID
-        // (txBytes), Tot.PdcpSduNbrDl.UEID (txDlPackets),DRB.PdcpSduBitRateDl.UEID
-        // (pdcpThroughput), DRB.PdcpSduDelayDl.UEID
-        // (pdcpLatency),QosFlow.PdcpPduVolumeDL_Filter.UEID (txPdcpPduBytesNrRlc),
-        // DRB.PdcpPduNbrDl.Qos.UEID (txPdcpPduNrRlc)
+        // the string is timestamp,ueImsiComplete,DRB.PdcpSduDelayDl(cellAverageLatency),
+        // m_pDCPBytesUL(0),m_pDCPBytesDL(cellDlTxVolume),DRB.PdcpSduVolumeDl_Filter.UEID
+        // (txBytes),Tot.PdcpSduNbrDl.UEID (txDlPackets), 
+        // DRB.PdcpSduBitRateDl.UEID(pdcpThroughput),DRB.PdcpSduDelayDl.UEID(pdcpLatency), 
+        // txPdcpPduLteRlc,txPdcpPduBytesLteRlc,
+        // QosFlow.PdcpPduVolumeDL_Filter.UEID(txPdcpPduBytesNrRlc),
+        // DRB.PdcpPduNbrDl.Qos.UEID(txPdcpPduNrRlc)
 
         // the last two are not available on LTE
         for (auto ue : ueMap)
@@ -1258,7 +1292,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuUp(std::string plmId)
 
             std::string to_print = std::to_string(timestamp) + "," + ueImsiComplete + "," +
                                    std::to_string(cellAverageLatency) + "," + std::to_string(0) +
-                                   "," + std::to_string(cellDlTxVolume) + "," + uePms + ",,\n";
+                                   "," + std::to_string(cellDlTxVolume) + "," + uePms + "\n"; 
 
             csv << to_print;
         }
@@ -1345,7 +1379,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
         // the string is timestamp, ueImsiComplete, numActiveUes, RRC.ConnMean,
         // DRB.EstabSucc.5QI.UEID (numDrb), DRB.RelActNbr.5QI.UEID (0)
 
-        uint64_t timestamp = m_startTime + (uint64_t)Simulator::Now().GetMilliSeconds();
+        uint64_t timestamp = m_startTime + Simulator::Now().GetMilliSeconds();
 
         for (auto ue : ueMap)
         {
@@ -1364,7 +1398,7 @@ LteEnbNetDevice::BuildRicIndicationMessageCuCp(std::string plmId)
                 "," + std::to_string(meanRrcUes)+ "," + uePms + "," + std::to_string(m_cellId) + "," +
                 std::to_string(sinrThisCell) + "," + std::to_string(convertedSinr) + "\n";
 
-            NS_LOG_DEBUG(to_print);
+            // NS_LOG_DEBUG(to_print);
 
             csv << to_print;
         }

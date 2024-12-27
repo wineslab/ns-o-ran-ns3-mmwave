@@ -245,8 +245,8 @@ class MmWaveEnbNetDevice : public MmWaveNetDevice
     void RegisterNewSinrReading(uint64_t imsi, uint16_t cellId, long double sinr);
     std::map<uint64_t, std::map<uint16_t, long double>> m_l3sinrMap;
     uint64_t m_startTime;
-    std::map<uint64_t, uint32_t> m_drbThrDlPdcpBasedComputationUeid;
-    std::map<uint64_t, uint32_t> m_drbThrDlUeid;
+    std::map<uint64_t, double> m_drbThrDlPdcpBasedComputationUeid;
+    std::map<uint64_t, double> m_drbThrDlUeid;
     bool m_isReportingEnabled; //! true is KPM reporting cycle is active, false otherwise
     bool m_reducedPmValues;    //< if true use a reduced subset of pmvalues
 

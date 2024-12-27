@@ -379,7 +379,7 @@ LteRlcAm::DoNotifyTxOpportunity(LteMacSapUser::TxOpportunityParameters txOpParam
         }
         NS_LOG_LOGIC("SN at end of NACK loop = " << sn);
         // 3GPP TS 36.322 section 6.2.2.1.4 ACK SN
-        // find the  SN of the next not received RLC Data PDU
+        // find the SN of the next not received RLC Data PDU
         // which is not reported as missing in the STATUS PDU.
         pduIt = m_rxonBuffer.find(sn.GetValue());
         while ((sn < m_vrMs) && (pduIt != m_rxonBuffer.end()) && (pduIt->second.m_pduComplete))

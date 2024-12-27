@@ -25,8 +25,11 @@
  *                         Russell Ford <russell.ford@nyu.edu>
  *                         Menglei Zhang <menglei@nyu.edu>
  *
- * Modified by: Michele Polese <michele.polese@gmail.com>
+ *   Modified by: Michele Polese <michele.polese@gmail.com>
  *                Dual Connectivity and Handover functionalities
+ *                Integration of E2 interface traces for ns-O-RAN
+ *   Modified by: Andrea Lacava <thecave003@gmail.com>
+ *                Integration of E2 interface traces for ns-O-RAN
  */
 
 #include "mmwave-bearer-stats-calculator.h"
@@ -580,8 +583,12 @@ void
 MmWaveBearerStatsCalculator::EndEpoch(void)
 {
     NS_LOG_FUNCTION(this);
+    if (m_protocolType.compare(0, 2, "E2") != 0)
+    {
+        // The reset of the internal counters for E2 traces is done by the enb net devices.
+        ResetResults();
+    }
     ShowResults();
-    ResetResults();
     m_startTime += m_epochDuration;
     m_endEpochEvent =
         Simulator::Schedule(m_epochDuration, &MmWaveBearerStatsCalculator::EndEpoch, this);

@@ -93,8 +93,10 @@ RlcAmBufferSize.txt
 LteUlSinrStats.txt
 path.txt
 QoSLoadBalancing.txt
+UeFailures.txt
 *.csv
 *.zip
 stderr
 *.out
 *.xml
+output.txt

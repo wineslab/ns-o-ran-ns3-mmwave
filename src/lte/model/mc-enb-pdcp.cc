@@ -76,7 +76,7 @@ McEnbPdcp::McEnbPdcp()
       m_txSequenceNumber(0),
       m_rxSequenceNumber(0),
       m_useMmWaveConnection(false),
-      m_perPckToLTE(-1)
+      m_perPckToLTE(0.5)
 {
     NS_LOG_FUNCTION(this);
     m_pdcpSapProvider = new LtePdcpSpecificLtePdcpSapProvider<McEnbPdcp>(this);
@@ -108,10 +108,10 @@ McEnbPdcp::GetTypeId(void)
                             "ns3::McEnbPdcp::PduRxTracedCallback")
             .AddAttribute("perPckToLTE",
                           "Percentage of packets to be directed to LTE. Used to perform traffic "
-                          "split. If set to -1 the traffic split will be not performed",
-                          DoubleValue(-1),
+                          "split. Default is 0.5, meaning half of the traffic of the LTE carrier.",
+                          DoubleValue(0.5),
                           MakeDoubleAccessor(&McEnbPdcp::m_perPckToLTE),
-                          MakeDoubleChecker<double>(-1, 1.0));
+                          MakeDoubleChecker<double>(0.0, 1.0));
     return tid;
 }
 
@@ -262,22 +262,32 @@ McEnbPdcp::DoTransmitPdcpSdu(Ptr<Packet> p)
     params.rnti = m_rnti;
     params.lcid = m_lcid;
     double rndValue = m_uniformRNG->GetValue();
-    NS_LOG_INFO(this << " McEnbPdcp: rndValue is " << rndValue << " , m_perPckToLTE is "
+    NS_LOG_INFO(this << " rndValue is " << rndValue << " , m_perPckToLTE is "
                      << m_perPckToLTE);
+    /**
+     * When there is a switch due to outage or handover, and RLC AM is being used, the buffers of
+     * RLC are forwarded from one cell to the other. According to LteEnbRrc:ForwardRlcBuffers, they
+     * go back into PDCP and a new decision on the split is taken. This corner case is fine if
+     * happens in the same E2 indication periodicity if the ns-O-RAN integration is active,
+     * otherwise the control action set for these PDUs may be not fully reflected.
+     */
 
     if (m_useMmWaveConnection)
     {
         if (m_epcX2PdcpProvider == 0 || rndValue <= m_perPckToLTE)
         {
+            NS_LOG_INFO(this << " use LTE carrier ");
             DoTransmitPdcpSduLTE(p, params);
         }
         else
         {
+            NS_LOG_INFO(this << " use NR carrier ");
             DoTransmitPdcpSduMmWave(p);
         }
     }
     else
     {
+        NS_LOG_INFO(this << " m_useMmWaveConnection is false, use LTE carrier ");
         DoTransmitPdcpSduLTE(p, params);
     }
 }

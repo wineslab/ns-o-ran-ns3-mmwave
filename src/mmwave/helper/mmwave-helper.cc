@@ -27,9 +27,15 @@
  *
  * Modified by: Michele Polese <michele.polese@gmail.com>
  *                 Dual Connectivity and Handover functionalities
+ *                 Integration of ns-O-RAN
  *
  * Modified by: Tommaso Zugno <tommasozugno@gmail.com>
  *                Integration of Carrier Aggregation
+ *                Integration of ns-O-RAN
+ * 
+ * Modified by: Andrea Lacava <thecave003@gmail.com>
+ *                Integration of ns-O-RAN
+ * 
  */
 
 #include "mmwave-helper.h"
@@ -62,7 +68,7 @@
 #include <ns3/uinteger.h>
 #include <ns3/uniform-planar-array.h>
 
-#include <ctime>
+#include <chrono>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -298,7 +304,12 @@ MmWaveHelper::GetTypeId(void)
                           "The first port number for the local bind",
                           UintegerValue(38470),
                           MakeUintegerAccessor(&MmWaveHelper::m_e2localPort),
-                          MakeUintegerChecker<uint16_t>());
+                          MakeUintegerChecker<uint16_t>())
+            .AddAttribute("E2Periodicity",
+                          "Periodicity of E2 reporting (value in seconds)",
+                          DoubleValue(0.1),
+                          MakeDoubleAccessor(&MmWaveHelper::m_e2Periodicity),
+                          MakeDoubleChecker<double>());
 
     return tid;
 }
@@ -2189,7 +2200,7 @@ MmWaveHelper::InstallSingleEnbDevice(Ptr<Node> n)
             CreateObject<E2Termination>(m_e2ip, m_e2port, local_port, gnb_id, plmnId);
 
         device->SetAttribute("E2Termination", PointerValue(e2term));
-
+        device->SetAttribute("E2Periodicity", DoubleValue(m_e2Periodicity));
         EnableE2PdcpTraces();
         EnableE2RlcTraces();
         device->SetAttribute("E2PdcpCalculator", PointerValue(m_e2PdcpStats));
@@ -2499,7 +2510,7 @@ MmWaveHelper::InstallSingleLteEnbDevice(Ptr<Node> n)
             CreateObject<E2Termination>(m_e2ip, m_e2port, local_port, enb_id, plmnId);
 
         dev->SetAttribute("E2Termination", PointerValue(e2term));
-
+        dev->SetAttribute("E2Periodicity", DoubleValue(m_e2Periodicity));
         EnableE2PdcpTraces();
         EnableE2RlcTraces();
         dev->SetAttribute("E2PdcpCalculator", PointerValue(m_e2PdcpStatsLte));
@@ -3177,13 +3188,13 @@ MmWaveHelper::EnableE2PdcpTraces(void)
         m_e2PdcpStats = CreateObject<MmWaveBearerStatsCalculator>("E2PDCP");
         m_e2PdcpStats->SetAttribute("DlPdcpOutputFilename", StringValue("DlE2PdcpStats.txt"));
         m_e2PdcpStats->SetAttribute("UlPdcpOutputFilename", StringValue("UlE2PdcpStats.txt"));
-        m_e2PdcpStats->SetAttribute("EpochDuration", TimeValue(Seconds(1)));
+        m_e2PdcpStats->SetAttribute("EpochDuration", TimeValue(Seconds(m_e2Periodicity)));
         m_radioBearerStatsConnector->EnableE2PdcpStats(m_e2PdcpStats);
 
         m_e2PdcpStatsLte = CreateObject<MmWaveBearerStatsCalculator>("E2PDCPLTE");
         m_e2PdcpStatsLte->SetAttribute("DlPdcpOutputFilename", StringValue("DlE2PdcpStatsLte.txt"));
         m_e2PdcpStatsLte->SetAttribute("UlPdcpOutputFilename", StringValue("UlE2PdcpStatsLte.txt"));
-        m_e2PdcpStatsLte->SetAttribute("EpochDuration", TimeValue(Seconds(1)));
+        m_e2PdcpStatsLte->SetAttribute("EpochDuration", TimeValue(Seconds(m_e2Periodicity)));
         m_radioBearerStatsConnector->EnableE2PdcpStats(m_e2PdcpStatsLte);
     }
     else
@@ -3207,13 +3218,13 @@ MmWaveHelper::EnableE2RlcTraces(void)
         m_e2RlcStats = CreateObject<MmWaveBearerStatsCalculator>("E2RLC");
         m_e2RlcStats->SetAttribute("DlPdcpOutputFilename", StringValue("DlE2RlcStats.txt"));
         m_e2RlcStats->SetAttribute("UlPdcpOutputFilename", StringValue("UlE2RlcStats.txt"));
-        m_e2RlcStats->SetAttribute("EpochDuration", TimeValue(Seconds(1)));
+        m_e2RlcStats->SetAttribute("EpochDuration", TimeValue(Seconds(m_e2Periodicity)));
         m_radioBearerStatsConnector->EnableE2RlcStats(m_e2RlcStats);
 
         m_e2RlcStatsLte = CreateObject<MmWaveBearerStatsCalculator>("E2RLCLTE");
         m_e2RlcStatsLte->SetAttribute("DlPdcpOutputFilename", StringValue("DlE2RlcStatsLte.txt"));
         m_e2RlcStatsLte->SetAttribute("UlPdcpOutputFilename", StringValue("UlE2RlcStatsLte.txt"));
-        m_e2RlcStatsLte->SetAttribute("EpochDuration", TimeValue(Seconds(1)));
+        m_e2RlcStatsLte->SetAttribute("EpochDuration", TimeValue(Seconds(m_e2Periodicity)));
         m_radioBearerStatsConnector->EnableE2RlcStats(m_e2RlcStatsLte);
     }
     else
@@ -3288,13 +3299,9 @@ MmWaveHelper::SetUeComponentCarrierManagerType(std::string type)
 uint64_t
 MmWaveHelper::GetStartTime()
 {
-    struct timeval time_now
-    {
-    };
-
-    gettimeofday(&time_now, nullptr);
-
-    return (time_now.tv_sec * 1000) + (time_now.tv_usec / 1000);
+    auto time_now = std::chrono::system_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(time_now.time_since_epoch());
+    return duration.count();
 }
 } // namespace mmwave
 } // namespace ns3

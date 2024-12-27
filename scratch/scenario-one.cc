@@ -355,6 +355,7 @@ main (int argc, char *argv[])
 
   Config::SetDefault ("ns3::MmWaveHelper::E2ModeLte", BooleanValue(e2lteEnabled));
   Config::SetDefault ("ns3::MmWaveHelper::E2ModeNr", BooleanValue(e2nrEnabled));
+  Config::SetDefault ("ns3::MmWaveHelper::E2Periodicity", DoubleValue (indicationPeriodicity));
   
   // The DU PM reports should come from both NR gNB as well as LTE eNB, 
   // since in the RLC/MAC/PHY entities are present in BOTH NR gNB as well as LTE eNB.

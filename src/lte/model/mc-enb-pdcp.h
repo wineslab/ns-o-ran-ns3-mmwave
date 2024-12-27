@@ -234,12 +234,19 @@ class McEnbPdcp : public LtePdcp
      */
     static const uint16_t m_maxPdcpSn = 4095;
 
+    /**
+     * Boolean variable that indicates whether a mmWave connection is available for use. This variable is
+     * normally true when a UE is connected to a secondary cell, except when there is a UE outage
+     * or when the simulation is at the beginning and a secondary connection has not yet been
+     * started. When this is the case, the traffic flows exclusively on the LTE carrier.
+     */
     bool m_useMmWaveConnection;
 
     /**
      * Percentage of packets to be directed to LTE.
-     * Used to perform traffic split.
-     *
+     * Used to perform PDCP traffic split and load balancing.
+     * Default value is 0.5, meaning half of the traffic would statistically flow through LTE, half to the NR carrier.
+     * If no NR carrier is available, then all the traffic will go through LTE.
      */
     double m_perPckToLTE;
 
