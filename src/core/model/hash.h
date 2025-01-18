@@ -29,6 +29,7 @@
 #include "hash-function.h"
 #include "hash-murmur3.h"
 #include "hash-fnv.h"
+#include <limits>
 
 /**
  * \file

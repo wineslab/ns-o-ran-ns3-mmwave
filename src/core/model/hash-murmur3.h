@@ -22,6 +22,7 @@
 #define HASH_MURMUR3_H
 
 #include "hash-function.h"
+#include <limits>
 
 /**
  * \file

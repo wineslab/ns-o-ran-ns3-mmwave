@@ -155,7 +155,7 @@ static ns3::GlobalValue g_e2cuCp ("e2cuCp", "If true, send CU-CP reports", ns3::
                                   ns3::MakeBooleanChecker ());
 
 static ns3::GlobalValue g_reducedPmValues ("reducedPmValues", "If true, use a subset of the the pm containers",
-                                        ns3::BooleanValue (true), ns3::MakeBooleanChecker ());
+                                        ns3::BooleanValue (false), ns3::MakeBooleanChecker ());
 
 static ns3::GlobalValue
     g_hoSinrDifference ("hoSinrDifference",
@@ -204,18 +204,8 @@ int
 main (int argc, char *argv[])
 {
   LogComponentEnableAll (LOG_PREFIX_ALL);
-  //  LogComponentEnable ("RicControlMessage", LOG_LEVEL_ALL);
-  //  LogComponentEnable ("KpmIndication", LOG_LEVEL_DEBUG);
-   LogComponentEnable ("KpmIndication", LOG_LEVEL_INFO);
-
-  // LogComponentEnable ("Asn1Types", LOG_LEVEL_LOGIC);
-//   LogComponentEnable ("E2Termination", LOG_LEVEL_LOGIC);
-   LogComponentEnable ("E2Termination", LOG_LEVEL_DEBUG);
-
-  // LogComponentEnable ("LteEnbNetDevice", LOG_LEVEL_ALL);
-  // LogComponentEnable ("MmWaveEnbNetDevice", LOG_LEVEL_ALL);
-  // LogComponentEnable("MmWaveHelper", LOG_LEVEL_ALL);
-  // LogComponentEnable("MmWaveEnbPhy", LOG_LEVEL_ALL);
+   LogComponentEnable ("KpmIndication", LOG_LEVEL_DEBUG);
+   LogComponentEnable ("MmWaveEnbNetDevice", LOG_LEVEL_DEBUG);
 
   // The maximum X coordinate of the scenario
 
@@ -366,10 +356,10 @@ main (int argc, char *argv[])
   Ptr<MmWavePointToPointEpcHelper> epcHelper = CreateObject<MmWavePointToPointEpcHelper> ();
   mmwaveHelper->SetEpcHelper (epcHelper);
 
-  uint8_t nMmWaveEnbNodes = 0;
-  uint8_t nLteEnbNodes = 6;
-  uint32_t ues = 3;
-  uint8_t nUeNodes = ues * nMmWaveEnbNodes;
+  uint8_t nMmWaveEnbNodes = 3;
+  uint8_t nLteEnbNodes = 1;
+  uint32_t ues = 5;
+  uint8_t nUeNodes = ues; //* nMmWaveEnbNodes;
   //uint8_t nUeNodes = 1;
   NS_LOG_INFO (" Bandwidth " << bandwidth << " centerFrequency " << double (centerFrequency)
                              << " isd " << isd << " numAntennasMcUe " << numAntennasMcUe
