@@ -1,3 +1,40 @@
+# ns3-mmwave fork for ns-O-RAN
+
+================================
+
+This repository is a fork of the [ns3-mmwave project](https://github.com/nyuwireless-unipd/ns3-mmwave) with updates to make it work with the [ns3-o-ran-e2](https://github.com/o-ran-sc/sim-ns3-o-ran-e2) ns-3 module.
+
+This module enables the support for running multiple terminations of an O-RAN-compliant E2 interface inside the simulation process. It has been developed as part of a collaborative effort between the [Institute for the Wireless Internet of Things (WIoT)](https://wiot.northeastern.edu) at Northeastern University, Sapienza University of Rome, Mavenir, and the University of Padova.
+
+## How to use
+
+Please refer to this [quick start guide](https://openrangym.com/tutorials/ns-o-ran) that presents a tutorial to bridge ns-O-RAN and Colosseum RIC (i.e., OSC RIC bronze reduced) ns-O-RAN.
+
+Additional material:
+
+- Framework presentation https://openrangym.com/ran-frameworks/ns-o-ran 
+- Tutorial OSC RIC version E ns-O-RAN connection  https://www.nsnam.org/tutorials/consortium23/oran-tutorial-slides-wns3-2023.pdf 
+- Recording of the tutorial OSC RIC version E done at the WNS3 2023 https://vimeo.com/867704832 
+- xApp repositories working with ns-O-RAN:
+  - https://github.com/wineslab/ns-o-ran-scp-ric-app-kpimon 
+  - https://github.com/wineslab/ns-o-ran-xapp-rc 
+- Gymnasium Environment wrapper for ns-O-RAN https://github.com/wineslab/ns-o-ran-gym-environment
+
+## How to contribute
+
+See the [contributing](./CONTRIBUTING.md) page.
+
+## References
+
+More information can be found in the technical paper:
+
+> A. Lacava, M. Bordin, M. Polese, R. Sivaraj, T. Zugno, F. Cuomo, and T. Melodia. "ns-O-RAN: Simulating O-RAN 5G Systems in ns-3", Proceedings of the 2023 Workshop on ns-3 (2023), [DOI:10.1145/3592149.3592161](https://dl.acm.org/doi/abs/10.1145/3592149.3592161) 
+
+If you use the scenario-one.cc or the traffic steering implementation please cite:
+
+>A. Lacava, M. Polese, R. Sivaraj, R. Soundrarajan, B. Bhati, T. Singh, T. Zugno, F. Cuomo, and T. Melodia. "Programmable and Customized Intelligence for Traffic Steering in 5G Networks Using Open RAN Architectures", IEEE Transactions on Mobile Computing (2024), [DOI:10.1109/TMC.2023.3266642](https://doi.org/10.1109/TMC.2023.3266642) [pdf](https://ieeexplore.ieee.org/document/10102369) [bibtex](https://ece.northeastern.edu/wineslab/wines_bibtex/andrea/LacavaAMC22.txt)
+
+
 # mmWave ns-3 module #
 
 This is an [ns-3](https://www.nsnam.org "ns-3 Website") module for the simulation

@@ -31,27 +31,7 @@ The following is a set of guidelines for contributing to ns-3, which are hosted 
 * If you want to open an issue about ns-o-ran open it in this repositiory under the appropriate section.
   * Before opening an issue double check that does not already exists and it is not already answered.
 * Questions:
-  * Send your question to lacava.a@northeastern.edu , bordin.m@northeastern.edu , polese.m@northeastern.edu
-
-
-## I do not want to read this whole thing, I just have a question
-
-> **Note:** Please don't file an issue to ask a question.
-            You'll get faster results by using the resources below.
-
-We have an official message board where the community chimes in with helpful advice if you have questions.
-
-* [ns-3-users, the official ns-3 message board](https://groups.google.com/forum/#!forum/ns-3-users)
-* [ns-3 manual](https://www.nsnam.org/docs/manual/html/index.html)
-
-If chat is more your speed, you can join the ns-3 Zulip channel:
-
-* [Join the ns-3 Zulip chat](https://ns-3.zulipchat.com/)
-  * Even though Zulip is a chat service, sometimes it takes several hours
-      for community members to respond &mdash; please be patient!
-  * Use the `#general` channel for general questions or discussion about ns-3
-  * Use the `#GSoC` channel for questions about GSoC
-  * There are many other channels available, check the channel list
+  * Send your question to lacava.a@northeastern.edu, bordin.m@northeastern.edu, polese.m@northeastern.edu
 
 ## What should I know before I get started?
 
