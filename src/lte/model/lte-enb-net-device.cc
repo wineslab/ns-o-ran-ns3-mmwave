@@ -23,6 +23,14 @@
  *
  * Modified by: Michele Polese <michele.polese@gmail.com>
  *          Dual Connectivity functionalities
+ *          Integration of ns-O-RAN
+ *
+ * Modified by: Tommaso Zugno <tommasozugno@gmail.com>
+ *                Integration of ns-O-RAN
+ * 
+ * Modified by: Andrea Lacava <thecave003@gmail.com>
+ *                Integration of ns-O-RAN
+ *                ns-O-RAN semaphore logic
  */
 
 #include "encode_e2apv1.hpp"
@@ -130,6 +138,7 @@ LteEnbNetDevice::ReadControlFile()
             NS_ABORT_MSG_IF(metricsReadySemaphore == SEM_FAILED,
                             "Error in opening the metrics semaphore, errno: " << strerror(errno));
 
+            // Signal that metrics are ready
             if (sem_post(metricsReadySemaphore) == -1)
             {
                 NS_FATAL_ERROR("Error post named metrics semaphore: " << strerror(errno));
@@ -144,7 +153,7 @@ LteEnbNetDevice::ReadControlFile()
 
             if (sem_wait(controlSemaphore) == -1)
             {
-                NS_FATAL_ERROR("Error wait control mutex semaphore: " << strerror(errno));
+                NS_FATAL_ERROR("Error wait control control semaphore: " << strerror(errno));
             }
 
             sem_close(controlSemaphore);
@@ -1000,6 +1009,7 @@ LteEnbNetDevice::UpdateConfig(void)
                                 << m_metricsReadySemaphoreName.c_str());
                     NS_LOG_INFO("Name of semaphore for control is "
                                 << m_controlSemaphoreName.c_str());
+                                
                     // Ensure semaphores are created
                     int initial_count = 0;
                     sem_t* metricsReadySemaphore = sem_open(m_metricsReadySemaphoreName.c_str(),
