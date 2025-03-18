@@ -250,6 +250,10 @@ static ns3::GlobalValue g_indicationPeriodicity ("indicationPeriodicity", "E2 In
 int
 main (int argc, char *argv[])
 {
+
+  // std::freopen("stdout.txt", "a", stdout);
+  // std::freopen("stderr.txt", "a", stderr);
+
   LogComponentEnableAll (LOG_PREFIX_ALL);
   LogComponentEnable ("ScenarioTwo", LOG_LEVEL_INFO);
   LogComponentEnable ("LteEnbNetDevice", LOG_LEVEL_INFO);

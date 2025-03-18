@@ -4,10 +4,10 @@
 
 echo "Quality of Service use case"
 simTime=1.1 # simulation time
-configuration=1 # 0: NR carrier at 850 MHz, low traffic | 1: NR carrier at 3.5 GHz, low traffic | 2: NR carrier at 28 GHz, high traffic
+configuration=0 # 0: NR carrier at 850 MHz, low traffic | 1: NR carrier at 3.5 GHz, low traffic | 2: NR carrier at 28 GHz, high traffic
 PercUEeMBB=0.4
 PercUEURLLC=0.3
-ues=10 # Number of UEs for each mmWave ENB
+ues=1 # Number of UEs for each mmWave ENB
 useSemaphores=0
 controlFileName="" # QoS control file path
 

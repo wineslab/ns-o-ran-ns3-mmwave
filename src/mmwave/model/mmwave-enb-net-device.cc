@@ -582,7 +582,7 @@ MmWaveEnbNetDevice::UpdateConfig(void)
                         "L1M.RS-SINR.Bin46.UEID,"
                         "L1M.RS-SINR.Bin58.UEID,L1M.RS-SINR.Bin70.UEID,L1M.RS-SINR.Bin82.UEID,"
                         "L1M.RS-SINR.Bin94.UEID,L1M.RS-SINR.Bin127.UEID,DRB.BufferSize.Qos.UEID,"
-                        "DRB.UEThpDl.UEID, DRB.UEThpDlPdcpBased.UEID";
+                        "DRB.UEThpDl.UEID,DRB.UEThpDlPdcpBased.UEID";
 
                     csv << header_csv + "," + cell_header + "," + ue_header + "\n";
                     csv.close();
@@ -1486,7 +1486,7 @@ MmWaveEnbNetDevice::BuildRicIndicationMessageDu(std::string plmId, uint16_t nrCe
           CARR.PDSCHMCSDist.Bin6.UEID, L1M.RS-SINR.Bin34.UEID, L1M.RS-SINR.Bin46.UEID,
           L1M.RS-SINR.Bin58.UEID, L1M.RS-SINR.Bin70.UEID, L1M.RS-SINR.Bin82.UEID,
           L1M.RS-SINR.Bin94.UEID, L1M.RS-SINR.Bin127.UEID, DRB.BufferSize.Qos.UEID,
-          DRB.UEThpDl.UEID, DRB.UEThpDlPdcpBased.UEID
+          DRB.UEThpDl.UEID,DRB.UEThpDlPdcpBased.UEID
         */
 
         for (auto ue : ueMap)
